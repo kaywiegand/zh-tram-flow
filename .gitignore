@@ -1,0 +1,55 @@
+# .gitignore – Python / Data Science (uv + venv)
+# ------------------------------------------------
+# WICHTIG: Daten und Modelle NICHT in Git einchecken!
+# uv.lock wird NICHT ignoriert – Lockfile gehört in Git!
+
+# ── Daten ──────────────────────────────────────────────────────────────────
+data/raw/
+data/interim/
+data/processed/
+*.csv
+*.xlsx
+*.parquet
+*.feather
+*.h5
+*.hdf5
+
+# ── Modelle & Artefakte ────────────────────────────────────────────────────
+models/
+*.pkl
+*.joblib
+*.pt
+*.pth
+
+# ── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.so
+
+# ── Virtuelle Umgebung (uv erstellt .venv/) ────────────────────────────────
+.venv/
+.env
+*.env
+
+# ── Jupyter ────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_metadata
+
+# ── IDE & OS ───────────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ── Reports (optional – kommentiere aus, wenn du Reports tracken willst) ───
+# reports/figures/
+# reports/tables/
