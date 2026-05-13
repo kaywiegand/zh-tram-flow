@@ -3,6 +3,9 @@
 # WICHTIG: Daten und Modelle NICHT in Git einchecken!
 # uv.lock wird NICHT ignoriert – Lockfile gehört in Git!
 
+# ── Persönliche Notizen ────────────────────────────────────────────────────
+NOTES.md
+
 # ── Daten ──────────────────────────────────────────────────────────────────
 data/raw/
 data/interim/
