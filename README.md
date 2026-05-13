@@ -92,7 +92,7 @@ Der Scope ist bewusst in aufeinander aufbauende Versionen gestaffelt — um den 
 sicher im Projektzeitrahmen zu erreichen und Raum für Erweiterungen zu lassen.
 
 #### Phase 0 – "Data Foundation" ✅ (in `sf_data-research` abgeschlossen)
-- Data Engineering: Pipeline für 88 Mio. Zeilen IST-Daten, GTFS, Meteo, Events
+- Data Engineering: Pipeline für 94 Mio. Zeilen IST-Daten, GTFS, Meteo, Events
 - Master-Datensatz `zh-tram-data-master.parquet` (24 Spalten) — vollständig und validiert
 - Datenstrategie, Filter-Entscheidungen und Datenqualität dokumentiert
 - Tooling: Polars (4× schneller als Pandas), GeoPandas, Visualisierungs-Benchmark
@@ -132,7 +132,7 @@ sicher im Projektzeitrahmen zu erreichen und Raum für Erweiterungen zu lassen.
 **Zur Datenmenge (Research-Phase):**
 - 36 ZIP-Dateien über 3 Jahre → ca. **38 GB** komprimiert
 - Entpackt: **500–720 GB** (schweizweite CSV-Rohdaten)
-- Nach Filterung auf VBZ & Tram → **~88 Mio. Zeilen · 1,44 GB** (1.036 Parquet-Dateien)
+- Nach Filterung auf VBZ & Tram → **~94 Mio. Zeilen · 1,44 GB** (1.096 Parquet-Dateien)
 - Master-Datensatz: **24 Spalten** — IST + GTFS + Meteo + Events, Left-Join (kein Datenverlust)
 
 > Vollständige Datenbeschreibung: [`data/raw/gtfs/`](data/raw/gtfs/) und `notebooks/00_introduction.ipynb` → Data Dictionary
@@ -227,7 +227,7 @@ zh-tram-flow/
 │
 ├── data/                   # NICHT in Git! (.gitignore)
 │   ├── raw/                # Eingangsdaten aus sf_data-research — NIEMALS verändern!
-│   │   ├── zh-tram-data-master.parquet   # Master: 88 Mio. Zeilen, 24 Spalten
+│   │   ├── zh-tram-data-master.parquet   # Master: 94 Mio. Zeilen, 24 Spalten
 │   │   └── gtfs/                         # GTFS-Referenztabellen (Haltestellen etc.)
 │   ├── interim/            # Zwischenstands (gefiltert, teilbereinigt)
 │   └── processed/          # Finale, analysefertige Daten

@@ -25,7 +25,7 @@
 Die gesamte Data-Engineering-Phase ist in [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) dokumentiert.
 
 **Master-Datensatz:** `data/raw/zh-tram-data-master.parquet`
-- ~88 Mio. Zeilen · 24 Spalten · ~460 MB
+- ~94 Mio. Zeilen · 24 Spalten · ~486 MB
 - Enthält: IST-Verspätungsdaten + GTFS-Haltestellen + Meteo-Stundenwerte + Events
 - Zeitraum: 2023–2025 · Betreiber: VBZ Zürich · Produkt: Tram
 
