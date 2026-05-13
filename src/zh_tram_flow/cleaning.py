@@ -119,6 +119,23 @@ def structural_cleaning_pipeline(lf: pl.LazyFrame) -> pl.LazyFrame:
 
 # ─── Post-Split Cleaning ─────────────────────────────────────────────────────
 
+def impute_meteo_lazy(lf: pl.LazyFrame) -> pl.LazyFrame:
+    """
+    Lazy-Version der Meteo-Imputation — für sink_parquet ohne collect().
+    Identische Logik wie impute_meteo_rolling, arbeitet aber auf LazyFrame.
+    """
+    schema = lf.collect_schema()
+    exprs = [
+        pl.col(col).forward_fill().backward_fill()
+        for col in METEO_COLS
+        if col in schema
+    ]
+    lf = lf.sort("arrival_schedule").with_columns(exprs)
+    if "flood_intensity" in schema:
+        lf = lf.with_columns(pl.col("flood_intensity").fill_null(0))
+    return lf
+
+
 def impute_meteo_rolling(df: pl.DataFrame) -> pl.DataFrame:
     """
     Füllt Meteo-Lücken via Forward/Backward Fill auf zeitlich sortierten Daten.

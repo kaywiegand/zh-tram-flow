@@ -48,8 +48,14 @@ Ordner: `src/zh_tram_flow/`
 
 ## Projektspezifische Hinweise
 
-- Polars ist die primäre DataFrame-Bibliothek (88 Mio. Zeilen — Pandas wäre zu langsam)
+- Polars ist die primäre DataFrame-Bibliothek (94 Mio. Zeilen — Pandas wäre zu langsam)
 - Für große Operationen `pl.scan_parquet()` (lazy) bevorzugen
 - GTFS-Referenzjahr: 2024 — Spatial Join bereits im Master-Datensatz enthalten
 - `canceled = True` Zeilen behalten — sind wichtige Extremfälle für das Modell
 - Meteo-Join-Schlüssel: `floor(arrival_schedule, '1h')` = stündliche Granularität
+
+## Notebook-Konventionen
+
+- Jedes Notebook startet mit einer Markdown-Zelle: Zweck, Input, Output
+- Polars-Lernmomente explizit kommentieren — dieses Projekt ist auch Lernprojekt
+- Outputs (Charts, exportierte Daten) immer in `reports/` oder `data/processed/`
