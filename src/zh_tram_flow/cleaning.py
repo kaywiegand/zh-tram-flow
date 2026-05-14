@@ -78,13 +78,13 @@ def fill_category_nulls(lf: pl.LazyFrame) -> pl.LazyFrame:
     exprs = []
 
     if "district_name" in schema:
-        exprs.append(pl.col("district_name").fill_null("ausserhalb"))
+        exprs.append(pl.col("district_name").fill_null("outside"))
     if "district_nr" in schema:
         exprs.append(pl.col("district_nr").fill_null(0).cast(pl.Int32))
 
     for col in ["event_name", "event_type", "event_location"]:
         if col in schema:
-            exprs.append(pl.col(col).fill_null("kein_event"))
+            exprs.append(pl.col(col).fill_null("no_event"))
     if "event_size" in schema:
         exprs.append(pl.col("event_size").fill_null(0))
 
