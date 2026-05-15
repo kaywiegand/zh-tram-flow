@@ -27,7 +27,7 @@ from wgnd.inspect import (
 from wgnd.core._output import success, warn, log, info_box, show_df, section_header
 from wgnd.core.config import cfg
 
-from zh_tram_flow.config import PATHS, PROJECT_NAME, RANDOM_SEED
+from zh_tram_flow.config import PATHS, PROJECT_NAME, RANDOM_SEED, LINE_COLORS, LINE_TEXT_COLORS, line_color, line_colors
 from zh_tram_flow.settings import setup_plotting, logger
 
 
