@@ -165,7 +165,6 @@ def plot_new_stops_by_district(changes: pd.DataFrame, lf_all, cfg=None):
     ax.set_title("Neue Haltestellen ab Dez 2023 — nach Stadtkreis", fontweight="bold")
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_new_stops_by_district(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
@@ -230,7 +229,6 @@ def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None):
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_network_netto_changes(changes: pd.DataFrame) -> pd.DataFrame:
@@ -294,7 +292,6 @@ def plot_monthly_delay_all_lines(lf_all, cfg=None):
     ax.spines[["top", "right"]].set_visible(False)
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_delay_before_after_switch(lf_all) -> pd.DataFrame:
@@ -413,7 +410,6 @@ def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None):
                  fontsize=12, fontweight="bold")
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_einlaufzeit(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
@@ -520,7 +516,6 @@ def plot_hotspots(changes: pd.DataFrame, lf_all, cfg=None):
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_hotspots(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
@@ -608,7 +603,6 @@ def plot_service_quality_by_district(lf_all, cfg=None):
     ax.set_title("Veränderung der Linienanbindung nach Stadtkreis — 2023 → 2025", fontweight="bold")
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_service_quality_by_district(lf_all) -> pd.DataFrame:

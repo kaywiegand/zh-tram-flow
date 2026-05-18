@@ -20,9 +20,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from zh_tram_flow.notebook import NotebookConfig
-
-
 # ---------------------------------------------------------------------------
 # Events Overview
 # ---------------------------------------------------------------------------
@@ -31,7 +28,7 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     """Bar charts: delay and OTP by day category (Normal / Feiertag / Event)."""
     from wgnd.core.theme import mpl_style
     if cfg is None:
-        cfg = NotebookConfig()
+        cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
 
@@ -98,7 +95,6 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_events_overview(lf: pl.LazyFrame) -> pd.DataFrame:
@@ -151,7 +147,7 @@ def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     """Bar chart of delay by event type + line chart hourly profile (normal vs event day)."""
     from wgnd.core.theme import mpl_style
     if cfg is None:
-        cfg = NotebookConfig()
+        cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
 
@@ -210,7 +206,6 @@ def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 # ---------------------------------------------------------------------------
@@ -221,7 +216,7 @@ def plot_event_district_effect(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     """Bar charts: event impact (delta + absolute) per Stadtkreis."""
     from wgnd.core.theme import mpl_style
     if cfg is None:
-        cfg = NotebookConfig()
+        cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
 
@@ -291,7 +286,6 @@ def plot_event_district_effect(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_event_district_effect(lf: pl.LazyFrame) -> pd.DataFrame:

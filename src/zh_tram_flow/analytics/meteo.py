@@ -17,12 +17,16 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from zh_tram_flow.notebook import NotebookConfig
-
-
 # ---------------------------------------------------------------------------
 # Private helpers
 # ---------------------------------------------------------------------------
+
+def _get_cfg(cfg):
+    if cfg is None:
+        from zh_tram_flow.notebook import NotebookConfig
+        cfg = NotebookConfig()
+    return cfg
+
 
 def _weather_compare(lf_delay: pl.LazyFrame, flag: str, label: str) -> pd.DataFrame:
     """Return avg_delay / otp_rate / n for True/False values of *flag*."""
@@ -48,8 +52,7 @@ def _weather_compare(lf_delay: pl.LazyFrame, flag: str, label: str) -> pd.DataFr
 def plot_weather_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     """Bar chart: Normal vs. Wettereffekt for rain / heavy rain / snow."""
     from wgnd.core.theme import mpl_style
-    if cfg is None:
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
 
@@ -122,7 +125,6 @@ def plot_weather_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
               f"OTP {r['otp_normal']:.1%} → {r['otp_weather']:.1%}  "
               f"(n={r['n_weather']:,})")
 
-    return fig
 
 
 def table_weather_overview(lf: pl.LazyFrame) -> pd.DataFrame:
@@ -161,8 +163,7 @@ def table_weather_overview(lf: pl.LazyFrame) -> pd.DataFrame:
 def plot_temperature_precipitation(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     """Bar charts: delay by temperature bin and precipitation intensity."""
     from wgnd.core.theme import mpl_style
-    if cfg is None:
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
 
@@ -245,7 +246,6 @@ def plot_temperature_precipitation(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_temperature_bins(lf: pl.LazyFrame) -> pd.DataFrame:
@@ -292,8 +292,7 @@ def table_temperature_bins(lf: pl.LazyFrame) -> pd.DataFrame:
 def plot_is_hot(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     """Bar + temperature curve validating the is_hot (>20°C) feature."""
     from wgnd.core.theme import mpl_style
-    if cfg is None:
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
     _schema = lf_delay.collect_schema()
@@ -380,7 +379,6 @@ def plot_is_hot(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     print(f"Heiss  (>20°C): Ø {vals[1]:+.1f}s  OTP {otps[1]:.1%}  (n={ns[1]/1e6:.1f}M)")
     print(f"→ Delta is_hot: {delta:+.1f}s")
 
-    return fig
 
 
 def table_is_hot(lf: pl.LazyFrame) -> pd.DataFrame:
@@ -434,8 +432,7 @@ def table_is_hot(lf: pl.LazyFrame) -> pd.DataFrame:
 def plot_multicollinearity_matrix(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     """Heatmap of Pearson correlations: weather × season × delay."""
     from wgnd.core.theme import mpl_style
-    if cfg is None:
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
     _schema  = lf_delay.collect_schema()
@@ -487,7 +484,6 @@ def plot_multicollinearity_matrix(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
         if wf in corr_matrix.columns and "season" in corr_matrix.columns:
             print(f"  {wf:20s} × season: {corr_matrix.loc[wf, 'season']:+.3f}")
 
-    return fig
 
 
 def table_correlation_with_delay(lf: pl.LazyFrame) -> pd.DataFrame:

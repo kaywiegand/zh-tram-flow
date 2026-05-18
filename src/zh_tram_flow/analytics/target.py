@@ -6,14 +6,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_delay_overview_per_year(lf, cfg=None):
-    """Ø Verspätung (Arrival / Departure / Delta) nach Jahr als Balkendiagramm."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
-    from wgnd.core.theme import mpl_style
-
-    stats_year = (
+def _compute_delay_stats_year(lf):
+    """Gemeinsame Aggregation: Ø Delay nach Jahr."""
+    return (
         lf
         .with_columns(pl.col("operating_date").dt.year().alias("year"))
         .group_by("year")
@@ -21,8 +16,6 @@ def plot_delay_overview_per_year(lf, cfg=None):
             pl.len().alias("n_stops"),
             pl.col("arrival_delay").mean().alias("arr_mean"),
             pl.col("arrival_delay").median().alias("arr_median"),
-            pl.col("arrival_delay").min().alias("arr_min"),
-            pl.col("arrival_delay").max().alias("arr_max"),
             pl.col("departure_delay").mean().alias("dep_mean"),
             pl.col("departure_delay").median().alias("dep_median"),
             pl.col("delay_delta").mean().alias("delta_mean"),
@@ -33,200 +26,88 @@ def plot_delay_overview_per_year(lf, cfg=None):
         .to_pandas()
     )
 
-    style = mpl_style()
-    years = stats_year["year"].astype(str).tolist()
-    x = np.arange(len(years))
-    width = 0.25
-    colors = cfg.palette_n(3)
 
-    fig, ax = plt.subplots(figsize=(10, 4))
+def _draw_year_bars(ax, stats, cfg, style, with_trend=False):
+    """Zeichnet Balken + optionale Trendlinien auf ax."""
+    years  = stats["year"].astype(int).tolist()
+    x_pos  = np.arange(len(years))
+    width  = 0.25
+    colors = cfg.palette_n(3)
     for i, (col, label, color) in enumerate(zip(
         ["arr_mean", "dep_mean", "delta_mean"],
         ["Arrival Delay", "Departure Delay", "Delay Delta"],
         colors,
     )):
-        bars = ax.bar(x + i * width, stats_year[col], width, label=label, color=color)
-        for bar in bars:
-            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3,
-                    f"{bar.get_height():+.1f}s", ha="center", va="bottom", fontsize=9)
-
-    ax.axhline(0, color=cfg.ANNO_REF, lw=1, linestyle="--")
-    ax.set_xticks(x + width)
-    ax.set_xticklabels(years, fontsize=11)
-    ax.set_ylabel("Sekunden", **style["label"])
-    ax.set_title("Ø Verspätung pro Halt — nach Jahr", **style["title"])
-    ax.legend()
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-    plt.tight_layout()
-    plt.show()
-    return fig
-
-
-def table_delay_overview_per_year(lf):
-    """Tabelle: Ø Verspätung nach Jahr (roh, alle Spalten)."""
-    stats_year = (
-        lf
-        .with_columns(pl.col("operating_date").dt.year().alias("year"))
-        .group_by("year")
-        .agg([
-            pl.len().alias("n_stops"),
-            pl.col("arrival_delay").mean().alias("arr_mean"),
-            pl.col("arrival_delay").median().alias("arr_median"),
-            pl.col("arrival_delay").min().alias("arr_min"),
-            pl.col("arrival_delay").max().alias("arr_max"),
-            pl.col("departure_delay").mean().alias("dep_mean"),
-            pl.col("departure_delay").median().alias("dep_median"),
-            pl.col("delay_delta").mean().alias("delta_mean"),
-            pl.col("delay_delta").median().alias("delta_median"),
-        ])
-        .sort("year")
-        .collect()
-        .to_pandas()
-    )
-    display_stats = stats_year.copy()
-    display_stats["n_stops"] = display_stats["n_stops"].apply(lambda x: f"{x:,.0f}")
-    for col in display_stats.columns[2:]:
-        display_stats[col] = display_stats[col].apply(lambda x: f"{x:+.1f}s")
-    display_stats.columns = ["Year", "Stop Count",
-                             "Arr Mean", "Arr Median", "Arr Min", "Arr Max",
-                             "Dep Mean", "Dep Median", "Δ Mean", "Δ Median"]
-    return display_stats
-
-
-def plot_delay_overview_per_year_clean(lf_all, cfg=None):
-    """Bereinigte Jahresübersicht: canceled + Nov/Dez 2025 entfernt, mit Trendlinie."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
-    from wgnd.core.theme import mpl_style
-
-    lf_clean = (
-        lf_all
-        .filter(pl.col("canceled") == False)
-        .with_columns(
-            pl.col("operating_date").dt.year().alias("year"),
-            pl.col("operating_date").dt.month().alias("month"),
-        )
-        .filter(~((pl.col("year") == 2025) & (pl.col("month") >= 11)))
-    )
-
-    stats_clean = (
-        lf_clean
-        .group_by("year")
-        .agg([
-            pl.len().alias("n_stops"),
-            pl.col("arrival_delay").mean().alias("arr_mean"),
-            pl.col("arrival_delay").median().alias("arr_median"),
-            pl.col("departure_delay").mean().alias("dep_mean"),
-            pl.col("departure_delay").median().alias("dep_median"),
-            pl.col("delay_delta").mean().alias("delta_mean"),
-            pl.col("delay_delta").median().alias("delta_median"),
-        ])
-        .sort("year")
-        .collect()
-        .to_pandas()
-    )
-
-    style = mpl_style()
-    years = stats_clean["year"].astype(int).tolist()
-    x_pos = np.arange(len(years))
-    width = 0.25
-    colors = cfg.palette_n(3)
-
-    metrics = [
-        ("arr_mean",   "Arrival Delay",    colors[0]),
-        ("dep_mean",   "Departure Delay",  colors[1]),
-        ("delta_mean", "Delay Delta",      colors[2]),
-    ]
-
-    fig, ax = plt.subplots(figsize=(10, 5))
-
-    for i, (col, label, color) in enumerate(metrics):
-        vals = stats_clean[col].tolist()
+        vals  = stats[col].tolist()
         bar_x = x_pos + i * width
-        bars = ax.bar(bar_x, vals, width, label=label, color=color, alpha=0.82)
+        bars  = ax.bar(bar_x, vals, width, label=label, color=color, alpha=0.85)
         for bar, v in zip(bars, vals):
             ax.text(bar.get_x() + bar.get_width() / 2,
                     v + (0.4 if v >= 0 else -2.0),
                     f"{v:+.1f}s", ha="center", va="bottom", fontsize=9)
-        center_x = bar_x
-        ax.plot(center_x, vals, color=color, lw=2, linestyle="--",
-                marker="o", markersize=5, alpha=0.9, zorder=5)
-
-    # Log-Ausgabe
-    arr_vals = stats_clean["arr_mean"].tolist()
-    delta_vals = stats_clean["delta_mean"].tolist()
-    print("Bereinigter Jahresvergleich (Ø arrival_delay):")
-    for yr, v in zip(years, arr_vals):
-        print(f"  {yr}: {v:+.1f}s")
-    print(f"  Δ 2023→2025: {arr_vals[-1] - arr_vals[0]:+.1f}s")
-    print("\nBereinigter Jahresvergleich (Ø delay_delta):")
-    for yr, v in zip(years, delta_vals):
-        print(f"  {yr}: {v:+.1f}s")
-    print(f"  Δ 2023→2025: {delta_vals[-1] - delta_vals[0]:+.1f}s")
-
+        if with_trend and len(vals) > 1:
+            ax.plot(bar_x, vals, color=color, lw=2, linestyle="--",
+                    marker="o", markersize=5, alpha=0.9, zorder=5)
     ax.axhline(0, color=cfg.ANNO_REF, lw=1, linestyle=":")
     ax.set_xticks(x_pos + width)
     ax.set_xticklabels([str(y) for y in years], fontsize=11)
     ax.set_ylabel("Sekunden", **style["label"])
-    ax.set_title(
-        "Ø Verspätung pro Halt nach Jahr — bereinigt\n"
-        "(canceled entfernt · Nov/Dez 2025 entfernt · mit Trendlinie)",
-        **style["title"]
-    )
     ax.legend(fontsize=9)
     ax.spines[["top", "right"]].set_visible(False)
-    plt.tight_layout()
-    plt.show()
-    return fig
+    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
 
 
-def table_delay_overview_per_year_clean(lf_all):
-    """Tabelle: Bereinigte Jahresübersicht (canceled + Nov/Dez 2025 entfernt)."""
-    lf_clean = (
-        lf_all
-        .filter(pl.col("canceled") == False)
-        .with_columns(
-            pl.col("operating_date").dt.year().alias("year"),
-            pl.col("operating_date").dt.month().alias("month"),
-        )
-        .filter(~((pl.col("year") == 2025) & (pl.col("month") >= 11)))
-    )
-    stats_clean = (
-        lf_clean
-        .group_by("year")
-        .agg([
-            pl.len().alias("n_stops"),
-            pl.col("arrival_delay").mean().alias("arr_mean"),
-            pl.col("arrival_delay").median().alias("arr_median"),
-            pl.col("departure_delay").mean().alias("dep_mean"),
-            pl.col("departure_delay").median().alias("dep_median"),
-            pl.col("delay_delta").mean().alias("delta_mean"),
-            pl.col("delay_delta").median().alias("delta_median"),
-        ])
-        .sort("year")
-        .collect()
-        .to_pandas()
-    )
-    display_clean = stats_clean.copy()
-    display_clean["n_stops"] = display_clean["n_stops"].apply(lambda x: f"{x:,.0f}")
-    for col in display_clean.columns[2:]:
-        display_clean[col] = display_clean[col].apply(lambda x: f"{x:+.1f}s")
-    display_clean.columns = ["Year", "Stop Count",
-                             "Arr Mean", "Arr Median", "Dep Mean", "Dep Median", "Δ Mean", "Δ Median"]
-    return display_clean
-
-
-def plot_monthly_delay(lf_all, cfg=None):
-    """Monatliche Delay-Zeitreihe: Arrival / Departure / Delta über alle Jahre."""
+def plot_delay_overview_per_year(lf_all, lf_clean=None, cfg=None):
+    """Ø Verspätung nach Jahr. lf_clean=None → nur roh; lf_clean übergeben → Vergleich roh vs. bereinigt."""
     if cfg is None:
         from zh_tram_flow.notebook import NotebookConfig
         cfg = NotebookConfig()
     from wgnd.core.theme import mpl_style
 
-    monthly = (
-        lf_all
+    style      = mpl_style()
+    stats_all  = _compute_delay_stats_year(lf_all)
+
+    if lf_clean is None:
+        fig, ax = plt.subplots(figsize=(10, 4))
+        _draw_year_bars(ax, stats_all, cfg, style)
+        ax.set_title("Ø Verspätung pro Halt — nach Jahr (roh)", **style["title"])
+    else:
+        stats_clean = _compute_delay_stats_year(lf_clean)
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 5))
+        _draw_year_bars(ax1, stats_all,   cfg, style)
+        _draw_year_bars(ax2, stats_clean, cfg, style, with_trend=True)
+        ax1.set_title("Roh (lf_all)",          **style["title"])
+        ax2.set_title("Bereinigt (lf_clean) + Trendlinie", **style["title"])
+        # Print stats for clean
+        arr_vals   = stats_clean["arr_mean"].tolist()
+        delta_vals = stats_clean["delta_mean"].tolist()
+        years_c    = stats_clean["year"].astype(int).tolist()
+        print("Bereinigte Jahreswerte (Ø arrival_delay):")
+        for yr, v in zip(years_c, arr_vals):
+            print(f"  {yr}: {v:+.1f}s")
+        if len(arr_vals) >= 2:
+            print(f"  Δ {years_c[0]}→{years_c[-1]}: {arr_vals[-1] - arr_vals[0]:+.1f}s")
+
+    plt.tight_layout()
+    plt.show()
+
+
+def table_delay_overview_per_year(lf):
+    """Tabelle: Ø Verspätung nach Jahr. Nimmt lf_all oder lf_clean."""
+    stats = _compute_delay_stats_year(lf)
+    out   = stats.copy()
+    out["n_stops"] = out["n_stops"].apply(lambda x: f"{x:,.0f}")
+    for col in ["arr_mean", "arr_median", "dep_mean", "dep_median", "delta_mean", "delta_median"]:
+        out[col] = out[col].apply(lambda x: f"{x:+.1f}s")
+    out.columns = ["Jahr", "N Halte",
+                   "Arr Ø", "Arr Median", "Dep Ø", "Dep Median", "Δ Ø", "Δ Median"]
+    return out.set_index("Jahr")
+
+
+def _compute_monthly(lf):
+    """Gemeinsame Aggregation: Ø Delay nach Monat/Jahr."""
+    df = (
+        lf
         .with_columns([
             pl.col("operating_date").dt.year().alias("year"),
             pl.col("operating_date").dt.month().alias("month"),
@@ -241,141 +122,60 @@ def plot_monthly_delay(lf_all, cfg=None):
         .collect()
         .to_pandas()
     )
-    monthly["date"] = pd.to_datetime(monthly[["year", "month"]].assign(day=1))
-    monthly = monthly.sort_values("date")
+    df["date"] = pd.to_datetime(df[["year", "month"]].assign(day=1))
+    return df.sort_values("date").reset_index(drop=True)
 
-    style = mpl_style()
-    colors = cfg.palette_n(3)
+
+def plot_monthly_delay(lf_all, lf_clean=None, cfg=None):
+    """Monatliche Delay-Zeitreihe. lf_clean=None → nur roh; lf_clean übergeben → bereinigt mit Trendlinien."""
+    if cfg is None:
+        from zh_tram_flow.notebook import NotebookConfig
+        cfg = NotebookConfig()
+    from wgnd.core.theme import mpl_style
+
+    style   = mpl_style()
+    colors  = cfg.palette_n(3)
     metrics = [
         ("arr_mean",   "Arrival Delay",   colors[0]),
         ("dep_mean",   "Departure Delay", colors[1]),
         ("delta_mean", "Delay Delta",     colors[2]),
     ]
 
-    fig, ax = plt.subplots(figsize=(14, 5))
-    for col, label, color in metrics:
-        ax.plot(monthly["date"], monthly[col], color=color, lw=2, marker="o", markersize=3, label=label)
-    ax.axhline(0, color=cfg.ANNO_REF, lw=1, linestyle=":")
-    for year in [2024, 2025]:
-        ax.axvline(pd.Timestamp(f"{year}-01-01"), color=cfg.CHART_AXIS, lw=1, linestyle=":")
-    ax.set_ylabel("Ø Sekunden", **style["label"])
-    ax.set_title("Monthly Delay — Arrival · Departure · Delta — 2023–2025 (alle Monate)", **style["title"])
-    ax.legend(fontsize=9)
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-    plt.tight_layout()
-    plt.show()
-    return fig
-
-
-def table_monthly_delay(lf_all):
-    """Tabelle: Jahresübersicht monatlicher Delay-Mittelwerte."""
-    monthly = (
-        lf_all
-        .with_columns([
-            pl.col("operating_date").dt.year().alias("year"),
-            pl.col("operating_date").dt.month().alias("month"),
-        ])
-        .group_by(["year", "month"])
-        .agg([
-            pl.col("arrival_delay").mean().alias("arr_mean"),
-            pl.col("departure_delay").mean().alias("dep_mean"),
-            pl.col("delay_delta").mean().alias("delta_mean"),
-        ])
-        .sort(["year", "month"])
-        .collect()
-        .to_pandas()
-    )
-    monthly["date"] = pd.to_datetime(monthly[["year", "month"]].assign(day=1))
-    yr_summary = monthly.groupby("year")[["arr_mean", "dep_mean", "delta_mean"]].mean().round(1).reset_index()
-    yr_summary.columns = ["Jahr", "Ø Arr Delay (s)", "Ø Dep Delay (s)", "Ø Δ (s)"]
-    return yr_summary
-
-
-def plot_monthly_delay_clean(lf_all, cfg=None):
-    """Bereinigte monatliche Zeitreihe (Nov/Dez 2025 raus) mit linearem Trend."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
-    from wgnd.core.theme import mpl_style
-
-    monthly = (
-        lf_all
-        .with_columns([
-            pl.col("operating_date").dt.year().alias("year"),
-            pl.col("operating_date").dt.month().alias("month"),
-        ])
-        .group_by(["year", "month"])
-        .agg([
-            pl.col("arrival_delay").mean().alias("arr_mean"),
-            pl.col("departure_delay").mean().alias("dep_mean"),
-            pl.col("delay_delta").mean().alias("delta_mean"),
-        ])
-        .sort(["year", "month"])
-        .collect()
-        .to_pandas()
-    )
-    monthly["date"] = pd.to_datetime(monthly[["year", "month"]].assign(day=1))
-    monthly_clean = monthly[
-        ~((monthly["year"] == 2025) & (monthly["month"] >= 11))
-    ].copy().reset_index(drop=True)
-
-    style = mpl_style()
-    colors = cfg.palette_n(3)
-    metrics = [
-        ("arr_mean",   "Arrival Delay",   colors[0]),
-        ("dep_mean",   "Departure Delay", colors[1]),
-        ("delta_mean", "Delay Delta",     colors[2]),
-    ]
-
-    fig, ax = plt.subplots(figsize=(14, 5))
-    x = np.arange(len(monthly_clean))
-
-    for col, label, color in metrics:
-        y = monthly_clean[col].values
-        ax.plot(monthly_clean["date"], y, color=color, lw=2, marker="o", markersize=3, label=label)
-        coeffs = np.polyfit(x, y, 1)
-        trend = np.polyval(coeffs, x)
-        ax.plot(monthly_clean["date"], trend, color=color, lw=1.5, linestyle="--", alpha=0.6)
+    if lf_clean is None:
+        df  = _compute_monthly(lf_all)
+        fig, ax = plt.subplots(figsize=(14, 5))
+        for col, label, color in metrics:
+            ax.plot(df["date"], df[col], color=color, lw=2, marker="o", markersize=3, label=label)
+        ax.set_title("Monthly Delay — Arrival · Departure · Delta (alle Monate)", **style["title"])
+    else:
+        df  = _compute_monthly(lf_clean)
+        x   = np.arange(len(df))
+        fig, ax = plt.subplots(figsize=(14, 5))
+        for col, label, color in metrics:
+            y = df[col].values
+            ax.plot(df["date"], y, color=color, lw=2, marker="o", markersize=3, label=label)
+            coeffs = np.polyfit(x, y, 1)
+            ax.plot(df["date"], np.polyval(coeffs, x),
+                    color=color, lw=1.5, linestyle="--", alpha=0.6)
+        ax.set_title("Monthly Delay — bereinigt · gestrichelt = linearer Trend", **style["title"])
 
     ax.axhline(0, color=cfg.ANNO_REF, lw=1, linestyle=":")
     for year in [2024, 2025]:
         ax.axvline(pd.Timestamp(f"{year}-01-01"), color=cfg.CHART_AXIS, lw=1, linestyle=":")
     ax.set_ylabel("Ø Sekunden", **style["label"])
-    ax.set_title("Monthly Delay — Jan 2023 – Okt 2025 · gestrichelt = linearer Trend", **style["title"])
     ax.legend(fontsize=9)
     ax.spines[["top", "right"]].set_visible(False)
     ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
     plt.tight_layout()
     plt.show()
-    return fig
 
 
-def table_monthly_delay_clean(lf_all):
-    """Tabelle: Bereinigte Jahresübersicht (ohne Nov/Dez 2025 Artefakt)."""
-    monthly = (
-        lf_all
-        .with_columns([
-            pl.col("operating_date").dt.year().alias("year"),
-            pl.col("operating_date").dt.month().alias("month"),
-        ])
-        .group_by(["year", "month"])
-        .agg([
-            pl.col("arrival_delay").mean().alias("arr_mean"),
-            pl.col("departure_delay").mean().alias("dep_mean"),
-            pl.col("delay_delta").mean().alias("delta_mean"),
-        ])
-        .sort(["year", "month"])
-        .collect()
-        .to_pandas()
-    )
-    monthly["date"] = pd.to_datetime(monthly[["year", "month"]].assign(day=1))
-    monthly_clean = monthly[
-        ~((monthly["year"] == 2025) & (monthly["month"] >= 11))
-    ].copy()
-    yr_clean = monthly_clean.groupby("year")[["arr_mean", "dep_mean", "delta_mean"]].mean().round(1).reset_index()
-    yr_clean.columns = ["Jahr", "Ø Arr Delay (s)", "Ø Dep Delay (s)", "Ø Δ (s)"]
-    return yr_clean
+def table_monthly_delay(lf):
+    """Tabelle: Jahresübersicht monatlicher Delay-Mittelwerte. Nimmt lf_all oder lf_clean."""
+    df = _compute_monthly(lf)
+    yr = df.groupby("year")[["arr_mean", "dep_mean", "delta_mean"]].mean().round(1).reset_index()
+    yr.columns = ["Jahr", "Ø Arr Delay (s)", "Ø Dep Delay (s)", "Ø Δ (s)"]
+    return yr.set_index("Jahr")
 
 
 def plot_delay_distribution(lf, sample_small, cfg=None):
@@ -410,7 +210,6 @@ def plot_delay_distribution(lf, sample_small, cfg=None):
     plt.suptitle("Distribution — Sample 100k · clipped −300 to +600s", fontsize=11, color=cfg.CHART_TITLE, y=1.01)
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_delay_stats(lf):
@@ -504,7 +303,6 @@ def plot_delay_distribution_comparison(lf_all, cfg=None):
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def plot_log_transform(sample_small, cfg=None):
@@ -554,7 +352,6 @@ def plot_log_transform(sample_small, cfg=None):
     print(f"Naive Baseline — Vorhersage = Median:      MAE = {mae_median:.1f}s  (robuster gegenüber Ausreißern)")
     print(f"Differenz: {mae_mean - mae_median:+.1f}s  →  Median reduziert MAE um {(1 - mae_median / mae_mean) * 100:.1f}%")
 
-    return fig
 
 
 def plot_arrival_vs_departure(sample_small, lf, cfg=None):
@@ -602,7 +399,6 @@ def plot_arrival_vs_departure(sample_small, lf, cfg=None):
     print(f"Ø Departure Delay: {means['dep_mean'][0]:+.1f}s")
     print(f"Ø Delay Delta:     {means['delta_mean'][0]:+.1f}s  (positiv = Verspätung wächst am Halt)")
 
-    return fig
 
 
 def plot_delay_delta_detail(sample_small, cfg=None):
@@ -630,7 +426,6 @@ def plot_delay_delta_detail(sample_small, cfg=None):
     ax.legend(fontsize=9)
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def plot_start_stop_analysis(lf_delay, cfg=None):
@@ -727,7 +522,6 @@ def plot_start_stop_analysis(lf_delay, cfg=None):
     print(f"Δ arrival_delay Starthalte→Normal: {row_ns['avg_arr'] - row_s['avg_arr']:+.1f}s")
     print(f"→ Starthalte ERHÖHEN den Netz-Durchschnitt um diesen Wert wenn inkludiert")
 
-    return fig
 
 
 def plot_otp(lf, cfg=None):
@@ -789,7 +583,6 @@ def plot_otp(lf, cfg=None):
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_otp(lf):
@@ -868,7 +661,6 @@ def plot_otp_per_line(lf_all, cfg=None):
     ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_otp_per_line(lf_all):
@@ -956,7 +748,6 @@ def plot_cancellations_by_line(lf, cfg=None):
     ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def plot_trip_level_validation(master_path, cfg=None):
@@ -1047,7 +838,6 @@ def plot_trip_level_validation(master_path, cfg=None):
     axes[0].legend(loc="upper right", fontsize=9)
     plt.tight_layout()
     plt.show()
-    return fig, summary.to_pandas()
 
 
 def plot_cancellation_rate_over_time(lf_all, cfg=None):
@@ -1099,7 +889,6 @@ def plot_cancellation_rate_over_time(lf_all, cfg=None):
     ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def plot_delay_per_line_timeline(lf_all, cfg=None):
@@ -1162,4 +951,3 @@ def plot_delay_per_line_timeline(lf_all, cfg=None):
                  fontsize=12, color=cfg.CHART_TITLE)
     plt.tight_layout()
     plt.show()
-    return fig

@@ -64,7 +64,6 @@ def plot_top_delay_stops(lf, cfg=None):
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_top_delay_stops(lf) -> pd.DataFrame:
@@ -161,7 +160,6 @@ def plot_lines_density_vs_delay(lf, cfg=None):
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_lines_density_vs_delay(lf) -> pd.DataFrame:
@@ -273,7 +271,6 @@ def plot_start_stop_diagnosis(lf, cfg=None):
         r = early_detail[early_detail["stop_name"] == s].iloc[0]
         print(f"  {s}: Ø arr={r['avg_arr']:.0f}s, delta={r['avg_delta']:.0f}s")
 
-    return fig
 
 
 def table_start_stop_candidates(lf) -> pd.DataFrame:
@@ -355,7 +352,6 @@ def plot_district_analysis(lf, cfg=None):
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_district_analysis(lf) -> pd.DataFrame:
@@ -440,7 +436,6 @@ def plot_line_analysis(lf, cfg=None):
     plt.suptitle("Linien-Profil: Arrival Delay · OTP · Delta", fontsize=12, color=cfg.CHART_TITLE)
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_line_analysis(lf) -> pd.DataFrame:
@@ -574,7 +569,6 @@ def plot_dwell_time(lf, cfg=None):
     print(f"Anteil mit dwell_time ≤ 20s: {(dwell_dist[dwell_dist['dwell_time'] <= 20]['n'].sum() / dwell_dist['n'].sum()):.1%}")
     print(f"Anteil mit dwell_time = 0s:  {(dwell_dist[dwell_dist['dwell_time'] == 0]['n'].sum() / dwell_dist['n'].sum()):.1%}")
 
-    return fig
 
 
 def table_dwell_time_by_line(lf) -> pd.DataFrame:

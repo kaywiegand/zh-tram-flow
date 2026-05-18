@@ -77,7 +77,6 @@ def plot_hour_of_day(lf, cfg=None):
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_hour_of_day(lf) -> pd.DataFrame:
@@ -159,7 +158,6 @@ def plot_day_of_week(lf, cfg=None):
     print(f"Tag mit höchstem Ø Delay: {day_labels[daily['avg_delay'].idxmax()]}  ({daily['avg_delay'].max():+.1f}s)")
     print(f"Tag mit höchstem P95:    {day_labels[daily['p95_delay'].idxmax()]}  ({daily['p95_delay'].max():.0f}s)")
 
-    return fig
 
 
 def table_day_of_week(lf) -> pd.DataFrame:
@@ -248,7 +246,6 @@ def plot_month_seasonality(lf, cfg=None):
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_month_seasonality(lf) -> pd.DataFrame:
@@ -347,7 +344,6 @@ def plot_season_heatmap(lf, cfg=None):
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_season(lf) -> pd.DataFrame:
@@ -432,7 +428,6 @@ def plot_full_year_trend(lf, cfg=None):
 
     plt.tight_layout()
     plt.show()
-    return fig
 
 
 def table_full_year_monthly(lf) -> pd.DataFrame:
@@ -553,7 +548,6 @@ def plot_gtfs_year_comparison(lf_delay, cfg=None):
     for _, r in gtfs_compare.iterrows():
         print(f"  {r['_gtfs_year']}: Ø {r['avg_delay']:+.1f}s  OTP {r['otp_rate']:.1%}  ({r['n'] / 1e6:.1f}M Halte)  [{r['date_from']} – {r['date_to']}]")
 
-    return fig
 
 
 def table_gtfs_year_comparison(lf_delay) -> pd.DataFrame:
