@@ -5,6 +5,14 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+def _get_cfg(cfg):
+    if cfg is None:
+        from zh_tram_flow.notebook import NotebookConfig
+        cfg = NotebookConfig()
+    return cfg
+
+
 # Offizielle Linienfarben VBZ
 LINE_COLORS = {
     "2": "#E20A16", "3": "#00892F", "4": "#11296F", "5": "#734522", "6": "#CA7D3C",
@@ -128,9 +136,7 @@ def create_network_changes_map(changes: pd.DataFrame, output_path) -> None:
 
 def plot_new_stops_by_district(changes: pd.DataFrame, lf_all, cfg=None):
     """Neue Haltestellen ab Dez 2023 nach Stadtkreis — Balkendiagramm."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     district_lookup = (
@@ -193,9 +199,7 @@ def table_new_stops_by_district(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
 
 def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None):
     """Haltestellenanzahl pro Linie 2023/2024/2025 + Netto-Änderung j23→j24."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     lines_with_data = changes[changes[["n_j23", "n_j24", "n_j25"]].max(axis=1) > 0]
@@ -243,9 +247,7 @@ def table_network_netto_changes(changes: pd.DataFrame) -> pd.DataFrame:
 
 def plot_monthly_delay_all_lines(lf_all, cfg=None):
     """Monatliche Ø Verspätung aller Linien vor/nach Fahrplanwechsel Dez 2023."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
     from zh_tram_flow.config import line_color
 
@@ -345,9 +347,7 @@ def table_delay_before_after_switch(lf_all) -> pd.DataFrame:
 
 def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None):
     """Einlaufzeit: Neue vs. bestehende Haltestellen ab Jan 2024 — alle Linien."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
     from zh_tram_flow.config import line_color
     import math
@@ -454,9 +454,7 @@ def table_einlaufzeit(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
 
 def plot_hotspots(changes: pd.DataFrame, lf_all, cfg=None):
     """Haltestellen-Hotspots nach Linienanzahl + Linienanzahl vs. Verspätung Scatter."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     stop_lines = {}
@@ -561,9 +559,7 @@ def table_hotspots(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
 
 def plot_service_quality_by_district(lf_all, cfg=None):
     """Versorgungsqualität: Veränderung der Linienanbindung nach Stadtkreis 2023→2025."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     def lines_per_district(year_key):

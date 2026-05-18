@@ -5,6 +5,14 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+def _get_cfg(cfg):
+    if cfg is None:
+        from zh_tram_flow.notebook import NotebookConfig
+        cfg = NotebookConfig()
+    return cfg
+
+
 # Schulferien Kanton Zürich 2023–2025
 _SCHULFERIEN = [
     ("2023-02-06", "2023-02-17"), ("2023-04-10", "2023-04-21"),
@@ -28,9 +36,7 @@ def _add_schulferien(ax, alpha: float = 0.13, color: str = "#999999") -> None:
 
 def plot_hour_of_day(lf, cfg=None):
     """Ø Arrival Delay nach Stunde des Tages — Balken + Datenvolumen."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     hourly = (
@@ -103,9 +109,7 @@ def table_hour_of_day(lf) -> pd.DataFrame:
 
 def plot_day_of_week(lf, cfg=None):
     """Ø Arrival Delay + P95 nach Wochentag (Mo–So)."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     daily = (
@@ -189,9 +193,7 @@ def table_day_of_week(lf) -> pd.DataFrame:
 
 def plot_month_seasonality(lf, cfg=None):
     """Saisonalität + Jahresvergleich nach Monat — zwei Panels."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     monthly_avg = (
@@ -278,9 +280,7 @@ def table_month_seasonality(lf) -> pd.DataFrame:
 
 def plot_season_heatmap(lf, cfg=None):
     """Saisonaler Delay + OTP + Stunde × Wochentag Heatmap."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     season_names = {1: "Winter", 2: "Frühling", 3: "Sommer", 4: "Herbst"}
@@ -376,9 +376,7 @@ def table_season(lf) -> pd.DataFrame:
 
 def plot_full_year_trend(lf, cfg=None):
     """7-Tage Rolling Average — täglicher Delay + OTP mit Schulferien-Annotation."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     yearly = (
@@ -455,9 +453,7 @@ def table_full_year_monthly(lf) -> pd.DataFrame:
 
 def plot_gtfs_year_comparison(lf_delay, cfg=None):
     """gtfs_year Feature: j23 vs. j24_j25 — netzweit + umgebaute Linien."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
     from datetime import date
 

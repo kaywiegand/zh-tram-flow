@@ -20,6 +20,14 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+
+def _get_cfg(cfg):
+    if cfg is None:
+        from zh_tram_flow.notebook import NotebookConfig
+        cfg = NotebookConfig()
+    return cfg
+
+
 # ---------------------------------------------------------------------------
 # Events Overview
 # ---------------------------------------------------------------------------
@@ -27,8 +35,7 @@ import matplotlib.pyplot as plt
 def plot_events_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     """Bar charts: delay and OTP by day category (Normal / Feiertag / Event)."""
     from wgnd.core.theme import mpl_style
-    if cfg is None:
-        cfg = _get_cfg(cfg)
+    cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
 
@@ -146,8 +153,7 @@ def table_events_overview(lf: pl.LazyFrame) -> pd.DataFrame:
 def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     """Bar chart of delay by event type + line chart hourly profile (normal vs event day)."""
     from wgnd.core.theme import mpl_style
-    if cfg is None:
-        cfg = _get_cfg(cfg)
+    cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
 
@@ -215,8 +221,7 @@ def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
 def plot_event_district_effect(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     """Bar charts: event impact (delta + absolute) per Stadtkreis."""
     from wgnd.core.theme import mpl_style
-    if cfg is None:
-        cfg = _get_cfg(cfg)
+    cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
 

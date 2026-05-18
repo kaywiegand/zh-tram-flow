@@ -6,11 +6,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot_top_delay_stops(lf, cfg=None):
-    """Top 20 Haltestellen nach Ø Delay + Top 10 Frühankünfte (Terminus)."""
+def _get_cfg(cfg):
     if cfg is None:
         from zh_tram_flow.notebook import NotebookConfig
         cfg = NotebookConfig()
+    return cfg
+
+
+def plot_top_delay_stops(lf, cfg=None):
+    """Top 20 Haltestellen nach Ø Delay + Top 10 Frühankünfte (Terminus)."""
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     top_stops = (
@@ -93,9 +98,7 @@ def table_top_delay_stops(lf) -> pd.DataFrame:
 
 def plot_lines_density_vs_delay(lf, cfg=None):
     """Linien-Dichte vs. Verspätung — Scatter + Top 15 nach Linienanzahl."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     lines_per_stop = (
@@ -187,9 +190,7 @@ def table_lines_density_vs_delay(lf) -> pd.DataFrame:
 
 def plot_start_stop_diagnosis(lf, cfg=None):
     """Starthaltestellen-Diagnose: Frühankunft vs. Delta — Kandidaten identifizieren."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     early_detail = (
@@ -306,9 +307,7 @@ def table_start_stop_candidates(lf) -> pd.DataFrame:
 
 def plot_district_analysis(lf, cfg=None):
     """Verspätung und OTP nach Stadtkreis — zwei Panels."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
     districts = (
@@ -379,9 +378,7 @@ def table_district_analysis(lf) -> pd.DataFrame:
 
 def plot_line_analysis(lf, cfg=None):
     """Linien-Profil: Arrival Delay / OTP / Delay Delta nach Linie — drei Panels."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
     from zh_tram_flow.config import line_color
 
@@ -466,9 +463,7 @@ def table_line_analysis(lf) -> pd.DataFrame:
 
 def plot_dwell_time(lf, cfg=None):
     """Feature dwell_time: Verteilung / Delay-Korrelation / nach Linie — drei Panels."""
-    if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+    cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
     from zh_tram_flow.config import line_color
 
