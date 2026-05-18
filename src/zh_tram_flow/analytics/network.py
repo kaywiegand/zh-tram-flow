@@ -31,10 +31,10 @@ def get_stops_per_line(year: str, path) -> dict:
                [lambda df: df["direction_id"] == "0"]
                [["route_short_name", "shape_id", "trip_id"]])
 
-    rep = (trips_t.groupby(["route_short_name", "shape_id"])
+    rep = (trips_t.groupby(["route_short_name", "shape_id"], observed=True)
            .size().reset_index(name="n")
            .sort_values("n", ascending=False)
-           .groupby("route_short_name").first().reset_index())
+           .groupby("route_short_name", observed=True).first().reset_index())
 
     result = {}
     trip_ids = [trips_t[trips_t["shape_id"] == sid]["trip_id"].iloc[0]
@@ -151,7 +151,7 @@ def plot_new_stops_by_district(changes: pd.DataFrame, lf_all, cfg=None):
     new_df = pd.DataFrame({"stop_name": list(all_new.keys()), "line": list(all_new.values())})
     new_df = new_df.merge(district_lookup.reset_index(), on="stop_name", how="left")
 
-    by_district = (new_df.groupby("district_name")["stop_name"]
+    by_district = (new_df.groupby("district_name", observed=True)["stop_name"]
                    .nunique().reset_index(name="new_stops")
                    .sort_values("new_stops", ascending=False)
                    .dropna())
@@ -184,7 +184,7 @@ def table_new_stops_by_district(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
             all_new[name] = row["line"]
     new_df = pd.DataFrame({"stop_name": list(all_new.keys()), "line": list(all_new.values())})
     new_df = new_df.merge(district_lookup.reset_index(), on="stop_name", how="left")
-    by_district = (new_df.groupby("district_name")["stop_name"]
+    by_district = (new_df.groupby("district_name", observed=True)["stop_name"]
                    .nunique().reset_index(name="new_stops")
                    .sort_values("new_stops", ascending=False)
                    .dropna())
@@ -267,7 +267,7 @@ def plot_monthly_delay_all_lines(lf_all, cfg=None):
     FAHRPLANWECHSEL = pd.Timestamp("2024-01-01")
     all_lines_sorted = sorted(monthly["line"].unique(),
                               key=lambda x: int(x) if x.isdigit() else 99)
-    avg_all = monthly.groupby("month")["avg_delay"].mean().reset_index()
+    avg_all = monthly.groupby("month", observed=True)["avg_delay"].mean().reset_index()
 
     style = mpl_style()
     fig, ax = plt.subplots(figsize=(14, 6))
@@ -319,7 +319,7 @@ def table_delay_before_after_switch(lf_all) -> pd.DataFrame:
         lambda m: "vor Wechsel (2023)" if m < FAHRPLANWECHSEL else "nach Wechsel (2024–2025)"
     )
     delay_summary = (
-        pivot_fw.groupby(["line", "periode"])["avg_delay"]
+        pivot_fw.groupby(["line", "periode"], observed=True)["avg_delay"]
         .mean().round(1).unstack("periode").reset_index()
     )
     delay_summary.columns.name = None
@@ -434,12 +434,12 @@ def table_einlaufzeit(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
 
     existing_df = (
         monthly_stops[monthly_stops["is_new"] == False]
-        .groupby("line")["avg_delay"].mean().round(1)
+        .groupby("line", observed=True)["avg_delay"].mean().round(1)
         .reset_index().rename(columns={"avg_delay": "Bestehende Halte (s)"})
     )
     new_df_stops = (
         monthly_stops[monthly_stops["is_new"] == True]
-        .groupby("line")["avg_delay"].mean().round(1)
+        .groupby("line", observed=True)["avg_delay"].mean().round(1)
         .reset_index().rename(columns={"avg_delay": "Neue Halte (s)"})
     )
     einlauf_summary = (

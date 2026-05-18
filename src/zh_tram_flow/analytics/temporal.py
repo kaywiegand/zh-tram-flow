@@ -446,7 +446,7 @@ def table_full_year_monthly(lf) -> pd.DataFrame:
     yearly["date"] = pd.to_datetime(yearly["operating_date"])
     yearly_monthly_avg = (
         yearly.assign(month=lambda df: df["date"].dt.month, year=lambda df: df["date"].dt.year)
-        .groupby(["year", "month"])["avg_delay"].mean().round(1)
+        .groupby(["year", "month"], observed=True)["avg_delay"].mean().round(1)
         .unstack("year").reset_index()
     )
     yearly_monthly_avg.insert(0, "Monat", [month_names[m - 1] for m in yearly_monthly_avg["month"]])
