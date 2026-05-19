@@ -8,8 +8,18 @@ import matplotlib.pyplot as plt
 
 def _get_cfg(cfg):
     if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+        try:
+            from zh_tram_flow.notebook import setup_analysis
+            from wgnd.core.config import WgndConfig
+            cfg = WgndConfig()
+        except Exception:
+            class _FallbackCfg:
+                ANNO_REF = "#888888"
+                def palette_n(self, n):
+                    import matplotlib.pyplot as plt
+                    cmap = plt.get_cmap("tab20")
+                    return [f"#{int(cmap(i/max(n-1,1))[0]*255):02x}{int(cmap(i/max(n-1,1))[1]*255):02x}{int(cmap(i/max(n-1,1))[2]*255):02x}" for i in range(n)]
+            cfg = _FallbackCfg()
     return cfg
 
 
@@ -602,3 +612,430 @@ def table_dwell_time_by_line(lf) -> pd.DataFrame:
         .round({"Ø Haltezeit (s)": 1, "Median Haltezeit (s)": 1, "Ø Arr Delay (s)": 1})
         .set_index("Linie")
     )
+
+
+# ---------------------------------------------------------------------------
+# Stop Delay Map
+# ---------------------------------------------------------------------------
+
+def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
+    """Plotly Mapbox: stops colored by avg arrival_delay. Choropleth districts underneath."""
+    import plotly.graph_objects as go
+    import json
+    from pathlib import Path
+
+    geojson_path = Path(__file__).parents[3] / "data" / "raw" / "stadtkreise.geojson"
+    with open(geojson_path) as f:
+        geojson = json.load(f)
+
+    all_stops_raw = (
+        lf.filter(pl.col("canceled") == False)
+        .group_by(["stop_name", "bpuic"])
+        .agg([
+            pl.col("arrival_delay").mean().alias("avg_delay"),
+            (pl.col("arrival_delay").abs() <= 120).mean().alias("otp"),
+            pl.col("stop_lat").mean(),
+            pl.col("stop_lon").mean(),
+            pl.col("district_nr").mode().first().alias("district_nr"),
+            pl.len().alias("n"),
+        ])
+        .collect()
+        .to_pandas()
+    )
+    all_stops = all_stops_raw.copy()
+    stops = all_stops_raw[all_stops_raw["n"] >= min_n].copy()
+    stops["avg_delay"] = stops["avg_delay"].round(1)
+    stops["otp_pct"] = (stops["otp"] * 100).round(1)
+
+    districts = (
+        lf.filter(pl.col("canceled") == False)
+        .group_by("district_nr")
+        .agg(pl.col("arrival_delay").mean().alias("avg_delay"))
+        .collect()
+        .to_pandas()
+        .dropna()
+    )
+    districts["district_nr"] = districts["district_nr"].astype(str)
+
+    vmin = stops["avg_delay"].quantile(0.05)
+    vmax = stops["avg_delay"].quantile(0.95)
+    bubble_size = (stops["avg_delay"] / stops["avg_delay"].max() * 20).clip(lower=4)
+
+    fig = go.Figure()
+
+    # Gray background: all stops (network skeleton)
+    fig.add_trace(go.Scattermapbox(
+        lat=all_stops["stop_lat"],
+        lon=all_stops["stop_lon"],
+        mode="markers",
+        marker=dict(size=5, color="#aaaaaa", opacity=0.4),
+        text=all_stops["stop_name"].str.replace("Zürich, ", ""),
+        hovertemplate="<b>%{text}</b><extra></extra>",
+        name="Alle Haltestellen",
+    ))
+
+    fig.add_trace(go.Choroplethmapbox(
+        geojson=geojson,
+        locations=districts["district_nr"],
+        z=districts["avg_delay"],
+        featureidkey="properties.objid",
+        colorscale="YlOrRd",
+        zmin=vmin, zmax=vmax,
+        marker=dict(line=dict(color="white", width=1), opacity=0.35),
+        colorbar=dict(title="Ø Delay (s)", x=0.0, thickness=12, len=0.5),
+        showscale=False,
+        name="Stadtkreise",
+    ))
+
+    fig.add_trace(go.Scattermapbox(
+        lat=stops["stop_lat"],
+        lon=stops["stop_lon"],
+        mode="markers",
+        marker=dict(
+            size=bubble_size,
+            color=stops["avg_delay"],
+            colorscale="YlOrRd",
+            cmin=vmin, cmax=vmax,
+            colorbar=dict(title="Ø Delay (s)", thickness=12, len=0.6),
+            opacity=0.85,
+        ),
+        text=stops["stop_name"].str.replace("Zürich, ", ""),
+        customdata=stops[["avg_delay", "otp_pct", "n"]].values,
+        hovertemplate=(
+            "<b>%{text}</b><br>"
+            "Ø Delay: %{customdata[0]:.1f}s<br>"
+            "OTP: %{customdata[1]:.1f}%<br>"
+            "N: %{customdata[2]:,.0f}<extra></extra>"
+        ),
+        name="Haltestellen",
+    ))
+
+    fig.update_layout(
+        mapbox_style="carto-positron",
+        mapbox_center={"lat": 47.378, "lon": 8.540},
+        mapbox_zoom=11.5,
+        margin=dict(l=0, r=0, t=30, b=0),
+        height=600,
+        title="Haltestellen nach Ø Arrival Delay (Blasengrösse = Delay-Niveau)",
+    )
+    fig.show()
+
+
+def table_stop_delay_map(lf: pl.LazyFrame, top_n: int = 20, min_n: int = 5000) -> pd.DataFrame:
+    """Top stops by avg delay with location info."""
+    return (
+        lf.filter(pl.col("canceled") == False)
+        .group_by(["stop_name", "district_nr"])
+        .agg([
+            pl.col("arrival_delay").mean().alias("Ø Delay (s)"),
+            (pl.col("arrival_delay").abs() <= 120).mean().alias("OTP"),
+            pl.len().alias("N"),
+        ])
+        .collect()
+        .to_pandas()
+        .pipe(lambda df: df[df["N"] >= min_n])
+        .nlargest(top_n, "Ø Delay (s)")
+        .assign(**{
+            "Ø Delay (s)": lambda df: df["Ø Delay (s)"].round(1),
+            "OTP": lambda df: (df["OTP"] * 100).round(1).astype(str) + "%",
+            "N": lambda df: df["N"].apply(lambda x: f"{x:,.0f}"),
+        })
+        .rename(columns={"stop_name": "Haltestelle", "district_nr": "Kreis"})
+        .reset_index(drop=True)
+        .assign(Rang=lambda df: range(1, len(df) + 1))
+        [["Rang", "Haltestelle", "Kreis", "Ø Delay (s)", "OTP", "N"]]
+        .set_index("Rang")
+    )
+
+
+# ---------------------------------------------------------------------------
+# Line Delay Map
+# ---------------------------------------------------------------------------
+
+def plot_line_delay_map(lf: pl.LazyFrame, cfg=None, min_n: int = 5000) -> None:
+    """Plotly Mapbox: stops per line colored by wgnd palette, gray background for all stops."""
+    import plotly.graph_objects as go
+    cfg = _get_cfg(cfg)
+
+    all_stops = (
+        lf.filter(pl.col("canceled") == False)
+        .group_by(["stop_name"])
+        .agg([
+            pl.col("stop_lat").mean(),
+            pl.col("stop_lon").mean(),
+        ])
+        .collect()
+        .to_pandas()
+    )
+
+    stops = (
+        lf.filter(pl.col("canceled") == False)
+        .group_by(["line_name", "stop_name"])
+        .agg([
+            pl.col("arrival_delay").mean().alias("avg_delay"),
+            pl.col("stop_lat").mean(),
+            pl.col("stop_lon").mean(),
+            pl.len().alias("n"),
+        ])
+        .collect()
+        .to_pandas()
+    )
+    stops = stops[stops["n"] >= min_n].copy()
+    stops["avg_delay"] = stops["avg_delay"].round(1)
+
+    line_avg = (
+        stops.groupby("line_name", observed=True)["avg_delay"].mean()
+        .sort_values(ascending=False)
+        .index.tolist()
+    )
+    n_lines = len(line_avg)
+    import plotly.colors as pc
+    _base = pc.qualitative.Plotly + pc.qualitative.Safe
+    palette = [_base[i % len(_base)] for i in range(n_lines)]
+
+    fig = go.Figure()
+
+    # Gray background: full network skeleton
+    fig.add_trace(go.Scattermapbox(
+        lat=all_stops["stop_lat"],
+        lon=all_stops["stop_lon"],
+        mode="markers",
+        marker=dict(size=5, color="#aaaaaa", opacity=0.35),
+        text=all_stops["stop_name"].str.replace("Zürich, ", ""),
+        hovertemplate="<b>%{text}</b><extra></extra>",
+        name="Alle Haltestellen",
+    ))
+
+    for i, line in enumerate(line_avg):
+        df = stops[stops["line_name"] == line]
+        color = palette[i]
+        bubble = (df["avg_delay"] / stops["avg_delay"].max() * 18).clip(lower=4)
+        fig.add_trace(go.Scattermapbox(
+            lat=df["stop_lat"],
+            lon=df["stop_lon"],
+            mode="markers",
+            marker=dict(size=bubble, color=color, opacity=0.85),
+            text=df["stop_name"].str.replace("Zürich, ", ""),
+            customdata=df[["avg_delay", "n"]].values,
+            hovertemplate=(
+                f"<b>Linie {line}</b> — %{{text}}<br>"
+                "Ø Delay: %{customdata[0]:.1f}s<br>"
+                "N: %{customdata[1]:,.0f}<extra></extra>"
+            ),
+            name=f"L{line}",
+        ))
+
+    fig.update_layout(
+        mapbox_style="carto-positron",
+        mapbox_center={"lat": 47.378, "lon": 8.540},
+        mapbox_zoom=11.5,
+        margin=dict(l=0, r=0, t=30, b=0),
+        height=620,
+        title="Linien-Haltestellen nach Ø Delay (Linien einzeln an/abwählbar)",
+        legend=dict(orientation="v", x=1.0, y=1.0),
+    )
+    fig.show()
+
+
+# ---------------------------------------------------------------------------
+# Line × Hour Heatmap
+# ---------------------------------------------------------------------------
+
+def plot_line_hour_heatmap(lf: pl.LazyFrame, cfg=None) -> None:
+    """Heatmap: Linie × Stunde — Ø arrival_delay. Zeigt wann welche Linie am stärksten leidet."""
+    from wgnd.core.theme import mpl_style
+    cfg = _get_cfg(cfg)
+    style = mpl_style()
+
+    df = (
+        lf.filter(pl.col("canceled") == False)
+        .with_columns(pl.col("arrival_schedule").dt.hour().alias("hour"))
+        .group_by(["line_name", "hour"])
+        .agg(pl.col("arrival_delay").mean().alias("avg_delay"))
+        .collect()
+        .to_pandas()
+    )
+
+    pivot = (
+        df.pivot(index="line_name", columns="hour", values="avg_delay")
+        .reindex(columns=range(24))
+    )
+    line_order = pivot.mean(axis=1).sort_values(ascending=False).index
+    pivot = pivot.loc[line_order]
+
+    fig, ax = plt.subplots(figsize=(16, 6))
+    im = ax.imshow(pivot.values, aspect="auto", cmap="YlOrRd", interpolation="nearest")
+
+    ax.set_xticks(range(24))
+    ax.set_xticklabels([f"{h:02d}:00" for h in range(24)], rotation=45, ha="right", fontsize=8)
+    ax.set_yticks(range(len(pivot)))
+    ax.set_yticklabels([f"L{l}" for l in pivot.index], fontsize=9)
+    ax.set_xlabel("Uhrzeit", **style["label"])
+    ax.set_ylabel("Linie", **style["label"])
+    ax.set_title("Ø Arrival Delay nach Linie und Stunde", **style["title"])
+
+    cbar = fig.colorbar(im, ax=ax, fraction=0.02, pad=0.02)
+    cbar.set_label("Ø Delay (s)", fontsize=9)
+    plt.tight_layout()
+    plt.show()
+
+
+def table_line_hour_heatmap(lf: pl.LazyFrame) -> pd.DataFrame:
+    """Peak-Stunde und Ø Delay pro Linie."""
+    df = (
+        lf.filter(pl.col("canceled") == False)
+        .with_columns(pl.col("arrival_schedule").dt.hour().alias("hour"))
+        .group_by(["line_name", "hour"])
+        .agg(pl.col("arrival_delay").mean().alias("avg_delay"))
+        .collect()
+        .to_pandas()
+    )
+    pivot = df.pivot(index="line_name", columns="hour", values="avg_delay").reindex(columns=range(24))
+    result = pd.DataFrame({
+        "Ø Delay gesamt (s)": pivot.mean(axis=1).round(1),
+        "Peak-Stunde": pivot.idxmax(axis=1).apply(lambda h: f"{int(h):02d}:00"),
+        "Peak-Delay (s)": pivot.max(axis=1).round(1),
+        "Nacht-Min (s)": pivot[[0, 1, 2, 3, 4]].min(axis=1).round(1),
+    })
+    return (
+        result.sort_values("Ø Delay gesamt (s)", ascending=False)
+        .rename_axis("Linie")
+    )
+
+
+# ---------------------------------------------------------------------------
+# Direction Map — delay per stop split by trip direction
+# ---------------------------------------------------------------------------
+
+def plot_stop_delay_by_direction(lf: pl.LazyFrame, line_name: str, min_n: int = 200) -> None:
+    """Two Plotly maps side by side: same line, opposite directions, stops colored by delay."""
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+
+    lf_line = lf.filter(
+        (pl.col("canceled") == False) & (pl.col("line_name") == line_name)
+    )
+
+    # Compute last stop per trip = direction indicator
+    terminus = (
+        lf_line
+        .group_by("trip_id")
+        .agg(
+            pl.col("stop_name").sort_by("stop_sequence").last().alias("terminus")
+        )
+    )
+
+    df = (
+        lf_line
+        .join(terminus, on="trip_id")
+        .group_by(["terminus", "stop_name"])
+        .agg([
+            pl.col("arrival_delay").mean().alias("avg_delay"),
+            pl.col("stop_lat").mean(),
+            pl.col("stop_lon").mean(),
+            pl.len().alias("n"),
+        ])
+        .collect()
+        .to_pandas()
+    )
+    df = df[df["n"] >= min_n].copy()
+    df["avg_delay"] = df["avg_delay"].round(1)
+
+    directions = df["terminus"].value_counts().nlargest(2).index.tolist()
+    if len(directions) < 2:
+        print(f"Linie {line_name}: weniger als 2 Richtungen gefunden.")
+        return
+
+    vmin = df["avg_delay"].quantile(0.05)
+    vmax = df["avg_delay"].quantile(0.95)
+
+    fig = make_subplots(
+        rows=1, cols=2,
+        subplot_titles=[
+            f"→ {directions[0].replace('Zürich, ', '')}",
+            f"→ {directions[1].replace('Zürich, ', '')}",
+        ],
+        specs=[[{"type": "mapbox"}, {"type": "mapbox"}]],
+        horizontal_spacing=0.02,
+    )
+
+    for col, terminus in enumerate(directions, start=1):
+        sub = df[df["terminus"] == terminus]
+        bubble = (sub["avg_delay"] / df["avg_delay"].max() * 20).clip(lower=5)
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["stop_lat"],
+            lon=sub["stop_lon"],
+            mode="markers",
+            marker=dict(
+                size=bubble,
+                color=sub["avg_delay"],
+                colorscale="YlOrRd",
+                cmin=vmin, cmax=vmax,
+                colorbar=dict(title="Ø Delay (s)", thickness=10, len=0.5, x=1.01) if col == 2 else None,
+                showscale=(col == 2),
+            ),
+            text=sub["stop_name"].str.replace("Zürich, ", ""),
+            customdata=sub[["avg_delay", "n"]].values,
+            hovertemplate=(
+                "<b>%{text}</b><br>"
+                "Ø Delay: %{customdata[0]:.1f}s<br>"
+                "N: %{customdata[1]:,.0f}<extra></extra>"
+            ),
+            name=f"→ {terminus.replace('Zürich, ', '')}",
+        ), row=1, col=col)
+
+    center = {"lat": df["stop_lat"].mean(), "lon": df["stop_lon"].mean()}
+    for col in [1, 2]:
+        fig.update_layout(**{
+            f"mapbox{'' if col == 1 else col}_style": "carto-positron",
+            f"mapbox{'' if col == 1 else col}_center": center,
+            f"mapbox{'' if col == 1 else col}_zoom": 12,
+        })
+
+    fig.update_layout(
+        height=520,
+        margin=dict(l=0, r=0, t=40, b=0),
+        title=f"Linie {line_name} — Ø Delay nach Fahrtrichtung",
+    )
+    fig.show()
+
+
+def table_stop_delay_by_direction(lf: pl.LazyFrame, line_name: str, min_n: int = 200) -> pd.DataFrame:
+    """Top stops by delay per direction for a given line."""
+    lf_line = lf.filter(
+        (pl.col("canceled") == False) & (pl.col("line_name") == line_name)
+    )
+    terminus = (
+        lf_line
+        .group_by("trip_id")
+        .agg(pl.col("stop_name").sort_by("stop_sequence").last().alias("terminus"))
+    )
+    df = (
+        lf_line
+        .join(terminus, on="trip_id")
+        .group_by(["terminus", "stop_name"])
+        .agg([
+            pl.col("arrival_delay").mean().alias("Ø Delay (s)"),
+            pl.col("stop_sequence").mean().alias("Ø Stop-Seq"),
+            pl.len().alias("N"),
+        ])
+        .collect()
+        .to_pandas()
+    )
+    df = df[df["N"] >= min_n].copy()
+    directions = df["terminus"].value_counts().nlargest(2).index.tolist()
+
+    frames = []
+    for d in directions:
+        sub = (
+            df[df["terminus"] == d]
+            .nlargest(10, "Ø Delay (s)")
+            [["stop_name", "Ø Delay (s)", "Ø Stop-Seq", "N"]]
+            .assign(**{"Richtung": d.replace("Zürich, ", "")})
+            .rename(columns={"stop_name": "Haltestelle"})
+            .reset_index(drop=True)
+        )
+        sub.index += 1
+        frames.append(sub)
+
+    return pd.concat(frames).set_index("Richtung")
