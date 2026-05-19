@@ -516,3 +516,556 @@ def table_correlation_with_delay(lf: pl.LazyFrame) -> pd.DataFrame:
     )
     result.columns = ["Feature", "Korrelation mit delay", "|Korrelation|"]
     return result.set_index("Feature")
+
+
+# ---------------------------------------------------------------------------
+# District Weather Sensitivity
+# ---------------------------------------------------------------------------
+
+def plot_district_weather_sensitivity(lf: pl.LazyFrame, cfg=None) -> None:
+    """Two sorted bar charts (snow / heavy rain) with average line and above-avg highlight."""
+    from wgnd.core.theme import mpl_style
+    cfg = _get_cfg(cfg)
+
+    lf_delay = lf.filter(pl.col("canceled") == False)
+    _schema  = lf_delay.collect_schema()
+
+    weather_flags = [f for f in ["has_snow", "has_heavy_rain"] if f in _schema]
+    titles  = {"has_snow": "Schnee", "has_heavy_rain": "Starkregen"}
+    colors  = cfg.palette_n(2)
+    style   = mpl_style()
+
+    def _district_delta(flag):
+        district = (
+            lf_delay
+            .group_by(["district_name", flag])
+            .agg(pl.col("arrival_delay").mean().alias("avg_delay"))
+            .collect()
+            .to_pandas()
+        )
+        normal  = district[district[flag] == False][["district_name", "avg_delay"]].rename(columns={"avg_delay": "normal"})
+        weather = district[district[flag] == True][["district_name", "avg_delay"]].rename(columns={"avg_delay": "weather"})
+        merged  = normal.merge(weather, on="district_name").dropna()
+        merged  = merged[merged["district_name"] != "outside"].copy()
+        merged["delta"] = (merged["weather"] - merged["normal"]).round(1)
+        return merged.sort_values("delta", ascending=False).reset_index(drop=True)
+
+    fig, axes = plt.subplots(1, len(weather_flags), figsize=(14, 5), sharey=False)
+    if len(weather_flags) == 1:
+        axes = [axes]
+
+    for ax, flag, color in zip(axes, weather_flags, colors):
+        df   = _district_delta(flag)
+        mean = df["delta"].mean()
+        above = df["delta"] >= mean
+
+        bar_colors = [color if a else "#bbbbbb" for a in above]
+        bars = ax.bar(range(len(df)), df["delta"], color=bar_colors, alpha=0.88)
+        ax.bar_label(bars, labels=[f"+{v:.1f}" if v > 0 else f"{v:.1f}" for v in df["delta"]],
+                     padding=2, fontsize=8)
+
+        ax.axhline(mean, color="#e05a2b", lw=1.5, linestyle="--", label=f"Ø {mean:.1f}s")
+        ax.set_xticks(range(len(df)))
+        ax.set_xticklabels(df["district_name"], rotation=35, ha="right", fontsize=9)
+        ax.set_ylabel("Δ Delay vs. Normaltag (s)", **style["label"])
+        ax.set_title(f"Wetterempfindlichkeit — {titles[flag]}", **style["title"])
+        ax.legend(fontsize=9)
+        ax.spines[["top", "right"]].set_visible(False)
+
+    _st = {k: v for k, v in style["title"].items() if k not in ("loc", "pad")}
+    plt.suptitle("Stadtkreis-Vergleich: Schnee vs. Starkregen", **_st, y=1.02)
+    plt.tight_layout()
+    plt.show()
+
+
+def table_district_weather_sensitivity(lf: pl.LazyFrame) -> pd.DataFrame:
+    """Δ delay per Stadtkreis for snow and heavy rain side by side."""
+    lf_delay = lf.filter(pl.col("canceled") == False)
+    _schema  = lf_delay.collect_schema()
+
+    weather_flags = [f for f in ["has_snow", "has_heavy_rain"] if f in _schema]
+    labels = {"has_snow": "Δ Schnee (s)", "has_heavy_rain": "Δ Starkregen (s)"}
+
+    result = None
+    for flag in weather_flags:
+        district = (
+            lf_delay
+            .group_by(["district_name", flag])
+            .agg(pl.col("arrival_delay").mean().alias("avg_delay"))
+            .collect()
+            .to_pandas()
+        )
+        normal  = district[district[flag] == False][["district_name", "avg_delay"]].rename(columns={"avg_delay": "normal"})
+        weather = district[district[flag] == True][["district_name", "avg_delay"]].rename(columns={"avg_delay": "weather"})
+        merged  = normal.merge(weather, on="district_name").dropna()
+        merged["delta"] = (merged["weather"] - merged["normal"]).round(1)
+        col = merged[["district_name", "delta"]].rename(columns={"delta": labels[flag]})
+        result = col if result is None else result.merge(col, on="district_name")
+
+    return (
+        result[result["district_name"] != "outside"]
+        .sort_values("district_name")
+        .rename(columns={"district_name": "Stadtkreis"})
+        .set_index("Stadtkreis")
+    )
+
+
+# ---------------------------------------------------------------------------
+# Stop & Line Weather Ranking
+# ---------------------------------------------------------------------------
+
+def _weather_delta_df(lf_delay, flag, group_col, min_n=500):
+    """Compute Δ delay (weather vs normal) per group_col for a given flag."""
+    agg = (
+        lf_delay
+        .group_by([group_col, flag])
+        .agg([
+            pl.col("arrival_delay").mean().alias("avg_delay"),
+            pl.len().alias("n"),
+        ])
+        .collect()
+        .to_pandas()
+    )
+    normal  = agg[agg[flag] == False][[group_col, "avg_delay"]].rename(columns={"avg_delay": "normal"})
+    weather = agg[agg[flag] == True][[group_col, "avg_delay", "n"]].rename(columns={"avg_delay": "weather"})
+    merged  = normal.merge(weather, on=group_col).dropna()
+    merged  = merged[merged["n"] > min_n].copy()
+    merged["delta"] = (merged["weather"] - merged["normal"]).round(1)
+    return merged
+
+
+def plot_stop_weather_ranking(lf: pl.LazyFrame, cfg=None, top_n: int = 20) -> None:
+    """Horizontal bar charts: top stops by Δ delay for snow and heavy rain."""
+    from wgnd.core.theme import mpl_style
+    cfg = _get_cfg(cfg)
+
+    lf_delay = lf.filter(pl.col("canceled") == False)
+    _schema  = lf_delay.collect_schema()
+
+    weather_flags = [f for f in ["has_snow", "has_heavy_rain"] if f in _schema]
+    titles  = {"has_snow": "Schnee", "has_heavy_rain": "Starkregen"}
+    colors  = cfg.palette_n(2)
+    style   = mpl_style()
+
+    fig, axes = plt.subplots(1, len(weather_flags), figsize=(16, 7), sharey=False)
+    if len(weather_flags) == 1:
+        axes = [axes]
+
+    for ax, flag, color in zip(axes, weather_flags, colors):
+        df   = _weather_delta_df(lf_delay, flag, "stop_name")
+        df   = df.nlargest(top_n, "delta").sort_values("delta", ascending=True).reset_index(drop=True)
+        mean = df["delta"].mean()
+        above = df["delta"] >= mean
+
+        bar_colors = [color if a else "#bbbbbb" for a in above]
+        bars = ax.barh(range(len(df)), df["delta"], color=bar_colors, alpha=0.88)
+        ax.bar_label(bars, labels=[f"+{v:.1f}" if v > 0 else f"{v:.1f}" for v in df["delta"]],
+                     padding=3, fontsize=8)
+
+        ax.axvline(mean, color="#e05a2b", lw=1.5, linestyle="--", label=f"Ø {mean:.1f}s")
+        ax.set_yticks(range(len(df)))
+        ax.set_yticklabels(df["stop_name"], fontsize=8)
+        ax.set_xlabel("Δ Delay vs. Normaltag (s)", **style["label"])
+        ax.set_title(f"Top {top_n} Haltestellen — {titles[flag]}", **style["title"])
+        ax.legend(fontsize=9)
+        ax.spines[["top", "right"]].set_visible(False)
+
+    _st = {k: v for k, v in style["title"].items() if k not in ("loc", "pad")}
+    plt.suptitle("Haltestellen-Ranking: Schnee vs. Starkregen", **_st, y=1.02)
+    plt.tight_layout()
+    plt.show()
+
+
+def table_stop_weather_ranking(lf: pl.LazyFrame, top_n: int = 20) -> pd.DataFrame:
+    """Top stops by Δ delay for snow and heavy rain side by side."""
+    lf_delay = lf.filter(pl.col("canceled") == False)
+    _schema  = lf_delay.collect_schema()
+
+    weather_flags = [f for f in ["has_snow", "has_heavy_rain"] if f in _schema]
+    labels  = {"has_snow": "Δ Schnee (s)", "has_heavy_rain": "Δ Starkregen (s)"}
+
+    result = None
+    for flag in weather_flags:
+        df  = _weather_delta_df(lf_delay, flag, "stop_name")
+        top = df.nlargest(top_n, "delta")[["stop_name", "delta"]].rename(
+            columns={"delta": labels[flag], "stop_name": "Haltestelle"}
+        ).reset_index(drop=True)
+        top.index += 1
+        result = top if result is None else result.merge(top, on="Haltestelle", how="outer")
+
+    return result.set_index("Haltestelle")
+
+
+def plot_line_weather_exposure(lf: pl.LazyFrame, cfg=None) -> None:
+    """Sorted bar charts: Δ delay per line for snow and heavy rain."""
+    from wgnd.core.theme import mpl_style
+    cfg = _get_cfg(cfg)
+
+    lf_delay = lf.filter(pl.col("canceled") == False)
+    _schema  = lf_delay.collect_schema()
+
+    weather_flags = [f for f in ["has_snow", "has_heavy_rain"] if f in _schema]
+    titles  = {"has_snow": "Schnee", "has_heavy_rain": "Starkregen"}
+    colors  = cfg.palette_n(2)
+    style   = mpl_style()
+
+    fig, axes = plt.subplots(1, len(weather_flags), figsize=(14, 5), sharey=False)
+    if len(weather_flags) == 1:
+        axes = [axes]
+
+    for ax, flag, color in zip(axes, weather_flags, colors):
+        df   = _weather_delta_df(lf_delay, flag, "line_name", min_n=1000)
+        df   = df.sort_values("delta", ascending=False).reset_index(drop=True)
+        mean = df["delta"].mean()
+        above = df["delta"] >= mean
+
+        bar_colors = [color if a else "#bbbbbb" for a in above]
+        bars = ax.bar(range(len(df)), df["delta"], color=bar_colors, alpha=0.88)
+        ax.bar_label(bars, labels=[f"+{v:.1f}" if v > 0 else f"{v:.1f}" for v in df["delta"]],
+                     padding=2, fontsize=8)
+
+        ax.axhline(mean, color="#e05a2b", lw=1.5, linestyle="--", label=f"Ø {mean:.1f}s")
+        ax.set_xticks(range(len(df)))
+        ax.set_xticklabels(df["line_name"], rotation=30, ha="right", fontsize=9)
+        ax.set_ylabel("Δ Delay vs. Normaltag (s)", **style["label"])
+        ax.set_title(f"Linien-Betroffenheit — {titles[flag]}", **style["title"])
+        ax.legend(fontsize=9)
+        ax.spines[["top", "right"]].set_visible(False)
+
+    _st = {k: v for k, v in style["title"].items() if k not in ("loc", "pad")}
+    plt.suptitle("Welche Linien leiden am meisten unter Wetter?", **_st, y=1.02)
+    plt.tight_layout()
+    plt.show()
+
+
+def table_line_weather_exposure(lf: pl.LazyFrame) -> pd.DataFrame:
+    """Δ delay per line for snow and heavy rain side by side."""
+    lf_delay = lf.filter(pl.col("canceled") == False)
+    _schema  = lf_delay.collect_schema()
+
+    weather_flags = [f for f in ["has_snow", "has_heavy_rain"] if f in _schema]
+    labels  = {"has_snow": "Δ Schnee (s)", "has_heavy_rain": "Δ Starkregen (s)"}
+
+    result = None
+    for flag in weather_flags:
+        df  = _weather_delta_df(lf_delay, flag, "line_name", min_n=1000)
+        col = df[["line_name", "delta"]].rename(
+            columns={"delta": labels[flag], "line_name": "Linie"}
+        )
+        result = col if result is None else result.merge(col, on="Linie", how="outer")
+
+    return (
+        result
+        .sort_values("Δ Schnee (s)" if "Δ Schnee (s)" in result.columns else result.columns[1],
+                     ascending=False)
+        .set_index("Linie")
+    )
+
+
+# ---------------------------------------------------------------------------
+# Daily Delay Timeline — Weather markers
+# ---------------------------------------------------------------------------
+
+def plot_daily_delay_weather_timeline(lf: pl.LazyFrame, cfg=None) -> None:
+    """Daily avg delay per year (3 subplots) with weather markers and temperature overlay."""
+    from wgnd.core.theme import mpl_style
+    cfg = _get_cfg(cfg)
+
+    lf_delay = lf.filter(pl.col("canceled") == False)
+    _schema  = lf_delay.collect_schema()
+
+    daily = (
+        lf_delay
+        .group_by("operating_date")
+        .agg([
+            pl.col("arrival_delay").mean().alias("avg_delay"),
+            pl.col("temperature").mean().alias("avg_temp"),
+        ])
+        .sort("operating_date")
+        .collect()
+        .to_pandas()
+    )
+    daily["operating_date"] = pd.to_datetime(daily["operating_date"])
+
+    # Order matters: rain drawn first (background), snow/heavy rain on top
+    weather_flags = [
+        ("has_rain",       "Regen",      "#bbbbbb", 0.5, 0.8),
+        ("has_heavy_rain", "Starkregen", "#e74c3c", 0.8, 2.0),
+        ("has_snow",       "Schnee",     "#5b9bd5", 0.9, 2.0),
+    ]
+    available_flags = [(f, l, c, a, lw) for f, l, c, a, lw in weather_flags if f in _schema]
+
+    weather_dates = {}
+    for flag, label, color, alpha, lw in available_flags:
+        dates = (
+            lf_delay
+            .filter(pl.col(flag) == True)
+            .select("operating_date")
+            .unique()
+            .collect()
+            .to_pandas()["operating_date"]
+        )
+        weather_dates[flag] = (pd.to_datetime(dates), label, color, alpha, lw)
+
+    style = mpl_style()
+    years = [2023, 2024, 2025]
+    fig, axes = plt.subplots(3, 1, figsize=(18, 12), sharex=False)
+
+    for ax, year in zip(axes, years):
+        df_year = daily[daily["operating_date"].dt.year == year].sort_values("operating_date")
+        baseline = df_year["avg_delay"].mean()
+
+        # Delay line + mean
+        ax.plot(df_year["operating_date"], df_year["avg_delay"],
+                color="#222222", lw=1.2, alpha=0.85, label="Ø Delay")
+        ax.axhline(baseline, color="#888888", lw=1, linestyle="--",
+                   alpha=0.7, label=f"Ø {baseline:.1f}s")
+
+        # Weather markers
+        for flag, (dates, label, color, alpha, lw) in weather_dates.items():
+            shown = False
+            for d in dates[dates.dt.year == year]:
+                lbl = label if not shown else None
+                ax.axvline(pd.Timestamp(d), color=color, lw=lw, alpha=alpha, label=lbl)
+                shown = True
+
+        ax.set_ylabel("Ø Delay (s)", **style["label"])
+        ax.set_xlim(pd.Timestamp(f"{year}-01-01"), pd.Timestamp(f"{year}-12-31"))
+        ax.spines[["top", "right"]].set_visible(False)
+
+        # Temperature overlay (second y-axis)
+        ax2 = ax.twinx()
+        ax2.plot(df_year["operating_date"], df_year["avg_temp"],
+                 color="#f1c40f", lw=1.0, alpha=0.7, label="Temperatur")
+        temp_mean = df_year["avg_temp"].mean()
+        ax2.axhline(temp_mean, color="#f1c40f", lw=0.8, linestyle="--",
+                    alpha=0.5, label=f"Ø {temp_mean:.1f}°C")
+        ax2.set_ylabel("Temperatur (°C)", color="#f1c40f", fontsize=9)
+        ax2.tick_params(axis="y", labelcolor="#f1c40f")
+        ax2.spines[["top"]].set_visible(False)
+
+        # Combined legend
+        lines1, labels1 = ax.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax.legend(lines1 + lines2, labels1 + labels2, fontsize=8, loc="upper left", ncol=5)
+        ax.set_title(str(year), **style["title"])
+
+    axes[-1].set_xlabel("Datum", **style["label"])
+    fig.suptitle("Daily Delay Timeline — Weather Events & Temperature", fontsize=14, fontweight="bold", y=1.01)
+    plt.tight_layout()
+    plt.show()
+
+
+def table_daily_delay_weather_timeline(lf: pl.LazyFrame) -> pd.DataFrame:
+    """Top weather days by avg delay — worst snow, heavy rain, hot days."""
+    lf_delay = lf.filter(pl.col("canceled") == False)
+    _schema  = lf_delay.collect_schema()
+
+    weather_flags = [
+        ("has_snow",       "Schnee"),
+        ("has_heavy_rain", "Starkregen"),
+        ("is_hot",         "Hitze"),
+    ]
+    frames = []
+    for flag, label in weather_flags:
+        if flag not in _schema:
+            continue
+        df = (
+            lf_delay
+            .filter(pl.col(flag) == True)
+            .group_by("operating_date")
+            .agg([
+                pl.col("arrival_delay").mean().alias("avg_delay"),
+                (pl.col("arrival_delay").abs() <= 120).mean().alias("otp"),
+                pl.len().alias("n"),
+            ])
+            .sort("avg_delay", descending=True)
+            .head(10)
+            .collect()
+            .to_pandas()
+        )
+        df["Wetter"] = label
+        frames.append(df)
+
+    result = pd.concat(frames).sort_values("avg_delay", ascending=False)
+    result["otp"] = result["otp"].apply(lambda x: f"{x:.1%}")
+    result["avg_delay"] = result["avg_delay"].round(1)
+    return (
+        result[["operating_date", "Wetter", "avg_delay", "otp", "n"]]
+        .rename(columns={
+            "operating_date": "Datum",
+            "avg_delay":      "Ø Delay (s)",
+            "otp":            "OTP",
+            "n":              "N Halte",
+        })
+        .reset_index(drop=True)
+    )
+
+
+# ---------------------------------------------------------------------------
+# Stop-level Weather Impact Map
+# ---------------------------------------------------------------------------
+
+def plot_weather_stop_map(lf: pl.LazyFrame, flag: str = "has_snow") -> None:
+    """Plotly bubble map: Δ delay per stop for a given weather flag vs normal days.
+
+    Reuses the same pattern as plot_event_stop_map in analytics/events.py.
+    flag: 'has_snow', 'has_heavy_rain', or 'is_hot'
+    """
+    import plotly.graph_objects as go
+    import json
+    import numpy as np
+    from pathlib import Path
+
+    lf_delay = lf.filter(pl.col("canceled") == False)
+
+    stop_weather = (
+        lf_delay
+        .group_by(["stop_name", "stop_lat", "stop_lon", "district_name", "district_nr", flag])
+        .agg([
+            pl.col("arrival_delay").mean().alias("avg_delay"),
+            pl.len().alias("n"),
+        ])
+        .collect()
+        .to_pandas()
+    )
+
+    normal  = stop_weather[stop_weather[flag] == False][["stop_name", "stop_lat", "stop_lon", "avg_delay", "n"]].rename(columns={"avg_delay": "normal", "n": "n_normal"})
+    weather = stop_weather[stop_weather[flag] == True][["stop_name", "avg_delay", "n"]].rename(columns={"avg_delay": "weather", "n": "n_weather"})
+
+    stops = normal.merge(weather, on="stop_name").dropna()
+    stops = stops[stops["n_weather"] > 500]
+    stops["delta"]     = (stops["weather"] - stops["normal"]).round(1)
+    stops["abs_delta"] = stops["delta"].abs()
+    # Dynamic scale based on actual data
+    vmax = stops["delta"].quantile(0.95)
+    vmin = stops["delta"].quantile(0.05)
+    vcenter = stops["delta"].median()
+
+    district_weather = (
+        lf_delay
+        .group_by(["district_nr", flag])
+        .agg(pl.col("arrival_delay").mean().alias("avg_delay"))
+        .collect()
+        .to_pandas()
+    )
+    d_normal  = district_weather[district_weather[flag] == False][["district_nr", "avg_delay"]].rename(columns={"avg_delay": "normal"})
+    d_weather = district_weather[district_weather[flag] == True][["district_nr", "avg_delay"]].rename(columns={"avg_delay": "weather"})
+    d_delta   = d_normal.merge(d_weather, on="district_nr").dropna()
+    d_delta["delta"] = (d_delta["weather"] - d_delta["normal"]).round(1)
+    delta_map = dict(zip(d_delta["district_nr"].astype(str), d_delta["delta"]))
+
+    geo_path = Path(__file__).parents[3] / "data" / "raw" / "stadtkreise.geojson"
+    with open(geo_path) as f:
+        stadtkreise = json.load(f)
+
+    kreis_ids    = [str(f["properties"]["objid"]) for f in stadtkreise["features"]]
+    kreis_deltas = [delta_map.get(kid, 0) for kid in kreis_ids]
+
+    label_lats, label_lons, label_texts = [], [], []
+    for feature in stadtkreise["features"]:
+        coords = np.array(feature["geometry"]["coordinates"][0])
+        label_lats.append(coords[:, 1].mean())
+        label_lons.append(coords[:, 0].mean())
+        kid = feature["properties"]["objid"]
+        d = delta_map.get(str(kid), 0)
+        label_texts.append(f"K{kid} ({d:+.1f}s)")
+
+    flag_labels = {"has_snow": "Schnee", "has_heavy_rain": "Starkregen", "is_hot": "Hitze"}
+    flag_label  = flag_labels.get(flag, flag)
+
+    fig = go.Figure()
+
+    d_vmax = max(abs(min(kreis_deltas)), abs(max(kreis_deltas))) if kreis_deltas else 10
+
+    fig.add_trace(go.Choroplethmapbox(
+        geojson=stadtkreise,
+        locations=kreis_ids,
+        z=kreis_deltas,
+        featureidkey="properties.objid",
+        colorscale="RdBu_r",
+        zmid=0, zmin=-d_vmax, zmax=d_vmax,
+        colorbar=dict(title="Kreis Δ (s)", x=0.01, len=0.4, y=0.6),
+        marker=dict(line=dict(color="#888888", width=1), opacity=0.45),
+        hovertemplate="<b>Kreis %{location}</b><br>Δ Delay: %{z:+.1f}s<extra></extra>",
+    ))
+
+    bubble_size = (stops["abs_delta"] / stops["abs_delta"].max() * 25).clip(lower=3)
+
+    fig.add_trace(go.Scattermapbox(
+        lat=stops["stop_lat"],
+        lon=stops["stop_lon"],
+        mode="markers",
+        marker=dict(
+            size=bubble_size,
+            color=stops["delta"],
+            colorscale="RdBu_r",
+            cmin=vmin, cmid=vcenter, cmax=vmax,
+            colorbar=dict(title="Stop Δ (s)", x=1.0, len=0.4, y=0.6),
+            opacity=0.85,
+        ),
+        text=stops.apply(
+            lambda r: f"{r['stop_name']}<br>Normal: {r['normal']:.1f}s<br>{flag_label}: {r['weather']:.1f}s<br>Δ: {r['delta']:+.1f}s",
+            axis=1
+        ),
+        hoverinfo="text",
+    ))
+
+    fig.add_trace(go.Scattermapbox(
+        lat=label_lats, lon=label_lons,
+        mode="text", text=label_texts,
+        textfont=dict(size=11, color="#cccccc"),
+        hoverinfo="skip",
+    ))
+
+    fig.update_layout(
+        mapbox_style="carto-darkmatter",
+        mapbox_zoom=11,
+        mapbox_center={"lat": 47.378, "lon": 8.540},
+        margin={"r": 0, "t": 40, "l": 0, "b": 0},
+        height=650,
+        title=f"Weather Impact per Stop — Δ Delay ({flag_label} vs. Normal)",
+    )
+    fig.show()
+
+
+def table_weather_stop_map(lf: pl.LazyFrame, flag: str = "has_snow") -> pd.DataFrame:
+    """Top stops by Δ delay for a given weather flag vs normal days."""
+    lf_delay = lf.filter(pl.col("canceled") == False)
+
+    stop_weather = (
+        lf_delay
+        .group_by(["stop_name", "district_name", flag])
+        .agg([
+            pl.col("arrival_delay").mean().alias("avg_delay"),
+            pl.len().alias("n"),
+        ])
+        .collect()
+        .to_pandas()
+    )
+
+    normal  = stop_weather[stop_weather[flag] == False][["stop_name", "district_name", "avg_delay", "n"]].rename(columns={"avg_delay": "normal", "n": "n_normal"})
+    weather = stop_weather[stop_weather[flag] == True][["stop_name", "avg_delay", "n"]].rename(columns={"avg_delay": "weather", "n": "n_weather"})
+
+    stops = normal.merge(weather, on="stop_name").dropna()
+    stops = stops[stops["n_weather"] > 500]
+    stops["delta"] = (stops["weather"] - stops["normal"]).round(1)
+
+    flag_labels = {"has_snow": "Schnee (s)", "has_heavy_rain": "Starkregen (s)", "is_hot": "Hitze (s)"}
+    col = flag_labels.get(flag, flag)
+
+    return (
+        stops.sort_values("delta", ascending=False)
+        .head(20)
+        [["stop_name", "district_name", "normal", "weather", "delta", "n_weather"]]
+        .rename(columns={
+            "stop_name":     "Haltestelle",
+            "district_name": "Stadtkreis",
+            "normal":        "Normal (s)",
+            "weather":       col,
+            "delta":         "Δ (s)",
+            "n_weather":     "N Halte",
+        })
+        .round({"Normal (s)": 1, col: 1})
+        .reset_index(drop=True)
+    )
