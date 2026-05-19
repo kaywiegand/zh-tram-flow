@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 
 def _get_cfg(cfg):
     if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+        from wgnd.core.config import cfg as _default_cfg
+        cfg = _default_cfg
     return cfg
 
 
@@ -68,6 +68,24 @@ def get_stops_per_line(year: str, path) -> dict:
     return result
 
 
+def load_gtfs(root_path) -> tuple[dict, list]:
+    """Lädt GTFS j23/j24/j25 aus sf_data-research und gibt (gtfs, all_lines) zurück."""
+    from pathlib import Path
+    root_path = Path(root_path)
+    sf_gtfs = root_path.parent / "sf_data-research" / "data" / "raw" / "vbz" / "gtfs"
+    years = {
+        "j23": sf_gtfs / "2023_google_transit",
+        "j24": sf_gtfs / "2024_google_transit",
+        "j25": sf_gtfs / "2025_google_transit",
+    }
+    gtfs = {yr: get_stops_per_line(yr, path) for yr, path in years.items()}
+    all_lines = sorted(
+        set(ln for yr in gtfs for ln in gtfs[yr]),
+        key=lambda x: int(x) if x.isdigit() else 99,
+    )
+    return gtfs, all_lines
+
+
 def build_changes_matrix(gtfs: dict, all_lines: list) -> pd.DataFrame:
     """Baut die Änderungsmatrix aus GTFS-Daten auf."""
     rows = []
@@ -95,43 +113,53 @@ def build_changes_matrix(gtfs: dict, all_lines: list) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def create_network_changes_map(changes: pd.DataFrame, output_path) -> None:
-    """Erstellt die Folium-Karte der Netzänderungen und speichert sie."""
-    import folium
-    m = folium.Map(location=[47.378, 8.540], zoom_start=13, tiles="CartoDB positron")
+def plot_network_changes_map(changes: pd.DataFrame) -> None:
+    """Plotly Mapbox: neue Haltestellen (orange) und entfernte (grau) ab Dez 2023."""
+    import plotly.graph_objects as go
 
+    added_rows, removed_rows = [], []
     for _, row in changes.iterrows():
         ln = row["line"]
-        color = LINE_COLORS.get(ln, "#888")
-
         for name, (lat, lon) in row["coords_j24"].items():
             if name in row["names_added_j24"] and lat and lon:
-                folium.CircleMarker(
-                    location=[lat, lon], radius=6,
-                    color="#FF6B00", weight=1.5, fill=True, fill_color="#FF6B00", fill_opacity=0.85,
-                    tooltip=f"<b>{name}</b><br>Linie {ln} — neu ab j24"
-                ).add_to(m)
-
+                added_rows.append({"name": name, "line": ln, "lat": lat, "lon": lon})
         for name, (lat, lon) in row["coords_j23"].items():
             if name in row["names_removed_j24"] and lat and lon:
-                folium.CircleMarker(
-                    location=[lat, lon], radius=5,
-                    color="#aaa", weight=1, fill=True, fill_color="#ddd", fill_opacity=0.7,
-                    tooltip=f"<b>{name}</b><br>Linie {ln} — nur j23"
-                ).add_to(m)
+                removed_rows.append({"name": name, "line": ln, "lat": lat, "lon": lon})
 
-    legend_html = """
-<div style="position:fixed;bottom:20px;left:12px;z-index:1000;background:white;
-     padding:9px 12px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.15);font-size:11px">
-  <div style="display:flex;align-items:center;gap:7px;margin:3px 0">
-    <div style="width:10px;height:10px;background:#FF6B00;border-radius:50%"></div>Neu ab Dez 2023
-  </div>
-  <div style="display:flex;align-items:center;gap:7px;margin:3px 0">
-    <div style="width:10px;height:10px;background:#ddd;border:1px solid #aaa;border-radius:50%"></div>Entfernt nach j23
-  </div>
-</div>"""
-    m.get_root().html.add_child(folium.Element(legend_html))
-    m.save(str(output_path))
+    fig = go.Figure()
+
+    if removed_rows:
+        rem = pd.DataFrame(removed_rows)
+        fig.add_trace(go.Scattermapbox(
+            lat=rem["lat"], lon=rem["lon"],
+            mode="markers",
+            marker=dict(size=8, color="#bbbbbb", opacity=0.7),
+            text=rem.apply(lambda r: f"{r['name'].replace('Zürich, ', '')}<br>L{r['line']} — entfernt nach j23", axis=1),
+            hovertemplate="<b>%{text}</b><extra></extra>",
+            name="Entfernt nach j23",
+        ))
+
+    if added_rows:
+        add = pd.DataFrame(added_rows)
+        fig.add_trace(go.Scattermapbox(
+            lat=add["lat"], lon=add["lon"],
+            mode="markers",
+            marker=dict(size=10, color="#FF6B00", opacity=0.85),
+            text=add.apply(lambda r: f"{r['name'].replace('Zürich, ', '')}<br>L{r['line']} — neu ab Dez 2023", axis=1),
+            hovertemplate="<b>%{text}</b><extra></extra>",
+            name="Neu ab Dez 2023",
+        ))
+
+    fig.update_layout(
+        mapbox=dict(style="carto-positron", center=dict(lat=47.378, lon=8.540), zoom=12),
+        margin=dict(l=0, r=0, t=40, b=0),
+        height=520,
+        legend=dict(x=0.01, y=0.99, bgcolor="rgba(255,255,255,0.85)", borderwidth=1),
+        title=dict(text="Netzänderungen Dez 2023 — neue und entfernte Haltestellen",
+                   font=dict(size=14)),
+    )
+    fig.show()
 
 
 def plot_new_stops_by_district(changes: pd.DataFrame, lf_all, cfg=None):
@@ -555,6 +583,108 @@ def table_hotspots(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
         .round({"Ø Delay (s)": 1})
         .reset_index(drop=True)
     )
+
+
+def plot_service_quality_district_map(lf_all) -> None:
+    """Plotly Mapbox Choropleth: Δ Linienanbindung pro Stadtkreis 2023 → 2025."""
+    import plotly.graph_objects as go
+    import json
+    from pathlib import Path
+
+    geojson_path = Path(__file__).parents[3] / "data" / "raw" / "stadtkreise.geojson"
+    with open(geojson_path) as f:
+        geojson = json.load(f)
+
+    def lines_per_district_nr(year_key):
+        yr_start = {"j23": "2023-01-01", "j25": "2025-01-01"}[year_key]
+        yr_end   = {"j23": "2023-12-31", "j25": "2025-11-30"}[year_key]
+        return (
+            lf_all
+            .filter(pl.col("operating_date").is_between(
+                pl.lit(yr_start).str.to_date(), pl.lit(yr_end).str.to_date()))
+            .filter(pl.col("district_nr").is_not_null())
+            .select(["district_nr", "line_name"])
+            .unique()
+            .group_by("district_nr")
+            .agg(pl.col("line_name").n_unique().alias(f"lines_{year_key}"))
+            .collect()
+            .to_pandas()
+        )
+
+    j23 = lines_per_district_nr("j23")
+    j25 = lines_per_district_nr("j25")
+    cmp = j23.merge(j25, on="district_nr", how="outer")
+    cmp["lines_j23"] = cmp["lines_j23"].fillna(0).astype(int)
+    cmp["lines_j25"] = cmp["lines_j25"].fillna(0).astype(int)
+    cmp["delta"] = cmp["lines_j25"] - cmp["lines_j23"]
+    cmp["district_nr_str"] = cmp["district_nr"].astype(str)
+    cmp["label"] = cmp.apply(
+        lambda r: f"Kreis {r['district_nr']}<br>j23: {r['lines_j23']} Linien → j25: {r['lines_j25']} Linien<br>Δ: {'+' if r['delta'] > 0 else ''}{r['delta']}",
+        axis=1
+    )
+
+    abs_max = cmp["delta"].abs().max()
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Choroplethmapbox(
+        geojson=geojson,
+        locations=cmp["district_nr_str"],
+        z=cmp["delta"],
+        featureidkey="properties.objid",
+        colorscale=[
+            [0.0,  "#E20A16"],
+            [0.5,  "#f5f5f5"],
+            [1.0,  "#00892F"],
+        ],
+        zmin=-abs_max,
+        zmax=abs_max,
+        marker=dict(line=dict(color="white", width=1.5), opacity=0.75),
+        colorbar=dict(
+            title="Δ Linien",
+            thickness=14,
+            len=0.55,
+            tickvals=list(range(-abs_max, abs_max + 1)),
+        ),
+        text=cmp["label"],
+        hovertemplate="%{text}<extra></extra>",
+        name="Δ Linienanbindung",
+    ))
+
+    for _, row in cmp.iterrows():
+        feat = next(
+            (f for f in geojson["features"] if f["properties"]["objid"] == str(row["district_nr"])),
+            None
+        )
+        if feat is None:
+            continue
+        coords = feat["geometry"]["coordinates"]
+        if feat["geometry"]["type"] == "MultiPolygon":
+            all_pts = [pt for poly in coords for ring in poly for pt in ring]
+        else:
+            all_pts = [pt for ring in coords for pt in ring]
+        if not all_pts:
+            continue
+        lon_c = sum(p[0] for p in all_pts) / len(all_pts)
+        lat_c = sum(p[1] for p in all_pts) / len(all_pts)
+        sign = "+" if row["delta"] > 0 else ""
+        fig.add_trace(go.Scattermapbox(
+            lat=[lat_c], lon=[lon_c],
+            mode="text",
+            text=[f"K{row['district_nr']}<br>{sign}{row['delta']}"],
+            textfont=dict(size=11, color="#222222"),
+            hoverinfo="skip",
+            showlegend=False,
+        ))
+
+    fig.update_layout(
+        mapbox=dict(style="carto-positron", center=dict(lat=47.378, lon=8.540), zoom=11.3),
+        margin=dict(l=0, r=0, t=40, b=0),
+        height=520,
+        title=dict(text="Veränderung der Linienanbindung nach Stadtkreis — 2023 → 2025",
+                   font=dict(size=14)),
+    )
+    fig.show()
 
 
 def plot_service_quality_by_district(lf_all, cfg=None):

@@ -1,8 +1,8 @@
 # Zürich Tram Flow
 ### Verspätungsanalyse und Vorhersage im Tramnetz Zürich
 
-> **Typ:** DANSC &nbsp;|&nbsp; **Erstellt:** 2026-05-11 &nbsp;|&nbsp; **Version:** 0.2.0  
-> **Status:** EDA ✅ · Preparation aufgebaut · Modellierung geplant
+> **Typ:** DANSC &nbsp;|&nbsp; **Erstellt:** 2026-05-11 &nbsp;|&nbsp; **Version:** 0.3.0  
+> **Status:** Analyse ✅ (55 Findings · 6 Notebooks) · Feature Engineering in Planung · Modellierung geplant  
 > **Datenbasis:** [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) — Research & Data Engineering Phase
 
 ---
@@ -13,13 +13,15 @@
 2. [Die Idee](#2-die-idee)
 3. [Warum Zürich — warum Tram?](#3-warum-zürich--warum-tram)
 4. [Das Problem](#4-das-problem)
-5. [Zentrale Fragen](#5-zentrale-fragen)
-6. [Projekt-Phasen](#6-projekt-phasen)
-7. [Daten & Quellen](#7-daten--quellen)
-8. [Business Cases & KPIs](#8-business-cases--kpis)
-9. [Motivation & Portfolio-Mehrwert](#9-motivation--portfolio-mehrwert)
-10. [Projektstruktur](#projektstruktur)
-11. [Schnellstart](#schnellstart)
+5. [Was die Daten zeigen](#5-was-die-daten-zeigen)
+6. [Zentrale Fragen](#6-zentrale-fragen)
+7. [Projekt-Phasen](#7-projekt-phasen)
+8. [Daten & Quellen](#8-daten--quellen)
+9. [Tech Stack](#9-tech-stack)
+10. [Business Cases & KPIs](#10-business-cases--kpis)
+11. [Motivation & Portfolio-Mehrwert](#11-motivation--portfolio-mehrwert)
+12. [Projektstruktur](#projektstruktur)
+13. [Schnellstart](#schnellstart)
 
 ---
 
@@ -76,7 +78,23 @@ bestimmte Uhrzeiten, bestimmte Wetterbedingungen. Genau das will dieses Projekt 
 
 ---
 
-## 5. Zentrale Fragen
+## 5. Was die Daten zeigen
+
+**93.9 Mio. Datenpunkte · 3 Jahre (2023–2025) · 16 Tramlinien · 55 Findings**
+
+Die abgeschlossene Analyse-Phase liefert klare Antworten — und einige Überraschungen:
+
+- **Verspätungen entstehen an der Peripherie, nicht im Zentrum.** Friedhof Enzenbühl (93.8s), Balgrist (85.2s) und Schwamendingen sind die Hotspots — nicht Central oder Paradeplatz, obwohl dort 14–15 Linien kreuzen.
+- **Kein Morgenrush.** Das dominante Muster ist Feierabend + Events. Der Peak liegt bei 21h (67.9s, Abreisewelle nach Konzerten und Spielen). Donnerstag ist der schlechteste Wochentag — nicht Freitag.
+- **Schnee ist der stärkste Einzeleinflussfaktor** — +54s, OTP −10.9 Prozentpunkte. Und geografisch klar trennbar von Regen: Schnee trifft Höhenlagen (Kreise 10/4/12), Regen trifft Flusstäler (Kreis 5).
+- **Feiertage sind die besten Tage.** −9.9s gegenüber Normal. Der Rückgang des Berufsverkehrs überwiegt jeden Event-Effekt — kontraintuitiv, aber klar belegt.
+- **Der größte Fahrplanwechsel in VBZ-Geschichte (Dez 2023) ist im Delay-Signal unsichtbar.** Netzweit nur +0.5s. Und: Die echten Erweiterungen zielten auf gut performende Kreise (K3/K8) — nicht auf die Problemkreise K11/K12.
+
+> Alle 55 Findings: [`03_analysis_0-overview.ipynb`](notebooks/03_analysis_0-overview.ipynb)
+
+---
+
+## 6. Zentrale Fragen
 
 - Wo entstehen Verspätungen im Tramnetz — und zu welchen Zeiten?
 - Welche Einflussfaktoren spielen die größte Rolle? (Wetter, Topografie, Tageszeit, Events)
@@ -86,7 +104,7 @@ bestimmte Uhrzeiten, bestimmte Wetterbedingungen. Genau das will dieses Projekt 
 
 ---
 
-## 6. Projekt-Phasen
+## 7. Projekt-Phasen
 
 Der Scope ist bewusst in aufeinander aufbauende Versionen gestaffelt — um den MVP
 sicher im Projektzeitrahmen zu erreichen und Raum für Erweiterungen zu lassen.
@@ -97,8 +115,8 @@ sicher im Projektzeitrahmen zu erreichen und Raum für Erweiterungen zu lassen.
 - Datenstrategie, Filter-Entscheidungen und Datenqualität dokumentiert
 - Tooling: Polars (4× schneller als Pandas), GeoPandas, Visualisierungs-Benchmark
 
-#### MVP – "The Foundation"
-- **EDA & Reporting:** Historische Analyse der Hotspots (Kreise/Haltestellen) und Korrelationsmatrix (Wetter vs. Delay)
+#### MVP – "The Foundation" ✅ (Analyse-Phase abgeschlossen)
+- **EDA & Reporting:** 55 Findings aus 6 Analyse-Notebooks — Hotspots, Zeitliches Muster, Wetter, Events, Netzveränderungen
 - Einsatz des eigenen **wgnd-toolkit** und **wgnd-scaffolding**
 
 #### v1.1 – "The Intelligence"
@@ -118,7 +136,7 @@ sicher im Projektzeitrahmen zu erreichen und Raum für Erweiterungen zu lassen.
 
 ---
 
-## 7. Daten & Quellen
+## 8. Daten & Quellen
 
 **Analysezeitraum:** 2023 – 2025
 
@@ -139,7 +157,20 @@ sicher im Projektzeitrahmen zu erreichen und Raum für Erweiterungen zu lassen.
 
 ---
 
-## 8. Business Cases & KPIs
+## 9. Tech Stack
+
+| Bereich | Tool |
+|:---|:---|
+| DataFrames (groß) | Polars |
+| DataFrames (klein/geo) | Pandas · GeoPandas |
+| Visualisierung | Plotly (Charts + interaktive Karten) |
+| Notebooks | Jupyter |
+| Paketierung | wgnd-toolkit · wgnd-scaffolding |
+| Laufzeitumgebung | uv · Python 3.10 |
+
+---
+
+## 10. Business Cases & KPIs
 
 ### Für den Betreiber (VBZ / Operative Exzellenz)
 Ziel: Pünktlichkeit verbessern, Ressourcen gezielter einsetzen
@@ -185,7 +216,7 @@ Ziel: ÖPNV attraktiver machen, Individualverkehr reduzieren
 
 ---
 
-## 9. Motivation & Portfolio-Mehrwert
+## 11. Motivation & Portfolio-Mehrwert
 
 **Warum dieses Thema?**
 Data Science und KI wirken für viele abstrakt. Dieses Projekt macht den Mehrwert
@@ -233,11 +264,16 @@ zh-tram-flow/
 │   └── processed/          # Finale, analysefertige Daten
 │
 ├── notebooks/
-│   ├── 00_introduction.ipynb    # Projektkontext, Data Dictionary, Datenbeschreibung
-│   ├── 01_exploration.ipynb     # EDA: Completeness, Integrity, Distribution, Correlations, Outlier
-│   ├── 02_preparation.ipynb     # Cleaning-Pipeline, Train/Test-Split, Feature Engineering
-│   ├── 03_analysis.ipynb        # Modellierung & Evaluation (XGBoost)
-│   └── 04_insights.ipynb        # Reporting & Dashboard-Vorbereitung
+│   ├── 00_introduction.ipynb          # Projektkontext, Data Dictionary, VBZ-Linienfarben
+│   ├── 01_exploration.ipynb           # EDA: Verteilung, Integrität, Korrelation, Ausreisser
+│   ├── 02_preparation.ipynb           # Bereinigung, Train/Test-Split, Feature Engineering
+│   ├── 03_analysis_0-overview.ipynb   # Zentrale Findings, Kernfragen, Report-Auswahl (55 Findings)
+│   ├── 03_analysis_1-target.ipynb     # Delay-Verteilung, OTP, Cancellations
+│   ├── 03_analysis_2-network.ipynb    # Netzveränderungen 2023–2025, Hotspots, Versorgungsqualität
+│   ├── 03_analysis_3-temporal.ipynb   # Stunde, Wochentag, Monat, Saison
+│   ├── 03_analysis_4-spatial.ipynb    # Haltestellen, Stadtkreise, Linien
+│   ├── 03_analysis_5-meteo.ipynb      # Regen, Wind, Schnee, Temperatur
+│   └── 03_analysis_6-events.ipynb     # Feiertage, Events, Eventgrösse
 │
 ├── src/
 │   └── zh_tram_flow/       # Das Python-Paket

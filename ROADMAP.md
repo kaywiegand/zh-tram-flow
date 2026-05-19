@@ -36,44 +36,85 @@
 - ✅ Data Completeness (C1–C4 Findings)
 - ✅ Data Integrity (I1–I5 Findings)
 - ✅ Data Distribution (numerisch + kategorisch)
-- ✅ Correlations (R1–R5 Findings, Modellierungs-Fazit: XGBoost)
+- ✅ Correlations (R1–R5 Findings, Modellierungs-Fazit: XGBoost/LightGBM)
 - ✅ Outlier Detection (O1–O5, Vor/Nach-Vergleich Delays, Log-Skala Precipitation)
-- ✅ EDA-Abschluss: Konsolidierte Findings-Tabelle (topic-grouped) + Feature-Ideen + Cleaning-Prognose
+- ✅ EDA-Abschluss: Konsolidierte Findings-Tabelle + Feature-Ideen + Cleaning-Prognose
 
-### Zentrale Analysefragen
-- [ ] Wo entstehen die meisten Verspätungen? (Haltestelle, Linie, Stadtkreis)
-- [ ] Wann? (Tageszeit, Wochentag, Saison)
-- [ ] Korrelation Verspätung ↔ Wetter (Regen, Temperatur, Wind)
-- [ ] Korrelation Verspätung ↔ Events (Gewichtung 1–3)
-- [ ] Ausreißer & Extremfälle identifizieren (Ausfälle, Kettenverspätungen)
+### Analyse-Notebooks (6 Notebooks · 55 Findings)
+- ✅ `03_analysis_0-overview.ipynb` — Zentrale Findings, Kernfragen, Executive Summary, Report-Auswahl
+- ✅ `03_analysis_1-target.ipynb` — Delay-Verteilung, OTP 87%, Cancellations, lf_clean-Strategie (13 Findings)
+- ✅ `03_analysis_2-network.ipynb` — Netzveränderungen 2023–2025, Hotspots, Versorgungsqualität (9 Findings)
+- ✅ `03_analysis_3-temporal.ipynb` — Stunde, Wochentag, Monat, Saison (10 Findings)
+- ✅ `03_analysis_4-spatial.ipynb` — Haltestellen, Stadtkreise, Linien (11 Findings)
+- ✅ `03_analysis_5-meteo.ipynb` — Regen, Wind, Schnee, Temperatur (9 Findings)
+- ✅ `03_analysis_6-events.ipynb` — Feiertage, Events, Eventgrösse (6 Findings)
 
-### Visualisierungen
-- [ ] Heatmap Verspätungen nach Tageszeit und Wochentag
-- [ ] Geografische Hotspot-Karte (Stadtkreise, Haltestellen)
-- [ ] Zeitreihe Verspätungen 2023–2025
-- [ ] Event-Tage vs. normale Tage — visueller Vergleich
+### Zentrale Analysefragen — beantwortet
+- ✅ Wo entstehen Verspätungen? → Periphere Aussenkorridore (K11/K12), nicht zentrale Knotenpunkte
+- ✅ Wann? → Peak 21h (Events), Donnerstag, November — kein Morgenrush
+- ✅ Wetter → Schnee +54s stärkster Effekt; geografisch trennbar von Regen
+- ✅ Events → Grosse Events +10.5s (primär Abend 18–22h); Feiertage −9.9s (bester Tag-Typ)
+- ✅ Extremfälle → OTP 87.0%; 71.5% aller Halte akkumulieren Delay; Linie E separat
+
+### Visualisierungen — erstellt
+- ✅ Heatmap Verspätungen nach Tageszeit und Wochentag (L11 / alle Linien)
+- ✅ Geografische Hotspot-Karten (Haltestellen, Stadtkreise — Plotly Mapbox)
+- ✅ Zeitreihe Verspätungen 2023–2025 (Rolling Average, alle Linien)
+- ✅ Event-Tage vs. normale Tage — Stundenauflösung
+- ✅ Netzveränderungen 2023→2025 — Choropleth nach Stadtkreis
+- ✅ Wetter-Effekte — Schnee/Regen nach Linie und Stadtkreis
 
 ---
 
-## Phase 3 — Cleaning & Vorbereitung · AKTUELL
+## Phase 3 — Feature Engineering & Vorbereitung · AKTUELL
 
-### Cleaning-Architektur (aus EDA-Findings)
+### Cleaning-Architektur
 - ✅ `src/zh_tram_flow/cleaning.py` erstellt — strukturelle Pipeline + Meteo-Imputation
-- ✅ `02_preparation.ipynb` aufgebaut — Phase 1–4 Struktur, Split-Strategie dokumentiert
+- ✅ `02_preparation.ipynb` aufgebaut — Split-Strategie dokumentiert
+- ✅ lf_clean-Strategie definiert (canceled=False, stop_sequence>1, kein L-E, kein Nov/Dez 2025)
 - [ ] `02_preparation.ipynb` ausführen: strukturelles Cleaning auf Rohdaten
-  - `|delay| > 3.600s` → rausfiltern
-  - `bpuic > 100.000.000` → rausfiltern
-  - `humidity > 100` → clip auf 100
-  - Duplikate, Schedule/Delay-Mismatch
-- [ ] Train / Test Split ausführen — 2025 als Test-Jahr (temporal, kein Shuffle)
+- [ ] Train/Test-Split ausführen — 2025 als Test-Jahr (temporal, kein Shuffle)
 - [ ] Meteo-Imputation (Forward/Backward Fill) auf Train + Test
 - [ ] Cleaning-Report: tatsächliche Zahlen nach Ausführung dokumentieren
 
-### Feature Engineering
-- ✅ Zeitfeatures geplant: Stunde, Wochentag, Monat, `ist_hvz`, `ist_wochenende`
-- ✅ Binäre Flags geplant: `hat_regen`, `hat_starkregen`, `hat_flut`, `is_canceled`
-- ✅ Kategoriale Encodings geplant: line_name, district_name, event_size
-- [ ] Encoding-Entscheidung: Label-Encoding vs. Target-Encoding für `line_name`
+### Feature Engineering (Kandidaten aus Analyse-Phase)
+
+**Priorität 1 — Muss ins Modell**
+
+| Feature | Begründung |
+|:---|:---|
+| `hour` | Stärkster temporaler Prädiktor — 21h=+11.7s (F-TEMP-01) |
+| `day_of_week` | Do 60.4s vs. So 48.4s (F-TEMP-02) |
+| `month` / `season` | November-Peak; Winter beste Jahreszeit (F-TEMP-05/06) |
+| `line_name` | L11 68.7s, Linie E separat (F-SPAT-05) |
+| `stop_name` (Target-Encoding) | Stärkster räumlicher Prädiktor (F-SPAT-01) |
+
+**Priorität 2 — Wichtig, verfügbar**
+
+| Feature | Begründung |
+|:---|:---|
+| `has_snow` | +54s, OTP −10.9pp — stärkster Wetter-Effekt (F-WEAT-01) |
+| `precipitation` (kontinuierlich) | Dosis-Wirkung messbar, r=0.036 (F-WEAT-02) |
+| `is_holiday` | Stärkstes negatives Signal −9.9s (F-EVNT-01) |
+| `event_weight × hour` | Interaktion wichtiger als Haupteffekt (F-EVNT-03) |
+| `district_nr` | K11/K12 als High-Risk-Marker (F-SPAT-03) |
+
+**Priorität 3 — Interessant, Vorsicht**
+
+| Feature | Begründung |
+|:---|:---|
+| `gtfs_year` | Strukturbruch Dez 2023; schwaches Signal +0.5s (F-NET-03) |
+| `n_stops_line` | Linienlänge als Proxy für Peripheral-Effekt (F-SPAT-09) |
+| `prev_trip_delay` | Kaskadenindikator via trip_id (F-NET-07) |
+| `hour × is_weekend` | Nacht-/Partyverkehr Fr/Sa 0–3h (F-TEMP-10) |
+
+**Entfernt**
+
+| Feature | Grund |
+|:---|:---|
+| ~~`is_windy`~~ | NaN — nie befüllt (F-WEAT-03) |
+
+- [ ] Encoding-Entscheidung umsetzen: Target-Encoding für `stop_name`, Ordinal für `day_of_week`
 - [ ] `train_features.parquet` + `test_features.parquet` exportieren
 
 ---
@@ -106,8 +147,10 @@
 
 ## Offene Entscheidungen
 
-| Entscheidung | Wann |
-| :--- | :--- |
-| Dashboard-Tooling | Phase 2 Ende |
-| Split-Strategie final | Phase 3 Anfang |
-| Geo-Bibliothek für Dashboard | Phase 2 Ende (nach EDA-Erfahrung) |
+| Entscheidung | Status | Notiz |
+| :--- | :--- | :--- |
+| Split-Strategie | ✅ entschieden | 2025 als Test-Jahr — temporal, kein Shuffle |
+| Geo-Bibliothek | ✅ entschieden | Plotly Mapbox (Folium verworfen) |
+| Modell-Kandidat | ✅ Richtung klar | LightGBM / GradientBoosting — Interaktionen wichtig |
+| Target-Encoding für `stop_name` | offen | n-Threshold festlegen, Overfitting-Risiko prüfen |
+| Dashboard-Tooling | offen | Dash + Plotly vs. Streamlit — Entscheidung in Phase 5 |

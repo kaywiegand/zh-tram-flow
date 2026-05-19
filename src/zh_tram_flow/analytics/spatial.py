@@ -487,7 +487,7 @@ def plot_dwell_time(lf, cfg=None):
             .dt.total_seconds()
             .cast(pl.Int32)
         )
-        print("⚠  dwell_time nicht in Feature-File — wird inline berechnet (02_preparation noch nicht neu ausgeführt)")
+        print("ℹ  dwell_time wird inline aus departure_schedule − arrival_schedule berechnet")
 
     dwell_dist = (
         lf

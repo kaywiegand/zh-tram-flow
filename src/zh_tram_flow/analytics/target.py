@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 
 def _get_cfg(cfg):
     if cfg is None:
-        from zh_tram_flow.notebook import NotebookConfig
-        cfg = NotebookConfig()
+        from wgnd.core.config import cfg as _default_cfg
+        cfg = _default_cfg
     return cfg
 
 

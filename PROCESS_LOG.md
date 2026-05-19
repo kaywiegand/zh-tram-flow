@@ -13,10 +13,10 @@
 | Repo | `zh-tram-flow` |
 | Typ | DANSC (EDA + Modellierung + Dashboard) |
 | Erstellt | 2026-05-11 |
-| Status | 🟢 Phase 3 — Cleaning & Vorbereitung (02_preparation aufgebaut) |
-| Nächster Schritt | `02_preparation.ipynb` ausführen — Cleaning, Split, Feature Export |
+| Status | 🟢 Phase 3 — Feature Engineering (Analyse abgeschlossen · 55 Findings) |
+| Nächster Schritt | `05_feature_engineering.ipynb` aufbauen · `02_preparation.ipynb` ausführen |
 | Datenbasis | `sf_data-research` — Phase 0 abgeschlossen |
-| Stack | Python · Polars · Pandas · GeoPandas · Plotly · Folium |
+| Stack | Python · Polars · Pandas · GeoPandas · Plotly |
 
 ---
 
@@ -122,13 +122,121 @@ echten Daten gelaufen — Cleaning-Zahlen sind Prognosen aus der EDA.
 
 ---
 
+### 2026-05-13 bis 2026-05-15 — Analyse-Phase (03_analysis_* Notebooks)
+
+**Was wurde gemacht:**
+- Alle 6 Analyse-Notebooks aufgebaut und vollständig mit Daten befüllt:
+  - `03_analysis_0-overview.ipynb` — Zentrale Findings-Tabelle (50+ Findings, F-TARGET bis F-EVNT)
+  - `03_analysis_1-target.ipynb` — Zielvariable, OTP, Cancellations, Delay-Verteilung
+  - `03_analysis_2-network.ipynb` — GTFS-Netzveränderungen, Einlaufzeit, Hotspots
+  - `03_analysis_3-temporal.ipynb` — Stunden, Wochentag, Monat, Saison, Jahrestrend
+  - `03_analysis_4-spatial.ipynb` — Haltestellen, Stadtkreise, Linien-Ranking
+  - `03_analysis_5-meteo.ipynb` — Schnee, Regen, Temperatur, Niederschlagsintensität
+  - `03_analysis_6-events.ipynb` — Feiertage, Events, Event-Typen
+- Alle Beobachtungszellen mit tatsächlichen Zahlen aus den Show-DF-Outputs korrigiert
+- Key-Findings-Tabelle im Overview vollständig aktualisiert (alle 50+ Findings auf `done`)
+- Kernfragen & KPIs Sektion im Overview mit verifizierten Werten befüllt
+
+**Wichtige Erkenntnisse (Auswahl):**
+- Kein klassischer Morgenrush: 7h liegt unter Netzschnitt; Peak bei 21h (Events-Abreisewelle)
+- Hotspots sind periphere Aussenkorridore, NICHT zentrale Knotenpunkte (0 Overlap)
+- Schnee stärkster Wettereffekt (+54.0s); Kälte überraschend BESSER als Wärme
+- Fachmessen schlechteste Event-Kategorie (66.0s); Feiertage bester Tag-Typ (−9.9s)
+- Winter beste Jahreszeit (51.7s, OTP 88.9%); Herbst schlechteste
+- 71.3% aller dwell_time = 0s — kein nutzbares kontinuierliches Feature
+
+---
+
+### 2026-05-15 bis 2026-05-16 — Analyse-Korrekturen + Methodische Entscheidungen
+
+**Was wurde gemacht:**
+- Alle Beobachtungszellen nochmals geprüft und mit echten Tabellenwerten belegt
+- Verständliche Erklärungen zu komplexen Themen in Notebooks eingefügt:
+  - OTP 120s-Schwellwert: VBZ-Standard / VDPW dokumentiert (target + overview)
+  - Datendefinitions-Änderung Juli 2024: einfache Erklärung in target-Notebook
+  - Fahrplanwechsel Dez 2023: einfache Erklärung in target-Notebook
+  - Linie E Pro/Contra + Entscheid: in OTP-per-Line-Beobachtung
+  - Starthaltestellen-Verzerrung: Beweis-Plot + Erklärung in target-Notebook
+- `is_windy` aus Weather-Analyse entfernt (NaN überall, nie korrekt befüllt)
+- Schulferien-Streifen in Temporal Full-Year-Trendplot eingebaut (ZH Schulferien 2023–2025)
+- Bereinigter Delay-per-Year-Plot mit Trendlinien im Target-Notebook ergänzt
+- Starthalte-Verzerrungsanalyse als eigener Abschnitt im Target-Notebook (3 Beweis-Plots)
+
+**Strukturelle Entscheidungen (Methodische Weichenstellung):**
+
+| Entscheidung | Kategorie | Begründung |
+|:---|:---|:---|
+| `canceled == False` für Delay-Analyse | 🔴 Filter | Datendefinitions-Artefakt Jul 2024 |
+| Nov/Dez 2025 aus Train+Test | 🔴 Filter | GTFS-Vorbereitungsartefakt |
+| `stop_sequence > 1` für Delay-Baseline | 🔴 Filter | Starthalte-Puffer verfälscht Metriken |
+| Linie E ausschliessen | 🔴 Ausschluss | Strukturell nicht vergleichbar (OTP 56%) |
+| `gtfs_year` als Feature | 🟡 Feature | Netzwechsel Dez 2023 für L9/L11/L13 |
+| `is_windy` entfernen | 🔴 Feature-Drop | NaN überall, kein informativer Wert |
+| Linie 18/L50/L51 dokumentieren | 🟢 Kontext | Temporäre Linien, zu wenig Daten |
+
+Diese Entscheidungen sind in `02_preparation.ipynb` als "Bereinigungsstrategie"-Sektion dokumentiert
+und fliessen in `05_feature_engineering.ipynb` ein.
+
+**Notebook-Struktur aktualisiert:**
+- `04_insights.ipynb` (bestehendes Scaffold) → bleibt als Report/Business-Communication
+- `05_feature_engineering.ipynb` → NEU angelegt (Feature Engineering + Modell-Vorbereitung)
+
+---
+
+---
+
+### 2026-05-19 — Meta-Alignment: Notebooks finalisiert, Docs synchronisiert
+
+**Was wurde gemacht:**
+
+- **`03_analysis_3-temporal.ipynb`**: F-TEMP-10 ergänzt (Nacht-/Partyverkehr 0–3h Fr/Sa), Präsentation-Spalte in Key Findings hinzugefügt
+- **`03_analysis_2-network.ipynb`**: Grosse Überarbeitung:
+  - Folium vollständig entfernt → Plotly Mapbox für alle Karten
+  - GTFS-Ladelogik + Änderungsmatrix-Aufbau in `analytics/network.py` ausgelagert (`load_gtfs()`, `build_changes_matrix()`)
+  - `plot_network_changes_map()` und `plot_service_quality_district_map()` als Plotly-Funktionen in `network.py`
+  - Stale Platzhalter, tote Datei-Links, leere Zellen, Emojis bereinigt
+  - Beobachtungen mit echten Haltestellen-Namen (GTFS-Artefakt K1 vs. echte Erweiterungen K3/K8) korrigiert
+  - F-NET-09 ergänzt: Netzausbau vs. Delay-Hotspots — kein Overlap
+- **`03_analysis_0-overview.ipynb`**: Vollständige Finalisierung:
+  - Key Findings auf 55 Findings aktualisiert (+8 neue: F-SPAT-09/10/11, F-WEAT-07/08/09, F-TEMP-10, F-NET-09)
+  - `Präs.` Spalte (hot / story / —) für alle 55 Findings
+  - Executive Summary eingefügt (5 Kernbotschaften)
+  - Report-Auswahl Section (hot+story, 6 Themenblöcke)
+  - Kernfragen: "Central (15 Linien)" → "Haldenegg (15 Linien, 44.5s)" korrigiert
+  - Modelling Insights: stale Meta-Kommentare entfernt, "Rushhour morgens" → korrekt auf 21h-Peak umgeschrieben
+  - Line Colors: Emojis entfernt
+  - 2 leere Zellen gelöscht
+- **`README.md`**: Version 0.3.0, Status aktualisiert, neue Sektion "Was die Daten zeigen" (5 hot findings), Tech Stack Sektion, Notebook-Struktur auf aktuelle 10 Notebooks aktualisiert, MVP Phase ✅
+- **`ROADMAP.md`**: Phase 2 vollständig abgehakt (6 Notebooks + 55 Findings), Phase 3 auf "Feature Engineering" umbenannt mit vollständiger Feature-Kandidaten-Tabelle (Prio 1/2/3 mit F-Referenzen), Offene Entscheidungen aktualisiert
+
+---
+
 ## Aktueller Stand
 
-**Phase 0 (Data Engineering):** ✅ Abgeschlossen — in `sf_data-research`  
-**Phase 1 (Setup & Dateneinstieg):** ✅ Abgeschlossen  
-**Phase 2 (EDA & Analyse):** ✅ Abgeschlossen — `01_exploration.ipynb` fertig  
-**Phase 3 (Cleaning & Vorbereitung):** 🟡 In Arbeit — Struktur steht, Ausführung ausstehend  
+**Phase 0 (Data Engineering):** ✅ Abgeschlossen — in `sf_data-research`
+**Phase 1 (Setup & Dateneinstieg):** ✅ Abgeschlossen
+**Phase 2 (EDA & Analyse):** ✅ Abgeschlossen — 6 Analyse-Notebooks · 55 Findings
+**Phase 3 (Feature Engineering):** 🟡 In Planung — Kandidaten aus Analyse dokumentiert
+**Phase 4 (Modellierung):** ⏳ Ausstehend
+**Phase 5 (Dashboard):** ⏳ Ausstehend
 
-**Nächster konkreter Schritt:**  
-`02_preparation.ipynb` ausführen — Cleaning-Pipeline auf Rohdaten, Split durchführen,
-Feature-Tabellen exportieren. Danach `03_analysis.ipynb` anlegen.
+**Notebook-Übersicht:**
+```
+00_introduction.ipynb          ✅ fertig (Workflow-Sektion: Notebook-Struktur noch anpassen — BACKLOG #7)
+01_exploration.ipynb           ✅ fertig
+02_preparation.ipynb           ✅ ausgeführt — train/test_raw + train/test_prepared + train/test_features in data/
+03_analysis_0-overview.ipynb   ✅ fertig (55 Findings · Executive Summary · Report-Auswahl)
+03_analysis_1-target.ipynb     ✅ fertig
+03_analysis_2-network.ipynb    ✅ fertig (Plotly · load_gtfs() · Versorgungsqualitäts-Map)
+03_analysis_3-temporal.ipynb   ✅ fertig
+03_analysis_4-spatial.ipynb    ✅ fertig
+03_analysis_5-meteo.ipynb      ✅ fertig
+03_analysis_6-events.ipynb     ✅ fertig
+05_feature_engineering.ipynb   ⏳ noch nicht angelegt
+04_insights.ipynb              ⏳ Report-Skeleton vorhanden — Inhalt ausstehend
+```
+
+**Nächste konkrete Schritte:**
+1. `05_feature_engineering.ipynb` aufbauen — Feature-Set aus Analyse-Phase umsetzen (ROADMAP Phase 3)
+2. `00_introduction.ipynb` Workflow-Sektion aktualisieren — aktuelle Notebook-Struktur eintragen (BACKLOG #7)
+3. Modellierung beginnen

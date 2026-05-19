@@ -1,16 +1,17 @@
 """
 zh_tram_flow.analytics — analysis functions for all 6 analysis notebooks.
 
-Import individual submodules as needed:
-    from zh_tram_flow import analytics as an
-    import zh_tram_flow.analytics.target as an
+Usage:
+    import zh_tram_flow.analytics as an
+    an.plot_hour_of_day(lf)        # all functions accessible at package level
+    an.temporal.plot_hour_of_day   # or via submodule
 """
 
-from zh_tram_flow.analytics import target
-from zh_tram_flow.analytics import network
-from zh_tram_flow.analytics import temporal
-from zh_tram_flow.analytics import spatial
-from zh_tram_flow.analytics import meteo
-from zh_tram_flow.analytics import events
+from zh_tram_flow.analytics import target, network, temporal, spatial, meteo, events
 
-__all__ = ["target", "network", "temporal", "spatial", "meteo", "events"]
+from zh_tram_flow.analytics.target import *
+from zh_tram_flow.analytics.network import *
+from zh_tram_flow.analytics.temporal import *
+from zh_tram_flow.analytics.spatial import *
+from zh_tram_flow.analytics.meteo import *
+from zh_tram_flow.analytics.events import *
