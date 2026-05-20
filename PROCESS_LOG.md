@@ -348,6 +348,14 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 - `ins_arr_dep_timeline` Zelle mit `plot_arrival_vs_departure_timeline(lf_clean)` befüllen
 - HTML-Export: `jupyter nbconvert --to html --no-input 04_insights.ipynb`
 
+**Zweite Runde Plot-Refinements (2026-05-21):**
+
+| Datei | Funktion | Änderung |
+|:---|:---|:---|
+| `visualization/insights.py` | `plot_dwell_analysis` | Rechte y-Achse für Dwell-Linie in beiden Panels; Labels oben auf Balken (grau); Legende zeigt nur die Dwell-Linie |
+| `analytics/spatial.py` | `plot_district_analysis` | Linien-Annotations direkt an Referenzlinien, keine Legende; 85%-Ziel-Linie zurück auf `--` (kein Durchschnitt) |
+| `analytics/events.py` | `plot_daily_delay_timeline` | 3 Subplots → 1 kontinuierlicher Plot 2023–2025 mit Jahresgrenzen |
+
 ---
 
 ### 2026-05-20 — Insights-Notebook Komplett-Umbau
