@@ -121,8 +121,9 @@ sicher im Projektzeitrahmen zu erreichen und Raum für Erweiterungen zu lassen.
 
 #### v1.1 – "The Intelligence" 🔄 (in Arbeit)
 - ✅ Feature Engineering: `train_final.parquet` / `test_final.parquet` (55.5M Zeilen · 32 Features)
-- ✅ Baseline: Stop Mean MAE = 50.7s als Benchmark definiert
+- ✅ Baseline: Stop Mean MAE = 50.0s als Benchmark definiert
 - ✅ LightGBM v1 trainiert: **Test MAE = 46.3s** (Baseline −4.4s · 512 Bäume · 32 Features)
+- ✅ Insights-Report: 7 Abschnitte · Bullet-Style Texte · neue Plots (Delta, Choropleth, Wetter-Maps)
 - 🔄 **Evaluation:** Fehleranalyse nach Linie, Stadtteil, Wetter, Rush-Hour ausstehend
 
 #### v1.2 – "The Interface"
@@ -278,7 +279,7 @@ zh-tram-flow/
 │   ├── 04_insights.ipynb              # Executive Report (in Arbeit)
 │   ├── 05_feature_engineering.ipynb   # Feature Engineering + train/test_final Export
 │   ├── 06_prediction_0-overview.ipynb # Vorhersage-Ansatz, Metriken, Baseline-Erklärung
-│   ├── 06_prediction_1-baseline.ipynb # Regelbasierte Baselines (Stop Mean = 50.7s)
+│   ├── 06_prediction_1-baseline.ipynb # Regelbasierte Baselines (Stop Mean = 50.0s)
 │   ├── 06_prediction_2-model.ipynb    # LightGBM Training (MAE 46.3s)
 │   └── 06_prediction_3-evaluation.ipynb # Evaluation (in Arbeit)
 │

@@ -308,7 +308,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 03_analysis_4-spatial.ipynb      ✅ fertig
 03_analysis_5-meteo.ipynb        ✅ fertig
 03_analysis_6-events.ipynb       ✅ fertig
-04_insights.ipynb                🔄 Texte + Setup vorhanden — Plots noch nicht report-ready
+04_insights.ipynb                🔄 Struktur + Texte + Code fertig — noch nicht ausgeführt
 05_feature_engineering.ipynb     🔄 neu ausführen — test_features muss mit Nov/Dez 2025 rebuild werden
 06_prediction_0-overview.ipynb   ✅ fertig — Ansatz, Metriken, Baseline, Szenario
 06_prediction_1-baseline.ipynb   🔄 neu ausführen nach test_features rebuild
@@ -317,9 +317,43 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 ```
 
 **Nächste konkrete Schritte:**
-1. `04_insights.ipynb` Plots überarbeiten — je Kapitel 1 starker Plot (BACKLOG #15)
-2. HTML-Export: `jupyter nbconvert --to html --no-input --output-dir reports --output index 04_insights.ipynb`
-3. Projekt-Wrap-up: README final, Portfolio-Text
+1. `04_insights.ipynb` ausführen (Kernel neu starten → alle Zellen) — add_vline Fix noch offen
+2. `06_prediction_3-evaluation.ipynb` ausbauen — Fehleranalyse nach Linie, Stunde, Wetter
+3. HTML-Export: `jupyter nbconvert --to html --no-input --output-dir reports --output index 04_insights.ipynb`
+4. Projekt-Wrap-up: README final, Portfolio-Text
+
+---
+
+### 2026-05-20 — Insights-Notebook Komplett-Umbau
+
+**Was wurde gemacht:**
+
+**Dramaturgie neu strukturiert** — 7 Abschnitte mit klarer narrativer Logik:
+1. Netzstruktur — Das Netz ist stabil (Fahrplanwechsel unsichtbar)
+2. OTP — Kein Puffer eingebaut (strukturelle Schwäche, neu: direkt nach Stabilität)
+3. Geografie — Hotspots periphere Aussenkorridore
+4. Temporalität — Peak 21h, kein Morgenrush
+5. Meteorologie — Schnee stärkster Faktor, geografisch trennbar
+6. Events — Feiertage beste Tage, Fachmessen schlechteste Kategorie
+7. Netz — Ausbau am falschen Ort
+
+**Neue Code-Zellen:**
+- Plotly monthly delay mit 3 Fahrplanwechsel-Markierungen (Dez 2023, Baustellen-Ende, Dez 2024) — kein Netzschnitt
+- Delay Delta Timeline (täglich, fill tozeroy)
+- Arrival vs. Departure Timeline (gemeinsam, keine Ferien/Sonstiges-Marker)
+- District Delay Choropleth (gleicher Kartentyp wie Netzausbau-Karte, blau→rot)
+
+**Alle Narrativ-Texte** im Bullet-Style umgeschrieben — fette Kategorien, Zahlen als Bullets, kein Fließtext
+
+**Technische Änderungen:**
+| Datei | Änderung |
+|:---|:---|
+| `src/zh_tram_flow/analytics/meteo.py` | `plot_weather_stop_map()` erhält `vmax` Parameter — gleiche Farbskala für Schnee/Regen-Karten |
+| `notebooks/06_prediction_2-model.ipynb` | `BASELINE_MAE` korrigiert: 50.7 → 50.0 |
+| `notebooks/03_analysis_2/3/4-*.ipynb` | lf-Kommentarblock in Setup-Zellen ergänzt |
+
+**Bekanntes offenes Problem:**
+- `fig.add_vline(x=date_string)` wirft TypeError — x muss numerischer Timestamp sein (`pd.Timestamp(date).value / 1e6`)
 
 ---
 

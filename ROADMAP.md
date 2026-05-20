@@ -125,11 +125,19 @@
 ### Modell-Entscheidung
 > LightGBM — native Categorical Support, schnell auf großen Datensätzen, gradient boosting für nicht-lineare Effekte
 
+### Insights-Report (`04_insights.ipynb`) 🔄
+- ✅ Dramaturgie: 7 Abschnitte (Netzstruktur → OTP → Geo → Temporal → Meteo → Events → Netz)
+- ✅ Alle Texte im Bullet-Style — fette Kategorien, Zahlen als Bullets
+- ✅ Neue Plots: Delay Delta Timeline, Arrival vs. Departure, District Delay Choropleth
+- ✅ Wetter-Karten mit vmax=60 (gleiche Farbskala Schnee/Regen)
+- [ ] Ausführen (Kernel neu starten) — add_vline Fix noch offen
+- [ ] HTML-Export: `jupyter nbconvert --to html --no-input 04_insights.ipynb`
+
 ### Baseline (`06_prediction_1-baseline.ipynb`) ✅
-- ✅ Grand Mean Baseline: ~50.7s MAE
-- ✅ Hour Mean Baseline
-- ✅ Line Mean Baseline
-- ✅ **Stop Mean Baseline: 50.7s MAE — definiert als Benchmark**
+- ✅ Grand Mean Baseline: 50.6s MAE
+- ✅ Hour Mean Baseline: 50.5s MAE
+- ✅ Line Mean Baseline: 50.4s MAE
+- ✅ **Stop Mean Baseline: 50.0s MAE — definiert als Benchmark**
 
 ### LightGBM v1 (`06_prediction_2-model.ipynb`) ✅
 - ✅ Temporaler Validation-Split: 2023–Jun 2024 Train / Jul–Dez 2024 Validation
