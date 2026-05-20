@@ -317,6 +317,49 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 ```
 
 **Nächste konkrete Schritte:**
-1. `06_prediction_3-evaluation.ipynb` ausbauen — Fehleranalyse nach Linie, Stunde, Wetter
-2. `04_insights.ipynb` Plots überarbeiten — je Kapitel 1 starker Plot (BACKLOG #15)
-3. HTML-Export: `jupyter nbconvert --to html --no-input --output-dir reports --output index 04_insights.ipynb`
+1. `04_insights.ipynb` Plots überarbeiten — je Kapitel 1 starker Plot (BACKLOG #15)
+2. HTML-Export: `jupyter nbconvert --to html --no-input --output-dir reports --output index 04_insights.ipynb`
+3. Projekt-Wrap-up: README final, Portfolio-Text
+
+---
+
+## Präsentations-Fakten — Zahlen für Portfolio & Bewerbung
+
+### Datenbasis
+- **94 Mio. Rohdatenpunkte** — 3 Jahre (2023–2025), 16 Tramlinien, VBZ Zürich
+- **55.5 Mio. Trainingszeilen** nach Cleaning + Filter (lf_clean)
+- **25 Mio. Testzeilen** (2025)
+- **42 Spalten** in train_features · **32 Features** im ML-Modell
+
+### Performance — Laufzeiten
+| Schritt | Zeilen | Dauer |
+|:---|:---|:---|
+| Daten laden + Pandas-Konvertierung | 55.5M | ~20s |
+| LightGBM Training (41M Train-Rows) | 41M | ~18 Min |
+| Validation Prediction (14M Rows) | 14M | ~8 Min |
+| Test Prediction + Export (25M Rows) | 25M | ~3.5 Min |
+| **Gesamt Notebook-Laufzeit** | — | **~30 Min** |
+
+### Modell-Ergebnisse
+| Metrik | Stop Mean Baseline | LightGBM v1 | Gewinn |
+|:---|:---|:---|:---|
+| MAE (Test) | 50.7s | **46.3s** | −4.4s |
+| RMSE (Test) | 86.2s | ~85s | — |
+| OTP ±60s | 73.1% | 75.4% | +2.3pp |
+| MBE | — | +10.1s | — (zu optimistisch) |
+
+### Fehleranalyse
+- **Schwerste Stunden:** 17h (54.4s) · 16h (53.9s) · 18h (52.4s) — Rush-Hour
+- **Schwerste Linien:** L11 (52.5s) · L8 (52.2s) · L15 (51.0s)
+- **Beste Linien:** L12 (34.5s) · L6 (37.3s) · L17 (40.1s)
+- **Schnee:** MAE 58.9s (n=39.920) — stärkste Schwäche
+- **Regen:** MAE 50.3s · **Normal:** 45.9s
+
+### Live-Szenario
+- Input: Dienstag 17:00 · Paradeplatz · Linie 11 · leichter Regen
+- Output: **48s vorhergesagter Delay**
+
+### Bekannte Limitierungen (für Portfolio-Reflexion)
+- `stop_name` als native Categorical statt Target Encoding — Verbesserungspotenzial v2
+- MBE +10.1s — Modell systematisch zu optimistisch
+- `prev_trip_delay` (Kaskadeneffekt) nicht implementiert — trip_id Kontinuität ungeprüft
