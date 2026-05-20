@@ -220,36 +220,58 @@ def plot_dwell_analysis(lf: pl.LazyFrame) -> None:
 
     fig, axes = plt.subplots(1, 2, figsize=(16, 5))
 
-    # Panel 1: Durchfahrtshalte als Balken (Tramlinienfarben) + Pufferzeit als gestrichelte Linie
+    # Panel 1: Durchfahrtshalte als Balken (Tramlinienfarben) + Pufferzeit als Linie (rechte Achse)
     ax = axes[0]
     pct_null = data["pct_null_dwell"] * 100
     pct_puffer = 100 - pct_null
-    ax.bar(x, pct_null, color=lc, alpha=0.7, label="Durchfahrtshalte (dwell = 0s)")
+    ax.bar(x, pct_null, color=lc, alpha=0.7)
     for i, pn in enumerate(pct_null):
-        ax.text(i, pn / 2, f"{pn:.0f}%", va="center", ha="center",
-                fontsize=8, color="white", fontweight="bold")
-    ax.plot(x, pct_puffer, color="#888888", lw=1.0, linestyle="--",
-            marker="o", markersize=3, label="Mit Pufferzeit (dwell > 0s)")
+        ax.text(i, pn + 1.2, f"{pn:.0f}%", va="bottom", ha="center",
+                fontsize=8, color="#555555")
     ax.set_xticks(x)
     ax.set_xticklabels(line_labels, fontsize=9)
-    ax.set_ylim(0, 100)
+    ax.set_ylim(0, 108)
     ax.set_title("Anteil Durchfahrtshalte pro Linie", **{**style["title"], "pad": 14})
-    ax.set_ylabel("Anteil Haltestellen (%)", **style["label"])
+    ax.set_ylabel("Durchfahrtshalte (%)", **style["label"])
     ax.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0f%%"))
-    ax.legend(fontsize=9, frameon=False, loc="upper right", ncol=2)
-    _spine_style(ax)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
 
-    # Panel 2: Delay als Balken (Tramlinienfarben) + Dwell Time als gestrichelte Linie
+    ax_r1 = ax.twinx()
+    ax_r1.plot(x, pct_puffer, color="#888888", lw=1.0, linestyle="--",
+               marker="o", markersize=3, label="Mit Pufferzeit (dwell > 0s)")
+    ax_r1.set_ylabel("Mit Pufferzeit (%)", fontsize=10, color="#888888")
+    ax_r1.tick_params(axis="y", colors="#888888", labelsize=9)
+    ax_r1.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0f%%"))
+    ax_r1.spines["top"].set_visible(False)
+    ax_r1.spines["left"].set_visible(False)
+    h1, l1 = ax_r1.get_legend_handles_labels()
+    ax.legend(h1, l1, fontsize=9, frameon=False, loc="upper right")
+
+    # Panel 2: Delay als Balken (Tramlinienfarben) + Dwell Time als Linie (rechte Achse)
     ax = axes[1]
-    ax.bar(x, data["avg_delay"], color=lc, alpha=0.7, label="Ø Arrival Delay")
-    ax.plot(x, data["avg_dwell"].fillna(0), color="#888888", lw=1.0, linestyle="--",
-            marker="o", markersize=3, label="Ø Dwell Time (Puffer)")
+    ax.bar(x, data["avg_delay"], color=lc, alpha=0.7)
+    for i, v in enumerate(data["avg_delay"]):
+        ax.text(i, v + 0.5, f"{v:.0f}s", va="bottom", ha="center",
+                fontsize=8, color="#555555")
     ax.set_xticks(x)
     ax.set_xticklabels(line_labels, fontsize=9)
     ax.set_title("Verspätung vs. geplanter Puffer pro Linie", **{**style["title"], "pad": 14})
-    ax.set_ylabel("Sekunden", **style["label"])
-    ax.legend(fontsize=9, frameon=False, loc="upper right", ncol=2)
-    _spine_style(ax)
+    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+
+    ax_r2 = ax.twinx()
+    ax_r2.plot(x, data["avg_dwell"].fillna(0), color="#888888", lw=1.0, linestyle="--",
+               marker="o", markersize=3, label="Ø Dwell Time (Puffer)")
+    ax_r2.set_ylabel("Ø Dwell Time (s)", fontsize=10, color="#888888")
+    ax_r2.tick_params(axis="y", colors="#888888", labelsize=9)
+    ax_r2.spines["top"].set_visible(False)
+    ax_r2.spines["left"].set_visible(False)
+    h2, l2 = ax_r2.get_legend_handles_labels()
+    ax.legend(h2, l2, fontsize=9, frameon=False, loc="upper right")
 
     plt.tight_layout()
     plt.show()

@@ -344,23 +344,29 @@ def plot_district_analysis(lf, cfg=None):
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
 
+    from matplotlib.transforms import blended_transform_factory
+
     bars = ax1.bar(districts["district_name"], districts["avg_delay"], color=colors_d, alpha=0.85)
-    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":", label=f"Ø {avg:.1f}s")
+    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":")
+    _t1 = blended_transform_factory(ax1.transAxes, ax1.transData)
+    ax1.text(0.99, avg, f"Ø {avg:.1f}s ", va="bottom", ha="right",
+             fontsize=8, color=cfg.ANNO_MEAN, transform=_t1)
     ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
     ax1.set_title("Verspätung nach Stadtkreis", **style["title"])
     ax1.tick_params(axis="x", rotation=45)
-    ax1.legend(fontsize=9, frameon=False)
     ax1.spines[["top", "right"]].set_visible(False)
 
     otp_colors = [cfg.COLOR_POSITIVE if v >= 0.87 else cfg.COLOR_NEGATIVE
                   for v in districts["otp_rate"]]
     ax2.bar(districts["district_name"], districts["otp_rate"], color=otp_colors, alpha=0.85)
-    ax2.axhline(0.85, color=cfg.ANNO_REF, lw=1.0, linestyle=":", label="85%-Ziel")
+    ax2.axhline(0.85, color=cfg.ANNO_REF, lw=1.0, linestyle="--")
+    _t2 = blended_transform_factory(ax2.transAxes, ax2.transData)
+    ax2.text(0.99, 0.85, "85%-Ziel ", va="bottom", ha="right",
+             fontsize=8, color=cfg.ANNO_REF, transform=_t2)
     ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax2.set_ylabel("OTP Rate", **style["label"])
     ax2.set_title("OTP nach Stadtkreis", **style["title"])
     ax2.tick_params(axis="x", rotation=45)
-    ax2.legend(fontsize=9, frameon=False)
     ax2.spines[["top", "right"]].set_visible(False)
 
     plt.tight_layout()

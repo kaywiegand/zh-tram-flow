@@ -557,7 +557,7 @@ def table_event_stop_map(lf: pl.LazyFrame) -> pd.DataFrame:
 
 
 def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None) -> None:
-    """Daily avg delay per year (3 subplots) with school break shading and event type markers."""
+    """Daily avg delay 2023–2025 in einem Plot — Schulferien + Event-Marker (kein Sonstiges)."""
     from wgnd.core.theme import mpl_style
     from zh_tram_flow.analytics.temporal import _add_schulferien
     cfg = _get_cfg(cfg)
@@ -603,38 +603,40 @@ def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None) -> None:
     event_dates = event_dates[event_dates["category"] != "Sonstiges"]
 
     style = mpl_style()
-    line_color = "#222222"
-    years = [2023, 2024, 2025]
-    fig, axes = plt.subplots(3, 1, figsize=(18, 12), sharex=False)
 
-    for ax, year in zip(axes, years):
-        df_year = daily[daily["operating_date"].dt.year == year].sort_values("operating_date")
-        baseline = df_year["avg_delay"].mean()
+    fig, ax = plt.subplots(figsize=(20, 6))
 
-        ax.plot(df_year["operating_date"], df_year["avg_delay"],
-                color=line_color, lw=1.2, alpha=0.85)
-        ax.axhline(baseline, color=cfg.ANNO_MEAN, lw=1, linestyle="--",
-                   alpha=0.6, label=f"Ø {baseline:.1f}s")
+    baseline = daily["avg_delay"].mean()
+    ax.plot(daily["operating_date"], daily["avg_delay"],
+            color="#222222", lw=1.2, alpha=0.85)
+    ax.axhline(baseline, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":",
+               alpha=0.7, label=f"Ø {baseline:.1f}s")
 
-        _add_schulferien(ax, alpha=0.22, color="#999999")
+    _add_schulferien(ax, alpha=0.22, color="#999999")
 
-        ev_year = event_dates[event_dates["operating_date"].dt.year == year]
-        shown = set()
-        for _, row in ev_year.iterrows():
-            cat = row["category"]
-            lbl = cat if cat not in shown else None
-            ax.axvline(row["operating_date"], color=category_colors.get(cat, "#aaaaaa"),
-                       lw=1.0, alpha=0.8, label=lbl)
-            shown.add(cat)
+    # Jahresgrenzen
+    for year in [2024, 2025]:
+        ax.axvline(pd.Timestamp(f"{year}-01-01"), color=cfg.CHART_AXIS,
+                   lw=0.8, linestyle=":", alpha=0.5)
 
-        ax.set_title(str(year), **style["title"])
-        ax.set_ylabel("Ø Delay (s)", **style["label"])
-        ax.set_xlim(pd.Timestamp(f"{year}-01-01"), pd.Timestamp(f"{year}-12-31"))
-        ax.legend(fontsize=9, loc="upper left", ncol=4)
-        ax.spines[["top", "right"]].set_visible(False)
+    # Event-Marker
+    shown: set = set()
+    for _, row in event_dates.iterrows():
+        cat = row["category"]
+        lbl = cat if cat not in shown else None
+        ax.axvline(row["operating_date"], color=category_colors.get(cat, "#aaaaaa"),
+                   lw=1.0, alpha=0.8, label=lbl)
+        shown.add(cat)
 
-    axes[-1].set_xlabel("Datum", **style["label"])
-    fig.suptitle("Daily Delay Timeline — Events & School Breaks", fontsize=14, fontweight="bold", y=1.01)
+    ax.set_ylabel("Ø Delay (s)", **style["label"])
+    ax.set_xlabel("Datum", **style["label"])
+    ax.legend(fontsize=9, frameon=False, loc="upper left", ncol=5)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+
+    fig.suptitle("Daily Delay Timeline 2023–2025 — Events & Schulferien",
+                 fontsize=14, fontweight="bold", color=cfg.CHART_TITLE, y=1.01)
     plt.tight_layout()
     plt.show()
 
