@@ -13,8 +13,8 @@
 | Repo | `zh-tram-flow` |
 | Typ | DANSC (EDA + Modellierung + Dashboard) |
 | Erstellt | 2026-05-11 |
-| Status | 🟢 Phase 3 — Feature Engineering (Analyse abgeschlossen · 55 Findings) |
-| Nächster Schritt | `05_feature_engineering.ipynb` aufbauen · `02_preparation.ipynb` ausführen |
+| Status | 🟢 Phase 4 — Modellierung (LightGBM v1 trainiert · Test MAE 46.3s) |
+| Nächster Schritt | `06_prediction_3-evaluation.ipynb` ausbauen · Fehleranalyse · Insights-Report |
 | Datenbasis | `sf_data-research` — Phase 0 abgeschlossen |
 | Stack | Python · Polars · Pandas · GeoPandas · Plotly |
 
@@ -211,6 +211,37 @@ und fliessen in `05_feature_engineering.ipynb` ein.
 
 ---
 
+### 2026-05-20 — Prediction Phase gestartet · LightGBM v1 trainiert
+
+**Was wurde gemacht:**
+
+- **`06_prediction_0-overview.ipynb`** neu erstellt: Vorhersage-Ansatz, konkretes Szenario, Modellvergleich (LightGBM vs. Alternativen), vollständige Metriken-Tabelle (10 Metriken inkl. Ausschluss-Begründungen), Baseline-Erklärung
+- **`06_prediction_1-baseline.ipynb`** neu erstellt und ausgeführt:
+  - 4 regelbasierte Baselines (Grand Mean / Hour Mean / Line Mean / Stop Mean)
+  - **Stop Mean = 50.7s MAE** als Benchmark definiert
+- **`06_prediction_2-model.ipynb`** neu erstellt und ausgeführt:
+  - LightGBM v1 · 32 Features · 5 native Categorical Cols
+  - Temporaler Validation-Split: 2023–Jun 2024 Train / Jul–Dez 2024 Val
+  - Early Stopping nach 512 Iterationen
+  - Val MAE: 49.0s · **Test MAE: 46.3s** (Baseline −4.4s ✅)
+  - Export: `data/models/lgbm_v1.txt` + `lgbm_v1_meta.json` + `test_predictions.parquet`
+- **`06_prediction_3-evaluation.ipynb`** Skeleton angelegt
+- `pyproject.toml`: `lightgbm>=4.0` in dsc-Extras ergänzt
+- `libomp` via Homebrew installiert (macOS-Dependency für LightGBM)
+- Metriken-Sektion im Overview erweitert: SMAPE, MdAE, MSLE, MBE, Pinball Loss mit Ausschluss-Begründung
+
+**Technische Entscheidungen:**
+
+| Entscheidung | Ergebnis |
+|:---|:---|
+| Modell | LightGBM (statt XGBoost) — native Cat-Support, schneller |
+| Primärmetrik | MAE — direkt in Sekunden, kommunizierbar |
+| Modell-Speicherformat | LightGBM nativ (`.txt`) — nicht Pickle/Joblib |
+| Validation-Split | Jul–Dez 2024 — kein Data-Leakage aus 2025 |
+| Leaky Features | `departure_delay`, `delay_delta` ausgeschlossen |
+
+---
+
 ### 2026-05-19 — Vollständiges Projekt-Review (AI-Analyse)
 
 Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: README, ROADMAP, alle 6 Analyse-Notebooks, `04_insights.ipynb`, `03_analysis_0-overview.ipynb` und ein repräsentativer Blick in `src/zh_tram_flow/analytics/`.
@@ -261,27 +292,31 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 **Phase 0 (Data Engineering):** ✅ Abgeschlossen — in `sf_data-research`
 **Phase 1 (Setup & Dateneinstieg):** ✅ Abgeschlossen
 **Phase 2 (EDA & Analyse):** ✅ Abgeschlossen — 6 Analyse-Notebooks · 55 Findings
-**Phase 3 (Feature Engineering):** ✅ Abgeschlossen — `train_final.parquet` / `test_final.parquet` (55.5M Zeilen · 40 Spalten)
-**Phase 4 (Modellierung):** ⏳ Ausstehend
+**Phase 3 (Feature Engineering):** ✅ Abgeschlossen — `train_final.parquet` / `test_final.parquet` (55.5M Zeilen · 32 Features)
+**Phase 4 (Modellierung):** 🔄 In Arbeit — LightGBM v1 trainiert · Test MAE 46.3s
 **Phase 5 (Dashboard):** ⏳ Ausstehend
 
 **Notebook-Übersicht:**
 ```
-00_introduction.ipynb          ✅ fertig (Workflow-Sektion aktualisiert — BACKLOG #7 erledigt)
-01_exploration.ipynb           ✅ fertig
-02_preparation.ipynb           ✅ ausgeführt — train/test_raw + train/test_prepared + train/test_features in data/
-03_analysis_0-overview.ipynb   ✅ fertig (55 Findings · Executive Summary · Report-Auswahl)
-03_analysis_1-target.ipynb     ✅ fertig
-03_analysis_2-network.ipynb    ✅ fertig (Plotly · load_gtfs() · Versorgungsqualitäts-Map)
-03_analysis_3-temporal.ipynb   ✅ fertig
-03_analysis_4-spatial.ipynb    ✅ fertig
-03_analysis_5-meteo.ipynb      ✅ fertig
-03_analysis_6-events.ipynb     ✅ fertig
-05_feature_engineering.ipynb   ✅ fertig — train_final / test_final exportiert
-04_insights.ipynb              🔄 Report-Skeleton vorhanden — Plot-Calls ausstehend
+00_introduction.ipynb            ✅ fertig
+01_exploration.ipynb             ✅ fertig
+02_preparation.ipynb             ✅ ausgeführt — train/test_raw + prepared + features in data/
+03_analysis_0-overview.ipynb     ✅ fertig (55 Findings · Executive Summary · Report-Auswahl)
+03_analysis_1-target.ipynb       ✅ fertig
+03_analysis_2-network.ipynb      ✅ fertig
+03_analysis_3-temporal.ipynb     ✅ fertig
+03_analysis_4-spatial.ipynb      ✅ fertig
+03_analysis_5-meteo.ipynb        ✅ fertig
+03_analysis_6-events.ipynb       ✅ fertig
+04_insights.ipynb                🔄 Texte + Setup vorhanden — Plots noch nicht report-ready
+05_feature_engineering.ipynb     ✅ fertig — train_final / test_final exportiert
+06_prediction_0-overview.ipynb   ✅ fertig — Ansatz, Metriken, Baseline, Szenario
+06_prediction_1-baseline.ipynb   ✅ fertig — Stop Mean Benchmark: MAE 50.7s
+06_prediction_2-model.ipynb      ✅ ausgeführt — LightGBM v1: Test MAE 46.3s (512 Bäume · 32 Features)
+06_prediction_3-evaluation.ipynb 🔄 Skeleton — Fehleranalyse ausstehend
 ```
 
 **Nächste konkrete Schritte:**
-1. `04_insights.ipynb` mit Plot-Calls befüllen — je Kapitel 1 Hauptplot + show_df()-Tabelle
-2. HTML-Export: `jupyter nbconvert --to html --no-input --output-dir reports --output index 04_insights.ipynb`
-3. Modellierung beginnen (`06_modelling.ipynb`)
+1. `06_prediction_3-evaluation.ipynb` ausbauen — Fehleranalyse nach Linie, Stunde, Wetter
+2. `04_insights.ipynb` Plots überarbeiten — je Kapitel 1 starker Plot (BACKLOG #15)
+3. HTML-Export: `jupyter nbconvert --to html --no-input --output-dir reports --output index 04_insights.ipynb`

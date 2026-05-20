@@ -1,8 +1,8 @@
 # Zürich Tram Flow
 ### Verspätungsanalyse und Vorhersage im Tramnetz Zürich
 
-> **Typ:** DANSC &nbsp;|&nbsp; **Erstellt:** 2026-05-11 &nbsp;|&nbsp; **Version:** 0.3.0  
-> **Status:** Analyse ✅ (55 Findings · 6 Notebooks) · Feature Engineering in Planung · Modellierung geplant  
+> **Typ:** DANSC &nbsp;|&nbsp; **Erstellt:** 2026-05-11 &nbsp;|&nbsp; **Version:** 0.4.0  
+> **Status:** Analyse ✅ (55 Findings · 6 Notebooks) · Feature Engineering ✅ · Modellierung 🔄 (LightGBM v1 · MAE 46.3s)  
 > **Datenbasis:** [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) — Research & Data Engineering Phase
 
 ---
@@ -119,10 +119,11 @@ sicher im Projektzeitrahmen zu erreichen und Raum für Erweiterungen zu lassen.
 - **EDA & Reporting:** 55 Findings aus 6 Analyse-Notebooks — Hotspots, Zeitliches Muster, Wetter, Events, Netzveränderungen
 - Einsatz des eigenen **wgnd-toolkit** und **wgnd-scaffolding**
 
-#### v1.1 – "The Intelligence"
-- Definition der Metriken und Methoden
-- **Modellierung:** Training eines oder mehrerer Modelle zur Vorhersage von Verspätungen basierend auf Wetter, Zeit und Events
-- **Evaluation:** Validierung der Vorhersagegenauigkeit pro Linie und Stadtteil
+#### v1.1 – "The Intelligence" 🔄 (in Arbeit)
+- ✅ Feature Engineering: `train_final.parquet` / `test_final.parquet` (55.5M Zeilen · 32 Features)
+- ✅ Baseline: Stop Mean MAE = 50.7s als Benchmark definiert
+- ✅ LightGBM v1 trainiert: **Test MAE = 46.3s** (Baseline −4.4s · 512 Bäume · 32 Features)
+- 🔄 **Evaluation:** Fehleranalyse nach Linie, Stadtteil, Wetter, Rush-Hour ausstehend
 
 #### v1.2 – "The Interface"
 - **Interaktives Dashboard:**
@@ -273,7 +274,13 @@ zh-tram-flow/
 │   ├── 03_analysis_3-temporal.ipynb   # Stunde, Wochentag, Monat, Saison
 │   ├── 03_analysis_4-spatial.ipynb    # Haltestellen, Stadtkreise, Linien
 │   ├── 03_analysis_5-meteo.ipynb      # Regen, Wind, Schnee, Temperatur
-│   └── 03_analysis_6-events.ipynb     # Feiertage, Events, Eventgrösse
+│   ├── 03_analysis_6-events.ipynb     # Feiertage, Events, Eventgrösse
+│   ├── 04_insights.ipynb              # Executive Report (in Arbeit)
+│   ├── 05_feature_engineering.ipynb   # Feature Engineering + train/test_final Export
+│   ├── 06_prediction_0-overview.ipynb # Vorhersage-Ansatz, Metriken, Baseline-Erklärung
+│   ├── 06_prediction_1-baseline.ipynb # Regelbasierte Baselines (Stop Mean = 50.7s)
+│   ├── 06_prediction_2-model.ipynb    # LightGBM Training (MAE 46.3s)
+│   └── 06_prediction_3-evaluation.ipynb # Evaluation (in Arbeit)
 │
 ├── src/
 │   └── zh_tram_flow/       # Das Python-Paket

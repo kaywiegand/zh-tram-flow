@@ -66,7 +66,7 @@
 
 ---
 
-## Phase 3 — Feature Engineering & Vorbereitung · AKTUELL
+## Phase 3 — Feature Engineering & Vorbereitung ✅ ABGESCHLOSSEN
 
 ### Cleaning-Architektur
 - ✅ `src/zh_tram_flow/cleaning.py` erstellt — strukturelle Pipeline + Meteo-Imputation
@@ -114,21 +114,36 @@
 |:---|:---|
 | ~~`is_windy`~~ | NaN — nie befüllt (F-WEAT-03) |
 
-- [ ] Encoding-Entscheidung umsetzen: Target-Encoding für `stop_name`, Ordinal für `day_of_week`
-- [ ] `train_features.parquet` + `test_features.parquet` exportieren
+- ✅ Encoding-Entscheidung: LightGBM native Categorical für `stop_name`, `line_name`, `event_type`, `season`
+- ✅ `train_features.parquet` + `test_features.parquet` exportiert (55.5M / 25M Zeilen · 42 Spalten)
+- ✅ `train_final.parquet` + `test_final.parquet` exportiert (ML-ready · 32 Features · leaky Spalten entfernt)
 
 ---
 
-## Phase 4 — Modellierung · GEPLANT
+## Phase 4 — Modellierung · AKTUELL
 
-### Modell-Entscheidung (aus EDA-Findings)
-> Wetter→Delay Korrelationen sind nicht-linear (max r=0.03) → XGBoost als primäres Modell
+### Modell-Entscheidung
+> LightGBM — native Categorical Support, schnell auf großen Datensätzen, gradient boosting für nicht-lineare Effekte
 
-- [ ] Baseline-Modell definieren (einfachste sinnvolle Vorhersage)
-- [ ] XGBoost Training & Evaluation
-- [ ] Feature Importance analysieren
-- [ ] Vorhersagegenauigkeit pro Linie und Stadtkreis
-- [ ] Verhalten auf Event-Tagen prüfen
+### Baseline (`06_prediction_1-baseline.ipynb`) ✅
+- ✅ Grand Mean Baseline: ~50.7s MAE
+- ✅ Hour Mean Baseline
+- ✅ Line Mean Baseline
+- ✅ **Stop Mean Baseline: 50.7s MAE — definiert als Benchmark**
+
+### LightGBM v1 (`06_prediction_2-model.ipynb`) ✅
+- ✅ Temporaler Validation-Split: 2023–Jun 2024 Train / Jul–Dez 2024 Validation
+- ✅ 32 Features · 5 kategoriale Spalten (LightGBM nativ)
+- ✅ Early Stopping nach 50 Runden — beste Iteration: 512
+- ✅ Val MAE: 49.0s · **Test MAE: 46.3s** (Baseline −4.4s ✅)
+- ✅ Modell gespeichert: `data/models/lgbm_v1.txt` + `lgbm_v1_meta.json`
+- ✅ Test-Predictions: `data/processed/test_predictions.parquet`
+
+### Evaluation (`06_prediction_3-evaluation.ipynb`) · AUSSTEHEND
+- [ ] Fehleranalyse: MAE nach Linie, Stadtkreis, Stunde, Wetter
+- [ ] Residuals-Verteilung — Ausreisser identifizieren
+- [ ] Live-Szenario: Einzelvorhersage aus dem Overview-Notebook
+- [ ] Abschluss-Tabelle: Modell vs. alle Baselines
 
 ---
 
