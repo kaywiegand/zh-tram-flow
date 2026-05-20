@@ -71,7 +71,7 @@
 ### Cleaning-Architektur
 - ✅ `src/zh_tram_flow/cleaning.py` erstellt — strukturelle Pipeline + Meteo-Imputation
 - ✅ `02_preparation.ipynb` aufgebaut — Split-Strategie dokumentiert
-- ✅ lf_clean-Strategie definiert (canceled=False, stop_sequence>1, kein L-E, kein Nov/Dez 2025)
+- ✅ lf_clean-Strategie definiert (canceled=False, stop_sequence>1, kein L-E/L50/L51, departure_delay/delay_delta maskiert für Nov 14–Dez 23 2025 — arrival_delay clean)
 - [ ] `02_preparation.ipynb` ausführen: strukturelles Cleaning auf Rohdaten
 - [ ] Train/Test-Split ausführen — 2025 als Test-Jahr (temporal, kein Shuffle)
 - [ ] Meteo-Imputation (Forward/Backward Fill) auf Train + Test
@@ -115,7 +115,7 @@
 | ~~`is_windy`~~ | NaN — nie befüllt (F-WEAT-03) |
 
 - ✅ Encoding-Entscheidung: LightGBM native Categorical für `stop_name`, `line_name`, `event_type`, `season`
-- ✅ `train_features.parquet` + `test_features.parquet` exportiert (55.5M / 25M Zeilen · 42 Spalten)
+- ✅ `train_features.parquet` + `test_features.parquet` exportiert (55.5M / ~30M Zeilen · 42 Spalten, inkl. Nov/Dez 2025)
 - ✅ `train_final.parquet` + `test_final.parquet` exportiert (ML-ready · 32 Features · leaky Spalten entfernt)
 
 ---

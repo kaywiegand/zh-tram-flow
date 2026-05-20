@@ -12,6 +12,7 @@ from .weather import add_weather_flags
 KEEP_RAW = [
     "operating_date", "trip_id", "line_name", "stop_name",
     "stop_lat", "stop_lon", "district_nr",
+    "canceled",                                  # needed by analytics functions
     "arrival_delay", "departure_delay",
     "temperature", "precipitation", "wind_speed", "flood_intensity",
     "event_name", "event_type", "event_size",
@@ -29,20 +30,23 @@ ENGINEERED = [
 ]
 
 
-def apply_lf_clean(lf: pl.LazyFrame, is_test: bool = False) -> pl.LazyFrame:
-    """Apply lf_clean filters. is_test=True also removes Nov/Dec 2025 GTFS artefact."""
-    lf = (
+def apply_lf_clean(lf: pl.LazyFrame) -> pl.LazyFrame:
+    """Apply lf_clean filters + departure_delay anomaly masking.
+
+    Identical logic to zh_tram_flow.data.cleaning.apply_lf_clean —
+    kept here so feature engineering can import without circular deps.
+
+    Nov 14–Dec 23 2025: departure_delay / delay_delta → NaN (arrival_delay clean).
+    Adds is_anomal flag. is_anomal is NOT a model feature — dropped in select_final_columns.
+    """
+    from zh_tram_flow.data.cleaning import mask_departure_anomaly
+    return (
         lf
         .filter(pl.col("canceled") == False)
         .filter(pl.col("stop_sequence") > 1)
-        .filter(pl.col("line_name") != "E")
+        .filter(~pl.col("line_name").is_in(["E", "L50", "L51"]))
+        .pipe(mask_departure_anomaly)
     )
-    if is_test:
-        lf = lf.filter(
-            ~((pl.col("operating_date").dt.year() == 2025) &
-              (pl.col("operating_date").dt.month() >= 11))
-        )
-    return lf
 
 
 def build_features(lf: pl.LazyFrame, network_stats: dict | None = None) -> pl.LazyFrame:

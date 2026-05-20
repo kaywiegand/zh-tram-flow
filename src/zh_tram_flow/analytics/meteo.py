@@ -906,11 +906,18 @@ def table_daily_delay_weather_timeline(lf: pl.LazyFrame) -> pd.DataFrame:
 # Stop-level Weather Impact Map
 # ---------------------------------------------------------------------------
 
-def plot_weather_stop_map(lf: pl.LazyFrame, flag: str = "has_snow") -> None:
+def plot_weather_stop_map(
+    lf: pl.LazyFrame,
+    flag: str = "has_snow",
+    vmax: float | None = None,
+) -> None:
     """Plotly bubble map: Δ delay per stop for a given weather flag vs normal days.
 
     Reuses the same pattern as plot_event_stop_map in analytics/events.py.
     flag: 'has_snow', 'has_heavy_rain', or 'is_hot'
+    vmax: optional fixed color scale maximum (seconds). When set, only the most
+          extreme stops saturate to full red — useful to compare two maps on the
+          same scale. Defaults to the 95th percentile of the data.
     """
     import plotly.graph_objects as go
     import json
@@ -937,10 +944,12 @@ def plot_weather_stop_map(lf: pl.LazyFrame, flag: str = "has_snow") -> None:
     stops = stops[stops["n_weather"] > 500]
     stops["delta"]     = (stops["weather"] - stops["normal"]).round(1)
     stops["abs_delta"] = stops["delta"].abs()
-    # Dynamic scale based on actual data
-    vmax = stops["delta"].quantile(0.95)
-    vmin = stops["delta"].quantile(0.05)
-    vcenter = stops["delta"].median()
+    # Color scale: use provided vmax (fixed range) or fall back to 95th percentile
+    _vmax    = vmax if vmax is not None else stops["delta"].quantile(0.95)
+    _vmin    = -_vmax if vmax is not None else stops["delta"].quantile(0.05)
+    vcenter  = stops["delta"].median()
+    vmax     = _vmax
+    vmin     = _vmin
 
     district_weather = (
         lf_delay

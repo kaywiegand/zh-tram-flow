@@ -21,6 +21,14 @@ METEO_COLS = [
     "precipitation", "wind_speed", "global_radiation",
 ]
 
+# ── Anomaly period: Nov 14 – Dec 23, 2025 ───────────────────────────────────
+# departure_delay explodes in this window (avg +30s above arrival_delay).
+# arrival_delay is unaffected and valid throughout.
+# Cause: likely VBZ operational preparation for Dec 14 Fahrplanwechsel (j26).
+# departure_delay and delay_delta are NOT model features → safe to NaN.
+ANOMALY_START = pl.date(2025, 11, 14)
+ANOMALY_END   = pl.date(2025, 12, 23)
+
 
 # ── Individual cleaning steps ────────────────────────────────────────────────
 
@@ -72,6 +80,62 @@ def structural_cleaning_pipeline(lf: pl.LazyFrame) -> pl.LazyFrame:
         .pipe(filter_extreme_delays)
         .pipe(clip_physical_bounds)
         .pipe(fill_category_nulls)
+    )
+
+
+# ── Anomaly masking ─────────────────────────────────────────────────────────
+
+def mask_departure_anomaly(lf: pl.LazyFrame) -> pl.LazyFrame:
+    """Mask unplausible departure_delay / delay_delta values in Nov 14 – Dec 23 2025.
+
+    arrival_delay is unaffected by the anomaly and remains valid.
+    departure_delay and delay_delta are not model features — NaN-ing them
+    preserves the full month coverage without contaminating predictions.
+
+    Adds `is_anomal` flag (Bool) for transparency.
+    """
+    in_window = (
+        (pl.col("operating_date") >= ANOMALY_START) &
+        (pl.col("operating_date") <= ANOMALY_END)
+    )
+    schema = lf.collect_schema()
+    exprs = [in_window.alias("is_anomal")]
+    if "departure_delay" in schema:
+        exprs.append(
+            pl.when(in_window)
+            .then(pl.lit(None, dtype=pl.Float64))
+            .otherwise(pl.col("departure_delay"))
+            .alias("departure_delay")
+        )
+    if "delay_delta" in schema:
+        exprs.append(
+            pl.when(in_window)
+            .then(pl.lit(None, dtype=pl.Float64))
+            .otherwise(pl.col("delay_delta"))
+            .alias("delay_delta")
+        )
+    return lf.with_columns(exprs)
+
+
+# ── lf_clean helper ──────────────────────────────────────────────────────────
+
+def apply_lf_clean(lf: pl.LazyFrame) -> pl.LazyFrame:
+    """Standard analysis filter used across all notebooks.
+
+    Removes structurally invalid records. Keeps Nov 14–Dec 23 2025 with
+    departure_delay / delay_delta masked to NaN (arrival_delay is clean).
+
+    Excludes:
+    - canceled trips (no meaningful arrival_delay)
+    - stop_sequence == 1 (terminus puffer artefact)
+    - Linie E / L50 / L51 (structurally incomparable)
+    """
+    return (
+        lf
+        .filter(pl.col("canceled") == False)
+        .filter(pl.col("stop_sequence") > 1)
+        .filter(~pl.col("line_name").is_in(["E", "L50", "L51"]))
+        .pipe(mask_departure_anomaly)
     )
 
 

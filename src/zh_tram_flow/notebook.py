@@ -6,7 +6,7 @@ Central entry point for all notebooks.
 Usage:
     from zh_tram_flow.notebook import *
 
-    TRAIN, TEST, lf = setup_analysis("03_analysis_target")
+    TRAIN, TEST, lf, lf_all, lf_delay, lf_clean = setup_analysis("03_analysis_target")
 """
 
 import polars as pl
@@ -35,12 +35,20 @@ def setup_analysis(notebook_name: str = "notebook"):
     """Standard setup for all analysis notebooks.
 
     Activates theme, configures plotting, logs start.
-    Returns (TRAIN, TEST, lf) ready to use.
+    Returns (TRAIN, TEST, lf, lf_all, lf_delay, lf_clean) ready to use.
+
+    lf_all   — train + test features combined (all years)
+    lf_delay — lf_all filtered: canceled == False
+    lf_clean — analysis-ready: canceled=False · stop_sequence>1 · no Linie E/L50/L51
+               departure_delay / delay_delta masked to NaN for Nov 14–Dec 23 2025
+               (is_anomal flag added for that window)
 
     Usage:
-        TRAIN, TEST, lf = setup_analysis("03_analysis_target")
+        TRAIN, TEST, lf, lf_all, lf_delay, lf_clean = setup_analysis("03_analysis_1-target")
     """
     from wgnd.core.theme import setup
+    from zh_tram_flow.cleaning import apply_lf_clean
+
     setup_plotting()
     setup()
     logger.info(f"{notebook_name} started")
@@ -49,7 +57,11 @@ def setup_analysis(notebook_name: str = "notebook"):
     TEST  = PATHS["processed"] / "test_features.parquet"
     lf    = pl.scan_parquet(TRAIN)
 
-    return TRAIN, TEST, lf
+    lf_all   = pl.concat([pl.scan_parquet(TRAIN), pl.scan_parquet(TEST)])
+    lf_delay = lf_all.filter(pl.col("canceled") == False)
+    lf_clean = apply_lf_clean(lf_all)
+
+    return TRAIN, TEST, lf, lf_all, lf_delay, lf_clean
 
 
 __all__ = [

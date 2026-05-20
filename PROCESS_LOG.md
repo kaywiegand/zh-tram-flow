@@ -309,9 +309,9 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 03_analysis_5-meteo.ipynb        ✅ fertig
 03_analysis_6-events.ipynb       ✅ fertig
 04_insights.ipynb                🔄 Texte + Setup vorhanden — Plots noch nicht report-ready
-05_feature_engineering.ipynb     ✅ fertig — train_final / test_final exportiert
+05_feature_engineering.ipynb     🔄 neu ausführen — test_features muss mit Nov/Dez 2025 rebuild werden
 06_prediction_0-overview.ipynb   ✅ fertig — Ansatz, Metriken, Baseline, Szenario
-06_prediction_1-baseline.ipynb   ✅ fertig — Stop Mean Benchmark: MAE 50.7s
+06_prediction_1-baseline.ipynb   🔄 neu ausführen nach test_features rebuild
 06_prediction_2-model.ipynb      ✅ ausgeführt — LightGBM v1: Test MAE 46.3s (512 Bäume · 32 Features)
 06_prediction_3-evaluation.ipynb 🔄 Skeleton — Fehleranalyse ausstehend
 ```
@@ -326,9 +326,9 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 ## Präsentations-Fakten — Zahlen für Portfolio & Bewerbung
 
 ### Datenbasis
-- **94 Mio. Rohdatenpunkte** — 3 Jahre (2023–2025), 16 Tramlinien, VBZ Zürich
-- **55.5 Mio. Trainingszeilen** nach Cleaning + Filter (lf_clean)
-- **25 Mio. Testzeilen** (2025)
+- **~94 Mio. Rohdatenpunkte** — 3 Jahre (2023–2025), 16 Tramlinien, VBZ Zürich
+- **~55 Mio. Trainingszeilen** nach Cleaning + Filter (lf_clean)
+- **~30 Mio. Testzeilen** (2025, inkl. Nov/Dez — nach Rebuild von test_features)
 - **42 Spalten** in train_features · **32 Features** im ML-Modell
 
 ### Performance — Laufzeiten
@@ -363,3 +363,53 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 - `stop_name` als native Categorical statt Target Encoding — Verbesserungspotenzial v2
 - MBE +10.1s — Modell systematisch zu optimistisch
 - `prev_trip_delay` (Kaskadeneffekt) nicht implementiert — trip_id Kontinuität ungeprüft
+
+---
+
+### 2026-05-20 — Nov/Dez 2025 Anomalie: Untersuchung + Refactoring abgeschlossen
+
+**Ausgangsbefund aus den Daten:**
+- `departure_delay` explodiert ab exakt **14. November 2025** (delta: 6.1s am 13. Nov → 16.4s am 14. Nov → 30s+ bis 21. Nov)
+- `arrival_delay` bleibt stabil — kein operativer Verspätungsanstieg
+- Alle 15 Linien betroffen, alle Stops betroffen
+- `arrival_schedule` + `departure_schedule` Werte: **komplett stabil** (kein j26-Fahrplan im Datensatz)
+- Anomalie endet: **23. Dezember 2025** (neun Tage nach dem offiziellen Fahrplanwechsel 14. Dez)
+
+**Was Webrecherche ergab:**
+- Fahrplanwechsel (j26) offiziell: **14. Dezember 2025** — grösster in VBZ-Geschichte (10 von 14 Linien geändert)
+- Neuer j26-Fahrplan in Apps & Online verfügbar: **"ab Mitte November 2025"** (VBZ/ZVV-Ankündigung)
+- Bahnhofquai-Baustelle: erst ab 14. Dezember 2025 — kein November-Effekt
+- **Kein spezifisches Ereignis für den 14. November 2025** publiziert oder auffindbar
+
+**Wahrscheinlichste Erklärung (Datensatz-Artefakt):**
+
+> Ab Mitte November 2025 (exakt: 14. Nov) begann VBZ den j26-Fahrplan **operativ vorzubereiten** — Fahrer-Einweisung, neue Umläufe, Probefahrten auf modifizierten Routen. Die tatsächlichen Abfahrtzeiten ("IST") orientierten sich zunehmend an den j26-Fahrzeiten, während der Referenzwert `departure_schedule` im Datensatz weiterhin j25 enthielt. Das erzeugt künstlich erhöhte `departure_delay`-Werte. `arrival_delay` bleibt davon unberührt, weil Haltestellenpositionen physisch unverändert blieben. Nach dem offiziellen Fahrplanwechsel (14. Dez) laufen IST und SOLL wieder im gleichen Regime → delta kehrt in KW52 zur Normalverteilung zurück.
+
+**Fazit:**
+- Kein Modell-Fehler, kein Analyse-Fehler — reines Messsystem-Artefakt an der Regime-Grenze j25/j26
+- Exakte Ursache nicht abschliessend beweisbar ohne VBZ-interne Daten
+
+**Entscheidung: Maskierung statt Ausschluss**
+
+Statt Nov/Dez 2025 komplett zu filtern, werden `departure_delay` und `delay_delta` für Nov 14–Dez 23 2025 auf NaN gesetzt. `arrival_delay` (Zielvariable) bleibt unberührt. Neues `is_anomal`-Flag für Transparenz.
+
+Begründung: `departure_delay` / `delay_delta` sind keine Modell-Features. Durch Maskierung statt Ausschluss gewinnen wir **+~5M Testzeilen (+~20%)** und vollständige November-Abdeckung (~58s Ø arrival_delay — schlechtester Monat, bisher komplett aus der Evaluation ausgeschlossen).
+
+**Technische Umsetzung (2026-05-20):**
+
+| Datei | Änderung |
+|:---|:---|
+| `src/zh_tram_flow/data/cleaning.py` | `mask_departure_anomaly()` + `apply_lf_clean()` + Konstanten `ANOMALY_START/END` |
+| `src/zh_tram_flow/cleaning.py` | Re-export aller neuen Symbole |
+| `src/zh_tram_flow/notebook.py` | `setup_analysis()` gibt 6 Werte zurück: `TRAIN, TEST, lf, lf_all, lf_delay, lf_clean` |
+| `src/zh_tram_flow/features/final.py` | `apply_lf_clean()` via `mask_departure_anomaly()`, `is_test` Parameter entfernt |
+| `03_analysis_1-target.ipynb` | Setup-Zelle + Anomalie-Dokumentation (Zellen 73 + f63a634c) aktualisiert |
+| `03_analysis_2/3/4/5/6-*.ipynb` | Setup-Zellen auf 6-Rückgabewert migriert |
+| `04_insights.ipynb` | Setup-Zelle migriert |
+| `06_prediction_1-baseline.ipynb` | Setup-Zelle + inline Filter ersetzt durch `apply_lf_clean` |
+| `05_feature_engineering.ipynb` | `is_test`-Parameter aus `apply_lf_clean`-Aufrufen entfernt |
+
+**Offene Schritte nach diesem Refactoring:**
+1. `05_feature_engineering.ipynb` neu ausführen → `test_features.parquet` mit Nov/Dez 2025 (~30M Zeilen)
+2. `06_prediction_1-baseline.ipynb` neu ausführen → aktualisierte Benchmark-Zahlen
+3. Analysis-Notebooks neu ausführen → Plots zeigen dann Nov/Dez 2025 (optional)
