@@ -6,19 +6,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+_FALLBACK_PALETTE = [
+    "#4c72b0", "#dd8452", "#55a868", "#c44e52", "#8172b2",
+    "#937860", "#da8bc3", "#8c8c8c", "#ccb974", "#64b5cd",
+    "#2f6690", "#a34b1c", "#2a7a42", "#8a2020", "#4f3f82",
+]
+
+
 def _get_cfg(cfg):
     if cfg is None:
         try:
-            from zh_tram_flow.notebook import setup_analysis
             from wgnd.core.config import WgndConfig
             cfg = WgndConfig()
         except Exception:
             class _FallbackCfg:
                 ANNO_REF = "#888888"
                 def palette_n(self, n):
-                    import matplotlib.pyplot as plt
-                    cmap = plt.get_cmap("tab20")
-                    return [f"#{int(cmap(i/max(n-1,1))[0]*255):02x}{int(cmap(i/max(n-1,1))[1]*255):02x}{int(cmap(i/max(n-1,1))[2]*255):02x}" for i in range(n)]
+                    return (_FALLBACK_PALETTE * ((n // len(_FALLBACK_PALETTE)) + 1))[:n]
             cfg = _FallbackCfg()
     return cfg
 
@@ -37,7 +41,7 @@ def plot_top_delay_stops(lf, cfg=None):
             (pl.col("arrival_delay").abs() <= 120).mean().alias("otp_rate"),
             pl.len().alias("n"),
         ])
-        .filter(pl.col("n") >= 1000)
+        .filter(pl.col("n") >= 5000)
         .sort("avg_delay", descending=True)
         .head(20)
         .collect()
@@ -51,7 +55,7 @@ def plot_top_delay_stops(lf, cfg=None):
             pl.col("arrival_delay").mean().alias("avg_delay"),
             pl.len().alias("n"),
         ])
-        .filter(pl.col("n") >= 1000)
+        .filter(pl.col("n") >= 5000)
         .sort("avg_delay")
         .head(10)
         .collect()
@@ -82,7 +86,7 @@ def plot_top_delay_stops(lf, cfg=None):
 
 
 def table_top_delay_stops(lf) -> pd.DataFrame:
-    """Tabelle: Top 10 Haltestellen nach Ø Delay (min. 1000 Beobachtungen)."""
+    """Tabelle: Top 10 Haltestellen nach Ø Delay (min. 5000 Beobachtungen — statistically stable)."""
     top_stops = (
         lf
         .group_by(["bpuic", "stop_name"])
@@ -92,7 +96,7 @@ def table_top_delay_stops(lf) -> pd.DataFrame:
             (pl.col("arrival_delay").abs() <= 120).mean().alias("otp_rate"),
             pl.len().alias("n"),
         ])
-        .filter(pl.col("n") >= 1000)
+        .filter(pl.col("n") >= 5000)
         .sort("avg_delay", descending=True)
         .head(20)
         .collect()

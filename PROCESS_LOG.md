@@ -211,18 +211,63 @@ und fliessen in `05_feature_engineering.ipynb` ein.
 
 ---
 
+### 2026-05-19 — Vollständiges Projekt-Review (AI-Analyse)
+
+Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: README, ROADMAP, alle 6 Analyse-Notebooks, `04_insights.ipynb`, `03_analysis_0-overview.ipynb` und ein repräsentativer Blick in `src/zh_tram_flow/analytics/`.
+
+---
+
+**Backlog-Kandidaten**
+
+| Priorität | Bereich | Beschreibung |
+|:---|:---|:---|
+| **Hoch** | Code | Tests decken nur Scaffold-Dummy-Funktionen ab (57 Zeilen, 4 Tests). 5.187 Zeilen Analytics-Code haben 0% Testabdeckung. |
+| **Hoch** | Doku | `04_insights.ipynb` enthält ausschließlich Text-Zellen — keine Code-Zellen mit Plot-Calls oder `show_df()`-Ausgaben. Report ist Prosa, aber kein ausführbares Notebook. Muss gebaut werden vor HTML-Export. |
+| **Mittel** | Analyse | Top-2 Hotspot-Stops (Bertastrasse 181.6s n=1.307, Sihlfeld 167.0s n=1.307) haben sehr kleines n vs. Enzenbühl (n=292.204). Methodenproblem: Mittelwerte aus kleinen n sind instabil. n-Schwelle im Plot hochsetzen (≥ 50.000) oder als "Randfälle" explizit ausweisen. |
+| **Mittel** | Code | `spatial.py` importiert `matplotlib` — Projekt hat auf Plotly standardisiert. Prüfen ob Import aktiv genutzt wird oder nur Überbleibsel. |
+| **Mittel** | Analyse | Linie 51 hat höchsten `delay_delta` aller Linien (+20.2s, weit über L11 +6.2s) — nirgendwo interpretiert. Zumindest eine Beobachtungszeile im Spatial-Notebook. |
+| **Mittel** | Doku | `00_introduction.ipynb` Workflow-Sektion veraltet (BACKLOG #7). Zeigt nicht aktuelle 10-Notebook-Struktur. |
+| **Mittel** | Analyse | Kaskadeneffekt (`prev_trip_delay`, F-NET-07) ist als Feature-Kandidat gelistet aber nie analysiert. Explorations-Check: Hat der Datensatz trip_id-Kontinuität über mehrere Fahrten? Vor Feature-Engineering klären. |
+| **Niedrig** | Struktur | `reports/` Ordner wahrscheinlich leer. Kein exportierter Plot committet. |
+| **Niedrig** | Code | `_get_cfg()` Fallback-Logik in den Analytics-Modulen ist fragil (try/except auf Import-Ebene mit anonymer `_FallbackCfg`-Klasse). Schwer debuggbar wenn wgnd-toolkit umbricht. |
+| **Niedrig** | Doku | Kein CHANGELOG. Sinnvoll ab Phase 4 wenn Breaking Changes an Features entstehen können. |
+
+---
+
+**Top-Insights für den Report (Präsentationswert-Ranking)**
+
+**1. Strukturelle Pufferschwäche** — 71.5% aller Halte akkumulieren Delay; 71.3% aller `dwell_time` = 0s. Kein Wetter-, kein Event-Problem — ein Fahrplan-Design-Problem. Visualisierung: Anteil akkumulierend vs. reduzierend + `dwell_time`-Histogramm (fast alles bei 0s).
+
+**2. Kein Morgenrush** — 7h liegt bei 48.9s (unter Netzschnitt). Peak 21h (67.9s) durch Abreisewellen. Donnerstag schlechtester Wochentag (60.4s, P95=194s), nicht Freitag. Visualisierung: Linienchart nach Stunde + Bar-Chart Wochentage.
+
+**3. Hotspots an der Peripherie, nicht im Zentrum** — Central (48.3s, 15 Linien) und Paradeplatz (48.2s, 14 Linien) liegen unter Netzschnitt. Enzenbühl (93.8s) und Balgrist (85.2s) führen die echte Liste an. 0 Überschneidung zwischen Top-Dichte- und Top-Delay-Stops. Visualisierung: Karte mit Delay-Blasen oder Scatter Liniendichte vs. Delay.
+
+**4. Schnee stärkster Einzelfaktor — geografisch trennbar von Regen** — Schnee +54s, OTP −10.9pp. Schnee trifft Höhenlagen (K10/K4/K12), Regen trifft Flusstäler (K5). L17 leidet stark unter Regen (+41.2s), kaum unter Schnee; L9 umgekehrt (+75.9s Schnee). Visualisierung: zwei Choropleth-Karten "Schnee-Effekt" / "Regen-Effekt" nebeneinander.
+
+**5. Feiertage beste Tage** — 46.3s vs. 56.2s normal (−9.9s). OTP 90.6% vs. 87.0%. Rückgang des Berufsverkehrs übertrifft Event-Effekt. Direkte Implikation: ÖPNV funktioniert besser wenn weniger Autos unterwegs sind. Visualisierung: Vergleichs-Bar "Feiertag / Normal / Großevent".
+
+**6. Größter Fahrplanwechsel VBZ-Geschichte unsichtbar** — Dez 2023 (L9/L11/L13 fundamental umgebaut): netzweit +0.5s. Geänderte Linien (L11 +5.3s) und unveränderte Linien (L15 +5.2s) bewegen sich identisch. Visualisierung: Zeitreihe 2023–2025 mit vertikaler Linie Dez 2023, veränderte vs. stabile Linien.
+
+**7. Netzausbau am falschen Ort** — Erweiterungen nach K3 (55.7s) und K8 (63.7s). K11 (68.3s, OTP 83%) und K12 (66.3s) bekamen nichts. 0 Überschneidung Investitionsort / Problemort. Visualisierung: Choropleth "Neue Haltestellen 2024" überlagert mit "Ø Delay pro Stadtkreis".
+
+**8. Berufsmesse schlägt Taylor Swift** — Trade Fairs schlechteste Event-Kategorie (66.0s, OTP 84%). Schlechtester Tag im Datensatz: Berufsmesse 21.11.2024 (192.5s, OTP 54.5%). Taylor Swift: 75.4s — weniger als halb so viel. Visualisierung: Bar-Chart Event-Kategorien + Timeline der schlimmsten Einzeltage mit annotierten Labels.
+
+**9. Winter beste Jahreszeit** (Bonus) — Winter 51.7s (OTP 88.9%) besser als Frühling und Sommer. Herbst schlechteste Jahreszeit (61.2s). Kfz-Rückgang im Winter übertrifft Schnee-Effekt.
+
+---
+
 ## Aktueller Stand
 
 **Phase 0 (Data Engineering):** ✅ Abgeschlossen — in `sf_data-research`
 **Phase 1 (Setup & Dateneinstieg):** ✅ Abgeschlossen
 **Phase 2 (EDA & Analyse):** ✅ Abgeschlossen — 6 Analyse-Notebooks · 55 Findings
-**Phase 3 (Feature Engineering):** 🟡 In Planung — Kandidaten aus Analyse dokumentiert
+**Phase 3 (Feature Engineering):** ✅ Abgeschlossen — `train_final.parquet` / `test_final.parquet` (55.5M Zeilen · 40 Spalten)
 **Phase 4 (Modellierung):** ⏳ Ausstehend
 **Phase 5 (Dashboard):** ⏳ Ausstehend
 
 **Notebook-Übersicht:**
 ```
-00_introduction.ipynb          ✅ fertig (Workflow-Sektion: Notebook-Struktur noch anpassen — BACKLOG #7)
+00_introduction.ipynb          ✅ fertig (Workflow-Sektion aktualisiert — BACKLOG #7 erledigt)
 01_exploration.ipynb           ✅ fertig
 02_preparation.ipynb           ✅ ausgeführt — train/test_raw + train/test_prepared + train/test_features in data/
 03_analysis_0-overview.ipynb   ✅ fertig (55 Findings · Executive Summary · Report-Auswahl)
@@ -232,11 +277,11 @@ und fliessen in `05_feature_engineering.ipynb` ein.
 03_analysis_4-spatial.ipynb    ✅ fertig
 03_analysis_5-meteo.ipynb      ✅ fertig
 03_analysis_6-events.ipynb     ✅ fertig
-05_feature_engineering.ipynb   ⏳ noch nicht angelegt
-04_insights.ipynb              ⏳ Report-Skeleton vorhanden — Inhalt ausstehend
+05_feature_engineering.ipynb   ✅ fertig — train_final / test_final exportiert
+04_insights.ipynb              🔄 Report-Skeleton vorhanden — Plot-Calls ausstehend
 ```
 
 **Nächste konkrete Schritte:**
-1. `05_feature_engineering.ipynb` aufbauen — Feature-Set aus Analyse-Phase umsetzen (ROADMAP Phase 3)
-2. `00_introduction.ipynb` Workflow-Sektion aktualisieren — aktuelle Notebook-Struktur eintragen (BACKLOG #7)
-3. Modellierung beginnen
+1. `04_insights.ipynb` mit Plot-Calls befüllen — je Kapitel 1 Hauptplot + show_df()-Tabelle
+2. HTML-Export: `jupyter nbconvert --to html --no-input --output-dir reports --output index 04_insights.ipynb`
+3. Modellierung beginnen (`06_modelling.ipynb`)
