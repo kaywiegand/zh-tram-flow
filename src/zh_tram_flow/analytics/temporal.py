@@ -35,7 +35,7 @@ def _add_schulferien(ax, alpha: float = 0.13, color: str = "#999999") -> None:
 
 
 def plot_hour_of_day(lf, cfg=None):
-    """Ø Arrival Delay nach Stunde des Tages — Balken + Datenvolumen."""
+    """Ø Arrival Delay nach Stunde — Delay-Balken (links) + Datenvolumen (rechts, twinx)."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
@@ -54,32 +54,34 @@ def plot_hour_of_day(lf, cfg=None):
 
     style = mpl_style()
     avg = hourly["avg_delay"].mean()
-    colors = [cfg.COLOR_NEGATIVE if v > avg * 1.15 else cfg.PALETTE_CATEGORICAL[4] for v in hourly["avg_delay"]]
+    colors = [cfg.COLOR_NEGATIVE if v > avg * 1.15 else cfg.PALETTE_CATEGORICAL[4]
+              for v in hourly["avg_delay"]]
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 4))
+    fig, ax1 = plt.subplots(figsize=(14, 5))
+    ax2 = ax1.twinx()
 
-    bars = ax1.bar(hourly["hour"], hourly["avg_delay"], color=colors, alpha=0.85)
-    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.5, linestyle="--", label=f"Ø {avg:.1f}s")
+    ax2.plot(hourly["hour"], hourly["n"] / 1_000_000, color=cfg.COLOR_NEGATIVE,
+             lw=1.8, linestyle="--", zorder=1, label="Halt-Ereignisse (Mio.)")
+    ax2.set_ylabel("Halt-Ereignisse (Mio.)", fontsize=11, color=cfg.COLOR_NEGATIVE,
+                   labelpad=8)
+    ax2.tick_params(axis="y", colors=cfg.COLOR_NEGATIVE, labelsize=9)
+    ax2.spines[["top", "left"]].set_visible(False)
+    ax2.spines["right"].set_color(cfg.COLOR_NEGATIVE)
+
+    ax1.bar(hourly["hour"], hourly["avg_delay"], color=colors, alpha=0.85,
+            width=0.9, zorder=2)
+    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.5, linestyle="--",
+                label=f"Ø {avg:.1f}s", zorder=3)
     ax1.set_xlabel("Stunde", **style["label"])
     ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
     ax1.set_title("Ø Verspätung nach Stunde des Tages", **style["title"])
     ax1.set_xticks(range(0, 24, 2))
-    ax1.legend(fontsize=9)
     ax1.spines[["top", "right"]].set_visible(False)
     ax1.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax1.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
 
-    ax2.bar(hourly["hour"], hourly["n"] / 1_000, color=cfg.PALETTE_CATEGORICAL[4], alpha=0.6)
-    ax2.set_xlabel("Stunde", **style["label"])
-    ax2.set_ylabel("Halt-Ereignisse (Tsd.)", **style["label"])
-    ax2.set_title("Datenvolumen nach Stunde", **style["title"])
-    ax2.set_xticks(range(0, 24, 2))
-    ax2.spines[["top", "right"]].set_visible(False)
-    ax2.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-
-    peak_hours = hourly[hourly["hour"].isin([7, 8, 17, 18, 19])]
-    off_peak = hourly[~hourly["hour"].isin([7, 8, 17, 18, 19]) & hourly["hour"].between(6, 22)]
-    print(f"Rush-Hour (7–9h, 17–20h): Ø {peak_hours['avg_delay'].mean():+.1f}s")
-    print(f"Off-Peak  (restliche Betriebsstunden): Ø {off_peak['avg_delay'].mean():+.1f}s")
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    ax1.legend(lines1, labels1, fontsize=9, frameon=False, loc="upper left")
 
     plt.tight_layout()
     plt.show()
@@ -132,18 +134,18 @@ def plot_day_of_week(lf, cfg=None):
     colors = [cfg.COLOR_NEGATIVE if v > avg * 1.15 else cfg.PALETTE_CATEGORICAL[4]
               for v in daily["avg_delay"]]
 
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(14, 5))
     x = range(len(day_labels))
 
-    bars = ax.bar(x, daily["avg_delay"], color=colors, alpha=0.85, label="Ø Arrival Delay")
-    ax.axhline(avg, color=cfg.ANNO_MEAN, lw=1.5, linestyle="--", label=f"Ø {avg:.1f}s")
+    bars = ax.bar(x, daily["avg_delay"], color=colors, alpha=0.85)
+    ax.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":", label=f"Ø {avg:.1f}s")
 
     for i, v in enumerate(daily["avg_delay"]):
         ax.text(i, v + 0.3, f"{v:+.1f}s", ha="center", va="bottom", fontsize=9)
 
     ax2 = ax.twinx()
-    ax2.plot(x, daily["p95_delay"], color=cfg.COLOR_NEGATIVE, lw=2,
-             marker="D", markersize=6, linestyle="--", alpha=0.7, label="P95 (schlechteste 5%)")
+    ax2.plot(x, daily["p95_delay"], color=cfg.COLOR_NEGATIVE, lw=1.0,
+             marker="D", markersize=4, linestyle="--", alpha=0.7, label="P95 (schlechteste 5%)")
     ax2.set_ylabel("P95 Arrival Delay (s)", color=cfg.COLOR_NEGATIVE, fontsize=10)
     ax2.tick_params(axis="y", labelcolor=cfg.COLOR_NEGATIVE)
 
@@ -151,16 +153,13 @@ def plot_day_of_week(lf, cfg=None):
     ax.set_xticklabels(day_labels, fontsize=11)
     ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
     ax.set_title("Ø Verspätung + P95 nach Wochentag", **style["title"])
-    ax.legend(loc="upper left", fontsize=9)
-    ax2.legend(loc="upper right", fontsize=9)
+    lines1, labels1 = ax.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax.legend(lines1 + lines2, labels1 + labels2,
+              fontsize=9, frameon=False, loc="upper left", ncol=3)
     ax.spines[["top", "right"]].set_visible(False)
     plt.tight_layout()
     plt.show()
-
-    print(f"Werktage Mo–Fr: Ø {daily[daily['weekday'] <= 4]['avg_delay'].mean():+.1f}s")
-    print(f"Wochenende Sa–So: Ø {daily[daily['weekday'] >= 5]['avg_delay'].mean():+.1f}s")
-    print(f"Tag mit höchstem Ø Delay: {day_labels[daily['avg_delay'].idxmax()]}  ({daily['avg_delay'].max():+.1f}s)")
-    print(f"Tag mit höchstem P95:    {day_labels[daily['p95_delay'].idxmax()]}  ({daily['p95_delay'].max():.0f}s)")
 
 
 

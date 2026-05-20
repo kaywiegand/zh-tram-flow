@@ -75,7 +75,7 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
 
     # Delay
     bars = ax1.bar(cat_plot["day_type"], cat_plot["avg_delay"], color=colors_cat, alpha=0.85)
-    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.5, linestyle="--", label=f"Normal: {avg:.1f}s")
+    ax1.axhline(avg, color=cfg.ANNO_REF, lw=1.0, linestyle=":", label=f"Normal: {avg:.1f}s")
     for bar, v in zip(bars, cat_plot["avg_delay"]):
         n_val = cat_plot.loc[cat_plot["avg_delay"] == v, "n"].values[0]
         ax1.text(bar.get_x() + bar.get_width() / 2, v + 0.3,
@@ -84,7 +84,7 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
     ax1.set_title("Delay nach Tages-Kategorie", **style["title"])
     ax1.tick_params(axis="x", rotation=20)
-    ax1.legend(fontsize=9)
+    ax1.legend(fontsize=9, frameon=False)
     ax1.spines[["top", "right"]].set_visible(False)
 
     # OTP
@@ -92,12 +92,12 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     otp_colors = [cfg.COLOR_POSITIVE if v >= otp_base else cfg.COLOR_NEGATIVE
                   for v in cat_plot["otp_rate"]]
     ax2.bar(cat_plot["day_type"], cat_plot["otp_rate"], color=otp_colors, alpha=0.85)
-    ax2.axhline(otp_base, color=cfg.ANNO_MEAN, lw=1.5, linestyle="--", label="Normal OTP")
+    ax2.axhline(otp_base, color=cfg.ANNO_REF, lw=1.0, linestyle=":", label="Normal OTP")
     ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax2.set_ylabel("OTP Rate", **style["label"])
     ax2.set_title("OTP nach Tages-Kategorie", **style["title"])
     ax2.tick_params(axis="x", rotation=20)
-    ax2.legend(fontsize=9)
+    ax2.legend(fontsize=9, frameon=False)
     ax2.spines[["top", "right"]].set_visible(False)
 
     plt.tight_layout()
@@ -495,17 +495,17 @@ def plot_event_stop_map(lf: pl.LazyFrame) -> None:
         lon=label_lons,
         mode="text",
         text=label_texts,
-        textfont=dict(size=11, color="#cccccc"),
+        textfont=dict(size=11, color="#333333"),
         hoverinfo="skip",
     ))
 
     fig.update_layout(
-        mapbox_style="carto-darkmatter",
+        mapbox_style="carto-positron",
         mapbox_zoom=11,
         mapbox_center={"lat": 47.378, "lon": 8.540},
         margin={"r": 0, "t": 40, "l": 0, "b": 0},
         height=650,
-        title="Event Impact per Stop — Δ Delay (Event vs. Normal)",
+        title=dict(text="Event Impact per Stop — Δ Delay (Event vs. Normal)", x=0, xanchor="left"),
     )
     fig.show()
 
@@ -600,6 +600,7 @@ def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None) -> None:
         "Messe/Kongress": "#9b59b6",
     }
     event_dates["category"] = event_dates["event_type"].map(event_category_map).fillna("Sonstiges")
+    event_dates = event_dates[event_dates["category"] != "Sonstiges"]
 
     style = mpl_style()
     line_color = "#222222"
@@ -629,7 +630,7 @@ def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None) -> None:
         ax.set_title(str(year), **style["title"])
         ax.set_ylabel("Ø Delay (s)", **style["label"])
         ax.set_xlim(pd.Timestamp(f"{year}-01-01"), pd.Timestamp(f"{year}-12-31"))
-        ax.legend(fontsize=8, loc="upper left", ncol=4)
+        ax.legend(fontsize=9, loc="upper left", ncol=4)
         ax.spines[["top", "right"]].set_visible(False)
 
     axes[-1].set_xlabel("Datum", **style["label"])

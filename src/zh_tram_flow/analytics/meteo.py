@@ -94,21 +94,21 @@ def plot_weather_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
 
     # Panel 1: Absoluter Delay-Vergleich
     ax1.bar([xi - width / 2 for xi in x_arr], normal_vals,  width,
-            label="Normal", color=colors[0], alpha=0.85)
+            label="Normal", color=colors[0], alpha=0.7)
     b2 = ax1.bar([xi + width / 2 for xi in x_arr], weather_vals, width,
-                 label="Wettereffekt", color=cfg.COLOR_NEGATIVE, alpha=0.85)
+                 label="Wettereffekt", color=cfg.COLOR_NEGATIVE, alpha=0.7)
     for b, v in zip(b2, weather_vals):
         ax1.text(b.get_x() + b.get_width() / 2, v + 0.3, f"{v:+.1f}s", ha="center", fontsize=8)
     ax1.set_xticks(x_arr)
     ax1.set_xticklabels(cond_labels, fontsize=10)
     ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
     ax1.set_title("Delay Normal vs. Wettereffekt", **style["title"])
-    ax1.legend(fontsize=9)
+    ax1.legend(fontsize=9, frameon=False, ncol=2)
     ax1.spines[["top", "right"]].set_visible(False)
 
     # Panel 2: Delta (Mehrverspätung durch Wetter)
     delta_colors = [cfg.COLOR_NEGATIVE if d > 2 else cfg.PALETTE_CATEGORICAL[4] for d in deltas]
-    ax2.bar(cond_labels, deltas, color=delta_colors, alpha=0.85)
+    ax2.bar(cond_labels, deltas, color=delta_colors, alpha=0.7)
     ax2.axhline(0, color=cfg.ANNO_REF, lw=1, linestyle=":")
     for i, v in enumerate(deltas):
         ax2.text(i, v + 0.2, f"+{v:.1f}s", ha="center", fontsize=9)
@@ -118,12 +118,6 @@ def plot_weather_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
 
     plt.tight_layout()
     plt.show()
-
-    # Print summary
-    for r in effect_rows:
-        print(f"{r['condition']:20s}: +{r['delta']:+.1f}s  "
-              f"OTP {r['otp_normal']:.1%} → {r['otp_weather']:.1%}  "
-              f"(n={r['n_weather']:,})")
 
 
 
@@ -847,7 +841,7 @@ def plot_daily_delay_weather_timeline(lf: pl.LazyFrame, cfg=None) -> None:
         # Combined legend
         lines1, labels1 = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        ax.legend(lines1 + lines2, labels1 + labels2, fontsize=8, loc="upper left", ncol=5)
+        ax.legend(lines1 + lines2, labels1 + labels2, fontsize=9, loc="upper left", ncol=5)
         ax.set_title(str(year), **style["title"])
 
     axes[-1].set_xlabel("Datum", **style["label"])
@@ -1023,17 +1017,17 @@ def plot_weather_stop_map(
     fig.add_trace(go.Scattermapbox(
         lat=label_lats, lon=label_lons,
         mode="text", text=label_texts,
-        textfont=dict(size=11, color="#cccccc"),
+        textfont=dict(size=11, color="#333333"),
         hoverinfo="skip",
     ))
 
     fig.update_layout(
-        mapbox_style="carto-darkmatter",
+        mapbox_style="carto-positron",
         mapbox_zoom=11,
         mapbox_center={"lat": 47.378, "lon": 8.540},
         margin={"r": 0, "t": 40, "l": 0, "b": 0},
         height=650,
-        title=f"Weather Impact per Stop — Δ Delay ({flag_label} vs. Normal)",
+        title=dict(text=f"Weather Impact per Stop — Δ Delay ({flag_label} vs. Normal)", x=0, xanchor="left"),
     )
     fig.show()
 

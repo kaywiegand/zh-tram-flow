@@ -345,22 +345,22 @@ def plot_district_analysis(lf, cfg=None):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
 
     bars = ax1.bar(districts["district_name"], districts["avg_delay"], color=colors_d, alpha=0.85)
-    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.5, linestyle="--", label=f"Ø {avg:.1f}s")
+    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":", label=f"Ø {avg:.1f}s")
     ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
     ax1.set_title("Verspätung nach Stadtkreis", **style["title"])
     ax1.tick_params(axis="x", rotation=45)
-    ax1.legend(fontsize=9)
+    ax1.legend(fontsize=9, frameon=False)
     ax1.spines[["top", "right"]].set_visible(False)
 
     otp_colors = [cfg.COLOR_POSITIVE if v >= 0.87 else cfg.COLOR_NEGATIVE
                   for v in districts["otp_rate"]]
     ax2.bar(districts["district_name"], districts["otp_rate"], color=otp_colors, alpha=0.85)
-    ax2.axhline(0.85, color=cfg.ANNO_REF, lw=1, linestyle=":", label="85%-Ziel")
+    ax2.axhline(0.85, color=cfg.ANNO_REF, lw=1.0, linestyle=":", label="85%-Ziel")
     ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax2.set_ylabel("OTP Rate", **style["label"])
     ax2.set_title("OTP nach Stadtkreis", **style["title"])
     ax2.tick_params(axis="x", rotation=45)
-    ax2.legend(fontsize=9)
+    ax2.legend(fontsize=9, frameon=False)
     ax2.spines[["top", "right"]].set_visible(False)
 
     plt.tight_layout()
@@ -720,7 +720,7 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
         mapbox_zoom=11.5,
         margin=dict(l=0, r=0, t=30, b=0),
         height=600,
-        title="Haltestellen nach Ø Arrival Delay (Blasengrösse = Delay-Niveau)",
+        title=dict(text="Haltestellen nach Ø Arrival Delay (Blasengrösse = Delay-Niveau)", x=0, xanchor="left"),
     )
     fig.show()
 
@@ -835,7 +835,7 @@ def plot_line_delay_map(lf: pl.LazyFrame, cfg=None, min_n: int = 5000) -> None:
         mapbox_zoom=11.5,
         margin=dict(l=0, r=0, t=30, b=0),
         height=620,
-        title="Linien-Haltestellen nach Ø Delay (Linien einzeln an/abwählbar)",
+        title=dict(text="Linien-Haltestellen nach Ø Delay (Linien einzeln an/abwählbar)", x=0, xanchor="left"),
         legend=dict(orientation="v", x=1.0, y=1.0),
     )
     fig.show()
@@ -999,7 +999,7 @@ def plot_stop_delay_by_direction(lf: pl.LazyFrame, line_name: str, min_n: int = 
     fig.update_layout(
         height=520,
         margin=dict(l=0, r=0, t=40, b=0),
-        title=f"Linie {line_name} — Ø Delay nach Fahrtrichtung",
+        title=dict(text=f"Linie {line_name} — Ø Delay nach Fahrtrichtung", x=0, xanchor="left"),
     )
     fig.show()
 
