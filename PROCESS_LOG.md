@@ -220,7 +220,7 @@ und fliessen in `05_feature_engineering.ipynb` ein.
   - 4 regelbasierte Baselines (Grand Mean / Hour Mean / Line Mean / Stop Mean)
   - **Stop Mean = 50.7s MAE** als Benchmark definiert
 - **`06_prediction_2-model.ipynb`** neu erstellt und ausgeführt:
-  - LightGBM v1 · 32 Features · 5 native Categorical Cols
+  - LightGBM v1 · 5 native Categorical Cols
   - Temporaler Validation-Split: 2023–Jun 2024 Train / Jul–Dez 2024 Val
   - Early Stopping nach 512 Iterationen
   - Val MAE: 49.0s · **Test MAE: 46.3s** (Baseline −4.4s ✅)
@@ -292,7 +292,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 **Phase 0 (Data Engineering):** ✅ Abgeschlossen — in `sf_data-research`
 **Phase 1 (Setup & Dateneinstieg):** ✅ Abgeschlossen
 **Phase 2 (EDA & Analyse):** ✅ Abgeschlossen — 6 Analyse-Notebooks · 55 Findings
-**Phase 3 (Feature Engineering):** ✅ Abgeschlossen — `train_final.parquet` / `test_final.parquet` (55.5M Zeilen · 32 Features)
+**Phase 3 (Feature Engineering):** ✅ Abgeschlossen — `train_final.parquet` / `test_final.parquet` (55.5M Zeilen)
 **Phase 4 (Modellierung):** 🔄 In Arbeit — LightGBM v1 trainiert · Test MAE 46.3s
 **Phase 5 (Dashboard):** ⏳ Ausstehend
 
@@ -312,7 +312,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 05_feature_engineering.ipynb     🔄 neu ausführen — test_features muss mit Nov/Dez 2025 rebuild werden
 06_prediction_0-overview.ipynb   ✅ fertig — Ansatz, Metriken, Baseline, Szenario
 06_prediction_1-baseline.ipynb   🔄 neu ausführen nach test_features rebuild
-06_prediction_2-model.ipynb      ✅ ausgeführt — LightGBM v1: Test MAE 46.3s (512 Bäume · 32 Features)
+06_prediction_2-model.ipynb      ✅ ausgeführt — LightGBM v1: Test MAE 46.3s (512 Bäume)
 06_prediction_3-evaluation.ipynb 🔄 Skeleton — Fehleranalyse ausstehend
 ```
 
@@ -321,6 +321,32 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 2. `06_prediction_3-evaluation.ipynb` ausbauen — Fehleranalyse nach Linie, Stunde, Wetter
 3. HTML-Export: `jupyter nbconvert --to html --no-input --output-dir reports --output index 04_insights.ipynb`
 4. Projekt-Wrap-up: README final, Portfolio-Text
+
+---
+
+### 2026-05-20 — Plot-Finalisierung für Präsentation
+
+**Was wurde gemacht:**
+
+10 Plot-Anpassungen in 5 Dateien — Ziel: konsistentes, präsentationsreifes Erscheinungsbild.
+
+| Datei | Funktion | Änderung |
+|:---|:---|:---|
+| `visualization/insights.py` | `plot_monthly_delay_by_line` | Legende `ncol=8` (2 Zeilen, kein Overflow nach rechts) |
+| `visualization/insights.py` | `plot_otp_by_line` | Ø-Linie gepunktet+gelb, Ziel-Linie grau+gestrichelt, `ncol=2` |
+| `visualization/insights.py` | `plot_dwell_analysis` | Tramlinienfarben für Balken, Pufferzeit als graue gestrichelte Linie |
+| `visualization/insights.py` | `plot_arrival_vs_departure_timeline` | Komplett rewritten → 3-Panel Daily Delay Timeline (wie `an.plot_daily_delay_timeline`), ohne Sonstiges |
+| `analytics/spatial.py` | `plot_district_analysis` | Ø-Linien gepunktet, `lw=1.0` |
+| `analytics/temporal.py` | `plot_hour_of_day` | Halt-Ereignisse-Linie aus Legende entfernt |
+| `analytics/temporal.py` | `plot_day_of_week` | Kombinierte Legende, `ncol=3`, `frameon=False`, `lw=1.0` |
+| `analytics/meteo.py` | `plot_weather_overview` | `frameon=False`, `ncol=2`, `alpha=0.7` |
+| `analytics/events.py` | `plot_events_overview` | Normal-Referenzlinien grau+gepunktet (ANNO_REF) |
+| `analytics/events.py` | `plot_daily_delay_timeline` | Sonstiges-Events aus Marker-Plot gefiltert |
+
+**Nächste Schritte:**
+- `04_insights.ipynb` neu ausführen (Kernel restart → Run All)
+- `ins_arr_dep_timeline` Zelle mit `plot_arrival_vs_departure_timeline(lf_clean)` befüllen
+- HTML-Export: `jupyter nbconvert --to html --no-input 04_insights.ipynb`
 
 ---
 
@@ -363,7 +389,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 - **~94 Mio. Rohdatenpunkte** — 3 Jahre (2023–2025), 16 Tramlinien, VBZ Zürich
 - **~55 Mio. Trainingszeilen** nach Cleaning + Filter (lf_clean)
 - **~30 Mio. Testzeilen** (2025, inkl. Nov/Dez — nach Rebuild von test_features)
-- **42 Spalten** in train_features · **32 Features** im ML-Modell
+- Feature-Set dokumentiert in `05_feature_engineering.ipynb`
 
 ### Performance — Laufzeiten
 | Schritt | Zeilen | Dauer |
