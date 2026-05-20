@@ -115,8 +115,8 @@
 | ~~`is_windy`~~ | NaN — nie befüllt (F-WEAT-03) |
 
 - ✅ Encoding-Entscheidung: LightGBM native Categorical für `stop_name`, `line_name`, `event_type`, `season`
-- ✅ `train_features.parquet` + `test_features.parquet` exportiert (55.5M / ~30M Zeilen · 42 Spalten, inkl. Nov/Dez 2025)
-- ✅ `train_final.parquet` + `test_final.parquet` exportiert (ML-ready · 32 Features · leaky Spalten entfernt)
+- ✅ `train_features.parquet` + `test_features.parquet` exportiert (55.5M / ~30M Zeilen, inkl. Nov/Dez 2025)
+- ✅ `train_final.parquet` + `test_final.parquet` exportiert (ML-ready · leaky Spalten entfernt)
 
 ---
 
@@ -141,17 +141,18 @@
 
 ### LightGBM v1 (`06_prediction_2-model.ipynb`) ✅
 - ✅ Temporaler Validation-Split: 2023–Jun 2024 Train / Jul–Dez 2024 Validation
-- ✅ 32 Features · 5 kategoriale Spalten (LightGBM nativ)
-- ✅ Early Stopping nach 50 Runden — beste Iteration: 512
-- ✅ Val MAE: 49.0s · **Test MAE: 46.3s** (Baseline −4.4s ✅)
+- ✅ 5 native Categorical Cols (LightGBM nativ)
+- ✅ Early Stopping nach 50 Runden — beste Iteration: 481
+- ✅ Val MAE: 49.0s · **Test MAE: 45.7s** (Baseline −4.3s ✅)
 - ✅ Modell gespeichert: `data/models/lgbm_v1.txt` + `lgbm_v1_meta.json`
 - ✅ Test-Predictions: `data/processed/test_predictions.parquet`
 
-### Evaluation (`06_prediction_3-evaluation.ipynb`) · AUSSTEHEND
-- [ ] Fehleranalyse: MAE nach Linie, Stadtkreis, Stunde, Wetter
-- [ ] Residuals-Verteilung — Ausreisser identifizieren
-- [ ] Live-Szenario: Einzelvorhersage aus dem Overview-Notebook
-- [ ] Abschluss-Tabelle: Modell vs. alle Baselines
+### Evaluation (`06_prediction_3-evaluation.ipynb`) 🔄
+- ✅ Metriken: Test MAE 45.7s · RMSE · OTP — Modell vs. Baseline-Tabelle
+- ✅ Residuals-Verteilung — MBE +8.3s (Modell unterschätzt systematisch)
+- ✅ Live-Szenario: Di 17h · Paradeplatz · L11 · Regen → **52s**
+- ✅ Abschluss-Tabelle: Modell vs. alle Baselines
+- [ ] Fehleranalyse ausführen: MAE nach Linie, Stunde, Wetter, Monat
 
 ---
 
