@@ -79,7 +79,7 @@ Nur wenn nötig (globaler Kontext / Workspace-Entscheidungen):
 | `03_analysis_4-spatial.ipynb` | ✅ |
 | `03_analysis_5-meteo.ipynb` | ✅ |
 | `03_analysis_6-events.ipynb` | ✅ |
-| `04_insights.ipynb` | 🔄 aufgebaut — Ausführung + HTML-Export ausstehend |
+| `04_insights.ipynb` | ✅ → `reports/insights.html` (Plotly-Karten eingebettet) |
 | `05_feature_engineering.ipynb` | ✅ |
 | `06_prediction_0-overview.ipynb` | ✅ |
 | `06_prediction_1-baseline.ipynb` | ✅ |
@@ -214,7 +214,7 @@ git commit -m "docs: update PROCESS_LOG, README after <thema>"
 | B#25 | Feature Engineering als Analyse-Output | **H** |
 | B#26 | Live-Vorhersage als HTML-Widget in Präsentation | **H** |
 | B#27 | Interaktives Prediction-Tool (Streamlit) | **H** |
-| — | `04_insights.ipynb` ausführen + HTML-Export | **H** |
+| ✅ | `04_insights.ipynb` ausführen + HTML-Export | — |
 | — | `06_prediction_3` Fehleranalyse (Linie / Stunde / Wetter) | M |
 | B#16 | v2 — Target Encoding für `stop_name` | M |
 | B#14 | Events-Notebook: Haltestellen- + Linien-Ranking | M |

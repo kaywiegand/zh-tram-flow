@@ -276,7 +276,7 @@ zh-tram-flow/
 │   ├── 03_analysis_4-spatial.ipynb    # Haltestellen, Stadtkreise, Linien
 │   ├── 03_analysis_5-meteo.ipynb      # Regen, Wind, Schnee, Temperatur
 │   ├── 03_analysis_6-events.ipynb     # Feiertage, Events, Eventgrösse
-│   ├── 04_insights.ipynb              # Executive Report (in Arbeit)
+│   ├── 04_insights.ipynb              # Executive Report ✅ → reports/insights.html
 │   ├── 05_feature_engineering.ipynb   # Feature Engineering + train/test_final Export
 │   ├── 06_prediction_0-overview.ipynb # Vorhersage-Ansatz, Metriken, Baseline-Erklärung
 │   ├── 06_prediction_1-baseline.ipynb # Regelbasierte Baselines (Stop Mean = 50.0s)
@@ -302,8 +302,10 @@ zh-tram-flow/
 │   └── test_features.py
 │
 └── reports/
-    ├── figures/             # Exportierte Plots
-    ├── tables/              # Exportierte Tabellen
+    ├── figures/             # Exportierte Plots (16 PNGs)
+    ├── insights.html        # Insights-Report (vollständig mit Plotly-Karten)
+    ├── presentation.html    # Präsentation
+    ├── tram_lines_map.html  # Liniennetz-Karte
     └── index.html           # Executive Summary HTML
 ```
 
