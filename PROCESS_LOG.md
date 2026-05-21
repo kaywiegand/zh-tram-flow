@@ -13,7 +13,7 @@
 | Repo | `zh-tram-flow` |
 | Typ | DANSC (EDA + Modellierung + Dashboard) |
 | Erstellt | 2026-05-11 |
-| Status | 🟢 Phase 4 — Modellierung (LightGBM v1 trainiert · Test MAE 46.3s) |
+| Status | 🟢 Phase 4 — Modellierung (LightGBM v1 trainiert · Test MAE 45.7s) |
 | Nächster Schritt | `06_prediction_3-evaluation.ipynb` ausbauen · Fehleranalyse · Insights-Report |
 | Datenbasis | `sf_data-research` — Phase 0 abgeschlossen |
 | Stack | Python · Polars · Pandas · GeoPandas · Plotly |
@@ -25,7 +25,7 @@
 Die gesamte Data-Engineering-Phase ist in [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) dokumentiert.
 
 **Master-Datensatz:** `data/raw/zh-tram-data-master.parquet`
-- ~94 Mio. Zeilen · 24 Spalten · ~486 MB
+- ~94.4 Mio. Zeilen · 26 Spalten · ~541 MB
 - Enthält: IST-Verspätungsdaten + GTFS-Haltestellen + Meteo-Stundenwerte + Events
 - Zeitraum: 2023–2025 · Betreiber: VBZ Zürich · Produkt: Tram
 
@@ -60,7 +60,7 @@ Die gesamte Data-Engineering-Phase ist in [`sf_data-research`](https://github.co
   - Methode & Metriken
   - Sektion "Datenbasis & Data Engineering" mit Verweis auf sf_data-research,
     Übersicht aller Notebooks und Entscheidungstabelle
-  - Vollständiges Data Dictionary (24 Spalten mit Typ, Quelle, Beschreibung)
+  - Vollständiges Data Dictionary (26 Spalten mit Typ, Quelle, Beschreibung)
   - GTFS-Referenztabellen dokumentiert
   - Setup-Zellen mit korrekten Imports (`zh_tram_flow`)
   - Dateicheck-Zellen (Schema, Zeilenanzahl, GTFS-Übersicht)
@@ -218,12 +218,12 @@ und fliessen in `05_feature_engineering.ipynb` ein.
 - **`06_prediction_0-overview.ipynb`** neu erstellt: Vorhersage-Ansatz, konkretes Szenario, Modellvergleich (LightGBM vs. Alternativen), vollständige Metriken-Tabelle (10 Metriken inkl. Ausschluss-Begründungen), Baseline-Erklärung
 - **`06_prediction_1-baseline.ipynb`** neu erstellt und ausgeführt:
   - 4 regelbasierte Baselines (Grand Mean / Hour Mean / Line Mean / Stop Mean)
-  - **Stop Mean = 50.7s MAE** als Benchmark definiert
+  - **Stop Mean = 50.0s MAE** als Benchmark definiert
 - **`06_prediction_2-model.ipynb`** neu erstellt und ausgeführt:
   - LightGBM v1 · 5 native Categorical Cols
   - Temporaler Validation-Split: 2023–Jun 2024 Train / Jul–Dez 2024 Val
   - Early Stopping nach 512 Iterationen
-  - Val MAE: 49.0s · **Test MAE: 46.3s** (Baseline −4.4s ✅)
+  - Val MAE: 49.0s · **Test MAE: 45.7s** (Baseline −4.3s ✅)
   - Export: `data/models/lgbm_v1.txt` + `lgbm_v1_meta.json` + `test_predictions.parquet`
 - **`06_prediction_3-evaluation.ipynb`** Skeleton angelegt
 - `pyproject.toml`: `lightgbm>=4.0` in dsc-Extras ergänzt
@@ -293,7 +293,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 **Phase 1 (Setup & Dateneinstieg):** ✅ Abgeschlossen
 **Phase 2 (EDA & Analyse):** ✅ Abgeschlossen — 6 Analyse-Notebooks · 55 Findings
 **Phase 3 (Feature Engineering):** ✅ Abgeschlossen — `train_final.parquet` / `test_final.parquet` (55.5M Zeilen)
-**Phase 4 (Modellierung):** 🔄 In Arbeit — LightGBM v1 trainiert · Test MAE 46.3s
+**Phase 4 (Modellierung):** 🔄 In Arbeit — LightGBM v1 trainiert · Test MAE 45.7s
 **Phase 5 (Dashboard):** ⏳ Ausstehend
 
 **Notebook-Übersicht:**
@@ -312,7 +312,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 05_feature_engineering.ipynb     🔄 neu ausführen — test_features muss mit Nov/Dez 2025 rebuild werden
 06_prediction_0-overview.ipynb   ✅ fertig — Ansatz, Metriken, Baseline, Szenario
 06_prediction_1-baseline.ipynb   🔄 neu ausführen nach test_features rebuild
-06_prediction_2-model.ipynb      ✅ ausgeführt — LightGBM v1: Test MAE 46.3s (512 Bäume)
+06_prediction_2-model.ipynb      ✅ ausgeführt — LightGBM v1: Test MAE 45.7s (481 Bäume)
 06_prediction_3-evaluation.ipynb 🔄 Skeleton — Fehleranalyse ausstehend
 ```
 
@@ -405,23 +405,23 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 | Daten laden + Pandas-Konvertierung | 55.5M | ~20s |
 | LightGBM Training (41M Train-Rows) | 41M | ~18 Min |
 | Validation Prediction (14M Rows) | 14M | ~8 Min |
-| Test Prediction + Export (25M Rows) | 25M | ~3.5 Min |
+| Test Prediction + Export (~30M Rows) | ~30M | ~3.5 Min |
 | **Gesamt Notebook-Laufzeit** | — | **~30 Min** |
 
 ### Modell-Ergebnisse
 | Metrik | Stop Mean Baseline | LightGBM v1 | Gewinn |
 |:---|:---|:---|:---|
-| MAE (Test) | 50.7s | **46.3s** | −4.4s |
-| RMSE (Test) | 86.2s | ~85s | — |
-| OTP ±60s | 73.1% | 75.4% | +2.3pp |
-| MBE | — | +10.1s | — (zu optimistisch) |
+| MAE (Test) | 50.0s | **45.7s** | −4.3s |
+| RMSE (Test) | 77.4s | 75.6s | −1.8s |
+| OTP ±60s | 71.9% | 77.5% | +5.6pp |
+| MBE | — | +8.3s | — (zu optimistisch) |
 
 ### Fehleranalyse
-- **Schwerste Stunden:** 17h (54.4s) · 16h (53.9s) · 18h (52.4s) — Rush-Hour
-- **Schwerste Linien:** L11 (52.5s) · L8 (52.2s) · L15 (51.0s)
-- **Beste Linien:** L12 (34.5s) · L6 (37.3s) · L17 (40.1s)
+- **Schwerste Stunden:** 17h (54.5s) · 16h (53.3s) · 18h (52.8s) — Rush-Hour
+- **Schwerste Linien:** L11 (52.3s) · L8 (51.1s) · L15 (50.5s)
+- **Beste Linien:** L12 (34.5s) · L6 (36.6s) · L17 (39.3s)
 - **Schnee:** MAE 58.9s (n=39.920) — stärkste Schwäche
-- **Regen:** MAE 50.3s · **Normal:** 45.9s
+- **Regen:** MAE 49.6s · **Normal:** 45.4s
 
 ### Live-Szenario
 - Input: Dienstag 17:00 · Paradeplatz · Linie 11 · leichter Regen
@@ -429,7 +429,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 
 ### Bekannte Limitierungen (für Portfolio-Reflexion)
 - `stop_name` als native Categorical statt Target Encoding — Verbesserungspotenzial v2
-- MBE +10.1s — Modell systematisch zu optimistisch
+- MBE +8.3s — Modell systematisch zu optimistisch
 - `prev_trip_delay` (Kaskadeneffekt) nicht implementiert — trip_id Kontinuität ungeprüft
 
 ---

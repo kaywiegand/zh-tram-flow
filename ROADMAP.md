@@ -12,7 +12,7 @@
 - ✅ Meteo: 3 Quellen konsolidiert → `meteo-final-export.parquet` (stündlich)
 - ✅ Events: 5 Kategorien, 301 Einträge, Gewichtungsschema
 - ✅ Polars vs. Pandas Benchmark → Polars (4× schneller, 4× weniger RAM)
-- ✅ Master-Datensatz `vbz_master.parquet` erstellt — 24 Spalten: IST + GTFS + Meteo + Events
+- ✅ Master-Datensatz `vbz_master.parquet` erstellt — 26 Spalten: IST + GTFS + Meteo + Events
 - ✅ Validierung abgeschlossen (8 Checks: Schema, Abdeckung, Wertebereiche, Nulls, Join-Qualität)
 
 ---
