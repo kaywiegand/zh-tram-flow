@@ -33,8 +33,11 @@ def _get_cfg(cfg):
 # ---------------------------------------------------------------------------
 
 def plot_events_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
-    """Bar charts: delay and OTP by day category (Normal / Feiertag / Event)."""
+    """Stacked bars: Normal (grau) + Delta (Farbe) je Event-Kategorie.
+    Rechte Achse: Delta in % (teal Linie). Analog zu plot_weather_overview.
+    """
     from wgnd.core.theme import mpl_style
+    from matplotlib.lines import Line2D
     cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
@@ -52,53 +55,80 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
         .group_by("day_type")
         .agg([
             pl.col("arrival_delay").mean().alias("avg_delay"),
-            (pl.col("arrival_delay").abs() <= 120).mean().alias("otp_rate"),
             pl.len().alias("n"),
         ])
         .collect()
         .to_pandas()
     )
 
-    order    = ["Normal", "Feiertag", "Event klein (1)", "Event mittel (2)", "Event gross (3)"]
+    normal_val = categories.loc[categories["day_type"] == "Normal", "avg_delay"].values[0]
+
+    order    = ["Event gross (3)", "Event mittel (2)", "Event klein (1)", "Feiertag"]
     cat_plot = categories.set_index("day_type").reindex(order).dropna().reset_index()
 
-    style    = mpl_style()
-    avg      = cat_plot[cat_plot["day_type"] == "Normal"]["avg_delay"].values[0]
-    colors_cat = [
-        cfg.COLOR_NEGATIVE if v > avg * 1.1
-        else cfg.COLOR_POSITIVE if v < avg * 0.95
-        else cfg.PALETTE_CATEGORICAL[4]
-        for v in cat_plot["avg_delay"]
+    deltas     = [v - normal_val for v in cat_plot["avg_delay"]]
+    delta_pcts = [d / normal_val * 100 for d in deltas]
+
+    _event_colors = {
+        "Event gross (3)":  "#d73027",
+        "Event mittel (2)": "#d73027",
+        "Event klein (1)":  "#fed976",
+        "Feiertag":         "#92c5de",   # blau — unter Normal (positiv)
+    }
+
+    style  = mpl_style()
+    _teal  = cfg.COLOR_POSITIVE
+    x_arr  = list(range(len(cat_plot)))
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax_r = ax.twinx()
+
+    # Stacked bars: grau (Normal) als Basis
+    ax.bar(x_arr, [normal_val] * len(x_arr), color="#aaaaaa", alpha=0.6)
+
+    # Delta-Balken obendrauf (oder darunter bei negativem Delta)
+    for xi, (_, row), d in zip(x_arr, cat_plot.iterrows(), deltas):
+        color = _event_colors[row["day_type"]]
+        ax.bar(xi, d, bottom=normal_val, color=color, alpha=0.6)
+        sign = "+" if d >= 0 else ""
+        y_text = normal_val + d + (0.8 if d >= 0 else -0.8)
+        va     = "bottom" if d >= 0 else "top"
+        ax.text(xi, y_text, f"{sign}{d:.0f}s",
+                ha="center", va=va, fontsize=9)
+
+    # Rechte Achse: Delta in %
+    # 0% muss auf Höhe von normal_val liegen → Grenzen proportional zur linken Achse berechnen
+    left_max   = 90
+    left_frac  = normal_val / left_max          # relative Position von normal_val (0..1)
+    r_max      = max(delta_pcts) * 1.25 if max(delta_pcts) > 0 else 10
+    r_min      = -left_frac * r_max / (1 - left_frac)  # damit 0% genau bei left_frac liegt
+
+    ax_r.plot(x_arr, delta_pcts, color=_teal, lw=1.5, linestyle="--",
+              marker="o", markersize=5, zorder=5)
+    ax_r.set_ylim(r_min, r_max)
+    ax_r.set_ylabel("Delta (%)", fontsize=10, color=_teal)
+    ax_r.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0f}%"))
+    ax_r.tick_params(axis="y", colors=_teal, labelsize=9)
+    ax_r.spines[["top", "left"]].set_visible(False)
+    ax_r.spines["right"].set_color(_teal)
+
+    ax.set_xticks(x_arr)
+    ax.set_xticklabels(cat_plot["day_type"], fontsize=10)
+    ax.set_ylim(0, left_max)
+    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+    ax.set_title("Auswirkung Event-Kategorien auf Verspätungen", **style["title"])
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+
+    legend_handles = [
+        Line2D([0], [0], color="#aaaaaa", lw=2,               label="Normal"),
+        Line2D([0], [0], color="#d73027", lw=2,               label="+Delta"),
+        Line2D([0], [0], color="#92c5de", lw=2,               label="−Delta"),
+        Line2D([0], [0], color=_teal,     lw=2, linestyle="--", label="Δ (%)"),
     ]
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
-
-    # Delay
-    bars = ax1.bar(cat_plot["day_type"], cat_plot["avg_delay"], color=colors_cat, alpha=0.85)
-    ax1.axhline(avg, color=cfg.ANNO_REF, lw=1.0, linestyle=":", label=f"Normal: {avg:.1f}s")
-    for bar, v in zip(bars, cat_plot["avg_delay"]):
-        n_val = cat_plot.loc[cat_plot["avg_delay"] == v, "n"].values[0]
-        ax1.text(bar.get_x() + bar.get_width() / 2, v + 0.3,
-                 f"{v:+.1f}s\n(n={n_val/1000:.0f}k)",
-                 ha="center", va="bottom", fontsize=8)
-    ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax1.set_title("Delay nach Tages-Kategorie", **style["title"])
-    ax1.tick_params(axis="x", rotation=20)
-    ax1.legend(fontsize=9, frameon=False)
-    ax1.spines[["top", "right"]].set_visible(False)
-
-    # OTP
-    otp_base   = cat_plot[cat_plot["day_type"] == "Normal"]["otp_rate"].values[0]
-    otp_colors = [cfg.COLOR_POSITIVE if v >= otp_base else cfg.COLOR_NEGATIVE
-                  for v in cat_plot["otp_rate"]]
-    ax2.bar(cat_plot["day_type"], cat_plot["otp_rate"], color=otp_colors, alpha=0.85)
-    ax2.axhline(otp_base, color=cfg.ANNO_REF, lw=1.0, linestyle=":", label="Normal OTP")
-    ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
-    ax2.set_ylabel("OTP Rate", **style["label"])
-    ax2.set_title("OTP nach Tages-Kategorie", **style["title"])
-    ax2.tick_params(axis="x", rotation=20)
-    ax2.legend(fontsize=9, frameon=False)
-    ax2.spines[["top", "right"]].set_visible(False)
+    ax.legend(handles=legend_handles, fontsize=9, frameon=False,
+              loc="upper right", ncol=4)
 
     plt.tight_layout()
     plt.show()

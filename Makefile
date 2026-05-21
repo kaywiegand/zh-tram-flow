@@ -5,7 +5,7 @@
 #
 # Voraussetzung: uv installiert (pip install uv)
 
-.PHONY: setup install kernel test lint clean help
+.PHONY: setup install kernel test lint clean help maps
 
 setup: ## Virtuelle Umgebung erstellen + Dependencies installieren
 	uv venv
@@ -34,6 +34,21 @@ clean: ## Umgebung + Cache aufräumen
 	rm -rf .venv __pycache__ src/*.egg-info .pytest_cache
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	@echo "✅ Aufgeräumt."
+
+maps: ## Alle Karten (reports/figures/*.html) im Browser öffnen
+	@for f in reports/figures/*.html; do open "$$f"; done
+	@echo "✅ Karten geöffnet."
+
+map-tram: ## tram_lines_map.html im Browser öffnen
+	open reports/figures/tram_lines_map.html
+
+map-network: ## network_changes_map.html im Browser öffnen
+	open reports/figures/network_changes_map.html
+
+report: ## Notebook als HTML exportieren (kein Code sichtbar)
+	. .venv/bin/activate && jupyter nbconvert --to html --no-input notebooks/04_insights.ipynb --output ../reports/report.html
+	open reports/report.html
+	@echo "✅ Report exportiert und geöffnet."
 
 help: ## Alle verfügbaren Targets anzeigen
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'

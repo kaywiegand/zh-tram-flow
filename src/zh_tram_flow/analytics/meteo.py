@@ -10,6 +10,9 @@ Functions:
   table_is_hot(lf)
   plot_multicollinearity_matrix(lf, cfg=None)
   table_correlation_with_delay(lf)
+  plot_weather_stop_map(lf, flag, vmax=None)
+  plot_weather_stop_map_combined(lf, vmax=60.0)
+  table_weather_stop_map(lf, flag)
 """
 
 import polars as pl
@@ -50,17 +53,25 @@ def _weather_compare(lf_delay: pl.LazyFrame, flag: str, label: str) -> pd.DataFr
 # ---------------------------------------------------------------------------
 
 def plot_weather_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
-    """Bar chart: Normal vs. Wettereffekt for rain / heavy rain / snow."""
+    """Stacked bars: Normal (grau) + Delta (Blau-Skala) je Wetterbedingung.
+    Rechte Achse: Delta in % (teal Linie).
+    """
     from wgnd.core.theme import mpl_style
+    from matplotlib.lines import Line2D
     cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
 
     flags = [
-        ("has_rain",       "Regen"),
-        ("has_heavy_rain", "Starkregen"),
         ("has_snow",       "Schnee"),
+        ("has_heavy_rain", "Starkregen"),
+        ("has_rain",       "Regen"),
     ]
+    _weather_colors = {
+        "Schnee":     "#2166ac",
+        "Starkregen": "#4393c3",
+        "Regen":      "#92c5de",
+    }
 
     baseline_rows, effect_rows = [], []
     for flag, label in flags:
@@ -68,53 +79,60 @@ def plot_weather_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
         base = df[df[flag] == False]["avg_delay"].values
         eff  = df[df[flag] == True]["avg_delay"].values
         if len(base) > 0 and len(eff) > 0:
-            baseline_rows.append({"condition": label, "delay": base[0], "type": "Normal"})
+            baseline_rows.append({"condition": label, "delay": base[0]})
             effect_rows.append({
                 "condition":   label,
                 "delay":       eff[0],
-                "type":        "Wettereffekt",
                 "delta":       eff[0] - base[0],
                 "otp_normal":  df[df[flag] == False]["otp_rate"].values[0],
                 "otp_weather": df[df[flag] == True]["otp_rate"].values[0],
                 "n_weather":   df[df[flag] == True]["n"].values[0],
             })
 
-    n         = len(baseline_rows)
-    x_arr     = list(range(n))
-    width     = 0.35
-    cond_labels  = [r["condition"]  for r in baseline_rows]
-    normal_vals  = [r["delay"]      for r in baseline_rows]
-    weather_vals = [r["delay"]      for r in effect_rows]
-    deltas       = [r["delta"]      for r in effect_rows]
+    x_arr       = list(range(len(baseline_rows)))
+    cond_labels = [r["condition"] for r in baseline_rows]
+    normal_vals = [r["delay"]     for r in baseline_rows]
+    deltas      = [r["delta"]     for r in effect_rows]
+    delta_pcts  = [d / n * 100 for d, n in zip(deltas, normal_vals)]
 
-    style  = mpl_style()
-    colors = cfg.palette_n(2)
+    style = mpl_style()
+    _teal = cfg.COLOR_POSITIVE
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax_r = ax.twinx()
 
-    # Panel 1: Absoluter Delay-Vergleich
-    ax1.bar([xi - width / 2 for xi in x_arr], normal_vals,  width,
-            label="Normal", color=colors[0], alpha=0.7)
-    b2 = ax1.bar([xi + width / 2 for xi in x_arr], weather_vals, width,
-                 label="Wettereffekt", color=cfg.COLOR_NEGATIVE, alpha=0.7)
-    for b, v in zip(b2, weather_vals):
-        ax1.text(b.get_x() + b.get_width() / 2, v + 0.3, f"{v:+.1f}s", ha="center", fontsize=8)
-    ax1.set_xticks(x_arr)
-    ax1.set_xticklabels(cond_labels, fontsize=10)
-    ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax1.set_title("Delay Normal vs. Wettereffekt", **style["title"])
-    ax1.legend(fontsize=9, frameon=False, ncol=2)
-    ax1.spines[["top", "right"]].set_visible(False)
+    # Stacked bars: grau (Normal) als Basis, Blau-Skala (Delta) obendrauf
+    ax.bar(x_arr, normal_vals, color="#aaaaaa", alpha=0.6)
+    for xi, label, d, nv in zip(x_arr, cond_labels, deltas, normal_vals):
+        ax.bar(xi, d, bottom=nv, color=_weather_colors[label], alpha=0.6)
+        ax.text(xi, nv + d + 0.5, f"+{d:.0f}s", ha="center", va="bottom", fontsize=9)
 
-    # Panel 2: Delta (Mehrverspätung durch Wetter)
-    delta_colors = [cfg.COLOR_NEGATIVE if d > 2 else cfg.PALETTE_CATEGORICAL[4] for d in deltas]
-    ax2.bar(cond_labels, deltas, color=delta_colors, alpha=0.7)
-    ax2.axhline(0, color=cfg.ANNO_REF, lw=1, linestyle=":")
-    for i, v in enumerate(deltas):
-        ax2.text(i, v + 0.2, f"+{v:.1f}s", ha="center", fontsize=9)
-    ax2.set_ylabel("Mehrverspätung durch Wetter (s)", **style["label"])
-    ax2.set_title("Wetter-Delta: Zusätzliche Verspätung", **style["title"])
-    ax2.spines[["top", "right"]].set_visible(False)
+    # Rechte Achse: Delta in %
+    ax_r.plot(x_arr, delta_pcts, color=_teal, lw=1.5, linestyle="--",
+              marker="o", markersize=5, zorder=5)
+    ax_r.set_ylabel("Delta (%)", fontsize=10, color=_teal)
+    ax_r.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0f}%"))
+    ax_r.tick_params(axis="y", colors=_teal, labelsize=9)
+    ax_r.spines[["top", "left"]].set_visible(False)
+    ax_r.spines["right"].set_color(_teal)
+
+    ax.set_xticks(x_arr)
+    ax.set_xticklabels(cond_labels, fontsize=10)
+    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+    ax.set_title("Auswirkung Wettereffekte auf Verspätungen", **style["title"])
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+
+    legend_handles = [
+        Line2D([0], [0], color="#aaaaaa", lw=2,                  label="Normal"),
+        Line2D([0], [0], color="#2166ac", lw=2,                  label="Schnee"),
+        Line2D([0], [0], color="#4393c3", lw=2,                  label="Starkregen"),
+        Line2D([0], [0], color="#92c5de", lw=2,                  label="Regen"),
+        Line2D([0], [0], color=_teal,     lw=2, linestyle="--",  label="Δ (%)"),
+    ]
+    ax.legend(handles=legend_handles, fontsize=9, frameon=False,
+              loc="upper right", ncol=5)
 
     plt.tight_layout()
     plt.show()
@@ -1028,6 +1046,238 @@ def plot_weather_stop_map(
         margin={"r": 0, "t": 40, "l": 0, "b": 0},
         height=650,
         title=dict(text=f"Weather Impact per Stop — Δ Delay ({flag_label} vs. Normal)", x=0, xanchor="left"),
+    )
+    fig.show()
+
+
+def plot_weather_stop_map_combined(
+    lf: pl.LazyFrame,
+    vmax: float = 60.0,
+) -> None:
+    """Combined Plotly map: stop delay during snow + heavy rain in one figure.
+
+    Legend / navigation items:
+      Haltestellen               — all stops, gray background dots
+      HS Verspätung bei Schnee   — bubbles colored by avg_delay during snow (YlOrRd)
+      HS Verspätung bei Starkregen — bubbles colored by avg_delay during heavy rain (YlOrRd)
+      Stadtkreise Schnee         — choropleth + K-labels (one click toggles both)
+      Stadtkreise Starkregen     — choropleth + K-labels (one click toggles both)
+    """
+    import plotly.graph_objects as go
+    import json
+    import numpy as np
+    from pathlib import Path
+
+    lf_delay = lf.filter(pl.col("canceled") == False)
+
+    # ── All stops (gray background skeleton) ─────────────────────────────────
+    all_stops = (
+        lf_delay
+        .group_by(["stop_name"])
+        .agg([
+            pl.col("stop_lat").mean(),
+            pl.col("stop_lon").mean(),
+        ])
+        .collect()
+        .to_pandas()
+    )
+
+    # ── Stop-level avg_delay per weather condition ────────────────────────────
+    def _stop_weather_delay(flag: str, min_n: int = 500) -> pd.DataFrame:
+        return (
+            lf_delay
+            .filter(pl.col(flag) == True)
+            .group_by(["stop_name"])
+            .agg([
+                pl.col("arrival_delay").mean().alias("avg_delay"),
+                pl.col("stop_lat").mean(),
+                pl.col("stop_lon").mean(),
+                pl.len().alias("n"),
+            ])
+            .collect()
+            .to_pandas()
+            .pipe(lambda df: df[df["n"] >= min_n].copy())
+        )
+
+    snow_stops = _stop_weather_delay("has_snow")
+    rain_stops = _stop_weather_delay("has_heavy_rain")
+    snow_stops["avg_delay"] = snow_stops["avg_delay"].round(1)
+    rain_stops["avg_delay"] = rain_stops["avg_delay"].round(1)
+
+    # Shared bubble size scale across both layers
+    _max_delay = max(
+        snow_stops["avg_delay"].max() if len(snow_stops) else 1.0,
+        rain_stops["avg_delay"].max() if len(rain_stops) else 1.0,
+    )
+
+    def _bubble_size(series: pd.Series) -> pd.Series:
+        return (series / _max_delay * 20).clip(lower=4)
+
+    # Color scale: span the actual data range (5th–95th percentile) so the full
+    # gradient is used instead of everything saturating to dark red.
+    _all_delays = pd.concat([snow_stops["avg_delay"], rain_stops["avg_delay"]])
+    vmin = float(_all_delays.quantile(0.05))
+    vmax = float(_all_delays.quantile(0.95))
+
+    # ── District-level avg_delay per weather condition ────────────────────────
+    def _district_weather_delay(flag: str) -> dict:
+        return (
+            lf_delay
+            .filter(pl.col(flag) == True)
+            .group_by("district_nr")
+            .agg(pl.col("arrival_delay").mean().alias("avg_delay"))
+            .collect()
+            .to_pandas()
+            .assign(district_nr=lambda df: df["district_nr"].astype(str))
+            .set_index("district_nr")["avg_delay"]
+            .to_dict()
+        )
+
+    snow_d_delay = _district_weather_delay("has_snow")
+    rain_d_delay = _district_weather_delay("has_heavy_rain")
+
+    # ── GeoJSON ───────────────────────────────────────────────────────────────
+    geo_path = Path(__file__).parents[3] / "data" / "raw" / "stadtkreise.geojson"
+    with open(geo_path) as f:
+        geojson = json.load(f)
+
+    kreis_ids = [str(feat["properties"]["objid"]) for feat in geojson["features"]]
+    label_lats, label_lons = [], []
+    for feat in geojson["features"]:
+        coords = np.array(feat["geometry"]["coordinates"][0])
+        label_lats.append(float(coords[:, 1].mean()))
+        label_lons.append(float(coords[:, 0].mean()))
+    label_texts = [f"K{kid}" for kid in kreis_ids]
+
+    snow_delays = [snow_d_delay.get(kid, 0.0) for kid in kreis_ids]
+    rain_delays  = [rain_d_delay.get(kid, 0.0) for kid in kreis_ids]
+
+    # ── Build figure ──────────────────────────────────────────────────────────
+    fig = go.Figure()
+
+    # 1. Snow district choropleth (grouped — legend entry on K-label trace)
+    fig.add_trace(go.Choroplethmapbox(
+        geojson=geojson,
+        locations=kreis_ids,
+        z=snow_delays,
+        featureidkey="properties.objid",
+        colorscale="YlOrRd",
+        zmin=vmin, zmax=vmax,
+        showscale=False,
+        legendgroup="Stadtkreise Schnee",
+        showlegend=False,
+        marker=dict(line=dict(color="#888888", width=1.5), opacity=0.3),
+        hovertemplate="<b>Kreis %{location}</b><br>Ø Delay (Schnee): %{z:.1f}s<extra></extra>",
+        name="Stadtkreise Schnee",
+    ))
+
+    # 2. Snow K-labels (carries the legend entry — one click toggles choropleth too)
+    fig.add_trace(go.Scattermapbox(
+        lat=label_lats, lon=label_lons,
+        mode="text", text=label_texts,
+        textfont=dict(size=11, color="#444444"),
+        hoverinfo="skip",
+        legendgroup="Stadtkreise Schnee",
+        showlegend=True,
+        name="Stadtkreise Schnee",
+    ))
+
+    # 3. Heavy rain district choropleth
+    fig.add_trace(go.Choroplethmapbox(
+        geojson=geojson,
+        locations=kreis_ids,
+        z=rain_delays,
+        featureidkey="properties.objid",
+        colorscale="YlOrRd",
+        zmin=vmin, zmax=vmax,
+        showscale=False,
+        legendgroup="Stadtkreise Starkregen",
+        showlegend=False,
+        marker=dict(line=dict(color="#888888", width=1.5), opacity=0.3),
+        hovertemplate="<b>Kreis %{location}</b><br>Ø Delay (Starkregen): %{z:.1f}s<extra></extra>",
+        name="Stadtkreise Starkregen",
+    ))
+
+    # 4. Heavy rain K-labels
+    fig.add_trace(go.Scattermapbox(
+        lat=label_lats, lon=label_lons,
+        mode="text", text=label_texts,
+        textfont=dict(size=11, color="#444444"),
+        hoverinfo="skip",
+        legendgroup="Stadtkreise Starkregen",
+        showlegend=True,
+        name="Stadtkreise Starkregen",
+    ))
+
+    # 5. All stops — gray background
+    fig.add_trace(go.Scattermapbox(
+        lat=all_stops["stop_lat"],
+        lon=all_stops["stop_lon"],
+        mode="markers",
+        marker=dict(size=5, color="#666666", opacity=0.55),
+        text=all_stops["stop_name"].str.replace("Zürich, ", ""),
+        hovertemplate="<b>%{text}</b><extra></extra>",
+        name="Haltestellen",
+    ))
+
+    # 6. Snow stop bubbles — reference shared coloraxis so colorbar is always visible
+    fig.add_trace(go.Scattermapbox(
+        lat=snow_stops["stop_lat"],
+        lon=snow_stops["stop_lon"],
+        mode="markers",
+        marker=dict(
+            size=_bubble_size(snow_stops["avg_delay"]),
+            color=snow_stops["avg_delay"],
+            coloraxis="coloraxis",
+            opacity=0.85,
+        ),
+        text=snow_stops["stop_name"].str.replace("Zürich, ", ""),
+        customdata=snow_stops[["avg_delay", "n"]].values,
+        hovertemplate=(
+            "<b>%{text}</b><br>"
+            "Ø Delay (Schnee): %{customdata[0]:.1f}s<br>"
+            "N: %{customdata[1]:,.0f}<extra></extra>"
+        ),
+        name="HS Verspätung bei Schnee",
+    ))
+
+    # 7. Heavy rain stop bubbles — same shared coloraxis
+    fig.add_trace(go.Scattermapbox(
+        lat=rain_stops["stop_lat"],
+        lon=rain_stops["stop_lon"],
+        mode="markers",
+        marker=dict(
+            size=_bubble_size(rain_stops["avg_delay"]),
+            color=rain_stops["avg_delay"],
+            coloraxis="coloraxis",
+            opacity=0.85,
+        ),
+        text=rain_stops["stop_name"].str.replace("Zürich, ", ""),
+        customdata=rain_stops[["avg_delay", "n"]].values,
+        hovertemplate=(
+            "<b>%{text}</b><br>"
+            "Ø Delay (Starkregen): %{customdata[0]:.1f}s<br>"
+            "N: %{customdata[1]:,.0f}<extra></extra>"
+        ),
+        name="HS Verspätung bei Starkregen",
+    ))
+
+    fig.update_layout(
+        mapbox_style="carto-positron",
+        mapbox_center={"lat": 47.378, "lon": 8.540},
+        mapbox_zoom=11.5,
+        margin=dict(l=0, r=0, t=30, b=0),
+        height=620,
+        title=dict(
+            text="Stadtkreise und Haltestellen Verspätungen bei Schnee und Starkregen",
+            x=0, xanchor="left",
+        ),
+        coloraxis=dict(
+            colorscale="YlOrRd",
+            cmin=vmin,
+            cmax=vmax,
+            colorbar=dict(title="Ø Delay (s)", thickness=12, len=0.6),
+        ),
     )
     fig.show()
 

@@ -128,13 +128,13 @@ def apply_lf_clean(lf: pl.LazyFrame) -> pl.LazyFrame:
     Excludes:
     - canceled trips (no meaningful arrival_delay)
     - stop_sequence == 1 (terminus puffer artefact)
-    - Linie E / L50 / L51 (structurally incomparable)
+    - Linie E / 50 / 51 (structurally incomparable; stored without L-prefix)
     """
     return (
         lf
         .filter(pl.col("canceled") == False)
         .filter(pl.col("stop_sequence") > 1)
-        .filter(~pl.col("line_name").is_in(["E", "L50", "L51"]))
+        .filter(~pl.col("line_name").is_in(["E", "50", "51"]))
         .pipe(mask_departure_anomaly)
     )
 

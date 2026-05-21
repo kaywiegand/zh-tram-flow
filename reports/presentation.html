@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zürich Tram Flow — Präsentation</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
+
+  <style>
+    /* ── Typografie ── */
+    .reveal { font-size: 22px; }
+    .reveal h1 { font-size: 2.4em; color: #1a3a5c; letter-spacing: -0.02em; }
+    .reveal h2 { font-size: 1.5em; color: #1a3a5c; border-bottom: 2px solid #2E86AB; padding-bottom: 6px; margin-bottom: 0.5em; }
+    .reveal h3 { font-size: 1.1em; color: #2E86AB; margin-bottom: 0.3em; }
+    .reveal p, .reveal li { color: #333; line-height: 1.5; }
+    .reveal strong { color: #1a3a5c; }
+
+    /* ── Titelfolie ── */
+    .slide-title { background: linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%); }
+    .slide-title h1 { color: #fff; font-size: 2.8em; text-transform: uppercase; letter-spacing: 0.05em; text-shadow: none; }
+    .slide-title .subtitle { color: #b8d8ea; font-size: 1.1em; margin-top: 0.6em; line-height: 1.6; }
+    .slide-title .author { color: rgba(255,255,255,0.7); font-size: 0.85em; margin-top: 1.2em; }
+
+    /* ── Tabellen ── */
+    .reveal table { width: 100%; border-collapse: collapse; font-size: 0.85em; margin: 0.4em 0; }
+    .reveal table th { background: #1a3a5c; color: #fff; padding: 7px 10px; text-align: left; font-weight: 600; }
+    .reveal table td { padding: 6px 10px; border-bottom: 1px solid #e0e0e0; vertical-align: top; }
+    .reveal table tr:nth-child(even) td { background: #f5f9fc; }
+
+    /* ── Highlight-Boxen ── */
+    .box { border-left: 4px solid #2E86AB; background: #f0f7fb; padding: 10px 14px; border-radius: 0 6px 6px 0; margin: 8px 0; }
+    .box-red { border-left-color: #c0392b; background: #fdf5f5; }
+    .box-green { border-left-color: #27ae60; background: #f2faf5; }
+    .box-orange { border-left-color: #e67e22; background: #fef9f0; }
+    .box strong { display: block; font-size: 1.05em; margin-bottom: 3px; }
+
+    /* ── Finding-Karten ── */
+    .finding { background: #fff; border: 1px solid #d0e8f5; border-radius: 8px; padding: 12px 16px; margin: 6px 0; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+    .finding-label { font-size: 0.72em; text-transform: uppercase; letter-spacing: 0.08em; color: #2E86AB; font-weight: 700; margin-bottom: 4px; }
+    .finding h3 { color: #1a3a5c; margin: 0 0 6px 0; font-size: 1.0em; }
+    .finding ul { margin: 0; padding-left: 1.2em; }
+    .finding li { font-size: 0.88em; color: #444; margin-bottom: 2px; }
+    .finding .rec { font-size: 0.82em; color: #27ae60; margin-top: 6px; font-style: italic; }
+
+    /* ── Zwei-Spalten-Layout ── */
+    .cols { display: flex; gap: 20px; align-items: flex-start; }
+    .cols > div { flex: 1; }
+
+    /* ── Pipeline-Badge ── */
+    .pipeline { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 12px 0; }
+    .pipe-step { background: #2E86AB; color: #fff; padding: 6px 14px; font-size: 0.8em; font-weight: 600; position: relative; }
+    .pipe-step + .pipe-step::before { content: "▶"; color: #2E86AB; margin: 0 4px; font-size: 1.0em; }
+    .pipe-step.done { background: #27ae60; }
+    .pipe-step.active { background: #e67e22; }
+    .pipe-step.planned { background: #aaa; }
+
+    /* ── Metriken ── */
+    .metric-row { display: flex; gap: 16px; margin: 10px 0; }
+    .metric { text-align: center; background: #f5f9fc; border-radius: 8px; padding: 12px 18px; flex: 1; border: 1px solid #d0e8f5; }
+    .metric .val { font-size: 2em; font-weight: 700; color: #1a3a5c; line-height: 1; }
+    .metric .lbl { font-size: 0.72em; color: #666; margin-top: 4px; }
+    .metric.good .val { color: #27ae60; }
+    .metric.bad .val { color: #c0392b; }
+
+    /* ── Live-Vorhersage Mockup ── */
+    .prediction-card { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); padding: 28px 32px; max-width: 640px; margin: 0 auto; }
+    .prediction-card h3 { color: #1a3a5c; margin-bottom: 18px; font-size: 1.1em; }
+    .pred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .pred-field label { display: block; font-size: 0.72em; color: #888; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .pred-field select, .pred-field input {
+      width: 100%; border: 1px solid #cde; border-radius: 6px; padding: 8px 10px;
+      background: #f5f9fc; color: #1a3a5c; font-size: 0.9em;
+      cursor: not-allowed; appearance: none; -webkit-appearance: none;
+    }
+    .pred-btn {
+      width: 100%; padding: 12px; background: #2E86AB; color: #fff; border: none;
+      border-radius: 8px; font-size: 1em; font-weight: 700; cursor: default;
+      margin-bottom: 18px; letter-spacing: 0.03em;
+    }
+    .pred-result { background: linear-gradient(135deg, #1a3a5c, #2E86AB); border-radius: 10px; padding: 18px 24px; text-align: center; color: #fff; }
+    .pred-result .res-val { font-size: 3.2em; font-weight: 700; line-height: 1; }
+    .pred-result .res-lbl { font-size: 0.85em; opacity: 0.85; margin-top: 4px; }
+
+    /* ── Tech-Stack Tags ── */
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+    .tag { background: #e8f4fb; color: #1a3a5c; border-radius: 20px; padding: 4px 14px; font-size: 0.82em; font-weight: 600; border: 1px solid #c0dff0; }
+
+    /* ── Slide-Nummer ── */
+    .reveal .slide-number { font-size: 0.8em; color: #999; }
+
+    /* ── Kein Outline bei Links ── */
+    .reveal a { color: #2E86AB; }
+
+    /* ── Quellen-Label ── */
+    .source { font-size: 0.65em; color: #aaa; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+<div class="reveal">
+  <div class="slides">
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 0 — TITEL
+    ════════════════════════════════════════════ -->
+    <section class="slide-title" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)">
+      <h1>Zürich Tram Flow</h1>
+      <div class="subtitle">
+        Analyse der Verspätungen im Zürich Tram-Netz<br>
+        Vorhersage von Tram-Verspätungen
+      </div>
+      <div class="author">Kay Wiegand &nbsp;·&nbsp; 2026</div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 1 — EINLEITUNG
+    ════════════════════════════════════════════ -->
+    <section>
+      <h2>Einleitung</h2>
+      <div class="cols">
+        <div>
+          <h3>Projektidee</h3>
+          <ul>
+            <li>Verspätungen kennt jeder — aber <strong>warum passiert das eigentlich?</strong></li>
+            <li>Offene Daten + moderne Analyse = konkrete Antworten für Betreiber & Stadtplanung</li>
+            <li>Zürich als Referenzmodell (beste Open-Data-Landschaft)</li>
+            <li>Blaupause für Städte wie Berlin, die noch wenig Daten bereitstellen</li>
+          </ul>
+
+          <h3 style="margin-top:16px">Pipeline</h3>
+          <div class="pipeline">
+            <div class="pipe-step done">Data Engineering</div>
+            <div class="pipe-step done">EDA &amp; Analyse</div>
+            <div class="pipe-step done">Feature Engineering</div>
+            <div class="pipe-step active">Vorhersage</div>
+            <div class="pipe-step planned">Dashboard</div>
+          </div>
+        </div>
+        <div>
+          <h3>Tech Stack</h3>
+          <div class="tags">
+            <span class="tag">Python</span>
+            <span class="tag">Polars</span>
+            <span class="tag">Pandas</span>
+            <span class="tag">GeoPandas</span>
+            <span class="tag">LightGBM</span>
+            <span class="tag">Plotly</span>
+            <span class="tag">Jupyter</span>
+            <span class="tag">wgnd-toolkit</span>
+            <span class="tag">uv</span>
+          </div>
+
+          <div class="box" style="margin-top:18px">
+            <strong>Datenbasis</strong>
+            ~94 Mio. Datenpunkte &nbsp;·&nbsp; 3 Jahre (2023–2025)<br>
+            16 Tramlinien &nbsp;·&nbsp; VBZ Zürich
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 2 — DATA ENGINEERING: QUELLEN
+    ════════════════════════════════════════════ -->
+    <section>
+      <h2>Data Engineering — Quellen &amp; Architektur</h2>
+
+      <table>
+        <thead>
+          <tr><th>Quelle</th><th>Inhalt</th><th>Granularität</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>opentransportdata.swiss</strong></td>
+            <td>IST-Verspätungsdaten — 94 Mio. Zeilen, 2023–2025</td>
+            <td>pro Halt</td>
+          </tr>
+          <tr>
+            <td><strong>data.stadt-zuerich.ch (VBZ)</strong></td>
+            <td>GTFS: Haltestellen, Routen, Shapes, Stadtkreis-Spatial-Join</td>
+            <td>statisch (2024)</td>
+          </tr>
+          <tr>
+            <td><strong>data.stadt-zuerich.ch (Meteo)</strong></td>
+            <td>Temperatur, Wind, Regen — 3 Messstationen (UGZ + WaPo + ERZ)</td>
+            <td>stündlich</td>
+          </tr>
+          <tr>
+            <td><strong>Manueller Crawl</strong></td>
+            <td>Events: 5 Kategorien, 301 Einträge, Gewichtung 1–3</td>
+            <td>pro Tag</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="cols" style="margin-top:14px">
+        <div class="box">
+          <strong>Wrangling-Pipeline</strong>
+          36 ZIP-Dateien &nbsp;·&nbsp; ~38 GB komprimiert &nbsp;·&nbsp; 500–720 GB entpackt<br>
+          Filter auf VBZ &amp; Tram &nbsp;→&nbsp; <strong>94 Mio. Zeilen · 1.44 GB</strong>
+        </div>
+        <div class="box">
+          <strong>Output: Master-Datensatz</strong>
+          <code>zh-tram-data-master.parquet</code><br>
+          24 Spalten &nbsp;·&nbsp; ~486 MB &nbsp;·&nbsp; IST + GTFS + Meteo + Events
+        </div>
+      </div>
+
+      <p class="source">Repo: sf_data-research — Data Engineering Phase vollständig dokumentiert</p>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 3 — DATA ENGINEERING: HERAUSFORDERUNGEN
+    ════════════════════════════════════════════ -->
+    <section>
+      <h2>Data Engineering — Herausforderungen &amp; Polars</h2>
+
+      <div class="cols">
+        <div>
+          <h3>Polars statt Pandas</h3>
+          <div class="box-green box">
+            <strong>4× schneller &nbsp;·&nbsp; 4× weniger RAM</strong>
+            Lazy Evaluation via <code>scan_parquet()</code> &nbsp;·&nbsp;
+            94 Mio. Zeilen ohne Out-of-Memory
+          </div>
+
+          <h3 style="margin-top:14px">Key Challenges</h3>
+          <ul>
+            <li><strong>Meteo-Lücken:</strong> Stationsausfälle → Forward/Backward-Fill</li>
+            <li><strong>Starthalte-Verzerrung:</strong> <code>stop_sequence = 1</code> hat immer 0s Delay → Filter nötig</li>
+            <li><strong>Datendefinitions-Änderung Jul 2024:</strong> <code>canceled = True</code> ändert Semantik → separat behandelt</li>
+            <li><strong><code>dwell_time</code>:</strong> 71.3% = 0s → nicht als kontinuierliches Feature nutzbar</li>
+          </ul>
+        </div>
+        <div>
+          <h3>GTFS-Regime-Wechsel (Nov/Dez 2025)</h3>
+          <div class="box-orange box">
+            <strong>Problem</strong>
+            <code>departure_delay</code> explodiert ab 14. Nov 2025 (Artefakt j25/j26)<br>
+            <code>arrival_delay</code> bleibt stabil — kein echter Verspätungsanstieg
+          </div>
+          <div class="box-green box" style="margin-top:8px">
+            <strong>Lösung: Maskierung statt Ausschluss</strong>
+            <code>departure_delay</code> → NaN für Nov 14 – Dez 23 2025<br>
+            <code>arrival_delay</code> (Zielvariable) unberührt<br>
+            Ergebnis: <strong>+5 Mio. Testzeilen gerettet</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 4 — PROJEKT SCOPE
+    ════════════════════════════════════════════ -->
+    <section>
+      <h2>Projekt Scope — Business Cases &amp; KPIs</h2>
+
+      <div class="cols">
+        <div>
+          <h3>Warum Zürich, warum Tram?</h3>
+          <ul>
+            <li>Tram fährt im offenen Stadtverkehr — beeinflusst durch Autos, Wetter, Topografie, Events</li>
+            <li>Kein geschlossenes System → mehr und interessantere Einflussfaktoren</li>
+            <li>Ausgezeichnete Open-Data-Landschaft (Stadt, VBZ, Meteo, Geodaten)</li>
+            <li>Blaupause für Städte wie Berlin, die ihre Datenpotenziale noch nicht ausschöpfen</li>
+          </ul>
+
+          <h3 style="margin-top:14px">3 Nutzerperspektiven</h3>
+          <ul>
+            <li><strong>Betreiber (VBZ):</strong> OTP verbessern, Ressourcen gezielter einsetzen</li>
+            <li><strong>Stadtplanung:</strong> Schwachstellen, Investitionsprioritäten, Wetterresilienz</li>
+            <li><strong>Fahrgäste:</strong> Verlässlichere Prognosen, weniger Stress im Alltag</li>
+          </ul>
+        </div>
+        <div>
+          <h3>KPIs</h3>
+          <table>
+            <thead><tr><th>KPI</th><th>Beschreibung</th></tr></thead>
+            <tbody>
+              <tr><td><strong>OTP</strong></td><td>Anteil Fahrten &lt; 120s Verspätung</td></tr>
+              <tr><td><strong>MAE</strong></td><td>Vorhersagegenauigkeit in Sekunden</td></tr>
+              <tr><td><strong>Hotspot Score</strong></td><td>Haltestellen die Folgeverspätungen auslösen</td></tr>
+              <tr><td><strong>Weather Score</strong></td><td>Reaktion einer Linie auf Regen / Schnee</td></tr>
+              <tr><td><strong>Event Impact</strong></td><td>Verspätungsanstieg rund um Großveranstaltungen</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 5 — EDA & PREPARATION
+    ════════════════════════════════════════════ -->
+    <section>
+      <h2>EDA &amp; Preparation</h2>
+
+      <div class="cols">
+        <div>
+          <h3>EDA — 55 Findings</h3>
+          <ul>
+            <li>6 Analyse-Notebooks: Target · Netz · Temporal · Spatial · Meteo · Events</li>
+            <li>Schwache lineare Korrelationen → <strong>Gradient Boosting</strong> als Modellklasse</li>
+            <li>Linie E strukturell nicht vergleichbar (OTP 56%) → ausgeschlossen</li>
+          </ul>
+
+          <h3 style="margin-top:14px">Cleaning-Entscheidungen</h3>
+          <ul>
+            <li><code>|delay| &gt; 3.600s</code> (±1h) als Rausfilter-Grenze</li>
+            <li><code>canceled == False</code> für Delay-Analyse</li>
+            <li><code>stop_sequence &gt; 1</code> — Starthalte verfälschen Metriken</li>
+            <li>Linien L50/L51/E ausgeschlossen</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Split-Strategie</h3>
+          <div class="box">
+            <strong>Temporal — kein Random Shuffle</strong>
+            2023–2024: Train &nbsp;·&nbsp; 2025: Test<br>
+            Val-Split: Jul–Dez 2024 (Early Stopping)
+          </div>
+
+          <h3 style="margin-top:14px">Ergebnis</h3>
+          <div class="metric-row">
+            <div class="metric">
+              <div class="val">55.5M</div>
+              <div class="lbl">Trainingszeilen</div>
+            </div>
+            <div class="metric">
+              <div class="val">~30M</div>
+              <div class="lbl">Testzeilen</div>
+            </div>
+            <div class="metric">
+              <div class="val">24</div>
+              <div class="lbl">Rohe Spalten</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 6 — ANALYSE: GEOGRAFIE & NETZ
+    ════════════════════════════════════════════ -->
+    <section>
+      <h2>Data Analyse — Geografie &amp; Netzstruktur</h2>
+
+      <div class="finding">
+        <div class="finding-label">Finding · Spatial</div>
+        <h3>Hotspots an der Peripherie — nicht im Zentrum</h3>
+        <ul>
+          <li>Friedhof Enzenbühl: <strong>93.8s</strong> &nbsp;·&nbsp; Balgrist: <strong>85.2s</strong> &nbsp;·&nbsp; Schwamendingen: hoch</li>
+          <li>Central (15 Linien): <strong>48.3s</strong> — liegt <em>unter</em> Netzschnitt</li>
+          <li>Paradeplatz (14 Linien): <strong>48.2s</strong> — ebenfalls unter Schnitt</li>
+          <li><strong>0 Überschneidung</strong> zwischen Top-Dichte-Stops und Top-Delay-Stops</li>
+        </ul>
+        <div class="rec">→ Engpässe entstehen nicht dort wo viele Linien kreuzen, sondern an langen Peripher-Korridoren</div>
+      </div>
+
+      <div class="finding" style="margin-top:10px">
+        <div class="finding-label">Finding · Netzausbau</div>
+        <h3>Investitionen am falschen Ort</h3>
+        <ul>
+          <li>Erweiterungen 2024: Stadtkreis K3 (55.7s) und K8 (63.7s) — gut performend</li>
+          <li>Problemkreise K11 (<strong>68.3s, OTP 83%</strong>) und K12 (66.3s) bekamen <strong>nichts</strong></li>
+          <li><strong>0 Überschneidung</strong> zwischen Investitionsort und Problemort</li>
+        </ul>
+        <div class="rec">→ Delay-Hotspot-Karte als Entscheidungsgrundlage für Infrastrukturinvestitionen</div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 7 — ANALYSE: ZEIT & WETTER
+    ════════════════════════════════════════════ -->
+    <section>
+      <h2>Data Analyse — Zeit &amp; Wetter</h2>
+
+      <div class="cols">
+        <div>
+          <div class="finding">
+            <div class="finding-label">Finding · Temporal</div>
+            <h3>Kein Morgenrush</h3>
+            <ul>
+              <li>Peak: <strong>21h (67.9s)</strong> — Abreisewelle nach Konzerten &amp; Spielen</li>
+              <li>7h: nur 48.9s (unter Netzschnitt)</li>
+              <li>Schlechtester Wochentag: <strong>Donnerstag (60.4s)</strong> — nicht Freitag</li>
+              <li>Schlechtester Monat: November &nbsp;·&nbsp; Beste Jahreszeit: Winter (51.7s, OTP 88.9%)</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="finding">
+            <div class="finding-label">Finding · Meteo</div>
+            <h3>Schnee: stärkster Einzelfaktor</h3>
+            <ul>
+              <li><strong>+54s &nbsp;·&nbsp; OTP −10.9 Prozentpunkte</strong></li>
+              <li>Geografisch trennbar: Schnee → Höhenlagen (K10/K4/K12) &nbsp;·&nbsp; Regen → Flusstäler (K5)</li>
+              <li>L9: +75.9s bei Schnee &nbsp;·&nbsp; L17: kaum Schnee, aber +41.2s bei Regen</li>
+            </ul>
+          </div>
+
+          <div class="finding" style="margin-top:8px">
+            <div class="finding-label">Finding · Events</div>
+            <h3>Feiertage sind die besten Tage</h3>
+            <ul>
+              <li>Feiertage: <strong>46.3s</strong> vs. Normal 56.2s → <strong>−9.9s</strong></li>
+              <li>OTP Feiertage: <strong>90.6%</strong> vs. Normal 87.0%</li>
+              <li>Kontraintuitiv: Weniger Autos schlägt jeden Event-Effekt</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 8 — ANALYSE: SYSTEMDESIGN & EVENTS
+    ════════════════════════════════════════════ -->
+    <section>
+      <h2>Data Analyse — Systemdesign &amp; Events</h2>
+
+      <div class="finding">
+        <div class="finding-label">Finding · Strukturell</div>
+        <h3>Keine Puffer eingebaut — ein Fahrplan-Design-Problem</h3>
+        <ul>
+          <li><strong>71.5%</strong> aller Halte akkumulieren Delay (statt ihn abzubauen)</li>
+          <li><strong>71.3%</strong> aller <code>dwell_time</code> = 0s — kein Puffer geplant</li>
+          <li>Kein Wetter-, kein Event-Problem — ein <strong>strukturelles Fahrplanproblem</strong></li>
+        </ul>
+        <div class="rec">→ Systematischen Puffer in dwell_time einbauen; Recovery-Zeit ins Scheduling</div>
+      </div>
+
+      <div class="cols" style="margin-top:10px">
+        <div class="finding">
+          <div class="finding-label">Finding · Netz</div>
+          <h3>Größter Fahrplanwechsel in VBZ-Geschichte: unsichtbar</h3>
+          <ul>
+            <li>Dez 2023: L9/L11/L13 fundamental umgebaut</li>
+            <li>Netzweite Auswirkung: <strong>+0.5s</strong> — statistisch nicht sichtbar</li>
+            <li>Geänderte und unveränderte Linien bewegen sich identisch</li>
+          </ul>
+        </div>
+        <div class="finding">
+          <div class="finding-label">Finding · Events</div>
+          <h3>Berufsmesse schlägt Taylor Swift</h3>
+          <ul>
+            <li>Fachmessen: <strong>66.0s &nbsp;·&nbsp; OTP 84%</strong> — schlechteste Kategorie</li>
+            <li>Schlechtester Einzeltag: Berufsmesse 21.11.2024 → <strong>192.5s &nbsp;·&nbsp; OTP 54.5%</strong></li>
+            <li>Taylor Swift-Konzert: 75.4s — weniger als halb so schlimm</li>
+          </ul>
+          <div class="rec">→ Fachmessen brauchen dedizierte Kapazitätsreserven</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 9 — PREPROCESSING & BASELINE
+    ════════════════════════════════════════════ -->
+    <section>
+      <h2>Preprocessing &amp; Baseline</h2>
+
+      <div class="cols">
+        <div>
+          <h3>Feature Engineering (32 Features)</h3>
+          <table>
+            <thead><tr><th>Priorität</th><th>Features</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>Muss ins Modell</strong></td>
+                <td><code>hour</code>, <code>day_of_week</code>, <code>month</code>, <code>season</code>, <code>line_name</code>, <code>stop_name</code></td>
+              </tr>
+              <tr>
+                <td><strong>Wichtig</strong></td>
+                <td><code>has_snow</code>, <code>precipitation</code>, <code>is_holiday</code>, <code>event_weight × hour</code>, <code>district_nr</code></td>
+              </tr>
+              <tr>
+                <td><strong>Kontextuell</strong></td>
+                <td><code>gtfs_year</code>, <code>n_stops_line</code>, <code>hour × is_weekend</code></td>
+              </tr>
+              <tr>
+                <td><strong style="color:#c0392b">Ausgeschlossen</strong></td>
+                <td><code>departure_delay</code>, <code>delay_delta</code> (leaky) &nbsp;·&nbsp; <code>is_windy</code> (NaN)</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="font-size:0.8em; color:#666; margin-top:6px">LightGBM native Categorical: <code>stop_name</code>, <code>line_name</code>, <code>event_type</code>, <code>season</code></p>
+        </div>
+        <div>
+          <h3>Baseline-Vergleich</h3>
+          <table>
+            <thead><tr><th>Baseline</th><th>MAE</th></tr></thead>
+            <tbody>
+              <tr><td>Grand Mean</td><td>50.6s</td></tr>
+              <tr><td>Hour Mean</td><td>50.5s</td></tr>
+              <tr><td>Line Mean</td><td>50.4s</td></tr>
+              <tr style="background:#e8f4fb"><td><strong>Stop Mean (Benchmark)</strong></td><td><strong>50.0s</strong></td></tr>
+            </tbody>
+          </table>
+          <div class="box" style="margin-top:12px">
+            <strong>Benchmark: Stop Mean = 50.0s</strong>
+            Jede Haltestelle bekommt ihren historischen Mittelwert als Vorhersage — stärkste regelbasierte Baseline
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 10 — MODELL & EVALUATION
+    ════════════════════════════════════════════ -->
+    <section>
+      <h2>Modell &amp; Evaluation</h2>
+
+      <div class="metric-row">
+        <div class="metric">
+          <div class="val">50.0s</div>
+          <div class="lbl">Stop Mean Baseline</div>
+        </div>
+        <div class="metric good">
+          <div class="val">46.3s</div>
+          <div class="lbl">LightGBM Test MAE</div>
+        </div>
+        <div class="metric good">
+          <div class="val">−3.7s</div>
+          <div class="lbl">Gewinn ggü. Baseline</div>
+        </div>
+        <div class="metric">
+          <div class="val">512</div>
+          <div class="lbl">Bäume (Early Stop)</div>
+        </div>
+      </div>
+
+      <div class="cols" style="margin-top:14px">
+        <div>
+          <h3>Fehleranalyse</h3>
+          <table>
+            <thead><tr><th>Dimension</th><th>Schlechteste</th><th>Beste</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Stunden</strong></td><td>17h (54.4s) · 16h (53.9s)</td><td>Nacht</td></tr>
+              <tr><td><strong>Linien</strong></td><td>L11 (52.5s) · L8 (52.2s)</td><td>L12 (34.5s) · L6 (37.3s)</td></tr>
+              <tr><td><strong>Wetter</strong></td><td>Schnee (58.9s)</td><td>Normal (45.9s)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>Bekannte Limitierungen</h3>
+          <ul>
+            <li><strong>MBE +10.1s</strong> — Modell systematisch zu optimistisch</li>
+            <li><code>stop_name</code> als native Categorical statt Target Encoding (v2-Kandidat)</li>
+            <li><code>prev_trip_delay</code> (Kaskadeneffekt) noch nicht implementiert</li>
+          </ul>
+          <div class="box-orange box" style="margin-top:8px; font-size:0.85em">
+            Val MAE: 49.0s &nbsp;·&nbsp; Test MAE: 46.3s<br>
+            Temporaler Val-Split: Jul–Dez 2024
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 11 — LIVE VORHERSAGE
+    ════════════════════════════════════════════ -->
+    <section>
+      <h2>Live Vorhersage</h2>
+
+      <div class="prediction-card">
+        <h3>Verspätungsvorhersage &nbsp;—&nbsp; LightGBM v1</h3>
+
+        <div class="pred-grid">
+          <div class="pred-field">
+            <label>Wochentag</label>
+            <select disabled>
+              <option>Dienstag</option>
+            </select>
+          </div>
+          <div class="pred-field">
+            <label>Uhrzeit</label>
+            <select disabled>
+              <option>17:00 Uhr</option>
+            </select>
+          </div>
+          <div class="pred-field">
+            <label>Haltestelle</label>
+            <select disabled>
+              <option>Paradeplatz</option>
+            </select>
+          </div>
+          <div class="pred-field">
+            <label>Linie</label>
+            <select disabled>
+              <option>Linie 11</option>
+            </select>
+          </div>
+          <div class="pred-field" style="grid-column: span 2;">
+            <label>Wetterbedingung</label>
+            <select disabled>
+              <option>leichter Regen</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pred-btn">Verspätung vorhersagen</div>
+
+        <div class="pred-result">
+          <div class="res-val">48 Sekunden</div>
+          <div class="res-lbl">Vorhergesagte Verspätung &nbsp;·&nbsp; Modell: LightGBM v1 (MAE 46.3s)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 12 — KARTE: TRAMNETZ
+    ════════════════════════════════════════════ -->
+    <section style="padding: 10px 0;">
+      <h2 style="margin-bottom:4px">Interaktive Karte — Tramnetz Zürich</h2>
+      <p style="font-size:0.72em; color:#888; margin:0 0 6px 0">
+        Alle 16 Tramlinien · Haltestellen · Stadtkreise &nbsp;|&nbsp;
+        <em>Scrollen zum Zoomen · Klicken für Details</em>
+      </p>
+      <iframe
+        src="figures/tram_lines_map.html"
+        style="width:100vw; max-width:100%; height:530px; border:none; border-radius:6px; box-shadow:0 2px 12px rgba(0,0,0,0.12); display:block; margin:0 auto;"
+        loading="lazy">
+      </iframe>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SLIDE 13 — KARTE: NETZVERÄNDERUNGEN
+    ════════════════════════════════════════════ -->
+    <section style="padding: 10px 0;">
+      <h2 style="margin-bottom:4px">Netzveränderungen 2023 → 2025</h2>
+      <p style="font-size:0.72em; color:#888; margin:0 0 6px 0">
+        Neue Haltestellen · Geänderte Linien · Stadtkreis-Übersicht &nbsp;|&nbsp;
+        <em>Scrollen zum Zoomen · Klicken für Details</em>
+      </p>
+      <iframe
+        src="figures/network_changes_map.html"
+        style="width:100vw; max-width:100%; height:530px; border:none; border-radius:6px; box-shadow:0 2px 12px rgba(0,0,0,0.12); display:block; margin:0 auto;"
+        loading="lazy">
+      </iframe>
+    </section>
+
+  </div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    transitionSpeed: 'default',
+    controls: true,
+    progress: true,
+    center: true,
+    plugins: [RevealNotes]
+  });
+</script>
+
+</body>
+</html>

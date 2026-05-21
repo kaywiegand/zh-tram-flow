@@ -56,3 +56,4 @@ Thumbs.db
 # ── Reports (optional – kommentiere aus, wenn du Reports tracken willst) ───
 # reports/figures/
 # reports/tables/
+.claude/worktrees/

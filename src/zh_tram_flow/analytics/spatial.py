@@ -12,6 +12,21 @@ _FALLBACK_PALETTE = [
     "#2f6690", "#a34b1c", "#2a7a42", "#8a2020", "#4f3f82",
 ]
 
+# ── District zone classification (consistent across all district plots) ────────
+# Zone 0 = Best (white/neutral) · 1 = Mid (yellow) · 2 = Warn (orange) · 3 = Crit (red)
+_DISTRICT_ZONE: dict[str, int] = {
+    "1": 0, "4": 0, "5": 0, "10": 0,   # Best
+    "2": 1, "3": 1, "6": 1,             # Mid
+    "7": 2, "9": 2,                     # Warn (default for unclassified)
+    "8": 3, "11": 3, "12": 3,           # Crit
+}
+_DISTRICT_COLORSCALE = [
+    [0.000, "#f5f5f5"], [0.249, "#f5f5f5"],
+    [0.250, "#fed976"], [0.499, "#fed976"],
+    [0.500, "#fd8d3c"], [0.749, "#fd8d3c"],
+    [0.750, "#d73027"], [1.000, "#d73027"],
+]
+
 
 def _get_cfg(cfg):
     if cfg is None:
@@ -337,37 +352,110 @@ def plot_district_analysis(lf, cfg=None):
         .to_pandas()
     )
 
+    # Zone colors — pastel / dezent, consistent across district plots
+    _zone_color = {
+        "1": "#e0e0e0", "4": "#e0e0e0", "5": "#e0e0e0", "10": "#e0e0e0",  # Best  (light gray)
+        "2": "#fde68a", "3": "#fde68a", "6": "#fde68a",                     # Mid   (soft yellow)
+        "7": "#fed7aa", "9": "#fed7aa",                                      # Warn  (soft peach)
+        "8": "#fca5a5", "11": "#fca5a5", "12": "#fca5a5",                   # Crit  (soft red)
+    }
+    colors = [_zone_color.get(str(int(nr)), "#fed7aa")
+              for nr in districts["district_nr"]]
+
     style = mpl_style()
     avg = districts["avg_delay"].mean()
-    colors_d = [cfg.COLOR_NEGATIVE if v > avg * 1.1 else cfg.COLOR_POSITIVE if v < avg * 0.9
-                else cfg.PALETTE_CATEGORICAL[4] for v in districts["avg_delay"]]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
 
-    from matplotlib.transforms import blended_transform_factory
-
-    bars = ax1.bar(districts["district_name"], districts["avg_delay"], color=colors_d, alpha=0.85)
-    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":")
-    _t1 = blended_transform_factory(ax1.transAxes, ax1.transData)
-    ax1.text(0.99, avg, f"Ø {avg:.1f}s ", va="bottom", ha="right",
-             fontsize=8, color=cfg.ANNO_MEAN, transform=_t1)
+    ax1.bar(districts["district_name"], districts["avg_delay"], color=colors, alpha=0.6,
+            edgecolor="#bbbbbb", linewidth=0.5)
+    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":", label=f"Ø {avg:.1f}s")
     ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
     ax1.set_title("Verspätung nach Stadtkreis", **style["title"])
     ax1.tick_params(axis="x", rotation=45)
     ax1.spines[["top", "right"]].set_visible(False)
+    ax1.legend(fontsize=9, frameon=False, loc="upper right")
 
-    otp_colors = [cfg.COLOR_POSITIVE if v >= 0.87 else cfg.COLOR_NEGATIVE
-                  for v in districts["otp_rate"]]
-    ax2.bar(districts["district_name"], districts["otp_rate"], color=otp_colors, alpha=0.85)
-    ax2.axhline(0.85, color=cfg.ANNO_REF, lw=1.0, linestyle="--")
-    _t2 = blended_transform_factory(ax2.transAxes, ax2.transData)
-    ax2.text(0.99, 0.85, "85%-Ziel ", va="bottom", ha="right",
-             fontsize=8, color=cfg.ANNO_REF, transform=_t2)
+    ax2.bar(districts["district_name"], districts["otp_rate"], color=colors, alpha=0.6,
+            edgecolor="#bbbbbb", linewidth=0.5)
+    ax2.axhline(0.85, color=cfg.ANNO_REF, lw=1.0, linestyle="--", label="85%-Ziel")
     ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax2.set_ylabel("OTP Rate", **style["label"])
     ax2.set_title("OTP nach Stadtkreis", **style["title"])
     ax2.tick_params(axis="x", rotation=45)
     ax2.spines[["top", "right"]].set_visible(False)
+    ax2.legend(fontsize=9, frameon=False, loc="upper right")
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_district_combined(lf, cfg=None):
+    """Verspätung nach Stadtkreis — ein Panel mit OTP als zweite Achse.
+
+    Balken: Ø Arrival Delay (s), Zonenfarben, alpha=0.6.
+    Linie (rechte Achse): OTP (%) — teal, gestrichelt.
+    Durchschnittslinie auf linker Achse.
+    """
+    cfg = _get_cfg(cfg)
+    from wgnd.core.theme import mpl_style
+    from matplotlib.transforms import blended_transform_factory
+
+    districts = (
+        lf
+        .group_by(["district_nr", "district_name"])
+        .agg([
+            pl.col("arrival_delay").mean().alias("avg_delay"),
+            (pl.col("arrival_delay").abs() <= 120).mean().alias("otp_rate"),
+            pl.len().alias("n"),
+        ])
+        .sort("avg_delay", descending=True)
+        .collect()
+        .to_pandas()
+    )
+
+    _zone_color = {
+        "1": "#e0e0e0", "4": "#e0e0e0", "5": "#e0e0e0", "10": "#e0e0e0",  # Best
+        "2": "#fde68a", "3": "#fde68a", "6": "#fde68a",                     # Mid
+        "7": "#fed7aa", "9": "#fed7aa",                                      # Warn
+        "8": "#fca5a5", "11": "#fca5a5", "12": "#fca5a5",                   # Crit
+    }
+    colors = [_zone_color.get(str(int(nr)), "#fed7aa") for nr in districts["district_nr"]]
+
+    style = mpl_style()
+    avg = districts["avg_delay"].mean()
+    x = range(len(districts))
+
+    fig, ax = plt.subplots(figsize=(14, 5))
+
+    ax.bar(districts["district_name"], districts["avg_delay"],
+           color=colors, alpha=0.6, edgecolor="#bbbbbb", linewidth=0.5)
+
+    ax.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":")
+    _t = blended_transform_factory(ax.transAxes, ax.transData)
+    ax.text(0.99, avg, f"Ø {avg:.1f}s ", va="bottom", ha="right",
+            fontsize=8, color=cfg.ANNO_MEAN, transform=_t)
+
+    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+    ax.set_title("Verspätung nach Stadtkreis", **style["title"])
+    ax.tick_params(axis="x", rotation=45)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+
+    _teal = cfg.COLOR_POSITIVE
+    ax_r = ax.twinx()
+    otp_pct = districts["otp_rate"] * 100
+    ax_r.plot(districts["district_name"], otp_pct,
+              color=_teal, lw=1.5, linestyle="--",
+              marker="o", markersize=4, label="OTP (%)")
+    ax_r.set_ylabel("OTP (%)", fontsize=10, color=_teal)
+    ax_r.tick_params(axis="y", colors=_teal, labelsize=9)
+    ax_r.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0f}%"))
+    ax_r.spines["top"].set_visible(False)
+    ax_r.spines["left"].set_visible(False)
+
+    h, l = ax_r.get_legend_handles_labels()
+    ax.legend(h, l, fontsize=9, frameon=False, loc="upper right")
 
     plt.tight_layout()
     plt.show()
@@ -657,7 +745,12 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
     stops["avg_delay"] = stops["avg_delay"].round(1)
     stops["otp_pct"] = (stops["otp"] * 100).round(1)
 
-    districts = (
+    vmin = stops["avg_delay"].quantile(0.05)
+    vmax = stops["avg_delay"].quantile(0.95)
+    bubble_size = (stops["avg_delay"] / stops["avg_delay"].max() * 20).clip(lower=4)
+
+    # District delay values — same YlOrRd scale as stop bubbles
+    district_df = (
         lf.filter(pl.col("canceled") == False)
         .group_by("district_nr")
         .agg(pl.col("arrival_delay").mean().alias("avg_delay"))
@@ -665,38 +758,50 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
         .to_pandas()
         .dropna()
     )
-    districts["district_nr"] = districts["district_nr"].astype(str)
+    district_df["district_nr"] = district_df["district_nr"].astype(str)
+    d_delay_map = dict(zip(district_df["district_nr"], district_df["avg_delay"]))
 
-    vmin = stops["avg_delay"].quantile(0.05)
-    vmax = stops["avg_delay"].quantile(0.95)
-    bubble_size = (stops["avg_delay"] / stops["avg_delay"].max() * 20).clip(lower=4)
+    # K-label centroids + ordered delay values per GeoJSON feature
+    kreis_ids = [str(feat["properties"]["objid"]) for feat in geojson["features"]]
+    kreis_delays = [d_delay_map.get(kid, 0.0) for kid in kreis_ids]
+    label_lats, label_lons, label_texts = [], [], []
+    for feat in geojson["features"]:
+        coords = np.array(feat["geometry"]["coordinates"][0])
+        label_lats.append(float(coords[:, 1].mean()))
+        label_lons.append(float(coords[:, 0].mean()))
+        label_texts.append(f"K{feat['properties']['objid']}")
 
     fig = go.Figure()
 
-    # Gray background: all stops (network skeleton)
+    # Layer 1: District choropleth — YlOrRd by delay, grouped with K-labels
+    # showlegend=False here; the K-label trace (Layer 4) carries the legend entry
+    fig.add_trace(go.Choroplethmapbox(
+        geojson=geojson,
+        locations=kreis_ids,
+        z=kreis_delays,
+        featureidkey="properties.objid",
+        colorscale="YlOrRd",
+        zmin=vmin, zmax=vmax,
+        showscale=False,
+        legendgroup="Stadtkreise",
+        showlegend=False,
+        marker=dict(line=dict(color="#888888", width=1.5), opacity=0.55),
+        hovertemplate="<b>Kreis %{location}</b><br>Ø Delay: %{z:.1f}s<extra></extra>",
+        name="Stadtkreise",
+    ))
+
+    # Layer 2: All stops as gray dots (network skeleton)
     fig.add_trace(go.Scattermapbox(
         lat=all_stops["stop_lat"],
         lon=all_stops["stop_lon"],
         mode="markers",
-        marker=dict(size=5, color="#aaaaaa", opacity=0.4),
+        marker=dict(size=5, color="#666666", opacity=0.55),
         text=all_stops["stop_name"].str.replace("Zürich, ", ""),
         hovertemplate="<b>%{text}</b><extra></extra>",
         name="Alle Haltestellen",
     ))
 
-    fig.add_trace(go.Choroplethmapbox(
-        geojson=geojson,
-        locations=districts["district_nr"],
-        z=districts["avg_delay"],
-        featureidkey="properties.objid",
-        colorscale="YlOrRd",
-        zmin=vmin, zmax=vmax,
-        marker=dict(line=dict(color="white", width=1), opacity=0.35),
-        colorbar=dict(title="Ø Delay (s)", x=0.0, thickness=12, len=0.5),
-        showscale=False,
-        name="Stadtkreise",
-    ))
-
+    # Layer 3: Highlighted stops — bubbles sized and colored by delay
     fig.add_trace(go.Scattermapbox(
         lat=stops["stop_lat"],
         lon=stops["stop_lon"],
@@ -717,7 +822,20 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
             "OTP: %{customdata[1]:.1f}%<br>"
             "N: %{customdata[2]:,.0f}<extra></extra>"
         ),
-        name="Haltestellen",
+        name="HS Verspätungen",
+    ))
+
+    # Layer 4: K-labels — same legendgroup as choropleth → one click toggles both
+    fig.add_trace(go.Scattermapbox(
+        lat=label_lats,
+        lon=label_lons,
+        mode="text",
+        text=label_texts,
+        textfont=dict(size=11, color="#444444"),
+        hoverinfo="skip",
+        legendgroup="Stadtkreise",
+        showlegend=True,
+        name="Stadtkreise",
     ))
 
     fig.update_layout(
@@ -726,7 +844,7 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
         mapbox_zoom=11.5,
         margin=dict(l=0, r=0, t=30, b=0),
         height=600,
-        title=dict(text="Haltestellen nach Ø Arrival Delay (Blasengrösse = Delay-Niveau)", x=0, xanchor="left"),
+        title=dict(text="Haltestellen nach Ø Arrival Delay", x=0, xanchor="left"),
     )
     fig.show()
 

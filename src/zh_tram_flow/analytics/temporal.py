@@ -54,23 +54,26 @@ def plot_hour_of_day(lf, cfg=None):
 
     style = mpl_style()
     avg = hourly["avg_delay"].mean()
-    colors = [cfg.COLOR_NEGATIVE if v > avg * 1.15 else cfg.PALETTE_CATEGORICAL[4]
+    _teal = cfg.COLOR_POSITIVE
+    threshold = hourly.loc[hourly["hour"] == 8, "avg_delay"].values[0]
+    colors = [cfg.COLOR_NEGATIVE if v >= threshold else "#aaaaaa"
               for v in hourly["avg_delay"]]
 
     fig, ax1 = plt.subplots(figsize=(14, 5))
     ax2 = ax1.twinx()
 
-    ax2.plot(hourly["hour"], hourly["n"] / 1_000_000, color=cfg.COLOR_NEGATIVE,
-             lw=1.8, linestyle="--", zorder=1, label="Halt-Ereignisse (Mio.)")
-    ax2.set_ylabel("Halt-Ereignisse (Mio.)", fontsize=11, color=cfg.COLOR_NEGATIVE,
-                   labelpad=8)
-    ax2.tick_params(axis="y", colors=cfg.COLOR_NEGATIVE, labelsize=9)
+    pct_n = hourly["n"] / hourly["n"].sum() * 100
+    ax2.plot(hourly["hour"], pct_n, color=_teal,
+             lw=1.5, linestyle="--", zorder=1, label="Anteil Halt-Ereignisse (%)")
+    ax2.set_ylabel("Anteil Halt-Ereignisse (%)", fontsize=11, color=_teal, labelpad=8)
+    ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0f}%"))
+    ax2.tick_params(axis="y", colors=_teal, labelsize=9)
     ax2.spines[["top", "left"]].set_visible(False)
-    ax2.spines["right"].set_color(cfg.COLOR_NEGATIVE)
+    ax2.spines["right"].set_color(_teal)
 
-    ax1.bar(hourly["hour"], hourly["avg_delay"], color=colors, alpha=0.85,
+    ax1.bar(hourly["hour"], hourly["avg_delay"], color=colors, alpha=0.6,
             width=0.9, zorder=2)
-    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.5, linestyle="--",
+    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":",
                 label=f"Ø {avg:.1f}s", zorder=3)
     ax1.set_xlabel("Stunde", **style["label"])
     ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
@@ -81,7 +84,9 @@ def plot_hour_of_day(lf, cfg=None):
     ax1.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
 
     lines1, labels1 = ax1.get_legend_handles_labels()
-    ax1.legend(lines1, labels1, fontsize=9, frameon=False, loc="upper left")
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2,
+               fontsize=9, frameon=False, loc="upper right", ncol=2)
 
     plt.tight_layout()
     plt.show()
@@ -110,7 +115,7 @@ def table_hour_of_day(lf) -> pd.DataFrame:
 
 
 def plot_day_of_week(lf, cfg=None):
-    """Ø Arrival Delay + P95 nach Wochentag (Mo–So)."""
+    """Ø Arrival Delay + OTP nach Wochentag (Mo–So)."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
@@ -120,7 +125,7 @@ def plot_day_of_week(lf, cfg=None):
         .agg([
             pl.col("arrival_delay").mean().alias("avg_delay"),
             pl.col("arrival_delay").median().alias("med_delay"),
-            pl.col("arrival_delay").quantile(0.95).alias("p95_delay"),
+            ((pl.col("arrival_delay").abs() <= 120).mean() * 100).alias("otp_pct"),
             pl.len().alias("n"),
         ])
         .sort("weekday")
@@ -131,32 +136,36 @@ def plot_day_of_week(lf, cfg=None):
     day_labels = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
     style = mpl_style()
     avg = daily["avg_delay"].mean()
-    colors = [cfg.COLOR_NEGATIVE if v > avg * 1.15 else cfg.PALETTE_CATEGORICAL[4]
+    _teal = cfg.COLOR_POSITIVE
+    colors = [cfg.COLOR_NEGATIVE if v > 58.5 else "#aaaaaa"
               for v in daily["avg_delay"]]
 
     fig, ax = plt.subplots(figsize=(14, 5))
     x = range(len(day_labels))
 
-    bars = ax.bar(x, daily["avg_delay"], color=colors, alpha=0.85)
+    ax.bar(x, daily["avg_delay"], color=colors, alpha=0.6)
     ax.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":", label=f"Ø {avg:.1f}s")
 
     for i, v in enumerate(daily["avg_delay"]):
         ax.text(i, v + 0.3, f"{v:+.1f}s", ha="center", va="bottom", fontsize=9)
 
     ax2 = ax.twinx()
-    ax2.plot(x, daily["p95_delay"], color=cfg.COLOR_NEGATIVE, lw=1.0,
-             marker="D", markersize=4, linestyle="--", alpha=0.7, label="P95 (schlechteste 5%)")
-    ax2.set_ylabel("P95 Arrival Delay (s)", color=cfg.COLOR_NEGATIVE, fontsize=10)
-    ax2.tick_params(axis="y", labelcolor=cfg.COLOR_NEGATIVE)
+    ax2.plot(x, daily["otp_pct"], color=_teal, lw=1.5,
+             marker="D", markersize=4, linestyle="--", alpha=0.7, label="OTP (%)")
+    ax2.set_ylabel("OTP (%)", color=_teal, fontsize=10)
+    ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0f}%"))
+    ax2.tick_params(axis="y", labelcolor=_teal)
+    ax2.spines[["top", "left"]].set_visible(False)
+    ax2.spines["right"].set_color(_teal)
 
     ax.set_xticks(x)
     ax.set_xticklabels(day_labels, fontsize=11)
     ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax.set_title("Ø Verspätung + P95 nach Wochentag", **style["title"])
+    ax.set_title("Ø Verspätung + OTP nach Wochentag", **style["title"])
     lines1, labels1 = ax.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax.legend(lines1 + lines2, labels1 + labels2,
-              fontsize=9, frameon=False, loc="upper left", ncol=3)
+              fontsize=9, frameon=False, loc="upper right", ncol=3)
     ax.spines[["top", "right"]].set_visible(False)
     plt.tight_layout()
     plt.show()
@@ -190,8 +199,12 @@ def table_day_of_week(lf) -> pd.DataFrame:
     )
 
 
-def plot_month_seasonality(lf, cfg=None):
-    """Saisonalität + Jahresvergleich nach Monat — zwei Panels."""
+def plot_month_seasonality(lf, cfg=None, panel: str = "both"):
+    """Saisonalität + Jahresvergleich nach Monat.
+
+    panel: 'both' (default) — zwei Panels nebeneinander
+           'left'            — nur Saisonalitäts-Panel (für Insights-Notebook)
+    """
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
@@ -204,46 +217,54 @@ def plot_month_seasonality(lf, cfg=None):
         .to_pandas()
     )
 
-    monthly_by_year = (
-        lf
-        .with_columns(pl.col("operating_date").dt.year().alias("year"))
-        .filter(~((pl.col("year") == 2025) & (pl.col("operating_date").dt.month() >= 11)))
-        .group_by(["year", "month"])
-        .agg(pl.col("arrival_delay").mean().alias("avg_delay"))
-        .sort(["month", "year"])
-        .collect()
-        .to_pandas()
-    )
-
-    month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
+    month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun",
+                   "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
     style = mpl_style()
-    colors = cfg.palette_n(3)
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
 
     avg = monthly_avg["avg_delay"].mean()
-    bar_colors = [cfg.COLOR_NEGATIVE if v > avg * 1.2 else cfg.PALETTE_CATEGORICAL[4]
+    bar_colors = [cfg.COLOR_NEGATIVE if v > avg else "#aaaaaa"
                   for v in monthly_avg["avg_delay"]]
-    ax1.bar(range(1, 13), monthly_avg["avg_delay"], color=bar_colors, alpha=0.85)
-    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.5, linestyle="--", label=f"Ø {avg:.1f}s")
+
+    if panel == "left":
+        fig, ax1 = plt.subplots(figsize=(10, 5))
+    else:
+        monthly_by_year = (
+            lf
+            .with_columns(pl.col("operating_date").dt.year().alias("year"))
+            .filter(~((pl.col("year") == 2025) & (pl.col("operating_date").dt.month() >= 11)))
+            .group_by(["year", "month"])
+            .agg(pl.col("arrival_delay").mean().alias("avg_delay"))
+            .sort(["month", "year"])
+            .collect()
+            .to_pandas()
+        )
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
+
+    ax1.bar(range(1, 13), monthly_avg["avg_delay"], color=bar_colors, alpha=0.6,
+            edgecolor="#bbbbbb", linewidth=0.5)
+    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":", label=f"Ø {avg:.1f}s")
     ax1.set_xticks(range(1, 13))
     ax1.set_xticklabels(month_names, fontsize=9)
     ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax1.set_title("Saisonalität — Ø über 2023–2025", **style["title"])
-    ax1.legend(fontsize=9)
+    ax1.set_title("Ø Verspätung nach Monat (2023–2025)", **style["title"])
+    ax1.legend(fontsize=9, frameon=False, loc="upper right")
     ax1.spines[["top", "right"]].set_visible(False)
     ax1.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax1.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=9)
 
-    for (yr, color) in zip([2023, 2024, 2025], colors):
-        df = monthly_by_year[monthly_by_year["year"] == yr].sort_values("month")
-        ax2.plot(df["month"], df["avg_delay"], color=color, lw=2, marker="o", markersize=5, label=str(yr))
-    ax2.set_xticks(range(1, 13))
-    ax2.set_xticklabels(month_names, fontsize=9)
-    ax2.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax2.set_title("Jahresvergleich — gleicher Monat (bereinigt)", **style["title"])
-    ax2.legend(fontsize=9)
-    ax2.spines[["top", "right"]].set_visible(False)
-    ax2.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    if panel != "left":
+        colors = cfg.palette_n(3)
+        for (yr, color) in zip([2023, 2024, 2025], colors):
+            df = monthly_by_year[monthly_by_year["year"] == yr].sort_values("month")
+            ax2.plot(df["month"], df["avg_delay"], color=color, lw=2,
+                     marker="o", markersize=5, label=str(yr))
+        ax2.set_xticks(range(1, 13))
+        ax2.set_xticklabels(month_names, fontsize=9)
+        ax2.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+        ax2.set_title("Jahresvergleich — gleicher Monat (bereinigt)", **style["title"])
+        ax2.legend(fontsize=9, frameon=False, loc="upper right")
+        ax2.spines[["top", "right"]].set_visible(False)
+        ax2.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
 
     plt.tight_layout()
     plt.show()

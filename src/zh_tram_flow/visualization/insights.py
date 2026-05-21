@@ -7,11 +7,14 @@ One function per insight section. All plots use cfg + line_color()
 so a single theme change propagates everywhere.
 """
 import json
+import math
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import matplotlib.dates as mdates
+import matplotlib.patheffects as pe
 import matplotlib.ticker as mticker
 from matplotlib.lines import Line2D
 import polars as pl
@@ -29,13 +32,14 @@ MILESTONES = [
     ("2023-12-10", "Fahrplanwechsel Dez 2023", 0.06),
     ("2024-06-15", "Baustellen-Ende Limmatplatz", 0.92),
     ("2024-12-08", "Fahrplanwechsel Dez 2024", 0.06),
+    ("2025-12-14", "Fahrplanwechsel Dez 2025", 0.06),
 ]
 
 
 def _add_milestones(ax: plt.Axes) -> None:
     for date, _label, _y_frac in MILESTONES:
         ax.axvline(pd.Timestamp(date), color=cfg.ANNO_REF, lw=1.2,
-                   linestyle="--", ymax=0.95, zorder=1)
+                   linestyle="--", ymax=0.85, zorder=1)
 
 
 def _milestone_legend_handle() -> Line2D:
@@ -73,12 +77,17 @@ def plot_monthly_delay_by_line(lf: pl.LazyFrame) -> None:
         .collect(engine="streaming")
         .to_pandas()
     )
-    monthly["date"] = pd.to_datetime(monthly[["year", "month"]].assign(day=1))
+    # Mid-month positioning so the last data point sits visually inside its month
+    monthly["date"] = pd.to_datetime(monthly[["year", "month"]].assign(day=15))
 
     lines = sorted(monthly["line_name"].astype(str).unique(),
                    key=lambda x: int(x) if x.isdigit() else 99)
 
     fig, ax = plt.subplots(figsize=(14, 5))
+
+    # Soft month grid lines (behind everything) — incl. Jan 2026 for visual close
+    for ts in pd.date_range("2023-01-01", "2026-01-01", freq="MS"):
+        ax.axvline(ts, color="#cccccc", lw=0.4, alpha=0.5, zorder=0)
 
     for ln in lines:
         df = monthly[monthly["line_name"] == ln].sort_values("date")
@@ -89,19 +98,36 @@ def plot_monthly_delay_by_line(lf: pl.LazyFrame) -> None:
 
     ax.set_ylim(0, 120)
     ax.set_title("Monatliche Ø Ankunftsverspätung — alle Linien 2023–2025",
-                 **{**style["title"], "pad": 24})
+                 **style["title"])
     ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
     ax.yaxis.set_major_formatter(mticker.FormatStrFormatter("%ds"))
     _spine_style(ax)
 
+    # X-axis: month numbers 01–12, Jan 2026 tick visible for visual breathing room
+    ax.set_xlim(pd.Timestamp("2023-01-01"), pd.Timestamp("2026-01-15"))
+    ax.xaxis.set_major_locator(mdates.MonthLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%m"))
+    ax.tick_params(axis="x", labelsize=8)
+
+    # Year labels in a second row below month ticks
+    trans = ax.get_xaxis_transform()
+    for yr in [2023, 2024, 2025]:
+        mid = pd.Timestamp(f"{yr}-07-01")
+        ax.text(mid, -0.10, str(yr), transform=trans,
+                ha="center", va="top", fontsize=9.5,
+                color=cfg.CHART_AXIS_TEXT, fontweight="semibold")
+
+    # Legend: always max 2 rows
     handles, labels = ax.get_legend_handles_labels()
     handles.append(_milestone_legend_handle())
     labels.append("Fahrplanwechsel / Baustelle")
+    ncol = math.ceil(len(handles) / 2)
     ax.legend(handles=handles, labels=labels,
-              fontsize=9, loc="upper right", ncol=8,
+              fontsize=9, loc="upper right", ncol=ncol,
               frameon=False)
 
     plt.tight_layout()
+    plt.subplots_adjust(bottom=0.12)
     plt.show()
 
 
@@ -118,7 +144,7 @@ def plot_otp_by_line(lf: pl.LazyFrame) -> None:
             ((pl.col("arrival_delay").abs() <= 120).mean() * 100).alias("otp_pct"),
             pl.len().alias("n"),
         ])
-        .sort("otp_pct")
+        .sort("otp_pct", descending=True)
         .collect(engine="streaming")
         .to_pandas()
     )
@@ -128,7 +154,7 @@ def plot_otp_by_line(lf: pl.LazyFrame) -> None:
     line_labels = [f"L{ln}" for ln in otp["line_name"]]
 
     fig, ax = plt.subplots(figsize=(14, 5))
-    bars = ax.bar(line_labels, otp["otp_pct"], color=bar_colors, alpha=0.85)
+    bars = ax.bar(line_labels, otp["otp_pct"], color=bar_colors, alpha=0.6)
     for bar, val in zip(bars, otp["otp_pct"]):
         ax.text(bar.get_x() + bar.get_width() / 2, val + 0.2,
                 f"{val:.1f}%", ha="center", fontsize=9, color=cfg.CHART_AXIS_TEXT)
@@ -139,11 +165,11 @@ def plot_otp_by_line(lf: pl.LazyFrame) -> None:
                label="Ziel VBZ 95%")
 
     ax.set_ylim(75, 100)
-    ax.set_title("OTP pro Linie", **{**style["title"], "pad": 14})
+    ax.set_title("On-Time-Performance (OTP) pro Linie", **style["title"])
     ax.set_ylabel("On-Time Performance (%)", **style["label"])
     ax.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0f%%"))
     _spine_style(ax)
-    ax.legend(fontsize=9, frameon=False, loc="upper left", ncol=2)
+    ax.legend(fontsize=9, frameon=False, loc="upper right", ncol=2)
     plt.tight_layout()
     plt.show()
 
@@ -172,7 +198,7 @@ def plot_otp_delta_distribution(lf: pl.LazyFrame) -> None:
     colors = [cfg.COLOR_NEGATIVE, cfg.COLOR_POSITIVE, cfg.COLOR_NEUTRAL]
 
     fig, ax = plt.subplots(figsize=(14, 5))
-    bars = ax.bar(labels, values, color=colors, width=0.5)
+    bars = ax.bar(labels, values, color=colors, width=0.5, alpha=0.6)
     for bar, val in zip(bars, values):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.8,
                 f"{val:.1f}%", ha="center", va="bottom",
@@ -187,15 +213,8 @@ def plot_otp_delta_distribution(lf: pl.LazyFrame) -> None:
     plt.show()
 
 
-def plot_dwell_analysis(lf: pl.LazyFrame) -> None:
-    """2 Panels: Anteil Durchfahrtshalte + Ø Delay vs. Dwell Time pro Linie.
-
-    Panel 1: gestapelter Balken — % Haltestellen mit dwell=0s (Durchfahrt) vs. >0s (Puffer).
-    Panel 2: gruppierter Balken — Ø Arrival Delay vs. Ø Dwell Time.
-    Beide sortiert nach Ø Arrival Delay descending.
-    """
-    style = mpl_style()
-
+def _dwell_data(lf: pl.LazyFrame) -> tuple:
+    """Shared data query for dwell analysis plots."""
     data = (
         lf
         .with_columns(
@@ -213,68 +232,104 @@ def plot_dwell_analysis(lf: pl.LazyFrame) -> None:
         .collect(engine="streaming")
         .to_pandas()
     )
-
     x = np.arange(len(data))
     line_labels = [f"L{ln}" for ln in data["line_name"]]
     lc = [line_color(str(ln)) for ln in data["line_name"]]
+    return data, x, line_labels, lc
 
-    fig, axes = plt.subplots(1, 2, figsize=(16, 5))
 
-    # Panel 1: Durchfahrtshalte als Balken (Tramlinienfarben) + Pufferzeit als Linie (rechte Achse)
-    ax = axes[0]
+def plot_dwell_throughput(lf: pl.LazyFrame) -> None:
+    """Anteil Durchfahrtshalte (%) + Ø Verweilzeit (s) pro Linie.
+
+    Balken: % Halte ohne Verweilzeit (Durchfahrt), Tramlinienfarben.
+    Linie (rechte Achse): Ø Verweilzeit in Sekunden — anderer Unit für Kontrast.
+    Sortiert nach Ø Arrival Delay descending.
+    """
+    _teal = cfg.COLOR_POSITIVE  # #25ac82 — kein Overlap mit Tramlinienfarben
+
+    style = mpl_style()
+    data, x, line_labels, lc = _dwell_data(lf)
+
     pct_null = data["pct_null_dwell"] * 100
-    pct_puffer = 100 - pct_null
-    ax.bar(x, pct_null, color=lc, alpha=0.7)
+
+    # Bars at alpha=0.6 so the teal line reads clearly without a halo
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.bar(x, pct_null, color=lc, alpha=0.6)
     for i, pn in enumerate(pct_null):
         ax.text(i, pn + 1.2, f"{pn:.0f}%", va="bottom", ha="center",
                 fontsize=8, color="#555555")
     ax.set_xticks(x)
     ax.set_xticklabels(line_labels, fontsize=9)
     ax.set_ylim(0, 108)
-    ax.set_title("Anteil Durchfahrtshalte pro Linie", **{**style["title"], "pad": 14})
+    ax.set_title("Anteil Durchfahrtshalte pro Linie", **style["title"])
     ax.set_ylabel("Durchfahrtshalte (%)", **style["label"])
     ax.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0f%%"))
     ax.spines[["top", "right"]].set_visible(False)
     ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
     ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
 
-    ax_r1 = ax.twinx()
-    ax_r1.plot(x, pct_puffer, color="#888888", lw=1.0, linestyle="--",
-               marker="o", markersize=3, label="Mit Pufferzeit (dwell > 0s)")
-    ax_r1.set_ylabel("Mit Pufferzeit (%)", fontsize=10, color="#888888")
-    ax_r1.tick_params(axis="y", colors="#888888", labelsize=9)
-    ax_r1.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0f%%"))
-    ax_r1.spines["top"].set_visible(False)
-    ax_r1.spines["left"].set_visible(False)
-    h1, l1 = ax_r1.get_legend_handles_labels()
-    ax.legend(h1, l1, fontsize=9, frameon=False, loc="upper right")
+    ax_r = ax.twinx()
+    ax_r.plot(x, data["avg_dwell"].fillna(0), color=_teal, lw=1.5, linestyle="--",
+              marker="o", markersize=3, label="Ø Verweilzeit (s)")
+    ax_r.set_ylabel("Ø Verweilzeit (s)", fontsize=10, color=_teal)
+    ax_r.tick_params(axis="y", colors=_teal, labelsize=9)
+    ax_r.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0fs"))
+    ax_r.spines["top"].set_visible(False)
+    ax_r.spines["left"].set_visible(False)
+    h, l = ax_r.get_legend_handles_labels()
+    ax.legend(h, l, fontsize=9, frameon=False, loc="upper right")
 
-    # Panel 2: Delay als Balken (Tramlinienfarben) + Dwell Time als Linie (rechte Achse)
-    ax = axes[1]
-    ax.bar(x, data["avg_delay"], color=lc, alpha=0.7)
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_dwell_vs_delay(lf: pl.LazyFrame) -> None:
+    """Ø Arrival Delay (s) + Verweilzeit (%) pro Linie.
+
+    Balken: Ø Arrival Delay in Sekunden, Tramlinienfarben.
+    Linie (rechte Achse): Verweilzeit (%) — Anteil Halte mit dwell > 0s.
+    Sortiert nach Ø Arrival Delay descending.
+    """
+    _teal = cfg.COLOR_POSITIVE  # #25ac82 — konsistent mit plot_dwell_throughput
+
+    style = mpl_style()
+    data, x, line_labels, lc = _dwell_data(lf)
+
+    pct_verweil = (1 - data["pct_null_dwell"]) * 100
+
+    # Bars at alpha=0.6 so the violet line reads clearly without a halo
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.bar(x, data["avg_delay"], color=lc, alpha=0.6)
     for i, v in enumerate(data["avg_delay"]):
         ax.text(i, v + 0.5, f"{v:.0f}s", va="bottom", ha="center",
                 fontsize=8, color="#555555")
     ax.set_xticks(x)
     ax.set_xticklabels(line_labels, fontsize=9)
-    ax.set_title("Verspätung vs. geplanter Puffer pro Linie", **{**style["title"], "pad": 14})
+    ax.set_title("Verspätung vs. Verweilzeit pro Linie", **style["title"])
     ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
     ax.spines[["top", "right"]].set_visible(False)
     ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
     ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
 
-    ax_r2 = ax.twinx()
-    ax_r2.plot(x, data["avg_dwell"].fillna(0), color="#888888", lw=1.0, linestyle="--",
-               marker="o", markersize=3, label="Ø Dwell Time (Puffer)")
-    ax_r2.set_ylabel("Ø Dwell Time (s)", fontsize=10, color="#888888")
-    ax_r2.tick_params(axis="y", colors="#888888", labelsize=9)
-    ax_r2.spines["top"].set_visible(False)
-    ax_r2.spines["left"].set_visible(False)
-    h2, l2 = ax_r2.get_legend_handles_labels()
-    ax.legend(h2, l2, fontsize=9, frameon=False, loc="upper right")
+    ax_r = ax.twinx()
+    ax_r.plot(x, pct_verweil, color=_teal, lw=1.5, linestyle="--",
+              marker="o", markersize=3, label="Verweilzeit (%)")
+    ax_r.set_ylabel("Verweilzeit (%)", fontsize=10, color=_teal)
+    ax_r.tick_params(axis="y", colors=_teal, labelsize=9)
+    ax_r.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0f%%"))
+    ax_r.spines["top"].set_visible(False)
+    ax_r.spines["left"].set_visible(False)
+    h, l = ax_r.get_legend_handles_labels()
+    ax.legend(h, l, fontsize=9, frameon=False, loc="upper right")
 
     plt.tight_layout()
     plt.show()
+
+
+def plot_dwell_analysis(lf: pl.LazyFrame) -> None:
+    """Wrapper: ruft plot_dwell_throughput + plot_dwell_vs_delay auf."""
+    plot_dwell_throughput(lf)
+    plot_dwell_vs_delay(lf)
 
 
 def plot_dwell_by_stop_position(lf: pl.LazyFrame) -> None:
@@ -375,11 +430,34 @@ def plot_top_delay_stops(lf: pl.LazyFrame, top_n: int = 20, min_obs: int = 50_00
 
 # ── Section: Geografie ────────────────────────────────────────────────────────
 
-def plot_district_maps(lf: pl.LazyFrame) -> None:
-    """Zwei Stadtkreis-Karten untereinander: Ø Arrival Delay + OTP."""
+# ── District zone classification (consistent across both maps) ────────────────
+# Aligned with YlOrRd stop-delay map: white=best · yellow=mid · orange=warn · red=crit
+_DISTRICT_ZONE: dict[str, int] = {
+    "1": 0, "4": 0, "5": 0, "10": 0,   # Best — weiß/neutral
+    "2": 1, "3": 1, "6": 1,             # Mid  — hellgelb
+    "7": 2, "9": 2,                     # Warn — orange (+ Außenbezirk = default)
+    "8": 3, "11": 3, "12": 3,           # Crit — rot (Problemzone 1)
+}
+_DISTRICT_COLORSCALE = [
+    [0.000, "#f5f5f5"], [0.249, "#f5f5f5"],  # Best  — near white
+    [0.250, "#fed976"], [0.499, "#fed976"],  # Mid   — light yellow
+    [0.500, "#fd8d3c"], [0.749, "#fd8d3c"],  # Warn  — orange
+    [0.750, "#d73027"], [1.000, "#d73027"],  # Crit  — red
+]
+_DISTRICT_LEGEND_ANNOTATION = (
+    "<b>Problemzonen</b><br>"
+    "<span style='color:#d73027'>■</span> Problemzone 1 — K8 · K11 · K12<br>"
+    "<span style='color:#fd8d3c'>■</span> Problemzone 2 — K7 · K9 · Außen<br>"
+    "<span style='color:#fed976'>■</span> Mittelfeld<br>"
+    "<span style='color:#f5f5f5'>■</span> Beste Kreise — K1 · K4 · K5 · K10"
+)
+
+
+def _district_stats(lf: pl.LazyFrame):
+    """Shared data query for district map plots."""
     import plotly.graph_objects as go
 
-    district_stats = (
+    stats = (
         lf
         .group_by("district_nr")
         .agg([
@@ -389,18 +467,16 @@ def plot_district_maps(lf: pl.LazyFrame) -> None:
         .collect(engine="streaming")
         .to_pandas()
     )
-    delay_map = dict(zip(district_stats["district_nr"].astype(str),
-                         district_stats["avg_delay"].round(1)))
-    otp_map   = dict(zip(district_stats["district_nr"].astype(str),
-                         district_stats["otp_pct"].round(1)))
+    delay_map = dict(zip(stats["district_nr"].astype(str), stats["avg_delay"].round(1)))
+    otp_map   = dict(zip(stats["district_nr"].astype(str), stats["otp_pct"].round(1)))
 
     geo_path = PATHS["raw"] / "stadtkreise.geojson"
     with open(geo_path) as f:
         stadtkreise = json.load(f)
 
-    kreis_ids    = [str(feat["properties"]["objid"]) for feat in stadtkreise["features"]]
-    kreis_delays = [delay_map.get(kid, 0) for kid in kreis_ids]
-    kreis_otps   = [otp_map.get(kid, 0) for kid in kreis_ids]
+    kreis_ids = [str(feat["properties"]["objid"]) for feat in stadtkreise["features"]]
+    # Zone value: default 2 (Warn) for unclassified kreise (Außenbezirk)
+    kreis_zones = [_DISTRICT_ZONE.get(kid, 2) for kid in kreis_ids]
 
     label_lats, label_lons, delay_texts, otp_texts = [], [], [], []
     for feat in stadtkreise["features"]:
@@ -411,124 +487,98 @@ def plot_district_maps(lf: pl.LazyFrame) -> None:
         delay_texts.append(f"K{kid}<br>{delay_map.get(str(kid), 0):.0f}s")
         otp_texts.append(f"K{kid}<br>{otp_map.get(str(kid), 0):.0f}%")
 
-    mapbox_cfg  = dict(style="carto-positron", zoom=10.5,
-                       center={"lat": 47.378, "lon": 8.540})
-    marker_cfg  = dict(line=dict(color="#888888", width=1), opacity=0.7)
-    layout_base = dict(mapbox=mapbox_cfg,
-                       margin={"r": 0, "t": 40, "l": 0, "b": 0},
-                       height=500, showlegend=False)
-
-    fig1 = go.Figure()
-    fig1.add_trace(go.Choroplethmapbox(
-        geojson=stadtkreise, locations=kreis_ids, z=kreis_delays,
-        featureidkey="properties.objid",
-        colorscale=[[0, "#e8f4f8"], [0.5, cfg.COLOR_SIGNAL], [1, cfg.COLOR_NEGATIVE]],
-        zmin=min(kreis_delays), zmax=max(kreis_delays),
-        colorbar=dict(title="Delay (s)", thickness=12, len=0.5),
-        marker=marker_cfg,
-        hovertemplate="<b>Kreis %{location}</b><br>Ø Delay: %{z:.1f}s<extra></extra>",
-    ))
-    fig1.add_trace(go.Scattermapbox(
-        lat=label_lats, lon=label_lons, mode="text", text=delay_texts,
-        textfont=dict(size=11, color="#333333"), hoverinfo="skip",
-    ))
-    fig1.update_layout(**layout_base, title=dict(
-        text="Stadtkreise — Ø Arrival Delay (hell = pünktlich, rot = verspätet)",
-        font=dict(size=14, color=cfg.CHART_TITLE), x=0, xanchor="left",
-    ))
-    fig1.show()
-
-    fig2 = go.Figure()
-    fig2.add_trace(go.Choroplethmapbox(
-        geojson=stadtkreise, locations=kreis_ids, z=kreis_otps,
-        featureidkey="properties.objid",
-        colorscale=[[0, cfg.COLOR_NEGATIVE], [0.5, cfg.COLOR_SIGNAL], [1, "#e8f4f8"]],
-        zmin=min(kreis_otps), zmax=max(kreis_otps),
-        colorbar=dict(title="OTP (%)", thickness=12, len=0.5),
-        marker=marker_cfg,
-        hovertemplate="<b>Kreis %{location}</b><br>OTP: %{z:.1f}%<extra></extra>",
-    ))
-    fig2.add_trace(go.Scattermapbox(
-        lat=label_lats, lon=label_lons, mode="text", text=otp_texts,
-        textfont=dict(size=11, color="#333333"), hoverinfo="skip",
-    ))
-    fig2.update_layout(**layout_base, title=dict(
-        text="Stadtkreise — OTP (rot = niedrig, hell = hoch)",
-        font=dict(size=14, color=cfg.CHART_TITLE), x=0, xanchor="left",
-    ))
-    fig2.show()
+    return (stadtkreise, kreis_ids, kreis_zones,
+            delay_map, otp_map,
+            label_lats, label_lons, delay_texts, otp_texts)
 
 
-# ── Section: Infrastruktur ────────────────────────────────────────────────────
+def _district_map_layout(title_text: str) -> dict:
+    return dict(
+        mapbox=dict(style="carto-positron", zoom=10.5,
+                    center={"lat": 47.378, "lon": 8.540}),
+        margin={"r": 0, "t": 40, "l": 0, "b": 0},
+        height=500, showlegend=False,
+        title=dict(text=title_text,
+                   font=dict(size=14, color=cfg.CHART_TITLE), x=0, xanchor="left"),
+    )
+
 
 def plot_district_delay_map(lf: pl.LazyFrame) -> None:
-    """Stadtkreise eingefärbt nach Ø Arrival Delay — Plotly Mapbox."""
+    """Stadtkreise eingefärbt nach Problemzone — Ø Arrival Delay."""
     import plotly.graph_objects as go
 
-    district_delay = (
-        lf
-        .group_by("district_nr")
-        .agg([
-            pl.col("arrival_delay").mean().alias("avg_delay"),
-            ((pl.col("arrival_delay").abs() <= 120).mean() * 100).alias("otp_pct"),
-            pl.len().alias("n"),
-        ])
-        .collect(engine="streaming")
-        .to_pandas()
-    )
-    delay_map = dict(zip(district_delay["district_nr"].astype(str),
-                         district_delay["avg_delay"].round(1)))
-    otp_map   = dict(zip(district_delay["district_nr"].astype(str),
-                         district_delay["otp_pct"].round(1)))
+    (stadtkreise, kreis_ids, kreis_zones,
+     delay_map, _, label_lats, label_lons, delay_texts, _) = _district_stats(lf)
 
-    geo_path = PATHS["raw"] / "stadtkreise.geojson"
-    with open(geo_path) as f:
-        stadtkreise = json.load(f)
-
-    kreis_ids    = [str(feat["properties"]["objid"]) for feat in stadtkreise["features"]]
-    kreis_delays = [delay_map.get(kid, 0) for kid in kreis_ids]
-
-    label_lats, label_lons, label_texts = [], [], []
-    for feat in stadtkreise["features"]:
-        coords = np.array(feat["geometry"]["coordinates"][0])
-        label_lats.append(coords[:, 1].mean())
-        label_lons.append(coords[:, 0].mean())
-        kid = feat["properties"]["objid"]
-        d   = delay_map.get(str(kid), 0)
-        otp = otp_map.get(str(kid), 0)
-        label_texts.append(f"K{kid}<br>{d:.0f}s / {otp:.0f}%")
-
-    colorscale = [[0, "#e8f4f8"], [0.5, cfg.COLOR_SIGNAL], [1, cfg.COLOR_NEGATIVE]]
+    hover = [
+        f"<b>Kreis {kid}</b><br>Ø Delay: {delay_map.get(kid, 0):.1f}s"
+        for kid in kreis_ids
+    ]
 
     fig = go.Figure()
     fig.add_trace(go.Choroplethmapbox(
-        geojson=stadtkreise,
-        locations=kreis_ids,
-        z=kreis_delays,
+        geojson=stadtkreise, locations=kreis_ids, z=kreis_zones,
         featureidkey="properties.objid",
-        colorscale=colorscale,
-        zmin=min(kreis_delays),
-        zmax=max(kreis_delays),
-        colorbar=dict(title="Ø Delay (s)", len=0.5, y=0.5),
-        marker=dict(line=dict(color="#888888", width=1), opacity=0.7),
-        hovertemplate="<b>Kreis %{location}</b><br>Ø Delay: %{z:.1f}s<extra></extra>",
+        colorscale=_DISTRICT_COLORSCALE,
+        zmin=0, zmax=3, showscale=True,
+        colorbar=dict(
+            title="Delay (s)",
+            thickness=12, len=0.5,
+            showticklabels=False,
+        ),
+        marker=dict(line=dict(color="#888888", width=1), opacity=0.8),
+        hovertext=hover, hovertemplate="%{hovertext}<extra></extra>",
     ))
     fig.add_trace(go.Scattermapbox(
-        lat=label_lats, lon=label_lons, mode="text", text=label_texts,
+        lat=label_lats, lon=label_lons, mode="text", text=delay_texts,
         textfont=dict(size=11, color="#333333"), hoverinfo="skip",
     ))
-    fig.update_layout(
-        mapbox_style="carto-positron",
-        mapbox_zoom=11, mapbox_center={"lat": 47.378, "lon": 8.540},
-        margin={"r": 0, "t": 40, "l": 0, "b": 0},
-        height=600,
-        title=dict(
-            text="Stadtkreise — Ø Arrival Delay (hell = pünktlich, rot = verspätet)",
-            font=dict(size=14, color=cfg.CHART_TITLE),
-            x=0, xanchor="left",
-        ),
-    )
+    fig.update_layout(**_district_map_layout(
+        "Stadtkreise — Ø Arrival Delay"
+    ))
     fig.show()
+
+
+def plot_district_otp_map(lf: pl.LazyFrame) -> None:
+    """Stadtkreise eingefärbt nach Problemzone — OTP."""
+    import plotly.graph_objects as go
+
+    (stadtkreise, kreis_ids, kreis_zones,
+     _, otp_map, label_lats, label_lons, _, otp_texts) = _district_stats(lf)
+
+    hover = [
+        f"<b>Kreis {kid}</b><br>OTP: {otp_map.get(kid, 0):.1f}%"
+        for kid in kreis_ids
+    ]
+
+    fig = go.Figure()
+    fig.add_trace(go.Choroplethmapbox(
+        geojson=stadtkreise, locations=kreis_ids, z=kreis_zones,
+        featureidkey="properties.objid",
+        colorscale=_DISTRICT_COLORSCALE,
+        zmin=0, zmax=3, showscale=True,
+        colorbar=dict(
+            title="OTP (%)",
+            thickness=12, len=0.5,
+            showticklabels=False,
+        ),
+        marker=dict(line=dict(color="#888888", width=1), opacity=0.8),
+        hovertext=hover, hovertemplate="%{hovertext}<extra></extra>",
+    ))
+    fig.add_trace(go.Scattermapbox(
+        lat=label_lats, lon=label_lons, mode="text", text=otp_texts,
+        textfont=dict(size=11, color="#333333"), hoverinfo="skip",
+    ))
+    fig.update_layout(**_district_map_layout(
+        "Stadtkreise — On-Time-Performance (OTP)"
+    ))
+    fig.show()
+
+
+def plot_district_maps(lf: pl.LazyFrame) -> None:
+    """Wrapper: ruft plot_district_delay_map + plot_district_otp_map auf."""
+    plot_district_delay_map(lf)
+    plot_district_otp_map(lf)
 
 
 def plot_infra_maps(lf_delay: pl.LazyFrame, lf_clean: pl.LazyFrame) -> None:
@@ -680,13 +730,11 @@ def plot_delay_delta_timeline(lf: pl.LazyFrame) -> None:
 
 
 def plot_arrival_vs_departure_timeline(lf: pl.LazyFrame) -> None:
-    """Daily avg arrival delay 2023–2025 — 3 panels by year with event markers (no Sonstiges).
+    """Daily avg arrival delay 2023–2025 — 1 kombiniertes Panel mit Event-Markern.
 
-    Replikation von an.plot_daily_delay_timeline ohne Sonstiges-Marker.
+    Analog zu plot_monthly_delay_by_line: gleiche Achsen, Skala und Stil.
     Input: lf_clean (canceled=False, stop_sequence>1, kein E/L50/L51).
     """
-    from zh_tram_flow.analytics.temporal import _add_schulferien
-
     style = mpl_style()
 
     _event_category_map = {
@@ -727,37 +775,70 @@ def plot_arrival_vs_departure_timeline(lf: pl.LazyFrame) -> None:
     event_dates["category"] = event_dates["event_type"].map(_event_category_map).fillna("Sonstiges")
     event_dates = event_dates[event_dates["category"] != "Sonstiges"]
 
-    years = [2023, 2024, 2025]
-    fig, axes = plt.subplots(3, 1, figsize=(18, 12), sharex=False)
+    _SCHULFERIEN = [
+        ("2023-02-06", "2023-02-17"), ("2023-04-10", "2023-04-21"),
+        ("2023-07-08", "2023-08-11"), ("2023-10-02", "2023-10-13"),
+        ("2023-12-23", "2024-01-05"), ("2024-02-05", "2024-02-16"),
+        ("2024-04-08", "2024-04-19"), ("2024-07-06", "2024-08-09"),
+        ("2024-09-30", "2024-10-11"), ("2024-12-21", "2025-01-03"),
+        ("2025-02-03", "2025-02-14"), ("2025-04-07", "2025-04-17"),
+        ("2025-07-05", "2025-08-08"), ("2025-10-06", "2025-10-17"),
+    ]
 
-    for ax, year in zip(axes, years):
-        df_year = daily[daily["operating_date"].dt.year == year].sort_values("operating_date")
-        baseline = df_year["avg_delay"].mean()
+    fig, ax = plt.subplots(figsize=(14, 5))
 
-        ax.plot(df_year["operating_date"], df_year["avg_delay"],
-                color="#222222", lw=1.2, alpha=0.85)
-        ax.axhline(baseline, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":",
-                   alpha=0.6, label=f"Ø {baseline:.1f}s")
+    # Soft month grid lines — same as plot_monthly_delay_by_line
+    for ts in pd.date_range("2023-01-01", "2026-01-01", freq="MS"):
+        ax.axvline(ts, color="#cccccc", lw=0.4, alpha=0.5, zorder=0)
 
-        _add_schulferien(ax, alpha=0.22, color="#999999")
+    # Schulferien bands — ymax=0.9 so they don't bleed into the legend area
+    labeled = False
+    for s, e in _SCHULFERIEN:
+        lbl = "Schulferien ZH" if not labeled else None
+        ax.axvspan(pd.Timestamp(s), pd.Timestamp(e),
+                   ymin=0, ymax=0.9, alpha=0.10, color="#999999",
+                   label=lbl, zorder=0)
+        labeled = True
 
-        ev_year = event_dates[event_dates["operating_date"].dt.year == year]
-        shown: set = set()
-        for _, row in ev_year.iterrows():
-            cat = row["category"]
-            lbl = cat if cat not in shown else None
-            ax.axvline(row["operating_date"], color=_category_colors[cat],
-                       lw=1.0, alpha=0.8, label=lbl)
-            shown.add(cat)
+    # Daily delay line
+    ax.plot(daily["operating_date"], daily["avg_delay"],
+            color="#222222", lw=1.0, alpha=0.85, label="Ø Delay", zorder=10)
 
-        ax.set_title(str(year), **{**style["title"], "pad": 14})
-        ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-        ax.set_xlim(pd.Timestamp(f"{year}-01-01"), pd.Timestamp(f"{year}-12-31"))
-        ax.legend(fontsize=9, frameon=False, loc="upper left", ncol=4)
-        _spine_style(ax)
+    # Event verticals — ymax=0.9, lw=2, etwas transparenter
+    shown: set = set()
+    for _, row in event_dates.iterrows():
+        cat = row["category"]
+        lbl = cat if cat not in shown else None
+        ax.axvline(row["operating_date"], color=_category_colors[cat],
+                   lw=1.0, alpha=1.0, ymax=0.9, label=lbl, zorder=2)
+        shown.add(cat)
 
-    axes[-1].set_xlabel("Datum", **style["label"])
-    plt.suptitle("Daily Delay Timeline 2023–2025 — Events & Schulferien",
-                 fontsize=14, fontweight="bold", color=cfg.CHART_TITLE, y=1.01)
+    # Axes — identical to plot_monthly_delay_by_line
+    ax.set_ylim(0, 140)
+    ax.set_xlim(pd.Timestamp("2023-01-01"), pd.Timestamp("2026-01-15"))
+    ax.xaxis.set_major_locator(mdates.MonthLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%m"))
+    ax.tick_params(axis="x", labelsize=8)
+    ax.yaxis.set_major_formatter(mticker.FormatStrFormatter("%ds"))
+    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+    ax.set_title("Daily Delay Timeline 2023–2025 — Events & Schulferien",
+                 **style["title"])
+    _spine_style(ax)
+
+    # Year labels in second row below month ticks
+    trans = ax.get_xaxis_transform()
+    for yr in [2023, 2024, 2025]:
+        mid = pd.Timestamp(f"{yr}-07-01")
+        ax.text(mid, -0.10, str(yr), transform=trans,
+                ha="center", va="top", fontsize=9.5,
+                color=cfg.CHART_AXIS_TEXT, fontweight="semibold")
+
+    # Legend: all items in one row, right-aligned
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles=handles, labels=labels,
+              fontsize=9, loc="upper right", ncol=len(handles),
+              frameon=False)
+
     plt.tight_layout()
+    plt.subplots_adjust(bottom=0.12)
     plt.show()
