@@ -481,3 +481,37 @@ Begründung: `departure_delay` / `delay_delta` sind keine Modell-Features. Durch
 1. `05_feature_engineering.ipynb` neu ausführen → `test_features.parquet` mit Nov/Dez 2025 (~30M Zeilen)
 2. `06_prediction_1-baseline.ipynb` neu ausführen → aktualisierte Benchmark-Zahlen
 3. Analysis-Notebooks neu ausführen → Plots zeigen dann Nov/Dez 2025 (optional)
+
+---
+
+### 2026-05-21 — Insights-Report HTML-Export finalisiert
+
+**Was wurde gemacht:**
+
+- **`04_insights.ipynb`** — Fahrplanwechsel-Narrative korrigiert:
+  - Dez 2023: "grösster Netzumbau" korrekt (war es zu dem Zeitpunkt — 10 von 17 Linien)
+  - Dez 2025: Korrekturfakten aus Wikipedia — 7 von 18 Linien, L50/L51 als Baustellen-Linien für Bahnhofquai-Sanierung bis Dez 2026
+  - Fehlender Leerzeichen-Trenner zwischen den zwei Abschnitten gefixt
+- **Setup-Zelle** in `04_insights.ipynb`: `pio.renderers.default = "notebook_connected"` hinzugefügt — damit erzeugen zukünftige Notebook-Runs direkt HTML-kompatible Plotly-Outputs (CDN-Link im Output statt nur JSON)
+- **Plotly-Maps in HTML** gefixt:
+  - Ursache: SRI-Integrity-Hash im Plotly CDN-Script schlug fehl (Browser blockiert Script still)
+  - Fix: `integrity`- und `crossorigin`-Attribute aus dem `<script>`-Tag entfernt
+  - Betrifft: gespeicherter Notebook-Output (cell `f1692f25`) + `reports/insights.html`
+- **HTML-Export** `reports/insights.html` neu generiert — 3.4 MB, 3× `Plotly.newPlot`, alle Karten sichtbar ✅
+- **Reports-Aufräumen**: 16 PNG-Figures zu `reports/figures/` hinzugefügt, `tram_lines_map.html` von `reports/figures/` nach `reports/` verschoben, `reports/tables/.gitkeep` entfernt
+- Stale Notebooks gelöscht: `notebooks/03_analysis_5-weather.ipynb`, `notebooks/04_feature_engineering.ipynb`, `DISCUSSION.md`
+
+**Technische Erkenntnis — Plotly in nbconvert HTML-Exports:**
+
+| Thema | Detail |
+|:---|:---|
+| MIME-Typ | Plotly speichert `application/vnd.plotly.v1+json` — nbconvert kennt das Format nicht |
+| Fix (dauerhaft) | `pio.renderers.default = "notebook_connected"` → Plotly erzeugt auch `text/html` Output |
+| Fix (einmalig) | `pio.to_html(fig, include_plotlyjs='cdn')` retroaktiv in gespeicherte Outputs injiziert |
+| SRI-Problem | Plotly Python 6.7.0 bundelt Hash für eigene Plotly.js-Datei — CDN liefert geringfügig andere Minifizierung → Hash schlägt fehl |
+| Lösung | `integrity`- und `crossorigin`-Attribute entfernt — CDN lädt ohne SRI-Check |
+| Embedding | Matplotlib/Seaborn-Charts: `data:image/png;base64,...` direkt im HTML eingebettet — keine separaten Bilddateien |
+
+**Nächste konkrete Schritte:**
+1. `06_prediction_3-evaluation.ipynb` ausbauen — Fehleranalyse nach Linie, Stunde, Wetter
+2. Projekt-Wrap-up: README final, Portfolio-Text

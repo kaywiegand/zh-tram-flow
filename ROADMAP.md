@@ -125,13 +125,14 @@
 ### Modell-Entscheidung
 > LightGBM — native Categorical Support, schnell auf großen Datensätzen, gradient boosting für nicht-lineare Effekte
 
-### Insights-Report (`04_insights.ipynb`) 🔄
+### Insights-Report (`04_insights.ipynb`) ✅
 - ✅ Dramaturgie: 7 Abschnitte (Netzstruktur → OTP → Geo → Temporal → Meteo → Events → Netz)
 - ✅ Alle Texte im Bullet-Style — fette Kategorien, Zahlen als Bullets
 - ✅ Neue Plots: Delay Delta Timeline, Arrival vs. Departure, District Delay Choropleth
 - ✅ Wetter-Karten mit vmax=60 (gleiche Farbskala Schnee/Regen)
-- [ ] Ausführen (Kernel neu starten) — add_vline Fix noch offen
-- [ ] HTML-Export: `jupyter nbconvert --to html --no-input 04_insights.ipynb`
+- ✅ Fahrplanwechsel-Narrative korrigiert (Dez 2023 / Dez 2025)
+- ✅ Plotly-Renderer auf `notebook_connected` gesetzt — HTML-Export-kompatibel
+- ✅ HTML-Export: `reports/insights.html` (3.4 MB · alle 3 Plotly-Karten sichtbar)
 
 ### Baseline (`06_prediction_1-baseline.ipynb`) ✅
 - ✅ Grand Mean Baseline: 50.6s MAE
