@@ -922,6 +922,7 @@ def plot_weather_stop_map(
     lf: pl.LazyFrame,
     flag: str = "has_snow",
     vmax: float | None = None,
+    save_html: "Path | None" = None,
 ) -> None:
     """Plotly bubble map: Δ delay per stop for a given weather flag vs normal days.
 
@@ -1047,12 +1048,15 @@ def plot_weather_stop_map(
         height=650,
         title=dict(text=f"Weather Impact per Stop — Δ Delay ({flag_label} vs. Normal)", x=0, xanchor="left"),
     )
+    if save_html is not None:
+        fig.write_html(save_html, include_plotlyjs="cdn")
     fig.show()
 
 
 def plot_weather_stop_map_combined(
     lf: pl.LazyFrame,
     vmax: float = 60.0,
+    save_html: "Path | None" = None,
 ) -> None:
     """Combined Plotly map: stop delay during snow + heavy rain in one figure.
 
@@ -1279,6 +1283,8 @@ def plot_weather_stop_map_combined(
             colorbar=dict(title="Ø Delay (s)", thickness=12, len=0.6),
         ),
     )
+    if save_html is not None:
+        fig.write_html(save_html, include_plotlyjs="cdn")
     fig.show()
 
 
