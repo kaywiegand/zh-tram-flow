@@ -842,3 +842,118 @@ def plot_arrival_vs_departure_timeline(lf: pl.LazyFrame) -> None:
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.12)
     plt.show()
+
+
+def plot_lever_comparison(lf: pl.LazyFrame) -> None:
+    """Hebel-Vergleich: Fahrplan-Struktur vs. externe Einflussfaktoren.
+
+    Strukturfaktor dynamisch aus lf berechnet: mean(delay_delta) × avg_stops_per_trip.
+    Externe Faktoren: verifizierte Δ-Werte (s) aus 03_analysis_*.ipynb.
+    Einheiten:
+        Strukturfaktor = kumulierter Verspätungsaufbau pro Ø Fahrt
+        Externe        = Δ Arrival Delay pro Halt vs. Baseline-Bedingung
+    """
+    style = mpl_style()
+
+    # ── Struktureller Hebel (dynamisch) ───────────────────────────────────────
+    mean_delta = (
+        lf
+        .select(pl.col("delay_delta").drop_nulls().mean())
+        .collect()
+        .item()
+    )
+    avg_stops = (
+        lf
+        .group_by(["trip_id", "operating_date"])
+        .agg(pl.len().alias("n"))
+        .select(pl.col("n").mean())
+        .collect(engine="streaming")
+        .item()
+    )
+    structural = mean_delta * avg_stops
+
+    # ── Externe Faktoren (verifiziert aus 03_analysis_*.ipynb) ────────────────
+    # Δ Arrival Delay (s) — Aufschlag vs. Baseline-Bedingung, pro Halt
+    _ext = [
+        ("Schnee",         +54.0, "#5b8db8"),   # F-WEAT-01
+        ("Starkregen",     +22.0, "#5b8db8"),   # F-WEAT-02
+        ("November",       +16.4, "#7b9fc4"),   # F-TIME-05
+        ("Abend (21h)",    +11.7, "#7b9fc4"),   # F-TIME-01
+        ("Grossereignis",  +10.5, "#9bb5d0"),   # F-EVT-01
+        ("Donnerstag",     + 4.2, "#9bb5d0"),   # F-TIME-03
+        ("Feiertag",       - 9.9, cfg.COLOR_POSITIVE),  # F-EVT-04
+    ]
+
+    # ── Daten zusammenstellen ─────────────────────────────────────────────────
+    struct_label = (
+        f"Fahrplan-Struktur\n(Ø {avg_stops:.0f} Halte × {mean_delta:.1f}s / Halt)"
+    )
+    labels = [struct_label] + [f[0] for f in _ext]
+    values = [structural]   + [f[1] for f in _ext]
+    colors = [cfg.COLOR_SIGNAL] + [f[2] for f in _ext]
+
+    n = len(labels)
+    y_pos = list(range(n - 1, -1, -1))   # oben = prominentester Eintrag
+
+    # ── Plot ──────────────────────────────────────────────────────────────────
+    fig, ax = plt.subplots(figsize=(11, 5.5))
+
+    bars = ax.barh(y_pos, values, color=colors, height=0.52, zorder=3)
+
+    # Wert-Labels
+    x_abs_max = max(abs(v) for v in values)
+    offset = x_abs_max * 0.02
+    for bar, val in zip(bars, values):
+        sign = "+" if val > 0 else ""
+        txt  = f"{sign}{val:.0f}s"
+        if val >= 0:
+            ax.text(bar.get_width() + offset,
+                    bar.get_y() + bar.get_height() / 2,
+                    txt, va="center", ha="left",
+                    fontsize=9.5, color=cfg.CHART_AXIS_TEXT, fontweight="semibold")
+        else:
+            ax.text(bar.get_width() - offset,
+                    bar.get_y() + bar.get_height() / 2,
+                    txt, va="center", ha="right",
+                    fontsize=9.5, color=cfg.CHART_AXIS_TEXT, fontweight="semibold")
+
+    # Trennlinie Strukturfaktor vs. externe Faktoren
+    ax.axhline(n - 1.6, color=cfg.ANNO_REF, lw=0.8, linestyle="--", zorder=2)
+
+    # Null-Linie
+    ax.axvline(0, color=cfg.ANNO_REF, lw=0.9, alpha=0.7, zorder=2)
+
+    # Bereichs-Labels (links der Y-Achse)
+    ax.text(-x_abs_max * 0.025, n - 1, "STRUKTUR",
+            ha="right", va="center", fontsize=7.5,
+            color=cfg.COLOR_SIGNAL, fontweight="bold")
+    ext_mid_y = (y_pos[1] + y_pos[-1]) / 2
+    ax.text(-x_abs_max * 0.025, ext_mid_y, "EXTERN",
+            ha="right", va="center", fontsize=7.5,
+            color=cfg.CHART_AXIS_TEXT, fontweight="bold")
+
+    # Einheiten-Hinweis (oben rechts, italic)
+    ax.text(0.99, 0.99,
+            "Strukturfaktor: kumulierter Aufbau pro Fahrt\n"
+            "Externe Faktoren: Δ Arrival Delay pro Halt vs. Baseline",
+            transform=ax.transAxes, ha="right", va="top",
+            fontsize=7.5, color=cfg.ANNO_REF, style="italic",
+            linespacing=1.5)
+
+    # Achsen + Styling
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(labels, fontsize=10)
+    ax.set_xlabel("Sekunden (s)", **style["label"])
+    ax.set_title(
+        "Verspätungs-Hebel: Fahrplan-Struktur vs. Externe Faktoren",
+        **{**style["title"], "pad": 14},
+    )
+    _spine_style(ax)
+    ax.grid(axis="x", color="#eeeeee", lw=0.8, zorder=0)
+    ax.set_xlim(
+        left=min(values) * 1.8,
+        right=x_abs_max * 1.30,
+    )
+
+    plt.tight_layout()
+    plt.show()
