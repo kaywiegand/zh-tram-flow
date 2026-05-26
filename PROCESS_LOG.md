@@ -565,3 +565,24 @@ Kernthese definiert: dwell_time = 0s (Fahrplan-Design) + Peripherie-Hotspots (Ge
 **Nächste konkrete Schritte:**
 1. `06_prediction_3-evaluation.ipynb` ausbauen — Fehleranalyse nach Linie, Stunde, Wetter
 2. Projekt-Wrap-up: README final, Portfolio-Text
+
+---
+
+### 2026-05-26 — Hebel-Vergleich umgesetzt (Backlog #38)
+
+**Was wurde gemacht:**
+
+- **`plot_lever_comparison(lf)`** neu in `src/zh_tram_flow/visualization/insights.py`:
+  - Struktureller Hebel dynamisch berechnet: `mean(delay_delta) × avg_stops_per_trip`
+  - 7 externe Faktoren (Schnee, Starkregen, November, Abend 21h, Grossereignis, Donnerstag, Feiertag) als verifizierte Δ-Werte aus `03_analysis_*.ipynb`
+  - Horizontal-Bar-Chart: Amber = Strukturfaktor · Blau-Abstufungen = externe Faktoren · Teal = Feiertag (positiv)
+  - Trennlinie zwischen Struktur und Extern · Einheiten-Hinweis (kumuliert pro Fahrt vs. Δ pro Halt)
+- **`04_insights.ipynb`**: neue Sektion "Hebel-Vergleich" zwischen Setup-Zelle und "## Netzstruktur" eingefügt:
+  - Markdown-Intro mit Methodenerklärung und Kernbefund (Fahrplan = steuerbarer Hebel #1)
+  - Code-Zelle `plot_lever_comparison(lf_clean)`
+  - Import `plot_lever_comparison` in Setup-Zelle ergänzt
+
+**Methodische Entscheidung — Einheiten:**
+Strukturfaktor (kumulierter Trip-Aufbau) und externe Faktoren (Δ Arrival Delay pro Halt) sind unterschiedliche Einheiten — im Chart transparent gemacht (Einheiten-Hinweis + Trennlinie). Kein Umrechnen: der Strukturfaktor ist bewusst als Kumulat gezeigt, weil er akkumulierend wirkt; externe Faktoren sind situative Aufschläge pro Halt.
+
+**Nächster Schritt:** #39 — Interaktive Linienansicht: Plotly-Karte mit Haltestellen nach Delay eingefärbt in `03_analysis_4-spatial.ipynb`
