@@ -516,6 +516,24 @@ Begründung: `departure_delay` / `delay_delta` sind keine Modell-Features. Durch
 
 ---
 
+### 2026-05-26 — Portfolio-Audit + Narrative-These eingebaut
+
+**Was wurde gemacht:**
+
+- **Portfolio-Review** durchgeführt: BACKLOG.md um Items 28–35, 36–41 ergänzt (Präsentation, Analyse, Reporting, Dashboard, Modell v2). Prio aller Präsentations-Items auf 2 gesetzt (nach portfolio-ready).
+- **`PORTFOLIO_CHECK.md`** angelegt — Audit der 5 Dimensionen: 1 A-Punkt (Key-Visual fehlt im README), 7 B-Punkte (Evaluation unvollständig, Introduction veraltet, SoT-Audit ausstehend, Reporting unordentlich), Reproduzierbarkeit grün.
+- **Kernthese verankert** (Backlog #36 + #37, erledigt):
+  - `03_analysis_0-overview.ipynb`: Synthese-Block nach Executive Summary — drei Findings als eine Aussage
+  - `04_insights.ipynb`: neue Sektion "Kernthese" als Einstieg vor "Netzstruktur"
+  - `03_analysis_1-target.ipynb`: Root-Cause-Sektion direkt nach OTP-Befund — verbindet F-TARGET-03 (71.5% akkumulieren) mit F-SPAT-08 (71.3% dwell_time = 0s)
+
+**Methodische Entscheidung:**
+Kernthese definiert: dwell_time = 0s (Fahrplan-Design) + Peripherie-Hotspots (Geografie) + Netzausbau am falschen Ort (Investment) = drei Befunde, eine Aussage. Verankert in allen relevanten Notebooks — nicht mehr als Einzel-Findings versteckt.
+
+**Nächster Schritt:** #38 — Hebel-Vergleich: dwell_time vs. Wetter vs. Events vs. Tageszeit als relativer Vergleichs-Plot
+
+---
+
 ### 2026-05-21 — Insights-Report HTML-Export finalisiert
 
 **Was wurde gemacht:**
