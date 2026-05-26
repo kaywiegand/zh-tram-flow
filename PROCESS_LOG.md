@@ -14,7 +14,7 @@
 | Typ | DANSC (EDA + Modellierung + Dashboard) |
 | Erstellt | 2026-05-11 |
 | Status | 🟢 Phase 4 — Modellierung (LightGBM v1 trainiert · Test MAE 45.7s) |
-| Nächster Schritt | `06_prediction_3-evaluation.ipynb` ausbauen · Fehleranalyse · Insights-Report |
+| Nächster Schritt | `06_prediction_3-evaluation.ipynb` ausbauen · Fehleranalyse · Portfolio-Aufbereitung starten (BACKLOG #10, #19) |
 | Datenbasis | `sf_data-research` — Phase 0 abgeschlossen |
 | Stack | Python · Polars · Pandas · GeoPandas · Plotly |
 
@@ -481,6 +481,38 @@ Begründung: `departure_delay` / `delay_delta` sind keine Modell-Features. Durch
 1. `05_feature_engineering.ipynb` neu ausführen → `test_features.parquet` mit Nov/Dez 2025 (~30M Zeilen)
 2. `06_prediction_1-baseline.ipynb` neu ausführen → aktualisierte Benchmark-Zahlen
 3. Analysis-Notebooks neu ausführen → Plots zeigen dann Nov/Dez 2025 (optional)
+
+---
+
+### 2026-05-26 — Workspace-Dokumentation konsolidiert · BACKLOG.md angelegt
+
+**Was wurde gemacht:**
+
+- **Workspace-Ebene umgebaut:** `docs/` Ordnerstruktur aufgesetzt — alle globalen MD-Files zentralisiert
+- **`CLAUDE.md` (Workspace) komplett neu geschrieben** — Single Entry Point für alle Session-Typen:
+  Session-Start Protokoll (Scope-Frage + Rollen-Frage), vollständiger Rollen-Katalog (9 Rollen),
+  mechanische Post-Commit Checkliste, Pointer auf Portfolio-Workflow
+- **`docs/CONVENTIONS.md` erstellt** — Zusammenführung von `docs/GLOSSAR.md` + Notebook-Konventionen:
+  Notebook-Struktur, Wording-Glossar, Variablen-Konventionen, Qualitätsprüfung vor Commit
+- **`docs/portfolio/`** neu: `STANDARD.md` (3 Lese-Ebenen, 5 Qualitätsdimensionen),
+  `CHECKLIST.md` (Quality-Check-Vorlage → als `PORTFOLIO_CHECK.md` ins Projekt kopieren),
+  `WORKFLOW.md` (5-Schritt Aufbereitungs-Prozess)
+- **`ONBOARDING.md` (Workspace + Projekt) gelöscht** — ersetzt durch Session-Start-Block in `CLAUDE.md`
+- **`zh-tram-flow/CLAUDE.md` auf ~30 Zeilen geschlankt** — Parquet-Pfad-Tabelle und Meteo-Join-Details entfernt
+  (→ stehen in Notebooks); nur Projekt-Identität, Stack, Datenbasis-Regeln, projektspez. Konventionen behalten
+- **`zh-tram-flow/BACKLOG.md` neu erstellt** — 22 projektspezifische Items aus Workspace-BACKLOG extrahiert,
+  nach Themenblöcken gruppiert: Präsentation (19–26) · Portfolio-Aufbereitung · Analyse · Modell v2 · Tools
+- **Prio-System geändert:** H/M/L → 1/2/3 (1 = hoch · 2 = mittel · 3 = niedrig)
+
+**Strukturprinzip (fest etabliert):**
+
+| Regel | Begründung |
+|:---|:---|
+| MD-Files = Meta-Files | Metriken, Findings, Outputs immer in Notebooks — nie in MD-Files kopieren |
+| Kein Fakt in zwei Files | Redundanz erzeugt Drift — Pointer statt Kopie |
+| PROCESS_LOG: Pointer auf Notebooks | Kein MAE, keine Zeilenzahlen direkt im Log |
+| ROADMAP: konzeptionell | Ausgangslage → Phasen → Ziel — nur bei Phasenwechsel ändern |
+| BACKLOG: operativ | Alle offenen Tasks hier, nach jeder Session aktualisieren |
 
 ---
 
