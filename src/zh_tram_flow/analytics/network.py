@@ -1,4 +1,11 @@
-"""Analytics-Modul für 03_analysis_2-network.ipynb — Netzveränderungen 2023–2025."""
+"""Analytics-Modul für 03_analysis_2-network.ipynb — Netzveränderungen 2023–2025.
+
+Functions (network changes):
+  load_gtfs, build_changes_matrix, plot_network_changes_map, ...
+
+Functions (line profiles):
+  plot_line_profiles(lf_all, cfg=None)
+"""
 
 import polars as pl
 import pandas as pd
@@ -761,3 +768,125 @@ def table_service_quality_by_district(lf_all) -> pd.DataFrame:
         .sort_values("delta", ascending=False)
         .reset_index(drop=True)
     )
+
+
+# ---------------------------------------------------------------------------
+# Line Profiles — Strukturelle Kennzahlen aller Linien
+# ---------------------------------------------------------------------------
+
+def plot_line_profiles(lf_all: pl.LazyFrame, cfg=None) -> None:
+    """Liniencharakter-Profil: Strukturelle Kennzahlen aller Tram-Linien als Heatmap.
+
+    Fünf Dimensionen je Linie:
+      avg_stops          — Ø Haltestellen pro Fahrt (Routenlänge)
+      n_districts        — Anzahl durchfahrener Stadtkreise (geografische Reichweite)
+      pct_city_center    — Anteil Halte in Stadtkreisen 1–5 (Innenstadt-Exposition)
+      structural_per_trip— Ø (departure_delay−arrival_delay) × avg_stops (kumulierter Aufbau)
+      mean_arr_delay     — Ø Arrival Delay (sichtbares Ergebnis für Fahrgäste)
+
+    Linien sortiert nach structural_per_trip absteigend.
+    Farbe normalisiert pro Spalte (dunkel = hoher Wert).
+    Linienbeschriftung in offiziellen VBZ-Farben.
+
+    Input: lf_all (canceled=False wird intern gefiltert).
+    """
+    from wgnd.core.theme import mpl_style
+    cfg = _get_cfg(cfg)
+    style = mpl_style()
+
+    lf_f = lf_all.filter(pl.col("canceled") == False)
+
+    # Ø stops per trip per line
+    stops_per_trip = (
+        lf_f
+        .group_by(["line_name", "trip_id", "operating_date"])
+        .agg(pl.len().alias("n_stops"))
+        .group_by("line_name")
+        .agg(pl.col("n_stops").mean().alias("avg_stops"))
+    )
+
+    # Per-line delay and geographic metrics
+    # delay_delta = departure_delay - arrival_delay (net accumulation per stop)
+    line_stats = (
+        lf_f
+        .with_columns([
+            (pl.col("departure_delay") - pl.col("arrival_delay")).alias("delay_delta_raw"),
+            pl.col("district_nr").is_in([1, 2, 3, 4, 5]).cast(pl.Float64).alias("is_city"),
+        ])
+        .group_by("line_name")
+        .agg([
+            pl.col("district_nr").n_unique().alias("n_districts"),
+            pl.col("is_city").mean().alias("pct_city"),
+            pl.col("delay_delta_raw").mean().alias("mean_dd"),
+            pl.col("arrival_delay").mean().alias("mean_arr"),
+        ])
+    )
+
+    profiles = (
+        stops_per_trip
+        .join(line_stats, on="line_name")
+        .with_columns(
+            (pl.col("mean_dd") * pl.col("avg_stops")).alias("structural_per_trip")
+        )
+        .sort("structural_per_trip", descending=True)
+        .collect()
+        .to_pandas()
+    )
+
+    # Column definitions: (key, display_label, format_fn)
+    col_defs = [
+        ("avg_stops",           "Ø Halte\npro Fahrt",       lambda v: f"{v:.1f}"),
+        ("n_districts",         "Stadtkreise\n(Anzahl)",     lambda v: f"{int(v)}"),
+        ("pct_city",            "Innenstadt-\nAnteil (%)",   lambda v: f"{v*100:.0f}%"),
+        ("structural_per_trip", "Strukturfaktor\n(s/Fahrt)", lambda v: f"{v:.1f} s"),
+        ("mean_arr",            "Ø Arrival\nDelay (s)",      lambda v: f"{v:.0f} s"),
+    ]
+    col_keys   = [d[0] for d in col_defs]
+    col_labels = [d[1] for d in col_defs]
+    col_fmts   = [d[2] for d in col_defs]
+
+    data   = profiles[col_keys].values.astype(float)
+    normed = (data - data.min(axis=0)) / (data.ptp(axis=0) + 1e-9)
+
+    n_lines = len(profiles)
+    n_cols  = len(col_keys)
+
+    fig, ax = plt.subplots(figsize=(13, max(5, n_lines * 0.55 + 1.5)))
+    im = ax.imshow(normed, cmap="YlOrRd", aspect="auto", vmin=0, vmax=1)
+
+    # Cell annotations
+    for i in range(n_lines):
+        for j in range(n_cols):
+            text = col_fmts[j](data[i, j])
+            txt_color = "white" if normed[i, j] > 0.65 else "#222"
+            ax.text(j, i, text, ha="center", va="center",
+                    fontsize=9, color=txt_color, fontweight="bold")
+
+    # Axes
+    ax.set_xticks(range(n_cols))
+    ax.set_xticklabels(col_labels, fontsize=10)
+    ax.xaxis.set_label_position("top")
+    ax.tick_params(axis="x", top=True, bottom=False,
+                   labeltop=True, labelbottom=False,
+                   colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+
+    ax.set_yticks(range(n_lines))
+    line_tick_labels = [f"Linie {ln}" for ln in profiles["line_name"].values]
+    ax.set_yticklabels(line_tick_labels, fontsize=10, fontweight="bold")
+    for tick, ln in zip(ax.get_yticklabels(), profiles["line_name"].values):
+        tick.set_color(LINE_COLORS.get(str(ln), "#333333"))
+    ax.tick_params(axis="y", colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+
+    ax.set_title(
+        "Liniencharakter-Profil — Strukturelle Kennzahlen aller Tram-Linien\n"
+        "(Farbe normalisiert pro Spalte — dunkel = hoher Wert · sortiert nach Strukturfaktor)",
+        **style["title"], pad=14,
+    )
+
+    # Colorbar as legend
+    cbar = fig.colorbar(im, ax=ax, fraction=0.02, pad=0.04)
+    cbar.set_label("Normierter Wert (0 = min, 1 = max)", fontsize=8)
+    cbar.ax.tick_params(labelsize=8)
+
+    plt.tight_layout()
+    plt.show()

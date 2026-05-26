@@ -13,6 +13,7 @@ Functions:
   plot_weather_stop_map(lf, flag, vmax=None)
   plot_weather_stop_map_combined(lf, vmax=60.0)
   table_weather_stop_map(lf, flag)
+  plot_snow_structural_interaction(lf, cfg=None)
 """
 
 import polars as pl
@@ -1328,3 +1329,109 @@ def table_weather_stop_map(lf: pl.LazyFrame, flag: str = "has_snow") -> pd.DataF
         .round({"Normal (s)": 1, col: 1})
         .reset_index(drop=True)
     )
+
+
+# ---------------------------------------------------------------------------
+# Snow Structural Interaction
+# ---------------------------------------------------------------------------
+
+def plot_snow_structural_interaction(lf: pl.LazyFrame, cfg=None) -> None:
+    """Schnee-Verstärker: delay_delta (Akkumulationsrate) und arrival_delay — normal vs. Schnee.
+
+    Zeigt dass Schnee nicht nur einen externen Zusatz-Delay verursacht,
+    sondern den strukturellen Aufbau-Mechanismus verstärkt:
+      delay_delta normal ≈ 4.95 s/Halt → Schnee ≈ 6.58 s/Halt (+33 %)
+
+    Zwei Panels:
+      Links:  Ø delay_delta — Akkumulationsrate pro Halt (strukturelle Verstärkung)
+      Rechts: Ø arrival_delay — sichtbarer Fahrgast-Impact (+54 s)
+
+    Input: lf_clean (benötigt delay_delta, has_snow).
+    """
+    from wgnd.core.theme import mpl_style
+    cfg = _get_cfg(cfg)
+    style = mpl_style()
+
+    stats = (
+        lf.filter(pl.col("delay_delta").is_not_null())
+        .group_by("has_snow")
+        .agg([
+            pl.col("delay_delta").mean().alias("mean_dd"),
+            pl.col("arrival_delay").mean().alias("mean_arr"),
+            pl.len().alias("n"),
+        ])
+        .sort("has_snow")
+        .collect()
+        .to_pandas()
+    )
+
+    normal_row = stats[stats["has_snow"] == False].iloc[0]
+    snow_row   = stats[stats["has_snow"] == True].iloc[0]
+
+    labels     = ["Normal", "Schnee"]
+    dd_vals    = [normal_row["mean_dd"],  snow_row["mean_dd"]]
+    arr_vals   = [normal_row["mean_arr"], snow_row["mean_arr"]]
+    bar_colors = ["#aaaaaa", "#2166ac"]
+
+    delta_dd_pct = (snow_row["mean_dd"]  - normal_row["mean_dd"])  / normal_row["mean_dd"]  * 100
+    delta_arr_s  =  snow_row["mean_arr"] - normal_row["mean_arr"]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 5))
+
+    # --- Panel 1: delay_delta (Akkumulationsrate) ---
+    bars1 = ax1.bar(labels, dd_vals, color=bar_colors, width=0.45,
+                    edgecolor="white", linewidth=0.5)
+    for bar, val in zip(bars1, dd_vals):
+        ax1.text(bar.get_x() + bar.get_width() / 2, val + 0.05,
+                 f"{val:.2f} s", ha="center", va="bottom",
+                 fontsize=11, fontweight="bold")
+    ax1.annotate(
+        f"+{delta_dd_pct:.0f} %",
+        xy=(1, snow_row["mean_dd"]),
+        xytext=(1.38, (dd_vals[0] + dd_vals[1]) / 2),
+        fontsize=13, color="#2166ac", fontweight="bold", va="center",
+        arrowprops=dict(arrowstyle="->", color="#2166ac", lw=1.5),
+    )
+    ax1.set_ylabel("Ø delay_delta (s / Halt)", **style["label"])
+    ax1.set_title("Strukturelle Akkumulationsrate\n(delay_delta pro Halt)",
+                  **style["title"])
+    ax1.set_ylim(0, max(dd_vals) * 1.6)
+    ax1.spines[["top", "right"]].set_visible(False)
+    ax1.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax1.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+
+    # --- Panel 2: arrival_delay (Fahrgast-Impact) ---
+    bars2 = ax2.bar(labels, arr_vals, color=bar_colors, width=0.45,
+                    edgecolor="white", linewidth=0.5)
+    for bar, val in zip(bars2, arr_vals):
+        ax2.text(bar.get_x() + bar.get_width() / 2, val + 0.5,
+                 f"{val:.0f} s", ha="center", va="bottom",
+                 fontsize=11, fontweight="bold")
+    ax2.annotate(
+        f"+{delta_arr_s:.0f} s",
+        xy=(1, snow_row["mean_arr"]),
+        xytext=(1.38, (arr_vals[0] + arr_vals[1]) / 2),
+        fontsize=13, color="#2166ac", fontweight="bold", va="center",
+        arrowprops=dict(arrowstyle="->", color="#2166ac", lw=1.5),
+    )
+    ax2.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+    ax2.set_title("Sichtbarer Fahrgast-Impact\n(Arrival Delay)", **style["title"])
+    ax2.set_ylim(0, max(arr_vals) * 1.4)
+    ax2.spines[["top", "right"]].set_visible(False)
+    ax2.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax2.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+
+    n_snow = int(snow_row["n"])
+    n_norm = int(normal_row["n"])
+    fig.suptitle(
+        f"Schnee verstärkt den strukturellen Delay-Aufbau um +{delta_dd_pct:.0f} % "
+        f"— Fahrgast sieht +{delta_arr_s:.0f} s",
+        fontweight="bold", fontsize=11, y=1.02,
+    )
+    fig.text(
+        0.5, -0.03,
+        f"Normaltage: n={n_norm:,} Halte  ·  Schneetage: n={n_snow:,} Halte  ·  Quelle: lf_clean",
+        ha="center", fontsize=9, color=cfg.ANNO_REF,
+    )
+    plt.tight_layout()
+    plt.show()

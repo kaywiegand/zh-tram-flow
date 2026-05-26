@@ -13,6 +13,7 @@ Functions:
   plot_event_type_hourly_profile(lf, cfg=None)
   plot_event_district_effect(lf, cfg=None)
   table_event_district_effect(lf)
+  plot_holiday_recovery(lf, cfg=None)
 """
 
 import polars as pl
@@ -751,3 +752,81 @@ def table_event_district_effect(lf: pl.LazyFrame) -> pd.DataFrame:
         lambda x: f"{x:,.0f}" if pd.notna(x) else "—"
     )
     return result.set_index("Stadtkreis")
+
+
+# ---------------------------------------------------------------------------
+# Holiday / Weekend Recovery
+# ---------------------------------------------------------------------------
+
+def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None) -> None:
+    """Kapazitäts-Erholung: Stundenprofil Normaler Werktag vs. Feiertag vs. Wochenende.
+
+    Wenn Pendler und Privatverkehr wegbleiben, erholt sich das Tramnetz —
+    Feiertage erreichen Wochenend-Niveau oder besser, ohne Taktreduktion.
+    Botschaft: Kapazitätslimit kommt vom Strassenverkehr, nicht vom Fahrgastaufkommen.
+
+    Drei Kurven: Normaler Werktag · Wochenende · Feiertag
+    X: Stunde (0–23)  ·  Y: Ø Arrival Delay (s)
+
+    Input: lf_delay (canceled=False bereits gefiltert vom Notebook).
+    """
+    from wgnd.core.theme import mpl_style
+    cfg = _get_cfg(cfg)
+    style = mpl_style()
+
+    # Classify day type: Feiertag wins over Wochenende
+    hourly = (
+        lf.filter(pl.col("canceled") == False)
+        .with_columns(
+            pl.when(pl.col("is_holiday"))
+              .then(pl.lit("Feiertag"))
+              .when(pl.col("is_weekend"))
+              .then(pl.lit("Wochenende"))
+              .otherwise(pl.lit("Normaler Werktag"))
+              .alias("day_type")
+        )
+        .group_by(["day_type", "hour"])
+        .agg(pl.col("arrival_delay").mean().alias("mean_delay"))
+        .sort(["day_type", "hour"])
+        .collect()
+        .to_pandas()
+    )
+
+    day_styles = {
+        "Normaler Werktag": {"color": "#aaaaaa",          "lw": 2.0, "ls": "-",  "zorder": 2},
+        "Wochenende":       {"color": cfg.COLOR_SIGNAL,   "lw": 2.0, "ls": "--", "zorder": 3},
+        "Feiertag":         {"color": cfg.COLOR_POSITIVE, "lw": 2.5, "ls": "-",  "zorder": 4},
+    }
+    order = ["Normaler Werktag", "Wochenende", "Feiertag"]
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+
+    for day_type in order:
+        grp = hourly[hourly["day_type"] == day_type].sort_values("hour")
+        if grp.empty:
+            continue
+        s = day_styles[day_type]
+        ax.plot(grp["hour"], grp["mean_delay"],
+                color=s["color"], lw=s["lw"], ls=s["ls"], zorder=s["zorder"],
+                marker="o", markersize=4, label=day_type)
+        # Label at the rightmost point
+        last = grp.iloc[-1]
+        ax.text(last["hour"] + 0.3, last["mean_delay"],
+                f"{last['mean_delay']:.0f} s",
+                color=s["color"], fontsize=9, va="center")
+
+    ax.set_xlabel("Stunde", **style["label"])
+    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+    ax.set_title(
+        "Kapazitäts-Erholung: Feiertage und Wochenenden entlasten das Tramnetz",
+        **style["title"],
+    )
+    ax.set_xticks(range(0, 24))
+    ax.set_xlim(-0.5, 24.5)
+    ax.legend(fontsize=10, frameon=False, loc="upper left")
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=9)
+
+    plt.tight_layout()
+    plt.show()

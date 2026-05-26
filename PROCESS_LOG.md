@@ -586,3 +586,31 @@ Kernthese definiert: dwell_time = 0s (Fahrplan-Design) + Peripherie-Hotspots (Ge
 Strukturfaktor (kumulierter Trip-Aufbau) und externe Faktoren (Δ Arrival Delay pro Halt) sind unterschiedliche Einheiten — im Chart transparent gemacht (Einheiten-Hinweis + Trennlinie). Kein Umrechnen: der Strukturfaktor ist bewusst als Kumulat gezeigt, weil er akkumulierend wirkt; externe Faktoren sind situative Aufschläge pro Halt.
 
 **Nächster Schritt:** #39 — Interaktive Linienansicht: Plotly-Karte mit Haltestellen nach Delay eingefärbt in `03_analysis_4-spatial.ipynb`
+
+---
+
+### 2026-05-26 — Drei Analyse-Items umgesetzt (Dwell-Folge-Analyse)
+
+**Was wurde gemacht:**
+
+Drei neue Plot-Funktionen als Folge aus der Dwell-Scatter-Analyse (vorherige Session) — eine pro bestehendem Analytics-Notebook:
+
+**1. `plot_snow_structural_interaction(lf_clean)` → `analytics/meteo.py` + `03_analysis_5-meteo.ipynb`**
+- Zeigt: Schnee verstärkt nicht nur extern (+54 s Arrival Delay), sondern auch den strukturellen Aufbau-Mechanismus (+33 % delay_delta: 4.95 s → 6.58 s/Halt)
+- Zwei Panels: Akkumulationsrate (strukturell) + Arrival Delay (Fahrgast-Impact)
+- Neue Sektion vor Key Findings im Meteo-Notebook (nach Multikollinearität-Beobachtung)
+
+**2. `plot_holiday_recovery(lf_delay)` → `analytics/events.py` + `03_analysis_6-events.ipynb`**
+- Zeigt: Stundenprofil Normaler Werktag vs. Wochenende vs. Feiertag — Netz erholt sich auf Feiertagen ohne Taktreduktion
+- Kernbotschaft: Kapazitätsgrenze liegt beim MIV, nicht beim Fahrgastaufkommen
+- Drei Linien (0–23 h) · neue Sektion vor Key Findings im Events-Notebook
+
+**3. `plot_line_profiles(lf_all)` → `analytics/network.py` + `03_analysis_2-network.ipynb`**
+- Zeigt: Strukturelle Kennzahlen aller Tram-Linien als normalisierte Heatmap (5 Dimensionen: Ø Halte/Fahrt, Stadtkreise, Innenstadt-Anteil, Strukturfaktor, Ø Arrival Delay)
+- Linien sortiert nach Strukturfaktor absteigend · VBZ-Farben als y-Achsenbeschriftung
+- Neue Sektion zwischen Versorgungsqualität und Fazit im Network-Notebook
+
+**Technische Entscheidung — Strukturfaktor in `plot_line_profiles`:**
+`delay_delta` on the fly als `departure_delay - arrival_delay` berechnet (nicht auf vorberechnete Spalte angewiesen) → robuster gegenüber verschiedenen `lf_all`-Versionen.
+
+**Nächster Schritt:** #39 — Interaktive Linienansicht: Plotly-Karte mit Haltestellen nach Delay eingefärbt in `03_analysis_4-spatial.ipynb`
