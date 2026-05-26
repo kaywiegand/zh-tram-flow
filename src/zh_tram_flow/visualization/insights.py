@@ -844,6 +844,237 @@ def plot_arrival_vs_departure_timeline(lf: pl.LazyFrame) -> None:
     plt.show()
 
 
+def plot_dwell_scatter(lf: pl.LazyFrame) -> None:
+    """Scatter: % dwell_time=0 vs. Ø Arrival Delay pro Haltestelle.
+
+    Zeigt zwei strukturelle Stop-Typen:
+      · Akkumulations-Fallen — hoher dw0-Anteil, positiver delay_delta (rot)
+      · Recovery-Anker       — echter Puffer vorhanden, negativer delay_delta (teal)
+
+    Input: lf_clean. dwell_time wird intern aus departure/arrival_schedule berechnet.
+    Filter: n >= 50.000 Beobachtungen (stabile Mittelwerte).
+    """
+    style = mpl_style()
+    from matplotlib.colors import LinearSegmentedColormap
+    import matplotlib.patheffects as pe_mod
+
+    # ── Daten berechnen ───────────────────────────────────────────────────────
+    lf_w = lf.with_columns(
+        ((pl.col("departure_schedule") - pl.col("arrival_schedule"))
+         .dt.total_seconds().cast(pl.Int32)).alias("dwell_time")
+    )
+    stop_stats = (
+        lf_w
+        .filter(pl.col("delay_delta").is_not_null())
+        .group_by("stop_name")
+        .agg([
+            pl.col("dwell_time").eq(0).cast(pl.Float64).mean().alias("pct_dw0"),
+            pl.col("delay_delta").mean().alias("mean_dd"),
+            pl.col("arrival_delay").mean().alias("mean_arr"),
+            pl.len().alias("n"),
+        ])
+        .filter(pl.col("n") >= 50_000)
+        .collect(engine="streaming")
+        .to_pandas()
+    )
+    stop_stats["pct_dw0"] *= 100
+    stop_stats["label"] = (stop_stats["stop_name"]
+                           .str.replace("Zürich, ", "", regex=False)
+                           .str.replace("Zürich,", "", regex=False)
+                           .str.strip())
+
+    net_mean_arr = stop_stats["mean_arr"].mean()
+    net_mean_dw0 = stop_stats["pct_dw0"].mean()
+
+    # ── Custom colormap: rot (akkumuliert) → grau → teal (erholt) ─────────────
+    cmap = LinearSegmentedColormap.from_list(
+        "dw_cmap",
+        [cfg.COLOR_NEGATIVE, "#cccccc", cfg.COLOR_POSITIVE],
+        N=256,
+    )
+    dd_abs = 18
+    point_sizes = np.clip(np.log10(stop_stats["n"]) * 12, 20, 80)
+
+    # ── Plot ──────────────────────────────────────────────────────────────────
+    fig, ax = plt.subplots(figsize=(13, 7.5))
+
+    sc = ax.scatter(
+        stop_stats["pct_dw0"],
+        stop_stats["mean_arr"],
+        c=stop_stats["mean_dd"],
+        s=point_sizes,
+        cmap=cmap,
+        vmin=-dd_abs, vmax=dd_abs,
+        alpha=0.75,
+        linewidths=0.4,
+        edgecolors="#888888",
+        zorder=3,
+    )
+    cbar = fig.colorbar(sc, ax=ax, shrink=0.6, pad=0.02)
+    cbar.set_label("Ø delay_delta (s/Halt)", fontsize=9, color=cfg.CHART_AXIS_TEXT)
+    cbar.ax.tick_params(labelsize=8, colors=cfg.CHART_AXIS_TEXT)
+
+    # Referenzlinien
+    ax.axhline(net_mean_arr, color=cfg.ANNO_REF, lw=1.0, linestyle="--", zorder=2,
+               label=f"Netz-Ø Arrival Delay ({net_mean_arr:.0f}s)")
+    ax.axvline(net_mean_dw0, color=cfg.ANNO_REF, lw=1.0, linestyle=":", zorder=2,
+               label=f"Netz-Ø dw0% ({net_mean_dw0:.0f}%)")
+
+    # Quadrant-Labels
+    _qkw = dict(fontsize=8.5, alpha=0.7, style="italic", transform=ax.transAxes)
+    ax.text(0.02, 0.98, "Recovery-Anker\n(Puffer vorhanden, noch verspätet)",
+            va="top", ha="left", color=cfg.COLOR_POSITIVE, **_qkw)
+    ax.text(0.98, 0.98, "Akkumulations-Fallen\n(kein Puffer + hoher Delay)",
+            va="top", ha="right", color=cfg.COLOR_NEGATIVE, **_qkw)
+    ax.text(0.98, 0.02, "Früh-Route\n(kein Puffer, noch wenig akkumuliert)",
+            va="bottom", ha="right", color=cfg.ANNO_REF, **_qkw)
+    ax.text(0.02, 0.02, "Gut geplante Stops\n(Puffer + pünktlich)",
+            va="bottom", ha="left", color=cfg.ANNO_REF, **_qkw)
+
+    # ── Extremstops annotieren ────────────────────────────────────────────────
+    _LABEL = {
+        "Zürich, Friedhof Enzenbühl":   ( 3.5, -12),
+        "Zürich, Mattenhof":            ( 3.5,   5),
+        "Zürich, Messe/Hallenstadion":  (-5,     5),
+        "Zürich, Balgrist":             ( 3.5,  -9),
+        "Zürich, Strassenverkehrsamt":  (-5,     5),
+        "Zürich, Seebacherplatz":       (-5,     5),
+        "Zürich, Leutschenbach":        ( 3.5,  -9),
+        "Zürich, Bahnhof Oerlikon":     (-5,    -9),
+        "Zürich, Stauffacher":          ( 3.5,   5),
+    }
+    stroke = [pe.withStroke(linewidth=2.5, foreground="white")]
+    for _, row in stop_stats.iterrows():
+        if row["stop_name"] not in _LABEL:
+            continue
+        ox, oy = _LABEL[row["stop_name"]]
+        ax.annotate(
+            row["label"],
+            xy=(row["pct_dw0"], row["mean_arr"]),
+            xytext=(row["pct_dw0"] + ox, row["mean_arr"] + oy),
+            fontsize=8, color="#333333",
+            arrowprops=dict(arrowstyle="-", color="#aaaaaa", lw=0.8),
+            path_effects=stroke,
+            zorder=5,
+        )
+
+    # ── Achsen + Styling ──────────────────────────────────────────────────────
+    ax.set_xlabel("% Halte mit dwell_time = 0s (kein geplanter Puffer)", **style["label"])
+    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+    ax.set_title("Stop-Typen: Akkumulations-Fallen vs. Recovery-Anker",
+                 **{**style["title"], "pad": 14})
+    ax.set_xlim(10, 108)
+    ax.set_ylim(30, 140)
+    _spine_style(ax)
+    ax.grid(color="#eeeeee", lw=0.7, zorder=0)
+    ax.legend(fontsize=8.5, frameon=False, loc="center right")
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_dwell_line_scatter(lf: pl.LazyFrame) -> None:
+    """Scatter: struktureller Aufbau pro Fahrt vs. Ø Arrival Delay — pro Linie.
+
+    x = structural_per_trip (mean delay_delta × avg_stops) — kumulierter Aufbau
+    y = mean_arrival_delay
+    Farbe = mean delay_delta (Akkumulationsrate pro Halt)
+    Größe = avg_stops (Routenlänge als visueller Faktor)
+
+    Erklärt: warum L11 trotz gleicher dw0-Rate wie L6 viel mehr Delay hat
+    → längere Route + höhere Ausgangs-Verspätung.
+    """
+    style = mpl_style()
+    from matplotlib.colors import LinearSegmentedColormap
+    import matplotlib.patheffects as pe_mod
+
+    lf_w = lf.with_columns(
+        ((pl.col("departure_schedule") - pl.col("arrival_schedule"))
+         .dt.total_seconds().cast(pl.Int32)).alias("dwell_time")
+    )
+
+    line_stats = (
+        lf_w
+        .filter(pl.col("delay_delta").is_not_null())
+        .group_by("line_name")
+        .agg([
+            pl.col("delay_delta").mean().alias("mean_dd"),
+            pl.col("arrival_delay").mean().alias("mean_arr"),
+        ])
+        .collect(engine="streaming")
+        .to_pandas()
+    )
+    avg_stops_line = (
+        lf_w
+        .group_by(["line_name", "trip_id", "operating_date"])
+        .agg(pl.len().alias("n"))
+        .group_by("line_name")
+        .agg(pl.col("n").mean().alias("avg_stops"))
+        .collect(engine="streaming")
+        .to_pandas()
+    )
+    df = (line_stats
+          .merge(avg_stops_line, on="line_name")
+          .assign(
+              structural=lambda d: d["mean_dd"] * d["avg_stops"],
+              line_str=lambda d: "L" + d["line_name"].astype(str),
+          ))
+
+    cmap = LinearSegmentedColormap.from_list(
+        "dw_cmap", [cfg.COLOR_POSITIVE, "#cccccc", cfg.COLOR_NEGATIVE], N=256
+    )
+    s_min, s_max = df["avg_stops"].min(), df["avg_stops"].max()
+    sizes = (df["avg_stops"] - s_min) / (s_max - s_min) * 300 + 60
+
+    fig, ax = plt.subplots(figsize=(10, 6.5))
+
+    sc = ax.scatter(
+        df["structural"],
+        df["mean_arr"],
+        c=df["mean_dd"],
+        s=sizes,
+        cmap=cmap,
+        vmin=df["mean_dd"].min(), vmax=df["mean_dd"].max(),
+        alpha=0.85,
+        linewidths=0.6,
+        edgecolors="#888888",
+        zorder=3,
+    )
+    cbar = fig.colorbar(sc, ax=ax, shrink=0.6, pad=0.02)
+    cbar.set_label("Ø delay_delta (s/Halt)", fontsize=9, color=cfg.CHART_AXIS_TEXT)
+    cbar.ax.tick_params(labelsize=8, colors=cfg.CHART_AXIS_TEXT)
+
+    stroke = [pe.withStroke(linewidth=2.5, foreground="white")]
+    for _, row in df.iterrows():
+        ax.annotate(
+            row["line_str"],
+            xy=(row["structural"], row["mean_arr"]),
+            xytext=(row["structural"] + 1.5, row["mean_arr"] + 0.5),
+            fontsize=9.5, fontweight="bold",
+            color=line_color(str(row["line_name"])),
+            path_effects=stroke,
+            zorder=5,
+        )
+
+    # Größen-Legende
+    for n_stops in [10, 18, 26]:
+        sz = (n_stops - s_min) / (s_max - s_min) * 300 + 60
+        ax.scatter([], [], s=sz, color="#bbbbbb", alpha=0.8,
+                   edgecolors="#888888", label=f"Ø {n_stops} Halte")
+    ax.legend(title="Routenlänge", fontsize=8.5, frameon=False,
+              title_fontsize=8.5, loc="upper left")
+
+    ax.set_xlabel("Strukturfaktor: Ø delay_delta × Ø Halte / Fahrt (s)", **style["label"])
+    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+    ax.set_title("Linien-Profil: Struktureller Aufbau vs. Ankunftsverspätung",
+                 **{**style["title"], "pad": 14})
+    _spine_style(ax)
+    ax.grid(color="#eeeeee", lw=0.7, zorder=0)
+
+    plt.tight_layout()
+    plt.show()
+
+
 def plot_lever_comparison(lf: pl.LazyFrame) -> None:
     """Hebel-Vergleich: Fahrplan-Struktur vs. externe Einflussfaktoren.
 
