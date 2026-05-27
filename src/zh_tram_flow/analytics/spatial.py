@@ -1187,27 +1187,57 @@ def plot_stop_delay_by_direction(lf: pl.LazyFrame, line_name: str, min_n: int = 
 # Dwell-Linienkarte
 # ---------------------------------------------------------------------------
 
-def _make_year_buttons(lines: list[str], shapes_by_year: dict) -> list:
-    """Build restyle buttons for year switching (2023/2024/2025).
+def _year_vis(selected_yr: str, N: int) -> list:
+    """Visibility list for 6N traces (3 route groups + 3 bubble groups).
 
-    Returned buttons update lat/lon of route traces [0..N-1] via restyle.
-    active=2 (2025) should be set in the enclosing updatemenus dict.
+    Trace layout for N lines:
+      [0..N-1]   j23 routes  — showlegend=False, no legendgroup
+      [N..2N-1]  j24 routes  — showlegend=False, no legendgroup
+      [2N..3N-1] j25 routes  — showlegend=False, legendgroup="L{line}"
+      [3N..4N-1] j23 bubbles — showlegend=False, no legendgroup
+      [4N..5N-1] j24 bubbles — showlegend=False, no legendgroup
+      [5N..6N-1] j25 bubbles — showlegend=True,  legendgroup="L{line}" ← legend anchor
+
+    j25 bubbles use "legendonly" when a non-2025 year is active so the
+    legend stays fully visible and clickable for the "Alle aus → select
+    individual line" workflow.
     """
-    years = ["2023", "2024", "2025"]
-    N = len(lines)
+    yr_idx = {"2023": 0, "2024": 1, "2025": 2}[selected_yr]
+
+    route_vis: list = [False] * (3 * N)
+    for i in range(N):
+        route_vis[yr_idx * N + i] = True
+
+    bubble_vis: list = [False] * (3 * N)
+    for i in range(N):
+        bubble_vis[yr_idx * N + i] = True
+    if selected_yr != "2025":
+        for i in range(N):
+            bubble_vis[2 * N + i] = "legendonly"   # keep j25 legend entries visible
+
+    return route_vis + bubble_vis
+
+
+def _make_vis_year_buttons(N: int) -> list:
+    """Year selector buttons using pure visibility toggling.
+
+    Buttons: 2023 · 2024 · 2025 · Alle Jahre.
+    "Alle Jahre": all 3 route sets visible simultaneously + j25 bubbles.
+    active=2 (2025) should be set in the updatemenus dict.
+    """
+    alle_vis = [True] * (3 * N) + [False] * N + [False] * N + [True] * N
     buttons = []
-    for yr in years:
-        yr_shapes = shapes_by_year[yr]
-        lats, lons = [], []
-        for line in lines:
-            sub = yr_shapes[yr_shapes["line_name"] == line]
-            lats.append(sub["lat"].tolist() if not sub.empty else [None])
-            lons.append(sub["lon"].tolist() if not sub.empty else [None])
+    for yr in ["2023", "2024", "2025"]:
         buttons.append(dict(
             label=yr,
             method="restyle",
-            args=[{"lat": lats, "lon": lons}, list(range(N))],
+            args=[{"visible": _year_vis(yr, N)}],
         ))
+    buttons.append(dict(
+        label="Alle Jahre",
+        method="restyle",
+        args=[{"visible": alle_vis}],
+    ))
     return buttons
 
 
@@ -1221,11 +1251,19 @@ def plot_line_delay_profile_map(
 
     Jede Linie = VBZ-Linienfarbe, GTFS-Gleisgeometrie als Route, Haltestellen als Bubbles.
     Bubble-Größe: Ø Arrival Delay (power-skaliert — kleiner Delay = sehr kleiner Bubble).
-    Buttons: Jahr-Schalter (2023/2024/2025) ändert Routenverlauf · "Alle ein/aus" Toggle.
-    Linien über Legende einzeln ein-/ausblenden (Route + Bubbles gemeinsam).
+    Jahr-Schalter (2023/2024/2025/Alle Jahre) blendet Routen UND Haltestellen gemeinsam um.
+    "Alle aus/ein" · Linien über Legende einzeln ein-/ausblenden.
 
-    Trace-Reihenfolge: Route-Traces 0..N-1, Bubble-Traces N..2N-1.
-    min_n: Mindest-Beobachtungen pro Halt (filtert Baustellen-Kurzläufer).
+    Trace-Layout (6N total, N = Anzahl Linien):
+      [0..N-1]   j23 routes  — showlegend=False, kein legendgroup, initial: hidden
+      [N..2N-1]  j24 routes  — showlegend=False, kein legendgroup, initial: hidden
+      [2N..3N-1] j25 routes  — showlegend=False, legendgroup="L{line}", initial: visible
+      [3N..4N-1] j23 bubbles — showlegend=False, kein legendgroup, initial: hidden
+      [4N..5N-1] j24 bubbles — showlegend=False, kein legendgroup, initial: hidden
+      [5N..6N-1] j25 bubbles — showlegend=True,  legendgroup="L{line}", initial: visible
+                               ↑ Legende-Anker: bleibt bei anderen Jahren als "legendonly"
+
+    min_n: Mindest-Beobachtungen gesamt; per-year threshold = min_n // 3.
     Input: lf_clean.
     """
     import plotly.graph_objects as go
@@ -1253,42 +1291,85 @@ def plot_line_delay_profile_map(
         lines = [str(l) for l in lines]
 
     N = len(lines)
+    min_n_yr = max(1, min_n // 3)  # per-year threshold: data spread over ~3 years
 
-    stops_all = (
-        lf_base
-        .filter(pl.col("line_name").is_in(lines))
-        .group_by(["line_name", "stop_name"])
-        .agg([
-            pl.col("dwell_time").eq(0).cast(pl.Float64).mean().alias("pct_dw0"),
-            pl.col("arrival_delay").mean().alias("mean_delay"),
-            pl.col("stop_lat").mean(),
-            pl.col("stop_lon").mean(),
-            pl.len().alias("n"),
-        ])
-        .filter(pl.col("n") >= min_n)
-        .collect()
-        .to_pandas()
-    )
+    # ── Per-year stop aggregation ────────────────────────────────────────────
+    stops_by_year: dict[str, pd.DataFrame] = {}
+    for yr in ["2023", "2024", "2025"]:
+        yr_df = (
+            lf_base
+            .filter(pl.col("line_name").is_in(lines))
+            .filter(pl.col("operating_date").dt.year() == int(yr))
+            .group_by(["line_name", "stop_name"])
+            .agg([
+                pl.col("dwell_time").eq(0).cast(pl.Float64).mean().alias("pct_dw0"),
+                pl.col("arrival_delay").mean().alias("mean_delay"),
+                pl.col("stop_lat").mean(),
+                pl.col("stop_lon").mean(),
+                pl.len().alias("n"),
+            ])
+            .filter(pl.col("n") >= min_n_yr)
+            .collect()
+            .to_pandas()
+        )
+        yr_df["pct_dw0_pct"] = (yr_df["pct_dw0"] * 100).round(1)
+        yr_df["mean_delay_r"] = yr_df["mean_delay"].round(1)
+        yr_df["stop_short"] = yr_df["stop_name"].str.replace("Zürich, ", "", regex=False)
+        stops_by_year[yr] = yr_df
 
-    stops_all["pct_dw0_pct"] = (stops_all["pct_dw0"] * 100).round(1)
-    stops_all["mean_delay_r"] = stops_all["mean_delay"].round(1)
-    stops_all["stop_short"] = stops_all["stop_name"].str.replace("Zürich, ", "", regex=False)
+    # Global bubble normalisation — consistent scale across all years
+    all_delays = pd.concat([df["mean_delay"] for df in stops_by_year.values()])
+    d_min, d_max = float(all_delays.min()), float(all_delays.max())
+    for yr in stops_by_year:
+        norm = (stops_by_year[yr]["mean_delay"] - d_min) / (d_max - d_min + 1e-9)
+        stops_by_year[yr]["bubble"] = 2 + (norm ** 1.7) * 22  # power-scaled, range 2–24 px
 
-    d_min = stops_all["mean_delay"].min()
-    d_max = stops_all["mean_delay"].max()
-    normalized = (stops_all["mean_delay"] - d_min) / (d_max - d_min + 1e-9)
-    stops_all["bubble"] = 2 + (normalized ** 1.7) * 22  # power-scaled, range 2–24 px
+    # Map centre from all stops
+    all_lats = pd.concat([df["stop_lat"] for df in stops_by_year.values()])
+    all_lons = pd.concat([df["stop_lon"] for df in stops_by_year.values()])
+    center_lat, center_lon = float(all_lats.mean()), float(all_lons.mean())
 
-    # GTFS shapes for all years (for year toggle buttons)
+    # GTFS shapes per year
     shapes_by_year = {yr: _load_gtfs_shapes(lines, year=yr) for yr in ["2023", "2024", "2025"]}
 
     fig = go.Figure()
 
-    # Pass 1 — Route traces [0..N-1]: default = 2025 shapes, restyle-able by year buttons
+    # ── j23 routes [0..N-1]: initially hidden ────────────────────────────────
     for line in lines:
         color = _lc(line)
-        sub = shapes_by_year["2025"]
-        sub = sub[sub["line_name"] == line]
+        sub = shapes_by_year["2023"][shapes_by_year["2023"]["line_name"] == line]
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["lat"].tolist() if not sub.empty else [None],
+            lon=sub["lon"].tolist() if not sub.empty else [None],
+            mode="lines",
+            line=dict(color=color, width=2),
+            opacity=0.45,
+            showlegend=False,
+            hoverinfo="skip",
+            name=f"L{line} Route 2023",
+            visible=False,
+        ))
+
+    # ── j24 routes [N..2N-1]: initially hidden ───────────────────────────────
+    for line in lines:
+        color = _lc(line)
+        sub = shapes_by_year["2024"][shapes_by_year["2024"]["line_name"] == line]
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["lat"].tolist() if not sub.empty else [None],
+            lon=sub["lon"].tolist() if not sub.empty else [None],
+            mode="lines",
+            line=dict(color=color, width=2),
+            opacity=0.45,
+            showlegend=False,
+            hoverinfo="skip",
+            name=f"L{line} Route 2024",
+            visible=False,
+        ))
+
+    # ── j25 routes [2N..3N-1]: legendgroup, initially visible ────────────────
+    for line in lines:
+        color = _lc(line)
+        sub = shapes_by_year["2025"][shapes_by_year["2025"]["line_name"] == line]
         fig.add_trace(go.Scattermapbox(
             lat=sub["lat"].tolist() if not sub.empty else [None],
             lon=sub["lon"].tolist() if not sub.empty else [None],
@@ -1299,24 +1380,84 @@ def plot_line_delay_profile_map(
             legendgroup=f"L{line}",
             hoverinfo="skip",
             name=f"L{line} Route",
+            visible=True,
         ))
 
-    # Pass 2 — Bubble traces [N..2N-1]: Ø delay per stop, power-scaled size
+    # ── j23 bubbles [3N..4N-1]: initially hidden ─────────────────────────────
     for line in lines:
         color = _lc(line)
-        sub = stops_all[stops_all["line_name"] == line]
+        sub = stops_by_year["2023"][stops_by_year["2023"]["line_name"] == line]
         if sub.empty:
             fig.add_trace(go.Scattermapbox(
                 lat=[], lon=[], mode="markers",
-                showlegend=False, legendgroup=f"L{line}", name=f"L{line}",
+                showlegend=False, name=f"L{line} 2023", visible=False,
             ))
             continue
         fig.add_trace(go.Scattermapbox(
-            lat=sub["stop_lat"],
-            lon=sub["stop_lon"],
+            lat=sub["stop_lat"].tolist(),
+            lon=sub["stop_lon"].tolist(),
             mode="markers",
-            marker=dict(size=sub["bubble"], color=color, opacity=0.85),
-            text=sub["stop_short"],
+            marker=dict(size=sub["bubble"].tolist(), color=color, opacity=0.85),
+            text=sub["stop_short"].tolist(),
+            customdata=sub[["mean_delay_r", "pct_dw0_pct", "n"]].values,
+            hovertemplate=(
+                f"<b>L{line}: %{{text}}</b> (2023)<br>"
+                "Ø Arrival Delay: <b>%{customdata[0]:.0f} s</b><br>"
+                "Kein Puffer: <b>%{customdata[1]:.0f} %</b><br>"
+                "N: %{customdata[2]:,.0f}<extra></extra>"
+            ),
+            name=f"L{line} 2023",
+            showlegend=False,
+            visible=False,
+        ))
+
+    # ── j24 bubbles [4N..5N-1]: initially hidden ─────────────────────────────
+    for line in lines:
+        color = _lc(line)
+        sub = stops_by_year["2024"][stops_by_year["2024"]["line_name"] == line]
+        if sub.empty:
+            fig.add_trace(go.Scattermapbox(
+                lat=[], lon=[], mode="markers",
+                showlegend=False, name=f"L{line} 2024", visible=False,
+            ))
+            continue
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["stop_lat"].tolist(),
+            lon=sub["stop_lon"].tolist(),
+            mode="markers",
+            marker=dict(size=sub["bubble"].tolist(), color=color, opacity=0.85),
+            text=sub["stop_short"].tolist(),
+            customdata=sub[["mean_delay_r", "pct_dw0_pct", "n"]].values,
+            hovertemplate=(
+                f"<b>L{line}: %{{text}}</b> (2024)<br>"
+                "Ø Arrival Delay: <b>%{customdata[0]:.0f} s</b><br>"
+                "Kein Puffer: <b>%{customdata[1]:.0f} %</b><br>"
+                "N: %{customdata[2]:,.0f}<extra></extra>"
+            ),
+            name=f"L{line} 2024",
+            showlegend=False,
+            visible=False,
+        ))
+
+    # ── j25 bubbles [5N..6N-1]: Legende-Anker, initially visible ─────────────
+    # showlegend=True → erscheinen in der Legende und können einzeln geklickt werden.
+    # Bei anderen Jahren bleibt visible="legendonly" → Legende bleibt sicht- und nutzbar.
+    for line in lines:
+        color = _lc(line)
+        sub = stops_by_year["2025"][stops_by_year["2025"]["line_name"] == line]
+        if sub.empty:
+            fig.add_trace(go.Scattermapbox(
+                lat=[], lon=[], mode="markers",
+                legendgroup=f"L{line}", showlegend=True,
+                name=f"L{line}", visible=True,
+            ))
+            continue
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["stop_lat"].tolist(),
+            lon=sub["stop_lon"].tolist(),
+            mode="markers",
+            marker=dict(size=sub["bubble"].tolist(), color=color, opacity=0.85),
+            text=sub["stop_short"].tolist(),
             customdata=sub[["mean_delay_r", "pct_dw0_pct", "n"]].values,
             hovertemplate=(
                 f"<b>L{line}: %{{text}}</b><br>"
@@ -1326,24 +1467,20 @@ def plot_line_delay_profile_map(
             ),
             name=f"L{line}",
             legendgroup=f"L{line}",
+            showlegend=True,
+            visible=True,
         ))
 
-    N_total = 2 * N  # always exactly N route + N bubble traces
+    # "Alle aus": Routen alle False; j25-Bubbles "legendonly" → Legende bleibt nutzbar
+    alle_aus_vis = [False] * (5 * N) + ["legendonly"] * N
 
     fig.update_layout(
         mapbox=dict(
             style="carto-positron",
-            center=dict(
-                lat=float(stops_all["stop_lat"].mean()),
-                lon=float(stops_all["stop_lon"].mean()),
-            ),
+            center=dict(lat=center_lat, lon=center_lon),
             zoom=11.5,
         ),
         updatemenus=[
-            # "Alle aus / Alle ein" — two buttons, active=1 (alle ein) on load.
-            # "Alle aus" uses visible="legendonly": traces hidden on map,
-            # but legend entries STAY visible and clickable → user can re-enable
-            # individual lines via legend without losing navigation.
             dict(
                 type="buttons",
                 active=1,
@@ -1351,12 +1488,12 @@ def plot_line_delay_profile_map(
                     dict(
                         label="Alle aus",
                         method="restyle",
-                        args=[{"visible": ["legendonly"] * N_total}],
+                        args=[{"visible": alle_aus_vis}],
                     ),
                     dict(
                         label="Alle ein",
                         method="restyle",
-                        args=[{"visible": [True] * N_total}],
+                        args=[{"visible": _year_vis("2025", N)}],
                     ),
                 ],
                 x=0.0, y=1.0, xanchor="left", yanchor="bottom",
@@ -1364,11 +1501,10 @@ def plot_line_delay_profile_map(
                 font=dict(size=12),
                 pad=dict(r=4, t=4, b=4, l=4),
             ),
-            # Year selector — active=2 highlights "2025" on load
             dict(
                 type="buttons",
                 active=2,
-                buttons=_make_year_buttons(lines, shapes_by_year),
+                buttons=_make_vis_year_buttons(N),
                 x=0.24, y=1.0, xanchor="left", yanchor="bottom",
                 bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
                 font=dict(size=12),
@@ -1411,9 +1547,19 @@ def plot_line_dwell_profile_map(
     Companion-Karte zu plot_line_delay_profile_map — gleiche Struktur, anderes Signal.
     Farbe: Ø scheduled Dwell Time — Rot = 0 s (kein Puffer) · Grün = ≥ 30 s (guter Puffer).
     Bubble-Größe: einheitlich (Signal liegt in der Farbe, nicht der Größe).
-    Buttons: Jahr-Schalter (2023/2024/2025) · "Alle ein/aus" Toggle.
+    Jahr-Schalter (2023/2024/2025/Alle Jahre) blendet Routen UND Haltestellen gemeinsam um.
+    "Alle aus/ein" · Linien über Legende einzeln ein-/ausblenden.
 
-    Trace-Reihenfolge: Route-Traces 0..N-1, Bubble-Traces N..2N-1.
+    Trace-Layout (6N total, N = Anzahl Linien):
+      [0..N-1]   j23 routes  — showlegend=False, kein legendgroup, initial: hidden
+      [N..2N-1]  j24 routes  — showlegend=False, kein legendgroup, initial: hidden
+      [2N..3N-1] j25 routes  — showlegend=False, legendgroup="L{line}", initial: visible
+      [3N..4N-1] j23 bubbles — showlegend=False, kein legendgroup, initial: hidden
+      [4N..5N-1] j24 bubbles — showlegend=False, kein legendgroup, initial: hidden
+      [5N..6N-1] j25 bubbles — showlegend=True,  legendgroup="L{line}", initial: visible
+                               ↑ Legende-Anker; Colorbar nur auf j25-Bubbles
+
+    min_n: Mindest-Beobachtungen gesamt; per-year threshold = min_n // 3.
     Input: lf_clean.
     """
     import plotly.graph_objects as go
@@ -1441,37 +1587,85 @@ def plot_line_dwell_profile_map(
         lines = [str(l) for l in lines]
 
     N = len(lines)
+    min_n_yr = max(1, min_n // 3)  # per-year threshold: data spread over ~3 years
 
-    stops_all = (
-        lf_base
-        .filter(pl.col("line_name").is_in(lines))
-        .group_by(["line_name", "stop_name"])
-        .agg([
-            pl.col("dwell_time").mean().alias("mean_dwell"),
-            pl.col("stop_lat").mean(),
-            pl.col("stop_lon").mean(),
-            pl.len().alias("n"),
-        ])
-        .filter(pl.col("n") >= min_n)
-        .collect()
-        .to_pandas()
-    )
+    # ── Per-year stop aggregation ────────────────────────────────────────────
+    stops_by_year: dict[str, pd.DataFrame] = {}
+    for yr in ["2023", "2024", "2025"]:
+        yr_df = (
+            lf_base
+            .filter(pl.col("line_name").is_in(lines))
+            .filter(pl.col("operating_date").dt.year() == int(yr))
+            .group_by(["line_name", "stop_name"])
+            .agg([
+                pl.col("dwell_time").mean().alias("mean_dwell"),
+                pl.col("stop_lat").mean(),
+                pl.col("stop_lon").mean(),
+                pl.len().alias("n"),
+            ])
+            .filter(pl.col("n") >= min_n_yr)
+            .collect()
+            .to_pandas()
+        )
+        yr_df["mean_dwell_r"] = yr_df["mean_dwell"].round(1)
+        yr_df["stop_short"] = yr_df["stop_name"].str.replace("Zürich, ", "", regex=False)
+        stops_by_year[yr] = yr_df
 
-    stops_all["mean_dwell_r"] = stops_all["mean_dwell"].round(1)
-    stops_all["stop_short"] = stops_all["stop_name"].str.replace("Zürich, ", "", regex=False)
+    # Map centre
+    all_lats = pd.concat([df["stop_lat"] for df in stops_by_year.values()])
+    all_lons = pd.concat([df["stop_lon"] for df in stops_by_year.values()])
+    center_lat, center_lon = float(all_lats.mean()), float(all_lons.mean())
 
+    # GTFS shapes per year
     shapes_by_year = {yr: _load_gtfs_shapes(lines, year=yr) for yr in ["2023", "2024", "2025"]}
 
     _dwell_colorscale = [[0.0, "#de425b"], [0.4, "#ffa600"], [1.0, "#25ac82"]]
     _cmin, _cmax = 0, 30
+    _colorbar_cfg = dict(
+        title="Ø Dwell (s)",
+        thickness=14, len=0.55, x=1.02,
+        tickvals=[0, 15, 30],
+        ticktext=["0 s", "15 s", "≥ 30 s"],
+    )
 
     fig = go.Figure()
 
-    # Pass 1 — Route traces [0..N-1]
+    # ── j23 routes [0..N-1]: initially hidden ────────────────────────────────
     for line in lines:
         color = _lc(line)
-        sub = shapes_by_year["2025"]
-        sub = sub[sub["line_name"] == line]
+        sub = shapes_by_year["2023"][shapes_by_year["2023"]["line_name"] == line]
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["lat"].tolist() if not sub.empty else [None],
+            lon=sub["lon"].tolist() if not sub.empty else [None],
+            mode="lines",
+            line=dict(color=color, width=2),
+            opacity=0.35,
+            showlegend=False,
+            hoverinfo="skip",
+            name=f"L{line} Route 2023",
+            visible=False,
+        ))
+
+    # ── j24 routes [N..2N-1]: initially hidden ───────────────────────────────
+    for line in lines:
+        color = _lc(line)
+        sub = shapes_by_year["2024"][shapes_by_year["2024"]["line_name"] == line]
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["lat"].tolist() if not sub.empty else [None],
+            lon=sub["lon"].tolist() if not sub.empty else [None],
+            mode="lines",
+            line=dict(color=color, width=2),
+            opacity=0.35,
+            showlegend=False,
+            hoverinfo="skip",
+            name=f"L{line} Route 2024",
+            visible=False,
+        ))
+
+    # ── j25 routes [2N..3N-1]: legendgroup, initially visible ────────────────
+    for line in lines:
+        color = _lc(line)
+        sub = shapes_by_year["2025"][shapes_by_year["2025"]["line_name"] == line]
         fig.add_trace(go.Scattermapbox(
             lat=sub["lat"].tolist() if not sub.empty else [None],
             lon=sub["lon"].tolist() if not sub.empty else [None],
@@ -1482,40 +1676,101 @@ def plot_line_dwell_profile_map(
             legendgroup=f"L{line}",
             hoverinfo="skip",
             name=f"L{line} Route",
+            visible=True,
         ))
 
-    # Pass 2 — Bubble traces [N..2N-1], colorbar on first non-empty trace only
-    show_colorbar = True
+    # ── j23 bubbles [3N..4N-1]: initially hidden ─────────────────────────────
     for line in lines:
-        sub = stops_all[stops_all["line_name"] == line]
+        sub = stops_by_year["2023"][stops_by_year["2023"]["line_name"] == line]
         if sub.empty:
             fig.add_trace(go.Scattermapbox(
                 lat=[], lon=[], mode="markers",
-                showlegend=False, legendgroup=f"L{line}", name=f"L{line}",
+                showlegend=False, name=f"L{line} 2023", visible=False,
             ))
             continue
-
-        colorbar_cfg = dict(
-            title="Ø Dwell (s)",
-            thickness=14, len=0.55, x=1.02,
-            tickvals=[0, 15, 30],
-            ticktext=["0 s", "15 s", "≥ 30 s"],
-        ) if show_colorbar else None
-
         fig.add_trace(go.Scattermapbox(
-            lat=sub["stop_lat"],
-            lon=sub["stop_lon"],
+            lat=sub["stop_lat"].tolist(),
+            lon=sub["stop_lon"].tolist(),
             mode="markers",
             marker=dict(
                 size=12,
-                color=sub["mean_dwell_r"],
+                color=sub["mean_dwell_r"].tolist(),
                 colorscale=_dwell_colorscale,
                 cmin=_cmin, cmax=_cmax,
-                showscale=show_colorbar,
-                colorbar=colorbar_cfg,
+                showscale=False,
                 opacity=0.88,
             ),
-            text=sub["stop_short"],
+            text=sub["stop_short"].tolist(),
+            customdata=sub[["mean_dwell_r", "n"]].values,
+            hovertemplate=(
+                f"<b>L{line}: %{{text}}</b> (2023)<br>"
+                "Ø Dwell Time: <b>%{customdata[0]:.0f} s</b><br>"
+                "N: %{customdata[1]:,.0f}<extra></extra>"
+            ),
+            name=f"L{line} 2023",
+            showlegend=False,
+            visible=False,
+        ))
+
+    # ── j24 bubbles [4N..5N-1]: initially hidden ─────────────────────────────
+    for line in lines:
+        sub = stops_by_year["2024"][stops_by_year["2024"]["line_name"] == line]
+        if sub.empty:
+            fig.add_trace(go.Scattermapbox(
+                lat=[], lon=[], mode="markers",
+                showlegend=False, name=f"L{line} 2024", visible=False,
+            ))
+            continue
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["stop_lat"].tolist(),
+            lon=sub["stop_lon"].tolist(),
+            mode="markers",
+            marker=dict(
+                size=12,
+                color=sub["mean_dwell_r"].tolist(),
+                colorscale=_dwell_colorscale,
+                cmin=_cmin, cmax=_cmax,
+                showscale=False,
+                opacity=0.88,
+            ),
+            text=sub["stop_short"].tolist(),
+            customdata=sub[["mean_dwell_r", "n"]].values,
+            hovertemplate=(
+                f"<b>L{line}: %{{text}}</b> (2024)<br>"
+                "Ø Dwell Time: <b>%{customdata[0]:.0f} s</b><br>"
+                "N: %{customdata[1]:,.0f}<extra></extra>"
+            ),
+            name=f"L{line} 2024",
+            showlegend=False,
+            visible=False,
+        ))
+
+    # ── j25 bubbles [5N..6N-1]: Legende-Anker + Colorbar, initially visible ──
+    # Colorbar nur auf dem ersten nicht-leeren Trace → sonst erscheinen mehrere Skalen.
+    _show_colorbar = True
+    for line in lines:
+        sub = stops_by_year["2025"][stops_by_year["2025"]["line_name"] == line]
+        if sub.empty:
+            fig.add_trace(go.Scattermapbox(
+                lat=[], lon=[], mode="markers",
+                legendgroup=f"L{line}", showlegend=True,
+                name=f"L{line}", visible=True,
+            ))
+            continue
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["stop_lat"].tolist(),
+            lon=sub["stop_lon"].tolist(),
+            mode="markers",
+            marker=dict(
+                size=12,
+                color=sub["mean_dwell_r"].tolist(),
+                colorscale=_dwell_colorscale,
+                cmin=_cmin, cmax=_cmax,
+                showscale=_show_colorbar,
+                colorbar=_colorbar_cfg if _show_colorbar else None,
+                opacity=0.88,
+            ),
+            text=sub["stop_short"].tolist(),
             customdata=sub[["mean_dwell_r", "n"]].values,
             hovertemplate=(
                 f"<b>L{line}: %{{text}}</b><br>"
@@ -1524,13 +1779,13 @@ def plot_line_dwell_profile_map(
             ),
             name=f"L{line}",
             legendgroup=f"L{line}",
+            showlegend=True,
+            visible=True,
         ))
-        show_colorbar = False
+        _show_colorbar = False  # only the first trace carries the colorbar
 
-    N_total = 2 * N
-
-    center_lat = float(stops_all["stop_lat"].mean())
-    center_lon = float(stops_all["stop_lon"].mean())
+    # "Alle aus": Routen alle False; j25-Bubbles "legendonly" → Legende bleibt nutzbar
+    alle_aus_vis = [False] * (5 * N) + ["legendonly"] * N
 
     fig.update_layout(
         mapbox=dict(
@@ -1546,12 +1801,12 @@ def plot_line_dwell_profile_map(
                     dict(
                         label="Alle aus",
                         method="restyle",
-                        args=[{"visible": ["legendonly"] * N_total}],
+                        args=[{"visible": alle_aus_vis}],
                     ),
                     dict(
                         label="Alle ein",
                         method="restyle",
-                        args=[{"visible": [True] * N_total}],
+                        args=[{"visible": _year_vis("2025", N)}],
                     ),
                 ],
                 x=0.0, y=1.0, xanchor="left", yanchor="bottom",
@@ -1562,7 +1817,7 @@ def plot_line_dwell_profile_map(
             dict(
                 type="buttons",
                 active=2,
-                buttons=_make_year_buttons(lines, shapes_by_year),
+                buttons=_make_vis_year_buttons(N),
                 x=0.24, y=1.0, xanchor="left", yanchor="bottom",
                 bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
                 font=dict(size=12),
