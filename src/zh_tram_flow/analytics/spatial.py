@@ -1187,6 +1187,30 @@ def plot_stop_delay_by_direction(lf: pl.LazyFrame, line_name: str, min_n: int = 
 # Dwell-Linienkarte
 # ---------------------------------------------------------------------------
 
+def _make_year_buttons(lines: list[str], shapes_by_year: dict) -> list:
+    """Build restyle buttons for year switching (2023/2024/2025).
+
+    Returned buttons update lat/lon of route traces [0..N-1] via restyle.
+    active=2 (2025) should be set in the enclosing updatemenus dict.
+    """
+    years = ["2023", "2024", "2025"]
+    N = len(lines)
+    buttons = []
+    for yr in years:
+        yr_shapes = shapes_by_year[yr]
+        lats, lons = [], []
+        for line in lines:
+            sub = yr_shapes[yr_shapes["line_name"] == line]
+            lats.append(sub["lat"].tolist() if not sub.empty else [None])
+            lons.append(sub["lon"].tolist() if not sub.empty else [None])
+        buttons.append(dict(
+            label=yr,
+            method="restyle",
+            args=[{"lat": lats, "lon": lons}, list(range(N))],
+        ))
+    return buttons
+
+
 def plot_line_delay_profile_map(
     lf: pl.LazyFrame,
     lines: list | None = None,
@@ -1195,14 +1219,13 @@ def plot_line_delay_profile_map(
 ) -> None:
     """Interaktive Plotly-Karte: Delay-Profil aller (oder ausgewählter) Tramlinien.
 
-    Jede Linie = VBZ-Linienfarbe, Route als Linie gezeichnet, Haltestellen als Bubbles.
-    Bubble-Größe: Ø Arrival Delay (global power-skaliert — kleiner Delay = sehr kleiner Bubble).
-    Routenlinien: dominant direction per Linie via terminus-Join → kein kreuz-und-quer.
-    Linien über Legende ein-/ausblenden (Klick blendet Linie + Bubbles gemeinsam aus).
-    Hover: Haltestelle, Linie, Ø Delay, % kein Puffer, N.
+    Jede Linie = VBZ-Linienfarbe, GTFS-Gleisgeometrie als Route, Haltestellen als Bubbles.
+    Bubble-Größe: Ø Arrival Delay (power-skaliert — kleiner Delay = sehr kleiner Bubble).
+    Buttons: Jahr-Schalter (2023/2024/2025) ändert Routenverlauf · "Alle ein/aus" Toggle.
+    Linien über Legende einzeln ein-/ausblenden (Route + Bubbles gemeinsam).
 
-    min_n: Mindest-Beobachtungen pro Halt. Filtert Baustellen-Kurzläufer heraus.
-    lines: Liste z.B. ["11", "6"] oder None = alle Linien.
+    Trace-Reihenfolge: Route-Traces 0..N-1, Bubble-Traces N..2N-1.
+    min_n: Mindest-Beobachtungen pro Halt (filtert Baustellen-Kurzläufer).
     Input: lf_clean.
     """
     import plotly.graph_objects as go
@@ -1229,7 +1252,8 @@ def plot_line_delay_profile_map(
     else:
         lines = [str(l) for l in lines]
 
-    # Stop bubbles: all directions averaged (network overview)
+    N = len(lines)
+
     stops_all = (
         lf_base
         .filter(pl.col("line_name").is_in(lines))
@@ -1250,37 +1274,42 @@ def plot_line_delay_profile_map(
     stops_all["mean_delay_r"] = stops_all["mean_delay"].round(1)
     stops_all["stop_short"] = stops_all["stop_name"].str.replace("Zürich, ", "", regex=False)
 
-    # Power-scaled bubbles: small delays → much smaller bubbles (exponent 1.7)
     d_min = stops_all["mean_delay"].min()
     d_max = stops_all["mean_delay"].max()
     normalized = (stops_all["mean_delay"] - d_min) / (d_max - d_min + 1e-9)
-    stops_all["bubble"] = 2 + (normalized ** 1.7) * 22  # range 2–24 px
+    stops_all["bubble"] = 2 + (normalized ** 1.7) * 22  # power-scaled, range 2–24 px
 
-    # GTFS shape geometry: actual track coordinates (300–600 pts/line)
-    route_df = _load_gtfs_shapes(lines)
+    # GTFS shapes for all years (for year toggle buttons)
+    shapes_by_year = {yr: _load_gtfs_shapes(lines, year=yr) for yr in ["2023", "2024", "2025"]}
 
     fig = go.Figure()
 
+    # Pass 1 — Route traces [0..N-1]: default = 2025 shapes, restyle-able by year buttons
     for line in lines:
         color = _lc(line)
+        sub = shapes_by_year["2025"]
+        sub = sub[sub["line_name"] == line]
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["lat"].tolist() if not sub.empty else [None],
+            lon=sub["lon"].tolist() if not sub.empty else [None],
+            mode="lines",
+            line=dict(color=color, width=2),
+            opacity=0.45,
+            showlegend=False,
+            legendgroup=f"L{line}",
+            hoverinfo="skip",
+            name=f"L{line} Route",
+        ))
 
-        # 1) Route line from GTFS shapes — correct rail geometry, not stop-to-stop lines
-        route_sub = route_df[route_df["line_name"] == line]
-        if not route_sub.empty:
-            fig.add_trace(go.Scattermapbox(
-                lat=route_sub["lat"],
-                lon=route_sub["lon"],
-                mode="lines",
-                line=dict(color=color, width=2),
-                opacity=0.45,
-                showlegend=False,
-                legendgroup=f"L{line}",
-                hoverinfo="skip",
-            ))
-
-        # 2) Stop bubbles — legend entry for the group
+    # Pass 2 — Bubble traces [N..2N-1]: Ø delay per stop, power-scaled size
+    for line in lines:
+        color = _lc(line)
         sub = stops_all[stops_all["line_name"] == line]
         if sub.empty:
+            fig.add_trace(go.Scattermapbox(
+                lat=[], lon=[], mode="markers",
+                showlegend=False, legendgroup=f"L{line}", name=f"L{line}",
+            ))
             continue
         fig.add_trace(go.Scattermapbox(
             lat=sub["stop_lat"],
@@ -1299,6 +1328,8 @@ def plot_line_delay_profile_map(
             legendgroup=f"L{line}",
         ))
 
+    N_total = 2 * N  # always exactly N route + N bubble traces
+
     fig.update_layout(
         mapbox=dict(
             style="carto-positron",
@@ -1308,6 +1339,34 @@ def plot_line_delay_profile_map(
             ),
             zoom=11.5,
         ),
+        updatemenus=[
+            # "Alle ein/aus" toggle — args/args2 alternates on each click
+            dict(
+                type="buttons",
+                buttons=[dict(
+                    label="☑ Alle ein/aus",
+                    method="restyle",
+                    args=[{"visible": [True] * N_total}],
+                    args2=[{"visible": [False] * N_total}],
+                )],
+                x=0.0, y=1.0, xanchor="left", yanchor="bottom",
+                showactive=False,
+                bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
+                font=dict(size=12),
+                pad=dict(r=4, t=4, b=4, l=4),
+            ),
+            # Year selector — active=2 highlights "2025" on load
+            dict(
+                type="buttons",
+                active=2,
+                buttons=_make_year_buttons(lines, shapes_by_year),
+                x=0.19, y=1.0, xanchor="left", yanchor="bottom",
+                bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
+                font=dict(size=12),
+                direction="right",
+                pad=dict(r=4, t=4, b=4, l=4),
+            ),
+        ],
         legend=dict(
             title="<b>Linie</b><br><sup>Klick = ein/aus</sup>",
             orientation="v",
@@ -1317,8 +1376,8 @@ def plot_line_delay_profile_map(
             x=1.01, xanchor="left",
             y=1.0, yanchor="top",
         ),
-        margin=dict(l=0, r=10, t=60, b=0),
-        height=700,
+        margin=dict(l=0, r=10, t=80, b=0),
+        height=720,
         title=dict(
             text=(
                 "Delay-Profil je Haltestelle — alle Tramlinien<br>"
@@ -1340,12 +1399,12 @@ def plot_line_dwell_profile_map(
 ) -> None:
     """Interaktive Plotly-Karte: Dwell Time-Profil aller (oder ausgewählter) Tramlinien.
 
-    Zeigt wo der Fahrplan Puffer eingebaut hat (positive Dwell) vs. wo keiner ist (0 s).
+    Companion-Karte zu plot_line_delay_profile_map — gleiche Struktur, anderes Signal.
     Farbe: Ø scheduled Dwell Time — Rot = 0 s (kein Puffer) · Grün = ≥ 30 s (guter Puffer).
-    Bubble-Größe: einheitlich (Signal ist die Farbe, nicht die Größe).
-    Routenlinien: dominant direction → kein bidirektionaler kreuz-und-quer-Effekt.
-    Companion-Karte zu plot_line_delay_profile_map.
+    Bubble-Größe: einheitlich (Signal liegt in der Farbe, nicht der Größe).
+    Buttons: Jahr-Schalter (2023/2024/2025) · "Alle ein/aus" Toggle.
 
+    Trace-Reihenfolge: Route-Traces 0..N-1, Bubble-Traces N..2N-1.
     Input: lf_clean.
     """
     import plotly.graph_objects as go
@@ -1372,6 +1431,8 @@ def plot_line_dwell_profile_map(
     else:
         lines = [str(l) for l in lines]
 
+    N = len(lines)
+
     stops_all = (
         lf_base
         .filter(pl.col("line_name").is_in(lines))
@@ -1390,43 +1451,44 @@ def plot_line_dwell_profile_map(
     stops_all["mean_dwell_r"] = stops_all["mean_dwell"].round(1)
     stops_all["stop_short"] = stops_all["stop_name"].str.replace("Zürich, ", "", regex=False)
 
-    # GTFS shape geometry: actual track coordinates (same source as delay map)
-    route_df = _load_gtfs_shapes(lines)
+    shapes_by_year = {yr: _load_gtfs_shapes(lines, year=yr) for yr in ["2023", "2024", "2025"]}
 
-    # Diverging colorscale: 0 s = red, 15 s = orange, ≥ 30 s = green
     _dwell_colorscale = [[0.0, "#de425b"], [0.4, "#ffa600"], [1.0, "#25ac82"]]
     _cmin, _cmax = 0, 30
 
     fig = go.Figure()
 
-    show_colorbar = True  # show colorbar only on the first line trace
-
+    # Pass 1 — Route traces [0..N-1]
     for line in lines:
         color = _lc(line)
+        sub = shapes_by_year["2025"]
+        sub = sub[sub["line_name"] == line]
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["lat"].tolist() if not sub.empty else [None],
+            lon=sub["lon"].tolist() if not sub.empty else [None],
+            mode="lines",
+            line=dict(color=color, width=2),
+            opacity=0.35,
+            showlegend=False,
+            legendgroup=f"L{line}",
+            hoverinfo="skip",
+            name=f"L{line} Route",
+        ))
 
-        # Route line from GTFS shapes
-        route_sub = route_df[route_df["line_name"] == line]
-        if not route_sub.empty:
-            fig.add_trace(go.Scattermapbox(
-                lat=route_sub["lat"],
-                lon=route_sub["lon"],
-                mode="lines",
-                line=dict(color=color, width=2),
-                opacity=0.35,
-                showlegend=False,
-                legendgroup=f"L{line}",
-                hoverinfo="skip",
-            ))
-
+    # Pass 2 — Bubble traces [N..2N-1], colorbar on first non-empty trace only
+    show_colorbar = True
+    for line in lines:
         sub = stops_all[stops_all["line_name"] == line]
         if sub.empty:
+            fig.add_trace(go.Scattermapbox(
+                lat=[], lon=[], mode="markers",
+                showlegend=False, legendgroup=f"L{line}", name=f"L{line}",
+            ))
             continue
 
         colorbar_cfg = dict(
             title="Ø Dwell (s)",
-            thickness=14,
-            len=0.55,
-            x=1.02,
+            thickness=14, len=0.55, x=1.02,
             tickvals=[0, 15, 30],
             ticktext=["0 s", "15 s", "≥ 30 s"],
         ) if show_colorbar else None
@@ -1439,8 +1501,7 @@ def plot_line_dwell_profile_map(
                 size=12,
                 color=sub["mean_dwell_r"],
                 colorscale=_dwell_colorscale,
-                cmin=_cmin,
-                cmax=_cmax,
+                cmin=_cmin, cmax=_cmax,
                 showscale=show_colorbar,
                 colorbar=colorbar_cfg,
                 opacity=0.88,
@@ -1455,7 +1516,9 @@ def plot_line_dwell_profile_map(
             name=f"L{line}",
             legendgroup=f"L{line}",
         ))
-        show_colorbar = False  # subsequent lines: no duplicate colorbar
+        show_colorbar = False
+
+    N_total = 2 * N
 
     center_lat = float(stops_all["stop_lat"].mean())
     center_lon = float(stops_all["stop_lon"].mean())
@@ -1466,17 +1529,43 @@ def plot_line_dwell_profile_map(
             center=dict(lat=center_lat, lon=center_lon),
             zoom=11.5,
         ),
+        updatemenus=[
+            dict(
+                type="buttons",
+                buttons=[dict(
+                    label="☑ Alle ein/aus",
+                    method="restyle",
+                    args=[{"visible": [True] * N_total}],
+                    args2=[{"visible": [False] * N_total}],
+                )],
+                x=0.0, y=1.0, xanchor="left", yanchor="bottom",
+                showactive=False,
+                bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
+                font=dict(size=12),
+                pad=dict(r=4, t=4, b=4, l=4),
+            ),
+            dict(
+                type="buttons",
+                active=2,
+                buttons=_make_year_buttons(lines, shapes_by_year),
+                x=0.19, y=1.0, xanchor="left", yanchor="bottom",
+                bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
+                font=dict(size=12),
+                direction="right",
+                pad=dict(r=4, t=4, b=4, l=4),
+            ),
+        ],
         legend=dict(
             title="<b>Linie</b><br><sup>Klick = ein/aus</sup>",
             orientation="v",
             bgcolor="rgba(255,255,255,0.88)",
             bordercolor="#dddddd",
             borderwidth=1,
-            x=1.12, xanchor="left",  # shifted right to make room for colorbar
+            x=1.12, xanchor="left",
             y=1.0, yanchor="top",
         ),
-        margin=dict(l=0, r=140, t=60, b=0),
-        height=700,
+        margin=dict(l=0, r=140, t=80, b=0),
+        height=720,
         title=dict(
             text=(
                 "Dwell Time je Haltestelle — alle Tramlinien<br>"
