@@ -1142,10 +1142,12 @@ def plot_stop_dwell_map(lf: pl.LazyFrame, line_name: str = "11", cfg=None) -> No
     """Plotly Mapbox: Haltestellen einer Linie — Farbe = pct_dw0, Größe = Ø Arrival Delay.
 
     Zeigt wo auf der Linie der strukturelle Puffer fehlt und wo Delay akkumuliert.
-    Haltestellen verbunden in Route-Reihenfolge (Ø stop_sequence).
+    Farbe: Ø Arrival Delay (Grün = pünktlich · Rot = verspätet)
+    Größe: proportional zu pct_dw0 (% Halte ohne Puffer)
 
-    Farbe: Grün (pct_dw0=0%, voller Puffer) → Rot (pct_dw0=100%, kein Puffer)
-    Größe: proportional zu Ø Arrival Delay
+    Hinweis: pct_dw0 ist netzweit ~71 % — kein linienspezifisches Signal.
+    Der Kontrast zwischen Linien zeigt sich im mean_delay (Farbe), nicht im
+    pct_dw0 (Größe). Große rote Bubbles = hoher Delay + kein Puffer.
 
     Input: lf_clean. line_name als String (z.B. "11", "6").
     """
@@ -1182,44 +1184,37 @@ def plot_stop_dwell_map(lf: pl.LazyFrame, line_name: str = "11", cfg=None) -> No
     stops["mean_delay_r"] = stops["mean_delay"].round(1)
     stops["stop_short"] = stops["stop_name"].str.replace("Zürich, ", "", regex=False)
 
-    # Bubble size: proportional to mean_delay
-    d_min, d_max = stops["mean_delay"].min(), stops["mean_delay"].max()
-    stops["bubble"] = 9 + (stops["mean_delay"] - d_min) / (d_max - d_min + 1e-9) * 18
+    # Bubble size: proportional to pct_dw0 (kein Puffer = groß)
+    p_min, p_max = stops["pct_dw0"].min(), stops["pct_dw0"].max()
+    stops["bubble"] = 8 + (stops["pct_dw0"] - p_min) / (p_max - p_min + 1e-9) * 16
 
     fig = go.Figure()
 
-    # Route-Linie: Halte in Reihenfolge verbunden
-    fig.add_trace(go.Scattermapbox(
-        lat=stops["stop_lat"], lon=stops["stop_lon"],
-        mode="lines",
-        line=dict(color="#cccccc", width=2),
-        hoverinfo="skip", showlegend=False, name="Route",
-    ))
-
-    # Haltestellen: Farbe = pct_dw0, Größe = mean_delay
+    # Haltestellen: Farbe = mean_delay, Größe = pct_dw0
+    # Keine Route-Linie: group_by(stop_name) mittelt über beide Fahrtrichtungen,
+    # dadurch wäre die Sortierung falsch und die Linie würde kreuz und quer verlaufen.
     fig.add_trace(go.Scattermapbox(
         lat=stops["stop_lat"], lon=stops["stop_lon"],
         mode="markers",
         marker=dict(
             size=stops["bubble"],
-            color=stops["pct_dw0_pct"],
+            color=stops["mean_delay_r"],
             colorscale=[[0.0, "#25ac82"], [0.5, "#ffa600"], [1.0, "#de425b"]],
-            cmin=50, cmax=100,
+            cmin=30, cmax=100,
             colorbar=dict(
-                title="% kein<br>Puffer",
+                title="Ø Arrival<br>Delay (s)",
                 thickness=12, len=0.55,
-                tickvals=[50, 75, 100],
-                ticktext=["50 %", "75 %", "100 %"],
+                tickvals=[30, 60, 100],
+                ticktext=["30 s", "60 s", "100 s"],
             ),
             opacity=0.88,
         ),
         text=stops["stop_short"],
-        customdata=stops[["pct_dw0_pct", "mean_delay_r", "n", "mean_seq"]].values,
+        customdata=stops[["mean_delay_r", "pct_dw0_pct", "n"]].values,
         hovertemplate=(
             "<b>%{text}</b><br>"
-            "Kein Puffer (pct_dw0): <b>%{customdata[0]:.0f} %</b><br>"
-            "Ø Arrival Delay: <b>%{customdata[1]:.0f} s</b><br>"
-            "Stop-Position (Ø Seq): %{customdata[3]:.0f}<br>"
+            "Ø Arrival Delay: <b>%{customdata[0]:.0f} s</b><br>"
+            "Kein Puffer (pct_dw0): <b>%{customdata[1]:.0f} %</b><br>"
             "N Beobachtungen: %{customdata[2]:,}<extra></extra>"
         ),
         name=f"Linie {line_name}",
@@ -1238,9 +1233,9 @@ def plot_stop_dwell_map(lf: pl.LazyFrame, line_name: str = "11", cfg=None) -> No
         height=620,
         title=dict(
             text=(
-                f"Linie {line_name} — Dwell-Puffer und Arrival Delay pro Haltestelle<br>"
-                "<sup>Farbe: Grün = voller Puffer · Rot = kein Puffer (pct_dw0)"
-                "  ·  Größe: Ø Arrival Delay</sup>"
+                f"Linie {line_name} — Ø Arrival Delay pro Haltestelle<br>"
+                "<sup>Farbe: Grün = pünktlich · Rot = verspätet"
+                "  ·  Größe: % Halte ohne Puffer (pct_dw0)</sup>"
             ),
             x=0, xanchor="left",
         ),
