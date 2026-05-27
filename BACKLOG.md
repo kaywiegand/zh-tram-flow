@@ -73,3 +73,4 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 | :--- | :--- | :--- |
 | 27 | **Interaktives Prediction-Tool** — Streamlit-App: Dropdown Stop/Linie/Stunde/Wetter → vorhergesagter Delay. LightGBM direkt laden, kein Server. Konzept im Planmodus entwerfen. | 2 |
 | 31 | **Dashboard — Spielmodus + Vorhersagemodus** — Zwei Modi: (1) Spielmodus: explorative Historik-Ansicht mit interaktiven Heatmaps, Zeitreihen und Karten; (2) Vorhersagemodus: Eingabemaske Stop × Linie × Stunde × Wetter → Delay. Erweitert #27 um den explorativen Modus. Tooling-Entscheidung ausstehend (Streamlit vs. Dash). | 2 |
+| 42 | **Dwell-Optimierungs-Simulator** — Zweites Prediction-Tool: Nutzer gibt modifizierte `dwell_time`-Werte für Haltestellen/Linien ein → lgbm_v1 berechnet neue Delays → Δ-Delay wird angezeigt. Schließt den Kreis: Analyse (dwell_time = Feature #1) → Modell (LightGBM) → Handlungsempfehlung (Puffer +10s → Δ MAE?). Umsetzung in `06_prediction_4-dwell_simulator.ipynb`. | 1 |

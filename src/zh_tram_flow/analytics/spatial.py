@@ -1,4 +1,10 @@
-"""Analytics-Modul für 03_analysis_4-spatial.ipynb — Räumliche Verspätungsanalyse."""
+"""Analytics-Modul für 03_analysis_4-spatial.ipynb — Räumliche Verspätungsanalyse.
+
+Added functions:
+  plot_stop_dwell_map(lf, line_name="11", cfg=None)
+  plot_cascade_effect(lf, cfg=None)
+  table_cascade_effect(lf)
+"""
 
 import polars as pl
 import pandas as pd
@@ -1126,6 +1132,239 @@ def plot_stop_delay_by_direction(lf: pl.LazyFrame, line_name: str, min_n: int = 
         title=dict(text=f"Linie {line_name} — Ø Delay nach Fahrtrichtung", x=0, xanchor="left"),
     )
     fig.show()
+
+
+# ---------------------------------------------------------------------------
+# Dwell-Linienkarte
+# ---------------------------------------------------------------------------
+
+def plot_stop_dwell_map(lf: pl.LazyFrame, line_name: str = "11", cfg=None) -> None:
+    """Plotly Mapbox: Haltestellen einer Linie — Farbe = pct_dw0, Größe = Ø Arrival Delay.
+
+    Zeigt wo auf der Linie der strukturelle Puffer fehlt und wo Delay akkumuliert.
+    Haltestellen verbunden in Route-Reihenfolge (Ø stop_sequence).
+
+    Farbe: Grün (pct_dw0=0%, voller Puffer) → Rot (pct_dw0=100%, kein Puffer)
+    Größe: proportional zu Ø Arrival Delay
+
+    Input: lf_clean. line_name als String (z.B. "11", "6").
+    """
+    import plotly.graph_objects as go
+    cfg = _get_cfg(cfg)
+
+    lf_line = (
+        lf.filter(pl.col("canceled") == False)
+          .filter(pl.col("line_name").cast(pl.Utf8) == line_name)
+          .with_columns(
+              ((pl.col("departure_schedule") - pl.col("arrival_schedule"))
+               .dt.total_seconds().cast(pl.Int32)).alias("dwell_time")
+          )
+    )
+
+    stops = (
+        lf_line
+        .group_by("stop_name")
+        .agg([
+            pl.col("dwell_time").eq(0).cast(pl.Float64).mean().alias("pct_dw0"),
+            pl.col("arrival_delay").mean().alias("mean_delay"),
+            pl.col("stop_lat").mean(),
+            pl.col("stop_lon").mean(),
+            pl.col("stop_sequence").mean().alias("mean_seq"),
+            pl.len().alias("n"),
+        ])
+        .filter(pl.col("n") >= 200)
+        .sort("mean_seq")
+        .collect()
+        .to_pandas()
+    )
+
+    stops["pct_dw0_pct"] = (stops["pct_dw0"] * 100).round(1)
+    stops["mean_delay_r"] = stops["mean_delay"].round(1)
+    stops["stop_short"] = stops["stop_name"].str.replace("Zürich, ", "", regex=False)
+
+    # Bubble size: proportional to mean_delay
+    d_min, d_max = stops["mean_delay"].min(), stops["mean_delay"].max()
+    stops["bubble"] = 9 + (stops["mean_delay"] - d_min) / (d_max - d_min + 1e-9) * 18
+
+    fig = go.Figure()
+
+    # Route-Linie: Halte in Reihenfolge verbunden
+    fig.add_trace(go.Scattermapbox(
+        lat=stops["stop_lat"], lon=stops["stop_lon"],
+        mode="lines",
+        line=dict(color="#cccccc", width=2),
+        hoverinfo="skip", showlegend=False, name="Route",
+    ))
+
+    # Haltestellen: Farbe = pct_dw0, Größe = mean_delay
+    fig.add_trace(go.Scattermapbox(
+        lat=stops["stop_lat"], lon=stops["stop_lon"],
+        mode="markers",
+        marker=dict(
+            size=stops["bubble"],
+            color=stops["pct_dw0_pct"],
+            colorscale=[[0.0, "#25ac82"], [0.5, "#ffa600"], [1.0, "#de425b"]],
+            cmin=50, cmax=100,
+            colorbar=dict(
+                title="% kein<br>Puffer",
+                thickness=12, len=0.55,
+                tickvals=[50, 75, 100],
+                ticktext=["50 %", "75 %", "100 %"],
+            ),
+            opacity=0.88,
+        ),
+        text=stops["stop_short"],
+        customdata=stops[["pct_dw0_pct", "mean_delay_r", "n", "mean_seq"]].values,
+        hovertemplate=(
+            "<b>%{text}</b><br>"
+            "Kein Puffer (pct_dw0): <b>%{customdata[0]:.0f} %</b><br>"
+            "Ø Arrival Delay: <b>%{customdata[1]:.0f} s</b><br>"
+            "Stop-Position (Ø Seq): %{customdata[3]:.0f}<br>"
+            "N Beobachtungen: %{customdata[2]:,}<extra></extra>"
+        ),
+        name=f"Linie {line_name}",
+    ))
+
+    fig.update_layout(
+        mapbox=dict(
+            style="carto-positron",
+            center=dict(
+                lat=float(stops["stop_lat"].mean()),
+                lon=float(stops["stop_lon"].mean()),
+            ),
+            zoom=12,
+        ),
+        margin=dict(l=0, r=0, t=50, b=0),
+        height=620,
+        title=dict(
+            text=(
+                f"Linie {line_name} — Dwell-Puffer und Arrival Delay pro Haltestelle<br>"
+                "<sup>Farbe: Grün = voller Puffer · Rot = kein Puffer (pct_dw0)"
+                "  ·  Größe: Ø Arrival Delay</sup>"
+            ),
+            x=0, xanchor="left",
+        ),
+    )
+    fig.show()
+
+
+# ---------------------------------------------------------------------------
+# Kaskadeneffekt
+# ---------------------------------------------------------------------------
+
+def plot_cascade_effect(lf: pl.LazyFrame, cfg=None) -> None:
+    """Kaskadeneffekt: Pearson-r zwischen delay(Halt n) und delay(Halt n+1) je Linie.
+
+    Misst wie stark sich Verspätung innerhalb einer Fahrt von Halt zu Halt überträgt.
+      r → 1.0: Delay kaskadiert vollständig — kein Selbstheilungseffekt.
+      r → 0.0: Verspätungen sind unabhängig — Netz erholt sich.
+
+    Farb-Kodierung:
+      Rot   (r ≥ 0.85): starke Kaskade
+      Amber (r ≥ 0.70): mittlere Kaskade
+      Teal  (r < 0.70): gute Erholung
+
+    Input: lf_clean (benötigt trip_id, operating_date, stop_sequence, arrival_delay).
+    """
+    from wgnd.core.theme import mpl_style
+    cfg = _get_cfg(cfg)
+    style = mpl_style()
+
+    # Polars: sort innerhalb jedes Trips nach stop_sequence, dann shift(1).over()
+    cascade = (
+        lf.filter(pl.col("canceled") == False)
+          .filter(pl.col("arrival_delay").is_not_null())
+          .sort(["trip_id", "operating_date", "stop_sequence"])
+          .with_columns(
+              pl.col("arrival_delay")
+                .shift(1)
+                .over(["trip_id", "operating_date"])
+                .alias("prev_stop_delay")
+          )
+          .filter(pl.col("prev_stop_delay").is_not_null())
+          .group_by("line_name")
+          .agg([
+              pl.corr("arrival_delay", "prev_stop_delay").alias("cascade_r"),
+              pl.len().alias("n"),
+          ])
+          .sort("cascade_r", descending=True)
+          .collect(engine="streaming")
+          .to_pandas()
+    )
+    cascade["line_name"] = cascade["line_name"].astype(str)
+
+    def _color(r):
+        if r >= 0.85: return cfg.COLOR_NEGATIVE
+        if r >= 0.70: return cfg.COLOR_SIGNAL
+        return cfg.COLOR_POSITIVE
+
+    colors = [_color(r) for r in cascade["cascade_r"]]
+
+    fig, ax = plt.subplots(figsize=(11, 5))
+    bars = ax.bar(
+        cascade["line_name"], cascade["cascade_r"],
+        color=colors, edgecolor="white", linewidth=0.5,
+    )
+    for bar, r in zip(bars, cascade["cascade_r"]):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.005,
+            f"{r:.2f}", ha="center", va="bottom", fontsize=8,
+            color=cfg.CHART_AXIS_TEXT,
+        )
+
+    ax.axhline(0.85, color=cfg.COLOR_NEGATIVE, lw=1.2, ls="--", alpha=0.6,
+               label="Stark (≥ 0.85) — kein Selbstheilungseffekt")
+    ax.axhline(0.70, color=cfg.COLOR_SIGNAL,   lw=1.2, ls="--", alpha=0.6,
+               label="Mittel (≥ 0.70)")
+    ax.set_ylim(0, 1.08)
+    ax.set_xlabel("Linie", **style["label"])
+    ax.set_ylabel("Kaskadenkoeffizient (Pearson r)", **style["label"])
+    ax.set_title(
+        "Kaskadeneffekt — Delay-Übertragung von Halt zu Halt je Linie\n"
+        "r → 1 = Verspätung kaskadiert vollständig  ·  r → 0 = Netz erholt sich",
+        **style["title"],
+    )
+    ax.legend(fontsize=9, frameon=False)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=9)
+    plt.tight_layout()
+    plt.show()
+
+
+def table_cascade_effect(lf: pl.LazyFrame) -> pd.DataFrame:
+    """Kaskadenkoeffizient (Pearson r) + N Beobachtungen je Linie, sortiert absteigend."""
+    cascade = (
+        lf.filter(pl.col("canceled") == False)
+          .filter(pl.col("arrival_delay").is_not_null())
+          .sort(["trip_id", "operating_date", "stop_sequence"])
+          .with_columns(
+              pl.col("arrival_delay")
+                .shift(1)
+                .over(["trip_id", "operating_date"])
+                .alias("prev_stop_delay")
+          )
+          .filter(pl.col("prev_stop_delay").is_not_null())
+          .group_by("line_name")
+          .agg([
+              pl.corr("arrival_delay", "prev_stop_delay").alias("cascade_r"),
+              pl.len().alias("n"),
+          ])
+          .sort("cascade_r", descending=True)
+          .collect(engine="streaming")
+          .to_pandas()
+    )
+    cascade["line_name"] = cascade["line_name"].astype(str)
+    cascade["n_fmt"] = cascade["n"].apply(lambda x: f"{x:,.0f}")
+    cascade["Stärke"] = cascade["cascade_r"].apply(
+        lambda r: "🔴 Stark" if r >= 0.85 else "🟡 Mittel" if r >= 0.70 else "🟢 Gut"
+    )
+    return (
+        cascade[["line_name", "cascade_r", "n_fmt", "Stärke"]]
+        .rename(columns={"line_name": "Linie", "cascade_r": "Pearson r", "n_fmt": "N Halte"})
+        .round({"Pearson r": 3})
+        .reset_index(drop=True)
+    )
 
 
 def table_stop_delay_by_direction(lf: pl.LazyFrame, line_name: str, min_n: int = 200) -> pd.DataFrame:
