@@ -674,3 +674,28 @@ Zwei neue Analyse-Funktionen in `src/zh_tram_flow/analytics/spatial.py` + 4 neue
 j25-Bubbles immer als Legende-Anker → bei Jahreswechsel zu 2023/2024 werden j23/j24-Bubbles sichtbar und j25-Bubbles auf `"legendonly"` gesetzt. Einzelne Linien per Legende-Klick only vollständig für Jahr 2025, da nur j25-Traces im legendgroup sind. Das ist der primäre Use-Case (Standard-Ansicht = 2025).
 
 **Nächster Schritt:** `03_analysis_4-spatial.ipynb` im Notebook ausführen — beide Karten verifizieren
+
+---
+
+### 2026-05-27 — 2N Restyle-Architektur + Spurious-Stop-Filter
+
+**Was wurde gemacht:**
+
+**`plot_line_delay_profile_map` + `plot_line_dwell_profile_map`** komplett auf 2N-Architektur umgestellt (ersetzt die 6N-Architektur vom gleichen Tag):
+
+**2N Trace-Layout:**
+- `[0..N-1]` Route-Traces · `[N..2N-1]` Bubble-Traces (fester Trace-Satz, keine Duplikate pro Jahr)
+- Jahr-Wechsel via Plotly `restyle` — tauscht `lat/lon/marker.size` (bzw. `marker.color`) der bestehenden Traces
+- Visibility bleibt vollständig unangetastet → Legende-Klick und Alle-aus/ein funktionieren wie in `tram_lines_map.html`
+
+**Warum 6N abgelöst:** 6N hatte das Legenden-Verhalten gebrochen — Jahr-Wechsel und Linien-Toggle liefen in Konflikt, weil `visible`-Toggling für beide Funktionen benutzt wurde. Mit `restyle` wird nur der Dateninhalt getauscht, `visible` gehört exklusiv der Legende.
+
+**Relatives 5%-Filter für Spurious Stops** (`commit d72e59a`):
+
+Ursache: Ein kleiner Anteil VBZ-IST-Trips hat den falschen `line_name` in den Quelldaten (Depot-Fahrten, Nacht-Kopplung, Short-Turn-Umleitungen). Diese "verfranzen" Linien auf der Karte mit fremden Haltestellen (z. B. L2 zeigt Haltestellen der L7).
+
+Filter: `n >= max_n_per_line_per_year × 0.05` — robuste Schwelle, weil legitime Haltestellen n ≈ 90.000 haben, Spurious Stops n ≈ 800–1.300 (≈ 1%). Angewendet auf beide Profil-Karten nach dem `min_n_yr` Absolutfilter.
+
+Reichweite des Datenqualitätsproblems: Nur Stop-Level-Spatial-Analysen mit niedrigem `min_n` betroffen. Analysen mit `min_n ≥ 5.000` sind bereits sicher.
+
+**Nächster Schritt:** `03_analysis_4-spatial.ipynb` ausführen — beide Karten (Delay + Dwell) verifizieren: Jahr-Toggle, Alle-aus/ein, Linien-Klick, keine Spurious Stops mehr
