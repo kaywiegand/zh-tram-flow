@@ -48,6 +48,63 @@ def _get_cfg(cfg):
     return cfg
 
 
+def _get_route_stops_df(
+    lf_base: pl.LazyFrame,
+    lines: list[str],
+    min_n: int = 250,
+) -> pd.DataFrame:
+    """Stops per line ordered by the dominant direction's stop_sequence.
+
+    Filters to the most common terminus (= one direction) before averaging,
+    so the resulting stop order follows the actual route without bidirectional
+    crisscross. Used to draw route lines on interactive maps.
+
+    Returns columns: line_name, stop_name, stop_lat, stop_lon, mean_seq
+    """
+    lf_filtered = lf_base.filter(pl.col("line_name").is_in(lines))
+
+    # Step 1: last stop (terminus) per trip → identifies direction
+    terminus_lf = (
+        lf_filtered
+        .group_by(["line_name", "trip_id"])
+        .agg(
+            pl.col("stop_name").sort_by("stop_sequence").last().alias("terminus")
+        )
+    )
+    # Step 2: dominant terminus per line (highest trip count)
+    dominant = (
+        terminus_lf
+        .group_by(["line_name", "terminus"])
+        .agg(pl.len().alias("n_trips"))
+        .sort("n_trips", descending=True)
+        .group_by("line_name")
+        .agg(pl.col("terminus").first().alias("main_terminus"))
+    )
+    # Step 3: trip_ids that belong to the dominant direction
+    dominant_trips = (
+        terminus_lf
+        .join(dominant, on="line_name")
+        .filter(pl.col("terminus") == pl.col("main_terminus"))
+        .select(["line_name", "trip_id"])
+    )
+    # Step 4: aggregate stops for those trips only → clean sequential order
+    return (
+        lf_filtered
+        .join(dominant_trips, on=["line_name", "trip_id"])
+        .group_by(["line_name", "stop_name"])
+        .agg([
+            pl.col("stop_lat").mean(),
+            pl.col("stop_lon").mean(),
+            pl.col("stop_sequence").mean().alias("mean_seq"),
+            pl.len().alias("n"),
+        ])
+        .filter(pl.col("n") >= min_n)
+        .sort(["line_name", "mean_seq"])
+        .collect()
+        .to_pandas()
+    )
+
+
 def plot_top_delay_stops(lf, cfg=None):
     """Top 20 Haltestellen nach Ø Delay + Top 10 Frühankünfte (Terminus)."""
     cfg = _get_cfg(cfg)
@@ -1146,14 +1203,13 @@ def plot_line_delay_profile_map(
 ) -> None:
     """Interaktive Plotly-Karte: Delay-Profil aller (oder ausgewählter) Tramlinien.
 
-    Jede Linie = ein Trace mit VBZ-Linienfarbe, über Legende an-/abwählbar.
-    Bubble-Größe: Ø Arrival Delay (global skaliert — Vergleich zwischen Linien möglich).
-    Hover: Haltestelle, Linie, Ø Delay, pct_dw0, N.
+    Jede Linie = VBZ-Linienfarbe, Route als Linie gezeichnet, Haltestellen als Bubbles.
+    Bubble-Größe: Ø Arrival Delay (global power-skaliert — kleiner Delay = sehr kleiner Bubble).
+    Routenlinien: dominant direction per Linie via terminus-Join → kein kreuz-und-quer.
+    Linien über Legende ein-/ausblenden (Klick blendet Linie + Bubbles gemeinsam aus).
+    Hover: Haltestelle, Linie, Ø Delay, % kein Puffer, N.
 
-    min_n: Mindest-Beobachtungen pro Halt. Filtert Minor-Routenvarianten heraus.
-      Beispiel L6: Hauptroute ~13k Trips → Haupthalte n ≥ 10k.
-      Baustellen-Kurzläufer (Würzgraben ~1.8k Trips) → n < 1k → gefiltert.
-
+    min_n: Mindest-Beobachtungen pro Halt. Filtert Baustellen-Kurzläufer heraus.
     lines: Liste z.B. ["11", "6"] oder None = alle Linien.
     Input: lf_clean.
     """
@@ -1181,6 +1237,7 @@ def plot_line_delay_profile_map(
     else:
         lines = [str(l) for l in lines]
 
+    # Stop bubbles: all directions averaged (network overview)
     stops_all = (
         lf_base
         .filter(pl.col("line_name").is_in(lines))
@@ -1201,22 +1258,43 @@ def plot_line_delay_profile_map(
     stops_all["mean_delay_r"] = stops_all["mean_delay"].round(1)
     stops_all["stop_short"] = stops_all["stop_name"].str.replace("Zürich, ", "", regex=False)
 
+    # Power-scaled bubbles: small delays → much smaller bubbles (exponent 1.7)
     d_min = stops_all["mean_delay"].min()
     d_max = stops_all["mean_delay"].max()
-    stops_all["bubble"] = 6 + (stops_all["mean_delay"] - d_min) / (d_max - d_min + 1e-9) * 18
+    normalized = (stops_all["mean_delay"] - d_min) / (d_max - d_min + 1e-9)
+    stops_all["bubble"] = 2 + (normalized ** 1.7) * 22  # range 2–24 px
+
+    # Route lines: dominant direction only → clean sequential stop order
+    route_df = _get_route_stops_df(lf_base, lines, min_n=max(min_n // 4, 100))
 
     fig = go.Figure()
 
     for line in lines:
+        color = _lc(line)
+
+        # 1) Route line — same legendgroup as bubbles, not in legend itself
+        route_sub = route_df[route_df["line_name"] == line]
+        if not route_sub.empty:
+            fig.add_trace(go.Scattermapbox(
+                lat=route_sub["stop_lat"],
+                lon=route_sub["stop_lon"],
+                mode="lines",
+                line=dict(color=color, width=2),
+                opacity=0.45,
+                showlegend=False,
+                legendgroup=f"L{line}",
+                hoverinfo="skip",
+            ))
+
+        # 2) Stop bubbles — legend entry for the group
         sub = stops_all[stops_all["line_name"] == line]
         if sub.empty:
             continue
-        color = _lc(line)
         fig.add_trace(go.Scattermapbox(
             lat=sub["stop_lat"],
             lon=sub["stop_lon"],
             mode="markers",
-            marker=dict(size=sub["bubble"], color=color, opacity=0.82),
+            marker=dict(size=sub["bubble"], color=color, opacity=0.85),
             text=sub["stop_short"],
             customdata=sub[["mean_delay_r", "pct_dw0_pct", "n"]].values,
             hovertemplate=(
@@ -1252,9 +1330,166 @@ def plot_line_delay_profile_map(
         title=dict(
             text=(
                 "Delay-Profil je Haltestelle — alle Tramlinien<br>"
-                "<sup>Bubble-Größe: Ø Arrival Delay (global skaliert)"
+                "<sup>Bubble-Größe: Ø Arrival Delay (power-skaliert)"
                 "  ·  Farbe: VBZ-Linienfarbe"
                 "  ·  Linien über Legende ein-/ausblenden</sup>"
+            ),
+            x=0, xanchor="left",
+        ),
+    )
+    fig.show()
+
+
+def plot_line_dwell_profile_map(
+    lf: pl.LazyFrame,
+    lines: list | None = None,
+    min_n: int = 1000,
+    cfg=None,
+) -> None:
+    """Interaktive Plotly-Karte: Dwell Time-Profil aller (oder ausgewählter) Tramlinien.
+
+    Zeigt wo der Fahrplan Puffer eingebaut hat (positive Dwell) vs. wo keiner ist (0 s).
+    Farbe: Ø scheduled Dwell Time — Rot = 0 s (kein Puffer) · Grün = ≥ 30 s (guter Puffer).
+    Bubble-Größe: einheitlich (Signal ist die Farbe, nicht die Größe).
+    Routenlinien: dominant direction → kein bidirektionaler kreuz-und-quer-Effekt.
+    Companion-Karte zu plot_line_delay_profile_map.
+
+    Input: lf_clean.
+    """
+    import plotly.graph_objects as go
+    from zh_tram_flow.config import line_color as _lc
+    cfg = _get_cfg(cfg)
+
+    lf_base = (
+        lf.filter(pl.col("canceled") == False)
+          .with_columns(
+              pl.col("line_name").cast(pl.Utf8),
+              ((pl.col("departure_schedule") - pl.col("arrival_schedule"))
+               .dt.total_seconds().cast(pl.Float64)).alias("dwell_time"),
+          )
+    )
+
+    if lines is None:
+        avail = (
+            lf_base.select(pl.col("line_name").unique())
+                   .collect()["line_name"].to_list()
+        )
+        def _sort_key(x):
+            return (0, int(x)) if x.isdigit() else (1, x)
+        lines = sorted(avail, key=_sort_key)
+    else:
+        lines = [str(l) for l in lines]
+
+    stops_all = (
+        lf_base
+        .filter(pl.col("line_name").is_in(lines))
+        .group_by(["line_name", "stop_name"])
+        .agg([
+            pl.col("dwell_time").mean().alias("mean_dwell"),
+            pl.col("stop_lat").mean(),
+            pl.col("stop_lon").mean(),
+            pl.len().alias("n"),
+        ])
+        .filter(pl.col("n") >= min_n)
+        .collect()
+        .to_pandas()
+    )
+
+    stops_all["mean_dwell_r"] = stops_all["mean_dwell"].round(1)
+    stops_all["stop_short"] = stops_all["stop_name"].str.replace("Zürich, ", "", regex=False)
+
+    # Route lines: dominant direction only
+    route_df = _get_route_stops_df(lf_base, lines, min_n=max(min_n // 4, 100))
+
+    # Diverging colorscale: 0 s = red, 15 s = orange, ≥ 30 s = green
+    _dwell_colorscale = [[0.0, "#de425b"], [0.4, "#ffa600"], [1.0, "#25ac82"]]
+    _cmin, _cmax = 0, 30
+
+    fig = go.Figure()
+
+    show_colorbar = True  # show colorbar only on the first line trace
+
+    for line in lines:
+        color = _lc(line)
+
+        # Route line
+        route_sub = route_df[route_df["line_name"] == line]
+        if not route_sub.empty:
+            fig.add_trace(go.Scattermapbox(
+                lat=route_sub["stop_lat"],
+                lon=route_sub["stop_lon"],
+                mode="lines",
+                line=dict(color=color, width=2),
+                opacity=0.35,
+                showlegend=False,
+                legendgroup=f"L{line}",
+                hoverinfo="skip",
+            ))
+
+        sub = stops_all[stops_all["line_name"] == line]
+        if sub.empty:
+            continue
+
+        colorbar_cfg = dict(
+            title="Ø Dwell (s)",
+            thickness=14,
+            len=0.55,
+            x=1.02,
+            tickvals=[0, 15, 30],
+            ticktext=["0 s", "15 s", "≥ 30 s"],
+        ) if show_colorbar else None
+
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["stop_lat"],
+            lon=sub["stop_lon"],
+            mode="markers",
+            marker=dict(
+                size=12,
+                color=sub["mean_dwell_r"],
+                colorscale=_dwell_colorscale,
+                cmin=_cmin,
+                cmax=_cmax,
+                showscale=show_colorbar,
+                colorbar=colorbar_cfg,
+                opacity=0.88,
+            ),
+            text=sub["stop_short"],
+            customdata=sub[["mean_dwell_r", "n"]].values,
+            hovertemplate=(
+                f"<b>L{line}: %{{text}}</b><br>"
+                "Ø Dwell Time: <b>%{customdata[0]:.0f} s</b><br>"
+                "N: %{customdata[1]:,.0f}<extra></extra>"
+            ),
+            name=f"L{line}",
+            legendgroup=f"L{line}",
+        ))
+        show_colorbar = False  # subsequent lines: no duplicate colorbar
+
+    center_lat = float(stops_all["stop_lat"].mean())
+    center_lon = float(stops_all["stop_lon"].mean())
+
+    fig.update_layout(
+        mapbox=dict(
+            style="carto-positron",
+            center=dict(lat=center_lat, lon=center_lon),
+            zoom=11.5,
+        ),
+        legend=dict(
+            title="<b>Linie</b><br><sup>Klick = ein/aus</sup>",
+            orientation="v",
+            bgcolor="rgba(255,255,255,0.88)",
+            bordercolor="#dddddd",
+            borderwidth=1,
+            x=1.12, xanchor="left",  # shifted right to make room for colorbar
+            y=1.0, yanchor="top",
+        ),
+        margin=dict(l=0, r=140, t=60, b=0),
+        height=700,
+        title=dict(
+            text=(
+                "Dwell Time je Haltestelle — alle Tramlinien<br>"
+                "<sup>Farbe: Rot = kein Puffer (0 s) · Grün = guter Puffer (≥ 30 s)"
+                "  ·  Größe: einheitlich  ·  Linien über Legende ein-/ausblenden</sup>"
             ),
             x=0, xanchor="left",
         ),
