@@ -589,6 +589,19 @@ Strukturfaktor (kumulierter Trip-Aufbau) und externe Faktoren (Δ Arrival Delay 
 
 ---
 
+### 2026-05-27 — Feature Importance + Predicted vs. Actual (Phase 4 abgeschlossen)
+
+**Was wurde gemacht:**
+
+- **`06_prediction_3-evaluation.ipynb`** — zwei neue Zellblöcke:
+  - **Feature Importance (Gain):** lädt `lgbm_v1.txt`, normalisiert Gain auf %, Horizontal-Barplot mit Farb-Kodierung (Amber >10%, Teal >2%, Grau Rest) + Tabelle Top-15. Beantwortet: hat das Modell dieselben Muster gelernt wie die 55 Findings?
+  - **Predicted vs. Actual (Hexbin):** 100k Stichprobe, Hexbin-Dichte, y=x Referenzlinie, Bias-Linie (MBE +8.3s) rot eingezeichnet. Macht den Optimismus-Bias visuell greifbar.
+- **ROADMAP:** Evaluation auf ✅ gesetzt, Phase 4 vollständig abgeschlossen
+
+**Nächster Schritt:** Portfolio-Aufbereitung — BACKLOG #41 (Key Visual ins README) als erster konkreter Schritt
+
+---
+
 ### 2026-05-26 — Drei Analyse-Items umgesetzt (Dwell-Folge-Analyse)
 
 **Was wurde gemacht:**

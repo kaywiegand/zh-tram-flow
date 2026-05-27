@@ -148,12 +148,14 @@
 - ✅ Modell gespeichert: `data/models/lgbm_v1.txt` + `lgbm_v1_meta.json`
 - ✅ Test-Predictions: `data/processed/test_predictions.parquet`
 
-### Evaluation (`06_prediction_3-evaluation.ipynb`) 🔄
+### Evaluation (`06_prediction_3-evaluation.ipynb`) ✅
 - ✅ Metriken: Test MAE 45.7s · RMSE · OTP — Modell vs. Baseline-Tabelle
 - ✅ Residuals-Verteilung — MBE +8.3s (Modell unterschätzt systematisch)
 - ✅ Live-Szenario: Di 17h · Paradeplatz · L11 · Regen → **52s**
 - ✅ Abschluss-Tabelle: Modell vs. alle Baselines
-- [ ] Fehleranalyse ausführen: MAE nach Linie, Stunde, Wetter, Monat
+- ✅ Fehleranalyse: MAE nach Stunde / Linie / Wetter / Monat
+- ✅ Feature Importance (Gain) — schließt Kreis Analyse → Modell
+- ✅ Predicted vs. Actual (Hexbin) — Bias visuell greifbar
 
 ---
 
