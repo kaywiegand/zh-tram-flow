@@ -1313,11 +1313,19 @@ def plot_line_delay_profile_map(
             .collect()
             .to_pandas()
         )
-        # Relative filter: drop stops that appear in < 5 % of a line's busiest stop.
-        # Root cause: a small share of IST trips carry the wrong line_name in the VBZ
-        # source data (depot/night runs reported as regular service). These spurious
-        # stops have n ≈ 1 % of legitimate stops — the 5 % threshold removes them
-        # without touching real stops, even on variant-heavy routes.
+        # Display filter: show only stops that represent the main service of a line.
+        #
+        # Some VBZ tram lines operate rare route variants beyond their primary terminus
+        # (e.g. L2 extended via Tunnelstrasse → Museum Rietberg → Wollishofen). These
+        # variant stops are real, correctly attributed trips — the master file is accurate
+        # and reflects exactly what VBZ delivered. This is NOT a data quality problem and
+        # should NOT be fixed in cleaning.
+        #
+        # The issue is visual: variant stops appear at < 1 % of main-route frequency and
+        # make the map look tangled. The 5 %-of-line-max threshold hides them so the map
+        # shows representative service only — matching the primary-shape view of the HTML
+        # reference map (tram_lines_map.html). This is a display decision, not a
+        # data correction. → documented in 02_preparation.ipynb (Bereinigungsstrategie)
         if not yr_df.empty:
             max_n_per_line = yr_df.groupby("line_name", observed=True)["n"].transform("max")
             yr_df = yr_df[yr_df["n"] >= max_n_per_line * 0.05].copy()
@@ -1591,10 +1599,11 @@ def plot_line_dwell_profile_map(
             .collect()
             .to_pandas()
         )
-        # Relative filter: drop stops that appear in < 5 % of a line's busiest stop.
-        # Same root cause as delay map: a small share of IST trips carry the wrong
-        # line_name in VBZ source data. The 5 % threshold removes spurious stops
-        # without touching real stops, even on variant-heavy routes.
+        # Display filter — same rationale as plot_line_delay_profile_map:
+        # VBZ route variants (real, correctly attributed trips) appear at < 1 % of
+        # main-route frequency and make the map look tangled. The 5 %-of-line-max
+        # threshold hides them for visual clarity. NOT a data correction — the master
+        # file is correct. → documented in 02_preparation.ipynb (Bereinigungsstrategie)
         if not yr_df.empty:
             max_n_per_line = yr_df.groupby("line_name", observed=True)["n"].transform("max")
             yr_df = yr_df[yr_df["n"] >= max_n_per_line * 0.05].copy()
