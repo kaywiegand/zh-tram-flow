@@ -1313,6 +1313,14 @@ def plot_line_delay_profile_map(
             .collect()
             .to_pandas()
         )
+        # Relative filter: drop stops that appear in < 5 % of a line's busiest stop.
+        # Root cause: a small share of IST trips carry the wrong line_name in the VBZ
+        # source data (depot/night runs reported as regular service). These spurious
+        # stops have n ≈ 1 % of legitimate stops — the 5 % threshold removes them
+        # without touching real stops, even on variant-heavy routes.
+        if not yr_df.empty:
+            max_n_per_line = yr_df.groupby("line_name", observed=True)["n"].transform("max")
+            yr_df = yr_df[yr_df["n"] >= max_n_per_line * 0.05].copy()
         yr_df["pct_dw0_pct"] = (yr_df["pct_dw0"] * 100).round(1)
         yr_df["mean_delay_r"] = yr_df["mean_delay"].round(1)
         yr_df["stop_short"] = yr_df["stop_name"].str.replace("Zürich, ", "", regex=False)
@@ -1583,6 +1591,13 @@ def plot_line_dwell_profile_map(
             .collect()
             .to_pandas()
         )
+        # Relative filter: drop stops that appear in < 5 % of a line's busiest stop.
+        # Same root cause as delay map: a small share of IST trips carry the wrong
+        # line_name in VBZ source data. The 5 % threshold removes spurious stops
+        # without touching real stops, even on variant-heavy routes.
+        if not yr_df.empty:
+            max_n_per_line = yr_df.groupby("line_name", observed=True)["n"].transform("max")
+            yr_df = yr_df[yr_df["n"] >= max_n_per_line * 0.05].copy()
         yr_df["mean_dwell_r"] = yr_df["mean_dwell"].round(1)
         yr_df["stop_short"] = yr_df["stop_name"].str.replace("Zürich, ", "", regex=False)
         stops_by_year[yr] = yr_df
