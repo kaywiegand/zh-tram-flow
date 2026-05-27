@@ -627,3 +627,29 @@ Drei neue Plot-Funktionen als Folge aus der Dwell-Scatter-Analyse (vorherige Ses
 `delay_delta` on the fly als `departure_delay - arrival_delay` berechnet (nicht auf vorberechnete Spalte angewiesen) → robuster gegenüber verschiedenen `lf_all`-Versionen.
 
 **Nächster Schritt:** #39 — Interaktive Linienansicht: Plotly-Karte mit Haltestellen nach Delay eingefärbt in `03_analysis_4-spatial.ipynb`
+
+---
+
+### 2026-05-27 — Dwell-Linienkarte + Kaskadenanalyse (Spatial Notebook erweitert)
+
+**Was wurde gemacht:**
+
+Zwei neue Analyse-Funktionen in `src/zh_tram_flow/analytics/spatial.py` + 4 neue Zellen in `03_analysis_4-spatial.ipynb`:
+
+**1. `plot_stop_dwell_map(lf_clean, line_name="11")` → neue Sektion "Dwell-Linienkarte"**
+- Plotly Mapbox: Haltestellen der Linie 11 auf der Karte eingefärbt nach % dwell_time=0s (kein Puffer), skaliert nach Ø Arrival Delay
+- Colorscale: Teal (gut) → Amber (mittel) → Rot (schlecht), cmin=50%, cmax=100%
+- Route-Linie grau → Haltestellen als Bubbles — räumlich greifbar wo fehlender Puffer auf hohen Delay trifft
+- Schließt analytischen Kreis: dwell_time = Feature #1 im Modell → Karte zeigt das Problem geografisch
+
+**2. `plot_cascade_effect(lf_clean)` + `table_cascade_effect(lf_clean)` → neue Sektion "Kaskadenanalyse"**
+- Pearson-r(delay_n, delay_n+1) per Linie via Polars `shift(1).over(["trip_id", "operating_date"])` nach Sort nach `stop_sequence`
+- Streaming-Collect für 80M Zeilen — kein OOM
+- Bar-Chart sortiert nach Korrelation absteigend, farbkodiert: Rot ≥0.85 (stark) · Amber ≥0.70 (mittel) · Teal <0.70 (schwach)
+- Tabelle mit Linie / Pearson r / N Halte / Stärke (Emoji-Flag)
+- Beantwortet BACKLOG #18: Kaskadeneffekt messbar?
+
+**BACKLOG-Update:**
+- #42 neu: **Dwell-Optimierungs-Simulator** — zweites Prediction-Tool, nimmt modifizierte dwell_time-Werte als Input → lgbm_v1 berechnet Δ-Delay. Schließt Kreis Analyse → Modell → Handlungsempfehlung. `06_prediction_4-dwell_simulator.ipynb`
+
+**Nächster Schritt:** `03_analysis_4-spatial.ipynb` neu ausführen → dann #42 Dwell-Simulator planen
