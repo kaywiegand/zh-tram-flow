@@ -1405,4 +1405,5 @@ def table_stop_delay_by_direction(lf: pl.LazyFrame, line_name: str, min_n: int =
         sub.index += 1
         frames.append(sub)
 
-    return pd.concat(frames).set_index("Richtung")
+    result = pd.concat(frames).reset_index(drop=True)
+    return result[["Richtung", "Haltestelle", "Ø Delay (s)", "Ø Stop-Seq", "N"]]
