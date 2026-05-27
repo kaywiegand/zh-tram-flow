@@ -690,19 +690,26 @@ j25-Bubbles immer als Legende-Anker → bei Jahreswechsel zu 2023/2024 werden j2
 
 **Warum 6N abgelöst:** 6N hatte das Legenden-Verhalten gebrochen — Jahr-Wechsel und Linien-Toggle liefen in Konflikt, weil `visible`-Toggling für beide Funktionen benutzt wurde. Mit `restyle` wird nur der Dateninhalt getauscht, `visible` gehört exklusiv der Legende.
 
-**Datenqualitätsproblem entdeckt und behoben: Falsche Liniennummern im VBZ IST-Export** (`commit d72e59a`)
+**Kurs-Varianten-Filter** (`commit d72e59a`)
 
-**Was das Problem war (einfach erklärt):**
-VBZ liefert für jede Fahrt Betriebsdaten — welche Linie, welche Haltestellen, wann. Bei einer kleinen Anzahl Fahrten steht dabei die **falsche Liniennummer** im Datensatz. Ein Tram fährt physisch auf der L7-Strecke, ist aber im VBZ-System als "L2" gespeichert. Auf der Karte zählen wir wie oft jede Haltestelle pro Linie erscheint — "Museum Rietberg" taucht 836 Mal unter L2 auf, und wird deshalb als L2-Halt angezeigt, obwohl er gar nicht auf der L2-Strecke liegt.
+**Was das Problem war (korrigierte Erklärung nach GTFS-Verifikation):**
 
-**Wie der Join das sichtbar macht (nicht verursacht):**
-Der Join im Master-File ist korrekt: `bpuic` (Haltestellennummer) → `stop_name` + Koordinaten. Das Problem liegt eine Ebene früher, im VBZ IST-Export selbst (`LINIEN_TEXT`). Das Master-File spiegelt korrekt wider, was VBZ geliefert hat.
+Die L2 hat mehrere **Kurs-Varianten**:
+- Hauptkurs (~3.700 GTFS-Trips): Schlieren → Tiefenbrunnen
+- Verlängerter Kurs (~900 GTFS-Trips): fährt weiter via Tunnelstrasse → Museum Rietberg → Morgental → Wollishofen
 
-**Warum es in anderen Analysen nicht aufgefallen ist:**
-Echte Halte erscheinen ~90.000 Mal pro Linie und Jahr. Falsch zugeordnete Halte erscheinen ~800 Mal (< 1%). Analysen mit einer Mindestschwelle von 5.000+ Beobachtungen haben diese automatisch herausgefiltert — ohne dass wir es wussten.
+Das sind echte L2-Kurse — die Liniennummer im IST-Datensatz ist korrekt, kein Datenfehler. Museum Rietberg erscheint in der GTFS-Tramplandatei als legitimer L2-Halt.
 
-**Die Lösung:**
-Pro Linie und Jahr: alle Haltestellen, die weniger als 5% der meist-besuchten Haltestelle erreichen, werden entfernt. Echte Halte: ~90.000 → bleiben. Falsch zugeordnete: ~800 → raus. Der Schwellenwert ist bewusst relativ (nicht absolut), damit er für alle Linien und alle Jahre funktioniert — egal wie stark oder schwach eine Linie befahren ist.
+Das Problem ist eine **Visualisierungsentscheidung**: Zeige ich alle Kurs-Varianten (dann sieht die Karte unübersichtlich aus) oder nur den Hauptkurs? Die HTML-Referenzkarte (`tram_lines_map.html`) verwendet GTFS-Shapes, die nur die primäre Streckengeometrie zeigen — darum sieht sie sauber aus.
+
+In den Profil-Karten zeigten sich alle Varianten-Halte (die selten, aber legitim sind), was die Karte "verfranzt" wirken liess.
+
+**Die Lösung — Visualisierungsfilter:**
+Pro Linie und Jahr werden Haltestellen entfernt, die weniger als 5% der meistbesuchten Haltestelle erreichen:
+- Hauptkurs-Halte: ~90.000–98.000 Beobachtungen → bleiben
+- Varianten-Halte: ~800–1.300 Beobachtungen (< 1%) → werden ausgeblendet
+
+Das ist keine Datenbereinigung (die Daten sind korrekt), sondern eine bewusste Entscheidung: die Karte zeigt den repräsentativen Betrieb, nicht seltene Kurs-Sonderformen. Der Schwellenwert ist relativ, damit er für alle Linien skaliert.
 
 Angewendet auf: `plot_line_delay_profile_map` und `plot_line_dwell_profile_map`.
 
