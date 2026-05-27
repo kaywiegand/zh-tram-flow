@@ -653,3 +653,24 @@ Zwei neue Analyse-Funktionen in `src/zh_tram_flow/analytics/spatial.py` + 4 neue
 - #42 neu: **Dwell-Optimierungs-Simulator** — zweites Prediction-Tool, nimmt modifizierte dwell_time-Werte als Input → lgbm_v1 berechnet Δ-Delay. Schließt Kreis Analyse → Modell → Handlungsempfehlung. `06_prediction_4-dwell_simulator.ipynb`
 
 **Nächster Schritt:** `03_analysis_4-spatial.ipynb` neu ausführen → dann #42 Dwell-Simulator planen
+
+---
+
+### 2026-05-27 — 6N Trace-Architektur: Jahr-Toggle für Routen + Haltestellen
+
+**Was wurde gemacht:**
+
+- **`plot_line_delay_profile_map` + `plot_line_dwell_profile_map`** in `src/zh_tram_flow/analytics/spatial.py` komplett rewritten:
+  - **6N Trace-Layout** (war: 2N): 3 Jahre × N Routen + 3 Jahre × N Bubble-Traces
+  - **Per-year Stop-Aggregation** — separate `group_by` pro 2023/2024/2025 mit `min_n // 3` Schwelle
+  - **Jahr-Schalter** (2023/2024/2025/Alle Jahre) blendet jetzt Routen **und** Haltestellen gemeinsam um — nicht nur die Route
+  - **j25-Bubbles als Legende-Anker** (`showlegend=True`, `legendgroup`): bei anderen Jahren `visible="legendonly"` → Legende bleibt immer sicht- und klickbar
+  - **`_make_year_buttons()`** entfernt → ersetzt durch `_make_vis_year_buttons(N)` + `_year_vis(yr, N)` Helpers
+  - **"Alle Jahre"** Option neu: alle 3 Routen-Sets gleichzeitig sichtbar + nur j25-Bubbles (kein Triple-Count)
+  - **Globale Bubble-Normalisierung** über alle Jahre → konsistente visuelle Skala beim Jahr-Wechsel
+  - **Colorbar** in Dwell-Karte: einfacher `_show_colorbar`-Flag statt fragiler `fig.data`-Suche
+
+**Technische Entscheidung:**
+j25-Bubbles immer als Legende-Anker → bei Jahreswechsel zu 2023/2024 werden j23/j24-Bubbles sichtbar und j25-Bubbles auf `"legendonly"` gesetzt. Einzelne Linien per Legende-Klick only vollständig für Jahr 2025, da nur j25-Traces im legendgroup sind. Das ist der primäre Use-Case (Standard-Ansicht = 2025).
+
+**Nächster Schritt:** `03_analysis_4-spatial.ipynb` im Notebook ausführen — beide Karten verifizieren
