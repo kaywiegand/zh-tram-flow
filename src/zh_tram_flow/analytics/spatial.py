@@ -1138,17 +1138,137 @@ def plot_stop_delay_by_direction(lf: pl.LazyFrame, line_name: str, min_n: int = 
 # Dwell-Linienkarte
 # ---------------------------------------------------------------------------
 
-def plot_stop_dwell_map(lf: pl.LazyFrame, line_name: str = "11", cfg=None) -> None:
-    """Plotly Mapbox: Haltestellen einer Linie — Farbe = pct_dw0, Größe = Ø Arrival Delay.
+def plot_line_delay_profile_map(
+    lf: pl.LazyFrame,
+    lines: list | None = None,
+    min_n: int = 1000,
+    cfg=None,
+) -> None:
+    """Interaktive Plotly-Karte: Delay-Profil aller (oder ausgewählter) Tramlinien.
 
-    Zeigt wo auf der Linie der strukturelle Puffer fehlt und wo Delay akkumuliert.
+    Jede Linie = ein Trace mit VBZ-Linienfarbe, über Legende an-/abwählbar.
+    Bubble-Größe: Ø Arrival Delay (global skaliert — Vergleich zwischen Linien möglich).
+    Hover: Haltestelle, Linie, Ø Delay, pct_dw0, N.
+
+    min_n: Mindest-Beobachtungen pro Halt. Filtert Minor-Routenvarianten heraus.
+      Beispiel L6: Hauptroute ~13k Trips → Haupthalte n ≥ 10k.
+      Baustellen-Kurzläufer (Würzgraben ~1.8k Trips) → n < 1k → gefiltert.
+
+    lines: Liste z.B. ["11", "6"] oder None = alle Linien.
+    Input: lf_clean.
+    """
+    import plotly.graph_objects as go
+    from zh_tram_flow.config import line_color as _lc
+    cfg = _get_cfg(cfg)
+
+    lf_base = (
+        lf.filter(pl.col("canceled") == False)
+          .with_columns(
+              pl.col("line_name").cast(pl.Utf8),
+              ((pl.col("departure_schedule") - pl.col("arrival_schedule"))
+               .dt.total_seconds().cast(pl.Int32)).alias("dwell_time"),
+          )
+    )
+
+    if lines is None:
+        avail = (
+            lf_base.select(pl.col("line_name").unique())
+                   .collect()["line_name"].to_list()
+        )
+        def _sort_key(x):
+            return (0, int(x)) if x.isdigit() else (1, x)
+        lines = sorted(avail, key=_sort_key)
+    else:
+        lines = [str(l) for l in lines]
+
+    stops_all = (
+        lf_base
+        .filter(pl.col("line_name").is_in(lines))
+        .group_by(["line_name", "stop_name"])
+        .agg([
+            pl.col("dwell_time").eq(0).cast(pl.Float64).mean().alias("pct_dw0"),
+            pl.col("arrival_delay").mean().alias("mean_delay"),
+            pl.col("stop_lat").mean(),
+            pl.col("stop_lon").mean(),
+            pl.len().alias("n"),
+        ])
+        .filter(pl.col("n") >= min_n)
+        .collect()
+        .to_pandas()
+    )
+
+    stops_all["pct_dw0_pct"] = (stops_all["pct_dw0"] * 100).round(1)
+    stops_all["mean_delay_r"] = stops_all["mean_delay"].round(1)
+    stops_all["stop_short"] = stops_all["stop_name"].str.replace("Zürich, ", "", regex=False)
+
+    d_min = stops_all["mean_delay"].min()
+    d_max = stops_all["mean_delay"].max()
+    stops_all["bubble"] = 6 + (stops_all["mean_delay"] - d_min) / (d_max - d_min + 1e-9) * 18
+
+    fig = go.Figure()
+
+    for line in lines:
+        sub = stops_all[stops_all["line_name"] == line]
+        if sub.empty:
+            continue
+        color = _lc(line)
+        fig.add_trace(go.Scattermapbox(
+            lat=sub["stop_lat"],
+            lon=sub["stop_lon"],
+            mode="markers",
+            marker=dict(size=sub["bubble"], color=color, opacity=0.82),
+            text=sub["stop_short"],
+            customdata=sub[["mean_delay_r", "pct_dw0_pct", "n"]].values,
+            hovertemplate=(
+                f"<b>L{line}: %{{text}}</b><br>"
+                "Ø Arrival Delay: <b>%{customdata[0]:.0f} s</b><br>"
+                "Kein Puffer: <b>%{customdata[1]:.0f} %</b><br>"
+                "N: %{customdata[2]:,.0f}<extra></extra>"
+            ),
+            name=f"L{line}",
+            legendgroup=f"L{line}",
+        ))
+
+    fig.update_layout(
+        mapbox=dict(
+            style="carto-positron",
+            center=dict(
+                lat=float(stops_all["stop_lat"].mean()),
+                lon=float(stops_all["stop_lon"].mean()),
+            ),
+            zoom=11.5,
+        ),
+        legend=dict(
+            title="<b>Linie</b><br><sup>Klick = ein/aus</sup>",
+            orientation="v",
+            bgcolor="rgba(255,255,255,0.88)",
+            bordercolor="#dddddd",
+            borderwidth=1,
+            x=1.01, xanchor="left",
+            y=1.0, yanchor="top",
+        ),
+        margin=dict(l=0, r=10, t=60, b=0),
+        height=700,
+        title=dict(
+            text=(
+                "Delay-Profil je Haltestelle — alle Tramlinien<br>"
+                "<sup>Bubble-Größe: Ø Arrival Delay (global skaliert)"
+                "  ·  Farbe: VBZ-Linienfarbe"
+                "  ·  Linien über Legende ein-/ausblenden</sup>"
+            ),
+            x=0, xanchor="left",
+        ),
+    )
+    fig.show()
+
+
+def plot_stop_dwell_map(lf: pl.LazyFrame, line_name: str = "11", min_n: int = 2000, cfg=None) -> None:
+    """Plotly Mapbox: Delay-Profil einer einzelnen Linie.
+
     Farbe: Ø Arrival Delay (Grün = pünktlich · Rot = verspätet)
     Größe: proportional zu pct_dw0 (% Halte ohne Puffer)
 
-    Hinweis: pct_dw0 ist netzweit ~71 % — kein linienspezifisches Signal.
-    Der Kontrast zwischen Linien zeigt sich im mean_delay (Farbe), nicht im
-    pct_dw0 (Größe). Große rote Bubbles = hoher Delay + kein Puffer.
-
+    min_n=2000 filtert Baustellen-Kurzläufer-Endhalte heraus (L6 hat ~230 Varianten).
     Input: lf_clean. line_name als String (z.B. "11", "6").
     """
     import plotly.graph_objects as go
@@ -1174,7 +1294,7 @@ def plot_stop_dwell_map(lf: pl.LazyFrame, line_name: str = "11", cfg=None) -> No
             pl.col("stop_sequence").mean().alias("mean_seq"),
             pl.len().alias("n"),
         ])
-        .filter(pl.col("n") >= 200)
+        .filter(pl.col("n") >= min_n)
         .sort("mean_seq")
         .collect()
         .to_pandas()
