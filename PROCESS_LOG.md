@@ -690,12 +690,20 @@ j25-Bubbles immer als Legende-Anker → bei Jahreswechsel zu 2023/2024 werden j2
 
 **Warum 6N abgelöst:** 6N hatte das Legenden-Verhalten gebrochen — Jahr-Wechsel und Linien-Toggle liefen in Konflikt, weil `visible`-Toggling für beide Funktionen benutzt wurde. Mit `restyle` wird nur der Dateninhalt getauscht, `visible` gehört exklusiv der Legende.
 
-**Relatives 5%-Filter für Spurious Stops** (`commit d72e59a`):
+**Datenqualitätsproblem entdeckt und behoben: Falsche Liniennummern im VBZ IST-Export** (`commit d72e59a`)
 
-Ursache: Ein kleiner Anteil VBZ-IST-Trips hat den falschen `line_name` in den Quelldaten (Depot-Fahrten, Nacht-Kopplung, Short-Turn-Umleitungen). Diese "verfranzen" Linien auf der Karte mit fremden Haltestellen (z. B. L2 zeigt Haltestellen der L7).
+**Was das Problem war (einfach erklärt):**
+VBZ liefert für jede Fahrt Betriebsdaten — welche Linie, welche Haltestellen, wann. Bei einer kleinen Anzahl Fahrten steht dabei die **falsche Liniennummer** im Datensatz. Ein Tram fährt physisch auf der L7-Strecke, ist aber im VBZ-System als "L2" gespeichert. Auf der Karte zählen wir wie oft jede Haltestelle pro Linie erscheint — "Museum Rietberg" taucht 836 Mal unter L2 auf, und wird deshalb als L2-Halt angezeigt, obwohl er gar nicht auf der L2-Strecke liegt.
 
-Filter: `n >= max_n_per_line_per_year × 0.05` — robuste Schwelle, weil legitime Haltestellen n ≈ 90.000 haben, Spurious Stops n ≈ 800–1.300 (≈ 1%). Angewendet auf beide Profil-Karten nach dem `min_n_yr` Absolutfilter.
+**Wie der Join das sichtbar macht (nicht verursacht):**
+Der Join im Master-File ist korrekt: `bpuic` (Haltestellennummer) → `stop_name` + Koordinaten. Das Problem liegt eine Ebene früher, im VBZ IST-Export selbst (`LINIEN_TEXT`). Das Master-File spiegelt korrekt wider, was VBZ geliefert hat.
 
-Reichweite des Datenqualitätsproblems: Nur Stop-Level-Spatial-Analysen mit niedrigem `min_n` betroffen. Analysen mit `min_n ≥ 5.000` sind bereits sicher.
+**Warum es in anderen Analysen nicht aufgefallen ist:**
+Echte Halte erscheinen ~90.000 Mal pro Linie und Jahr. Falsch zugeordnete Halte erscheinen ~800 Mal (< 1%). Analysen mit einer Mindestschwelle von 5.000+ Beobachtungen haben diese automatisch herausgefiltert — ohne dass wir es wussten.
+
+**Die Lösung:**
+Pro Linie und Jahr: alle Haltestellen, die weniger als 5% der meist-besuchten Haltestelle erreichen, werden entfernt. Echte Halte: ~90.000 → bleiben. Falsch zugeordnete: ~800 → raus. Der Schwellenwert ist bewusst relativ (nicht absolut), damit er für alle Linien und alle Jahre funktioniert — egal wie stark oder schwach eine Linie befahren ist.
+
+Angewendet auf: `plot_line_delay_profile_map` und `plot_line_dwell_profile_map`.
 
 **Nächster Schritt:** `03_analysis_4-spatial.ipynb` ausführen — beide Karten (Delay + Dwell) verifizieren: Jahr-Toggle, Alle-aus/ein, Linien-Klick, keine Spurious Stops mehr
