@@ -1340,17 +1340,26 @@ def plot_line_delay_profile_map(
             zoom=11.5,
         ),
         updatemenus=[
-            # "Alle ein/aus" toggle — args/args2 alternates on each click
+            # "Alle aus / Alle ein" — two buttons, active=1 (alle ein) on load.
+            # "Alle aus" uses visible="legendonly": traces hidden on map,
+            # but legend entries STAY visible and clickable → user can re-enable
+            # individual lines via legend without losing navigation.
             dict(
                 type="buttons",
-                buttons=[dict(
-                    label="☑ Alle ein/aus",
-                    method="restyle",
-                    args=[{"visible": [True] * N_total}],
-                    args2=[{"visible": [False] * N_total}],
-                )],
+                active=1,
+                buttons=[
+                    dict(
+                        label="Alle aus",
+                        method="restyle",
+                        args=[{"visible": ["legendonly"] * N_total}],
+                    ),
+                    dict(
+                        label="Alle ein",
+                        method="restyle",
+                        args=[{"visible": [True] * N_total}],
+                    ),
+                ],
                 x=0.0, y=1.0, xanchor="left", yanchor="bottom",
-                showactive=False,
                 bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
                 font=dict(size=12),
                 pad=dict(r=4, t=4, b=4, l=4),
@@ -1360,7 +1369,7 @@ def plot_line_delay_profile_map(
                 type="buttons",
                 active=2,
                 buttons=_make_year_buttons(lines, shapes_by_year),
-                x=0.19, y=1.0, xanchor="left", yanchor="bottom",
+                x=0.24, y=1.0, xanchor="left", yanchor="bottom",
                 bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
                 font=dict(size=12),
                 direction="right",
@@ -1532,14 +1541,20 @@ def plot_line_dwell_profile_map(
         updatemenus=[
             dict(
                 type="buttons",
-                buttons=[dict(
-                    label="☑ Alle ein/aus",
-                    method="restyle",
-                    args=[{"visible": [True] * N_total}],
-                    args2=[{"visible": [False] * N_total}],
-                )],
+                active=1,
+                buttons=[
+                    dict(
+                        label="Alle aus",
+                        method="restyle",
+                        args=[{"visible": ["legendonly"] * N_total}],
+                    ),
+                    dict(
+                        label="Alle ein",
+                        method="restyle",
+                        args=[{"visible": [True] * N_total}],
+                    ),
+                ],
                 x=0.0, y=1.0, xanchor="left", yanchor="bottom",
-                showactive=False,
                 bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
                 font=dict(size=12),
                 pad=dict(r=4, t=4, b=4, l=4),
@@ -1548,7 +1563,7 @@ def plot_line_dwell_profile_map(
                 type="buttons",
                 active=2,
                 buttons=_make_year_buttons(lines, shapes_by_year),
-                x=0.19, y=1.0, xanchor="left", yanchor="bottom",
+                x=0.24, y=1.0, xanchor="left", yanchor="bottom",
                 bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
                 font=dict(size=12),
                 direction="right",
