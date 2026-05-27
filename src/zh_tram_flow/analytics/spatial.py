@@ -48,59 +48,51 @@ def _get_cfg(cfg):
     return cfg
 
 
-def _get_route_stops_df(
-    lf_base: pl.LazyFrame,
-    lines: list[str],
-    min_n: int = 250,
-) -> pd.DataFrame:
-    """Stops per line ordered by the dominant direction's stop_sequence.
+def _load_gtfs_shapes(lines: list[str], year: str = "2025") -> pd.DataFrame:
+    """Load GTFS shape coordinates for the dominant route variant per line.
 
-    Filters to the most common terminus (= one direction) before averaging,
-    so the resulting stop order follows the actual route without bidirectional
-    crisscross. Used to draw route lines on interactive maps.
+    Uses GTFS shapes parquet files (data/raw/gtfs/) to get the actual track
+    geometry — hundreds of intermediate points that follow the real rail geometry,
+    not just stop-to-stop straight lines.
 
-    Returns columns: line_name, stop_name, stop_lat, stop_lon, mean_seq
+    Picks the most-used shape_id per line (direction=1, given year).
+    Falls back gracefully to empty DataFrame if GTFS files are missing.
+
+    Returns columns: line_name, lat, lon  (ordered by shape_pt_sequence).
     """
-    lf_filtered = lf_base.filter(pl.col("line_name").is_in(lines))
+    from zh_tram_flow.config import PATHS
 
-    # Step 1: last stop (terminus) per trip → identifies direction
-    terminus_lf = (
-        lf_filtered
-        .group_by(["line_name", "trip_id"])
-        .agg(
-            pl.col("stop_name").sort_by("stop_sequence").last().alias("terminus")
-        )
-    )
-    # Step 2: dominant terminus per line (highest trip count)
+    gtfs_dir = PATHS["raw"] / "gtfs"
+    try:
+        trips  = pl.read_parquet(gtfs_dir / "gtfs_tram_trips.parquet")
+        routes = pl.read_parquet(gtfs_dir / "gtfs_tram_routes.parquet")
+        shapes = pl.read_parquet(gtfs_dir / "gtfs_tram_shapes.parquet")
+    except FileNotFoundError:
+        return pd.DataFrame(columns=["line_name", "lat", "lon"])
+
+    # Dominant shape per line: most trips in `year`, direction=1
     dominant = (
-        terminus_lf
-        .group_by(["line_name", "terminus"])
+        trips
+        .join(routes.select(["route_id", "route_short_name", "year"]),
+              on=["route_id", "year"])
+        .filter(pl.col("route_short_name").is_in(lines))
+        .filter(pl.col("year") == year)
+        .filter(pl.col("direction_id") == 1)
+        .group_by(["route_short_name", "shape_id"])
         .agg(pl.len().alias("n_trips"))
         .sort("n_trips", descending=True)
-        .group_by("line_name")
-        .agg(pl.col("terminus").first().alias("main_terminus"))
+        .group_by("route_short_name")
+        .agg(pl.col("shape_id").first().alias("shape_id"))
+        .rename({"route_short_name": "line_name"})
     )
-    # Step 3: trip_ids that belong to the dominant direction
-    dominant_trips = (
-        terminus_lf
-        .join(dominant, on="line_name")
-        .filter(pl.col("terminus") == pl.col("main_terminus"))
-        .select(["line_name", "trip_id"])
-    )
-    # Step 4: aggregate stops for those trips only → clean sequential order
+
     return (
-        lf_filtered
-        .join(dominant_trips, on=["line_name", "trip_id"])
-        .group_by(["line_name", "stop_name"])
-        .agg([
-            pl.col("stop_lat").mean(),
-            pl.col("stop_lon").mean(),
-            pl.col("stop_sequence").mean().alias("mean_seq"),
-            pl.len().alias("n"),
-        ])
-        .filter(pl.col("n") >= min_n)
-        .sort(["line_name", "mean_seq"])
-        .collect()
+        shapes
+        .filter(pl.col("year") == year)
+        .join(dominant, on="shape_id")
+        .sort(["line_name", "shape_pt_sequence"])
+        .select(["line_name", "shape_pt_lat", "shape_pt_lon"])
+        .rename({"shape_pt_lat": "lat", "shape_pt_lon": "lon"})
         .to_pandas()
     )
 
@@ -1264,20 +1256,20 @@ def plot_line_delay_profile_map(
     normalized = (stops_all["mean_delay"] - d_min) / (d_max - d_min + 1e-9)
     stops_all["bubble"] = 2 + (normalized ** 1.7) * 22  # range 2–24 px
 
-    # Route lines: dominant direction only → clean sequential stop order
-    route_df = _get_route_stops_df(lf_base, lines, min_n=max(min_n // 4, 100))
+    # GTFS shape geometry: actual track coordinates (300–600 pts/line)
+    route_df = _load_gtfs_shapes(lines)
 
     fig = go.Figure()
 
     for line in lines:
         color = _lc(line)
 
-        # 1) Route line — same legendgroup as bubbles, not in legend itself
+        # 1) Route line from GTFS shapes — correct rail geometry, not stop-to-stop lines
         route_sub = route_df[route_df["line_name"] == line]
         if not route_sub.empty:
             fig.add_trace(go.Scattermapbox(
-                lat=route_sub["stop_lat"],
-                lon=route_sub["stop_lon"],
+                lat=route_sub["lat"],
+                lon=route_sub["lon"],
                 mode="lines",
                 line=dict(color=color, width=2),
                 opacity=0.45,
@@ -1398,8 +1390,8 @@ def plot_line_dwell_profile_map(
     stops_all["mean_dwell_r"] = stops_all["mean_dwell"].round(1)
     stops_all["stop_short"] = stops_all["stop_name"].str.replace("Zürich, ", "", regex=False)
 
-    # Route lines: dominant direction only
-    route_df = _get_route_stops_df(lf_base, lines, min_n=max(min_n // 4, 100))
+    # GTFS shape geometry: actual track coordinates (same source as delay map)
+    route_df = _load_gtfs_shapes(lines)
 
     # Diverging colorscale: 0 s = red, 15 s = orange, ≥ 30 s = green
     _dwell_colorscale = [[0.0, "#de425b"], [0.4, "#ffa600"], [1.0, "#25ac82"]]
@@ -1412,12 +1404,12 @@ def plot_line_dwell_profile_map(
     for line in lines:
         color = _lc(line)
 
-        # Route line
+        # Route line from GTFS shapes
         route_sub = route_df[route_df["line_name"] == line]
         if not route_sub.empty:
             fig.add_trace(go.Scattermapbox(
-                lat=route_sub["stop_lat"],
-                lon=route_sub["stop_lon"],
+                lat=route_sub["lat"],
+                lon=route_sub["lon"],
                 mode="lines",
                 line=dict(color=color, width=2),
                 opacity=0.35,
