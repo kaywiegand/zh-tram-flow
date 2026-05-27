@@ -28,6 +28,10 @@ Die gesamte Data-Engineering-Phase ist in [`sf_data-research`](https://github.co
 - ~94.4 Mio. Zeilen · 26 Spalten · ~541 MB
 - Enthält: IST-Verspätungsdaten + GTFS-Haltestellen + Meteo-Stundenwerte + Events
 - Zeitraum: 2023–2025 · Betreiber: VBZ Zürich · Produkt: Tram
+- **Integrität:** Das Master-File ist korrekt — es spiegelt exakt wider, was VBZ geliefert hat. Der Join `bpuic → stop_name/stop_lat/stop_lon` ist fehlerfrei. Abweichungen in Analysen sind immer auf Eigenschaften der VBZ-Quelldaten zurückzuführen, nicht auf den Join.
+
+**Bekannte VBZ-Quelldaten-Eigenschaft — Kurs-Varianten:**
+Manche Tramlinien bedienen neben dem Hauptkurs auch seltenere Kurs-Varianten (z. B. L2 verlängert via Tunnelstrasse → Museum Rietberg → Wollishofen). Diese Varianten-Halte erscheinen im IST-Datensatz mit deutlich niedrigerer Frequenz (< 1% des Hauptkurses) und sind von GTFS bestätigt — kein Datenfehler. In Visualisierungen mit Haltestellenbezug (z. B. `plot_line_delay_profile_map`) werden sie durch einen relativen Frequenzfilter (< 5% des meistbesuchten Halts) ausgeblendet, um den repräsentativen Betrieb zu zeigen. → Dokumentiert in `03_analysis_4-spatial.ipynb`.
 
 **GTFS-Referenztabellen:** `data/raw/gtfs/`
 - 9 Parquet-Dateien (Stops, Routes, Shapes, Trips — Tram + Gesamtnetz)
