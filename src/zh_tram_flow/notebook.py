@@ -31,6 +31,80 @@ from zh_tram_flow.config import PATHS, PROJECT_NAME, RANDOM_SEED, LINE_COLORS, L
 from zh_tram_flow.settings import setup_plotting, logger
 
 
+def save_fig(
+    fig,
+    name: str,
+    *,
+    dpi: int = 150,
+    html: bool = True,
+    png: bool = True,
+    overwrite_warn_hours: float = 24.0,
+) -> list[Path]:
+    """Save a figure to reports/figures/ with a meaningful name.
+
+    Supports Matplotlib figures and Plotly figures.
+    Warns if an existing file is newer than `overwrite_warn_hours` hours.
+
+    Parameters
+    ----------
+    fig   : matplotlib.figure.Figure | plotly.graph_objs.Figure
+    name  : slug without extension, e.g. "tempo-day-hours"
+    dpi   : resolution for PNG output (Matplotlib only)
+    html  : save Plotly figures as .html (default True)
+    png   : save Matplotlib as .png, Plotly as .png via kaleido (default True)
+    overwrite_warn_hours : warn if existing file is younger than this many hours
+
+    Returns
+    -------
+    list of Path objects that were written
+    """
+    import datetime
+    import time
+
+    figures_dir: Path = PATHS["figures"]
+    figures_dir.mkdir(parents=True, exist_ok=True)
+
+    written: list[Path] = []
+
+    def _warn_if_recent(path: Path) -> None:
+        if path.exists():
+            age_h = (time.time() - path.stat().st_mtime) / 3600
+            if age_h < overwrite_warn_hours:
+                warn(f"Overwriting {path.name} (last modified {age_h:.1f}h ago)")
+
+    # ── Detect figure type ────────────────────────────────────────────────────
+    fig_type = type(fig).__module__.split(".")[0]   # "matplotlib" | "plotly"
+
+    if fig_type == "matplotlib" or hasattr(fig, "savefig"):
+        if png:
+            out = figures_dir / f"{name}.png"
+            _warn_if_recent(out)
+            fig.savefig(out, dpi=dpi, bbox_inches="tight")
+            success(f"Saved → figures/{name}.png")
+            written.append(out)
+
+    elif fig_type == "plotly" or hasattr(fig, "write_html"):
+        if html:
+            out = figures_dir / f"{name}.html"
+            _warn_if_recent(out)
+            fig.write_html(str(out), include_plotlyjs="cdn")
+            success(f"Saved → figures/{name}.html")
+            written.append(out)
+        if png:
+            try:
+                out = figures_dir / f"{name}.png"
+                _warn_if_recent(out)
+                fig.write_image(str(out), width=1400, height=800, scale=2)
+                success(f"Saved → figures/{name}.png")
+                written.append(out)
+            except Exception:
+                warn(f"PNG export failed (kaleido not installed?). HTML saved, PNG skipped.")
+    else:
+        warn(f"save_fig: unknown figure type '{type(fig)}' — skipped.")
+
+    return written
+
+
 def setup_analysis(notebook_name: str = "notebook"):
     """Standard setup for all analysis notebooks.
 
@@ -76,4 +150,8 @@ __all__ = [
     "cfg", "PATHS", "PROJECT_NAME", "RANDOM_SEED",
     # setup
     "setup_plotting", "logger", "setup_analysis",
+    # export
+    "save_fig",
+    # line colors
+    "LINE_COLORS", "LINE_TEXT_COLORS", "line_color", "line_colors",
 ]

@@ -33,10 +33,15 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 41 | **Key-Visual ins README** — Einen der starken Plots aus `reports/figures/` auswählen, in README einbinden (`![...](reports/figures/...)`). Einziger A-Punkt im Portfolio-Check — ohne Visual ist der GitHub-Auftritt leer. Kandidaten: `geo-delay-hotspots.png` (Karte, sofort verständlich) oder `tempo-day-hours.png` (Peak 21h, kein Morgenrush). | 1 |
 | 10 | **Portfolio-Beschreibung** — Findings-System (strukturierte IDs, Impact, Action, Status) als bewusste Engineering-Entscheidung hervorheben. Analogie zu Ticket-Systemen. Gehört in README + Bewerbungsunterlagen. | 1 |
 | 34 | **Single Source of Truth für Zahlen + Metriken** — Audit: Welche Zahl steht wo? Für jeden Fakt (MAE, Baseline, Zeilenzahlen, Finding-Counts) einen Primärort (Notebook-Zelle) festlegen. Alle anderen Vorkommen durch Pointer ersetzen. Kein Fakt doppelt in MD-Files. | 1 |
-| 35 | **Reporting aufräumen** — File-Naming und Exports auf konsistente Konvention bringen: `plotly_chart_1/2/3.html` in `figures/` umbenennen oder entfernen, `index.html` Zweck klären, PNG-Naming vereinheitlichen. | 1 |
+| 43 | **Export-Cells in Analyse-Notebooks** — Jedes Notebook bekommt eine letzte `## Export`-Cell mit `save_fig(fig, "name")`. Sichert alle relevanten Charts reproduzierbar und benannt. Kandidaten: temporal, spatial, meteo, events, network, prediction. | 2 |
+
+<!-- Erledigt 2026-05-28:
+  #41 Key-Visual: geo-delay-hotspots.png in README eingebunden ✅
+  #35 Reporting aufräumen: plotly_chart_1/2/3.html → beschreibende Namen, meteo-saison.png (Duplikat) gelöscht ✅
+       save_fig() Helper implementiert in src/zh_tram_flow/notebook.py ✅
+-->
 | 1 | **README vs. `00_introduction.ipynb`** — Rollentrennung klären: wer liest was, wozu? Redundanz auflösen, klare Regel dokumentieren. | 2 |
 | 5 | **Pipeline-Skizze dokumentieren** — vollständige Datenpipeline in `00_introduction.ipynb`: wann lazy, wann collect(), wann sink_parquet() und warum. Format: Diagramm + Begründungstabelle. | 2 |
 | 6 | **Meta-Abgleich** — `00_introduction.ipynb` · `README.md` · `ROADMAP.md` synchronisieren: Phasen-Namen · Variablen-Konventionen. | 2 |
