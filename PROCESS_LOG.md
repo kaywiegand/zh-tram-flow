@@ -794,3 +794,68 @@ Zwei neue Notebooks angelegt, die den bisherigen Modellierungsstand erweitern:
 Die neue Kernthese ("vorhersagbar = steuerbar") braucht einen Modell-Beweis. Wenn `prev_trip_delay` in der Feature Importance oben steht, bestätigt das: die Kaskade ist kein statistisches Artefakt — sie ist ein lernbares Signal. Das schließt den Kreis Analyse → Modell.
 
 **Nächster Schritt:** Notebooks sequenziell ausführen: 04 → 05 → Vergleichs-Ergebnis auswerten
+
+---
+
+### 2026-05-28 — XGBoost Unicode-Fix + presentation-v2.html erstellt
+
+**Was wurde gemacht:**
+
+**XGBoost Unicode-Fix in `06_prediction_5-comparison.ipynb`:**
+
+XGBoost 3.x wirft `UnicodeDecodeError: 'utf-8' codec can't decode byte 0xc3` wenn pandas Categorical-Spalten Schweizer Haltestellennamen (ä, ö, ü) enthalten — 0xc3 ist das erste Byte von UTF-8-Multibyte-Zeichen. XGBoost liest Kategorie-Labels intern als raw bytes statt als Python-str.
+
+Lösung: `OrdinalEncoder` aus scikit-learn ersetzt pandas Categorical → Ganzzahl-Codes statt Unicode-Strings. Encoder wird einmalig auf dem vollen Train-Set gefittet und konsistent auf Train, Validation und Test angewendet. `enable_categorical=True` entfernt (nicht kompatibel mit integer-encodierten Spalten).
+
+Geänderte Zellen: `cmp00012` (OrdinalEncoder-Fit + `to_xgb_df()`-Hilfsfunktion) und `cmp00021` (XGBRegressor ohne `enable_categorical`).
+
+**`reports/presentation-v2.html` — neue Präsentation erstellt:**
+
+Vollständige Neuerstellung auf Basis von `presentation.html` (v1). Zentrale Änderungen:
+
+- **Kernthese-Folie (Slide 2):** "Die Verspätungen im Zürcher Tramnetz sind vorhersagbar. Vorhersagbar heisst: steuerbar." — eigene Folie statt nur Bullet in Insights
+- **4-Schritt-Beweiskette (Slide 10):** Evidence Chain als visuelles Kernelement: Anomalie → Gradient → Mechanismus → Kaskade. Schliesst direkt aus der Analyse-Phase.
+- **Modellentwicklung (Slide 13):** Progressions-Tabelle: Baseline 50.0s → LightGBM v1 45.7s → LightGBM v2 18.56s* → XGBoost (pending)
+- **v2-Interpretation (Slide 14):** Zwei Modell-Karten nebeneinander: v1 = Pre-Trip-Modell, v2 = Real-Time-Dispatch — erklärt den Unterschied und den Nutzungskontext
+- **Neue Empfehlungen (Slide 16):** Kein "Netzausbau K11/K12" mehr — stattdessen: Fahrplan-Redesign L11 · Real-Time Dispatch · Kapazität Abend · OTP-Monitoring
+- **Storyline entfernt:** "Investitions-Mismatch" vollständig raus — neue Empfehlungen sind alle direkt durch Befunde gedeckt
+- Struktur: 17 Slides total (4 Section-Divider + 13 Content-Slides)
+
+XGBoost-Zelle im Vergleichs-Notebook läuft noch — Ergebnis wird in Slide 13 als "pending" ausgewiesen. Sobald fertig: Tabelle mit echten XGBoost-Zahlen füllen.
+
+**Nächster Schritt:** `06_prediction_5-comparison.ipynb` fertig laufen lassen · XGBoost-MAE in `presentation-v2.html` Slide 13 eintragen · dann git commit
+
+---
+
+### 2026-05-28 — presentation-v3.html + XGBoost-Abschluss + Portfolio-Skills-Infrastruktur
+
+**`reports/presentation-v3.html` — 16 Feedback-Punkte eingearbeitet:**
+
+- T-Shape Slide: vollständige Bullet-Listen wiederhergestellt (ETL-Schritte, Analyse-Dimensionen, Preparation-Punkte)
+- Section- und Slide-Titles: `text-transform: uppercase` entfernt — Normal Case durchgehend
+- Slide 5 (Idee & Scope): Pipe-Step-Buttons als Spalten-Header statt inline-Elemente
+- Analyse Überblick: Icons entfernt, Notebook-Titel auf Englisch (Target · Network · Time · Geo · Meteo · Events)
+- Reihenfolge: "Das Problem" vor "Analyse Überblick" — Kontext vor Inhalt
+- Hotspot-Bullet: "Verspätung konzentriert sich auf wiederkehrende Hotspot-Haltestellen — kein Zufall, sondern ein Muster"
+- Slide 18 (Datenverfügbarkeit): Zielgruppen-Framing entfernt — Daten-Verfügbarkeits-Framing (Pre-Trip vs. In-Trip)
+- Empfehlung 1: "gezielter Puffer" statt "Puffer an Endstationen"
+- Headings durchgehend linksbündig (`text-align: left` auf h2, h3, p, li)
+- Mehr Abstand zwischen Slide-Titel und Content (`margin-bottom: 0.85em`)
+- Stop-Baseline erklärt als statistisch erhoben aus Trainingsdaten
+
+**XGBoost-Abschluss (Option C):**
+
+Training nach 150 Runden (val MAE 21.37s) abgebrochen — 85M Zeilen machen CPU-Training nicht zumutbar (>90 Min, hohe Last). Entscheidung: XGBoost-Zeile aus Slide 17 entfernt, stattdessen orange Robustheits-Box in Slide 18: *"XGBoost auf gleichem Feature-Set → val MAE ~21.4s (150 Runden) — 5× langsamere Trainingszeit auf 85M Zeilen."* Das ist selbst ein Befund: LightGBM nicht nur ähnlich gut, sondern drastisch schneller.
+
+`cmp00021` in `06_prediction_5-comparison.ipynb` angepasst: `n_estimators` 1000 → 300 (Kurve war bei Round 150 konvergiert), Load-if-exists Pattern (Kernel-Crash-Schutz), Save-after-fit direkt nach Training.
+
+**Portfolio-Skills-Infrastruktur (Workspace-Ebene):**
+
+Drei neue Files für wiederverwendbaren Portfolio-Aufbereitungs-Workflow:
+- `~/.claude/commands/portfolio.md` — Claude Code Skill mit 5 Modi: check · story · report · slides · full
+- `/Workspace/docs/portfolio/templates/portfolio_summary_template.md` — Interface-File-Template (Brücke Analyse → Präsentation)
+- `/Workspace/docs/portfolio/templates/slides-template.html` — CSS/JS-Basis aus presentation-v3 extrahiert, projektunabhängig
+
+Ziel: `/portfolio story` auf einem Projekt aufrufen → `reports/portfolio_summary.md` wird aus Notebook-Markdown-Cells befüllt → `/portfolio slides` generiert daraus `presentation.html` ohne Notebooks erneut lesen zu müssen.
+
+**Nächster Schritt:** `/portfolio check` auf zh-tram-flow als ersten Echttest · dann `/portfolio story` für `reports/portfolio_summary.md`

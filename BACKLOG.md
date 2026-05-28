@@ -12,17 +12,20 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 19 | **Präsentation zh-tram-flow (10–15 Min · ~11 Slides)** — Gliederung: (1) Einleitung + Tech Stack · (2–3) Data Engineering · (4) Projekt Scope · (5) EDA & Preparation · (6–8) Analyse & Insights · (9) Preprocessing & Baseline · (10) Modell & Evaluation · (11) Live Vorhersage | 2 |
-| 20 | **Präsentation als Claude-Workflow-Übungsfall** — Reveal.js HTML mit Claude bauen: CLAUDE.md schreiben → Explore → Plan → Draft → Code → Review → Final `reports/presentation.html` | 2 |
-| 21 | **Präsentation — Industry Know-how** — Beating the naive baseline · Temporal Split · Feature Leakage · Large-scale ML · Feature Engineering as Analysis Output | 2 |
-| 22 | **Präsentation — Data Engineering Story** — Datenmenge als roter Faden: 38 GB raw → 94 Mio. Zeilen → 55.5 Mio. Train → 32 Features ML-ready | 2 |
-| 23 | **Präsentation — Modern Stack Argument** — LightGBM + Polars auf Laptop: 55M Zeilen Training in 18 Min, Prediction in 3.5 Min | 2 |
-| 24 | **Präsentation — Analyse diktiert das Modell** — 55 Findings haben Feature Engineering direkt diktiert. Botschaft: "Ich habe nicht einfach ein Modell trainiert." | 2 |
-| 25 | **Präsentation — Feature Engineering als Analyse-Output** — Finding → Feature zeigen: F-TEMP-01 → `hour` · F-WEAT-01 → `has_snow` · F-SPAT-01 → `stop_name` | 2 |
 | 26 | **Präsentation — Live Vorhersage als HTML-Widget** — Predictions vorberechnen → JSON → JavaScript-Lookup. Kein Server nötig. Dropdown: Stop × Linie × Stunde × Wetter-Flag | 2 |
-| 28 | **Präsentation — Kernthese + Impact-Aussage schärfen** — Eine klare Hauptbotschaft formulieren: Was ist die eine Erkenntnis, die bleibt? Aktuell wirkt die Präsentation wie eine solide Analyse ohne konkreten Punch. Ziel: Thesis als Einstieg und Abschluss, jede Slide trägt zur Kernaussage bei. | 2 |
-| 29 | **Präsentation — Design überarbeiten** — Schlichter, eleganter, professioneller. Weniger Elemente pro Slide, mehr Whitespace, saubere Typographie. | 2 |
-| 30 | **Präsentation — Impact-Momente inszenieren** — Versteckten Impact explizit herausarbeiten und als "Aha-Slides" aufbauen: Peripherie-Hotspots, kein Morgenrush, Fachmesse schlägt Taylor Swift, Feiertag = beste Tage, Netzausbau am falschen Ort. Keine Finding-Liste — eine Überraschung pro Slide. | 2 |
+
+<!-- Erledigt 2026-05-28 → presentation-v2.html + presentation-v3.html:
+  #19 Präsentation erstellt (21 Slides, T-Shape, Data Engineering, Analysis, Data Science)
+  #20 Mit Claude Code als Workflow-Übungsfall gebaut
+  #21 Industry Know-how: Baseline-Benchmarking, Temporal Split, Feature Engineering als Output
+  #22 Data Engineering Story: 38 GB raw → 85M Zeilen → 34 Features ML-ready
+  #23 Modern Stack: LightGBM + Polars auf Laptop
+  #24 Analyse diktiert das Modell: 4-Schritt-Beweiskette
+  #25 Feature Engineering als Analyse-Output: Finding → Feature explizit
+  #28 Kernthese: "vorhersagbar = steuerbar" als Einstieg + roter Faden
+  #29 Design überarbeitet: linksbündig, Whitespace, Normal Case, Evidence Chain
+  #30 Impact-Momente: Hotspot-Haltestellen, 4-Schritt-Beweiskette, Kaskadeneffekt
+-->
 
 ---
 
@@ -62,8 +65,10 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 | 16 | **Target Encoding für `stop_name`** — Mittelwert `arrival_delay` pro Stop (n-Threshold ≥ 1000, Smoothing). Erklärt Teil des MBE (+10.1s). Neues `train_final_v2.parquet` → Modell neu trainieren. | 2 |
 | 17 | **Netzwerk-Stats als Artefakt speichern** — `compute_network_stats()` Ergebnis als `data/processed/network_stats.parquet` persistieren. Verhindert stilles Leakage bei Neuausführung. | 3 |
 | 18 | **`prev_trip_delay` prüfen** — Kaskadenindikator (F-NET-07). Erst prüfen ob `trip_id` über aufeinanderfolgende Fahrten stabil ist. | 3 |
-| 32 | **Modell-Tuning** — LightGBM v1 Hyperparameter systematisch optimieren (Optuna). Ziel: MBE +8.3s adressieren und MAE unter 45.7s drücken. Ergebnis: `lgbm_v2.txt`. | 2 |
-| 33 | **Zweites Modell** — Alternativmodell als Vergleich trainieren und gegen LightGBM v1 benchmarken. Kandidaten: XGBoost (strukturell ähnlich, fairer Vergleich) · Ridge Regression (interpretabel, Kontrast zur Boost-Komplexität). | 3 |
+<!-- Erledigt 2026-05-28:
+  #32 LightGBM v2 trainiert: 2 neue Features (prev_trip_delay, stop_sequence_pct) → Test MAE 18.56s, MBE -0.69s — kein Optuna, Feature-Engineering war entscheidend
+  #33 XGBoost als Robustheits-Check: val MAE ~21.4s bei Round 150, Training auf 85M Zeilen >90 Min — LightGBM klar überlegen; Ergebnis in presentation-v3 Slide 18
+-->
 
 ---
 

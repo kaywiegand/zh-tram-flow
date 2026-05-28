@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<!--
+╔══════════════════════════════════════════════════════════════╗
+║  DATA PROJECT PRESENTATION TEMPLATE                          ║
+║  Kay Wiegand · Portfolio · 2026                              ║
+╠══════════════════════════════════════════════════════════════╣
+║  THEMES — set class on <body>:                               ║
+║    class="theme-editorial"  → Cream / Earth Tones            ║
+║    class="theme-dark"       → Dark / Tech-Look               ║
+║    class="theme-minimal"    → White / Clean                  ║
+╠══════════════════════════════════════════════════════════════╣
+║  PLACEHOLDERS — replace with your content:                   ║
+║    [PROJEKTNAME]     Kurzer prägnanter Name                  ║
+║    [HOOK]            1 Satz was + warum                      ║
+║    [FINDING_TITEL]   Fazit als Überschrift (nicht Thema!)    ║
+║    [...]             Beliebige Inhalte                       ║
+╚══════════════════════════════════════════════════════════════╝
+-->
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[PROJEKTNAME] — Präsentation</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+
+  <style>
+    /* ════════════════════════════════════════════════
+       THEME DEFINITIONS
+       ════════════════════════════════════════════════ */
+
+    /* ── Editorial: Warm / Print-inspired ─────────── */
+    .theme-editorial {
+      --bg:      #F2EDE6;
+      --bg-s:    #EAE5DE;   /* surface / cards */
+      --ink:     #1A1A1A;
+      --muted:   #8A8278;
+      --border:  #DDD7CF;
+      --a1:      #E07860;   /* coral — problem / warning */
+      --a2:      #6E9642;   /* olive — positive / good */
+      --a3:      #1A1A1A;   /* dark — neutral accent */
+      --hl-a1:   rgba(224, 120, 96, 0.08);
+      --hl-a2:   rgba(110, 150, 66,  0.08);
+      --head-transform: uppercase;
+      --head-weight: 900;
+      --head-spacing: -0.03em;
+      --transition: fade;
+    }
+
+    /* ── Dark: Tech / Conference ──────────────────── */
+    .theme-dark {
+      --bg:      #111111;
+      --bg-s:    #1C1C1E;
+      --ink:     #F0EEE8;
+      --muted:   #8A8A8E;
+      --border:  #2C2C2E;
+      --a1:      #3B82F6;   /* electric blue — primary */
+      --a2:      #10B981;   /* emerald — positive */
+      --a3:      #F59E0B;   /* amber — warning */
+      --hl-a1:   rgba(59, 130, 246, 0.10);
+      --hl-a2:   rgba(16, 185, 129, 0.10);
+      --head-transform: uppercase;
+      --head-weight: 900;
+      --head-spacing: -0.03em;
+      --transition: slide;
+    }
+
+    /* ── Minimal: Clean / Universal ──────────────── */
+    .theme-minimal {
+      --bg:      #FFFFFF;
+      --bg-s:    #F5F5F5;
+      --ink:     #111111;
+      --muted:   #6B6B6B;
+      --border:  #E5E5E5;
+      --a1:      #111111;   /* black — primary accent */
+      --a2:      #6B6B6B;   /* gray — secondary */
+      --a3:      #D4380D;   /* vermillion — highlight */
+      --hl-a1:   rgba(17, 17, 17,  0.05);
+      --hl-a2:   rgba(107, 107, 107, 0.06);
+      --head-transform: none;
+      --head-weight: 800;
+      --head-spacing: -0.025em;
+      --transition: fade;
+    }
+
+    /* ════════════════════════════════════════════════
+       BASE STYLES (all themes)
+       ════════════════════════════════════════════════ */
+
+    html, body { background: var(--bg) !important; }
+
+    .reveal {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 17px;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    .reveal .backgrounds { background: var(--bg) !important; }
+    .reveal .slide-background { background: var(--bg) !important; }
+    .reveal .slides section { text-align: left; }
+
+    /* ── Typography ────────────────────────────── */
+    .reveal h1, .reveal h2, .reveal h3 {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--ink);
+      text-align: left;
+      text-shadow: none;
+    }
+    .reveal h1 {
+      font-size: 4.2em;
+      font-weight: var(--head-weight);
+      letter-spacing: var(--head-spacing);
+      line-height: 0.91;
+      text-transform: var(--head-transform);
+      margin: 0; padding: 0;
+    }
+    .reveal h2 {
+      font-size: 1.95em;
+      font-weight: var(--head-weight);
+      letter-spacing: var(--head-spacing);
+      line-height: 0.93;
+      text-transform: var(--head-transform);
+      border: none !important;
+      margin: 0; padding: 0;
+    }
+    .reveal h3 {
+      font-size: 0.7em;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin: 1.2em 0 0.4em;
+      padding: 0; border: none;
+    }
+    .reveal p  { color: var(--ink); line-height: 1.55; margin: 0; }
+    .reveal ul, .reveal ol { margin: 0; padding-left: 1.1em; }
+    .reveal li { margin-bottom: 4px; font-size: 0.85em; color: var(--ink); line-height: 1.5; }
+    .reveal strong { color: var(--ink); font-weight: 700; }
+    .reveal a { color: var(--a1); }
+    .reveal code {
+      font-size: 0.85em;
+      background: var(--bg-s);
+      color: var(--ink);
+      padding: 1px 5px; border-radius: 2px;
+    }
+
+    /* ── Controls & Progress ───────────────────── */
+    .reveal .slide-number {
+      font-size: 0.62em; font-family: 'Inter', sans-serif;
+      color: var(--muted) !important; background: transparent !important;
+      right: 14px !important; left: auto !important; bottom: 12px !important;
+    }
+    .reveal .controls { display: none !important; }
+    .reveal .progress {
+      height: 3px !important;
+      background: var(--border) !important;
+    }
+    .reveal .progress span { background: var(--a1) !important; }
+
+    /* ── Fixed decorative top stripe ───────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(to right,
+        var(--a1) 33.3%,
+        var(--a2) 33.3% 66.6%,
+        var(--a3) 66.6%);
+      z-index: 99999;
+      pointer-events: none;
+    }
+
+    /* ════════════════════════════════════════════════
+       SLIDE LAYOUTS
+       ════════════════════════════════════════════════ */
+
+    /* ── Title & Section Slides ─────────────────── */
+    .s-title, .s-section {
+      position: relative;
+      min-height: 680px;
+    }
+    .s-title-inner, .s-section-inner {
+      position: absolute;
+      bottom: 44px; left: 44px; right: 44px;
+    }
+    .s-title-inner h1 { font-size: 5.0em; }
+    .s-section-inner h1 { font-size: 3.8em; }
+    .t-hook {
+      font-size: 0.95em;
+      color: var(--ink);
+      margin-top: 18px;
+      font-weight: 500;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+    .t-meta {
+      font-size: 0.68em;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    .sec-sub {
+      font-size: 0.82em;
+      color: var(--muted);
+      margin-top: 12px;
+      font-weight: 400;
+    }
+
+    /* ── Content Slides ─────────────────────────── */
+    .reveal .slides section.s-content { padding: 26px 36px !important; }
+    .cslide { display: flex; gap: 32px; }
+    .cl {
+      width: 220px; flex-shrink: 0; padding-top: 3px;
+    }
+    .cl .cat {
+      display: block;
+      font-size: 0.6em; font-weight: 700;
+      color: var(--a1);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 10px;
+    }
+    .cr { flex: 1; min-width: 0; }
+
+    /* ════════════════════════════════════════════════
+       COMPONENTS
+       ════════════════════════════════════════════════ */
+
+    /* ── Metrics ────────────────────────────────── */
+    .mrow { display: flex; gap: 0; margin: 7px 0; }
+    .m {
+      flex: 1;
+      padding: 8px 10px;
+      border-top: 2px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .m:last-child { border-right: none; }
+    .m .v {
+      font-size: 1.5em;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .m .l { font-size: 0.62em; color: var(--muted); margin-top: 3px; font-weight: 500; }
+    .m.good .v { color: var(--a2); }
+    .m.warn .v { color: var(--a1); }
+    .m.hi   .v { color: var(--a3); }
+
+    /* ── Tables ─────────────────────────────────── */
+    .reveal table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.78em; margin: 0.2em 0;
+    }
+    .reveal table th {
+      background: var(--bg-s);
+      color: var(--ink);
+      padding: 6px 9px; text-align: left;
+      font-weight: 700; font-size: 0.8em;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 2px solid var(--border);
+    }
+    .reveal table td {
+      padding: 5px 9px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top; color: var(--ink);
+    }
+    .reveal table tr:last-child td { border-bottom: none; }
+    .reveal table tr.hl td {
+      background: var(--hl-a1);
+      font-weight: 700;
+    }
+
+    /* ── Info Boxes ─────────────────────────────── */
+    .bx {
+      border-left: 3px solid var(--a1);
+      padding: 7px 11px;
+      background: var(--hl-a1);
+      margin: 5px 0; font-size: 0.82em; line-height: 1.55;
+      color: var(--ink);
+    }
+    .bx.g { border-left-color: var(--a2); background: var(--hl-a2); }
+    .bx.n { border-left-color: var(--border); background: var(--bg-s); }
+
+    /* ── Pipeline Steps ─────────────────────────── */
+    .pstep {
+      display: flex; align-items: center; gap: 14px;
+      padding: 5px 0; border-bottom: 1px solid var(--border);
+      font-size: 0.8em;
+    }
+    .pstep:first-child { border-top: 1px solid var(--border); }
+    .pstep strong {
+      font-weight: 700; min-width: 90px;
+      color: var(--ink); flex-shrink: 0;
+    }
+    .pstep.accent strong { color: var(--a1); }
+    .pstep.good   strong { color: var(--a2); }
+    .pstep .d { color: var(--muted); }
+
+    /* ── Two-Column inside .cr ──────────────────── */
+    .cols { display: flex; gap: 24px; align-items: flex-start; }
+    .cols > div { flex: 1; }
+
+    /* ── Chart Placeholder ──────────────────────── */
+    .chart-ph {
+      background: var(--bg-s);
+      border: 1px dashed var(--border);
+      border-radius: 3px;
+      display: flex; align-items: center;
+      justify-content: center;
+      font-size: 0.72em; color: var(--muted);
+      font-weight: 600; letter-spacing: 0.05em;
+      cursor: pointer;
+    }
+    .chart-tile {
+      display: block; border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+      text-decoration: none; cursor: pointer;
+    }
+    .chart-tile img { width: 100%; display: block; }
+    .chart-tile-html {
+      display: flex; align-items: center;
+      justify-content: center; gap: 8px;
+      background: var(--bg-s); border: 1px solid var(--border);
+      border-radius: 3px; padding: 11px 8px;
+      text-decoration: none; color: var(--ink);
+      font-size: 0.73em; font-weight: 600;
+    }
+    .cgrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px; align-content: start;
+    }
+
+    /* ── Findings Grid (Slide 4–6) ──────────────── */
+    .finding-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px; margin-top: 6px;
+    }
+    .finding-card {
+      border-top: 2px solid var(--a1);
+      padding-top: 10px;
+    }
+    .finding-card.good { border-top-color: var(--a2); }
+    .finding-card .fc-label {
+      font-size: 0.6em; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--a1); margin-bottom: 4px;
+    }
+    .finding-card.good .fc-label { color: var(--a2); }
+    .finding-card .fc-title {
+      font-size: 0.88em; font-weight: 700;
+      color: var(--ink); margin-bottom: 5px; line-height: 1.35;
+    }
+    .finding-card p {
+      font-size: 0.78em; color: var(--muted); line-height: 1.5;
+    }
+
+    /* ── Implications Cards ─────────────────────── */
+    .impl-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px; margin-top: 6px;
+    }
+    .impl-card { border-top: 3px solid var(--a1); padding-top: 10px; }
+    .impl-card h3 { margin-top: 0; font-size: 0.75em; }
+    .impl-card .impl-title {
+      font-size: 0.9em; font-weight: 700;
+      color: var(--ink); margin-bottom: 5px; line-height: 1.35;
+    }
+    .impl-card p { font-size: 0.78em; color: var(--muted); line-height: 1.5; }
+    .impl-card .stakeholder {
+      display: inline-block;
+      font-size: 0.62em; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--a1); margin-top: 6px;
+    }
+
+    /* ── Tags ───────────────────────────────────── */
+    .tags { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
+    .tag {
+      background: var(--bg-s);
+      border: 1px solid var(--border);
+      border-radius: 2px; padding: 2px 9px;
+      font-size: 0.72em; font-weight: 600; color: var(--ink);
+    }
+
+    /* ── Next Steps ─────────────────────────────── */
+    .next-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 32px; margin-top: 24px;
+    }
+    .next-block h3 { margin-top: 0; }
+    .next-block p { font-size: 0.82em; color: var(--muted); line-height: 1.6; margin-top: 4px; }
+    .next-block a { color: var(--a1); font-weight: 600; font-size: 0.88em; }
+  </style>
+</head>
+<body class="theme-editorial">
+<!-- ↑↑↑  THEME WECHSELN: theme-editorial  |  theme-dark  |  theme-minimal  ↑↑↑ -->
+
+<div class="reveal">
+<div class="slides">
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 0 — TITEL
+     Ziel: Erster Eindruck. Name + Hook + Kontext.
+══════════════════════════════════════════ -->
+<section class="s-title">
+  <div class="s-title-inner">
+    <h1>[PROJEKT-<br>NAME] ↘</h1>
+    <p class="t-hook">[Hook: Was wurde gemacht und warum ist das relevant — 1 präziser Satz]</p>
+    <p class="t-meta">[Zeitraum] &nbsp;·&nbsp; [Stack: Python · Polars · LightGBM · ...] &nbsp;·&nbsp; [Autor] &nbsp;·&nbsp; [Jahr]</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 1 — THE PROBLEM
+     Ziel: Warum das Thema. Gap sichtbar machen.
+     Regel: 1 Zahl, die das Problem greifbar macht.
+══════════════════════════════════════════ -->
+<section class="s-content">
+  <div class="cslide">
+    <div class="cl">
+      <span class="cat">Problem</span>
+      <h2>THE<br>PROB-<br>LEM</h2>
+    </div>
+    <div class="cr">
+      <div class="cols">
+        <div>
+          <h3>Ist-Zustand</h3>
+          <div class="mrow">
+            <div class="m warn"><div class="v">[X%]</div><div class="l">[Ist-Metrik]</div></div>
+            <div class="m"><div class="v">[Y%]</div><div class="l">[Ziel-Metrik]</div></div>
+            <div class="m warn"><div class="v">[−Z]</div><div class="l">[Gap]</div></div>
+          </div>
+
+          <h3>Fragestellung</h3>
+          <ul>
+            <li>[Hauptfrage: Was soll beantwortet werden?]</li>
+            <li>[Teilfrage 2]</li>
+            <li>[Teilfrage 3]</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Scope</h3>
+          <div class="bx n">
+            <strong>In Scope</strong><br>
+            [Was analysiert wurde, z.B. Zeitraum, Datenmenge, Region]
+          </div>
+          <div class="bx n" style="margin-top: 8px">
+            <strong>Out of Scope</strong><br>
+            [Was bewusst ausgeklammert wurde]
+          </div>
+
+          <h3>Relevanz</h3>
+          <ul>
+            <li>[Wer profitiert von den Ergebnissen?]</li>
+            <li>[Welcher Entscheidung dienen die Insights?]</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 2 — DATA
+     Ziel: Datenquellen + Qualität aufzeigen.
+     Regel: Zeigt Umfang und Datenkompetenz.
+══════════════════════════════════════════ -->
+<section class="s-content">
+  <div class="cslide">
+    <div class="cl">
+      <span class="cat">Data</span>
+      <h2>DATA</h2>
+    </div>
+    <div class="cr">
+      <table>
+        <thead>
+          <tr><th>Datenquelle</th><th>Inhalt</th><th>Zeitraum</th><th>Format</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>[Quelle 1]</td><td>[Beschreibung]</td><td>[Zeitraum]</td><td>[Format]</td></tr>
+          <tr><td>[Quelle 2]</td><td>[Beschreibung]</td><td>[Zeitraum]</td><td>[Format]</td></tr>
+          <tr><td>[Quelle 3]</td><td>[Beschreibung]</td><td>[Zeitraum]</td><td>[Format]</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Volumen — Raw → Processed → Features</h3>
+      <div class="mrow">
+        <div class="m warn"><div class="v">[X GB]</div><div class="l">Raw</div></div>
+        <div class="m"><div class="v">[Y M]</div><div class="l">Zeilen nach Filter</div></div>
+        <div class="m good"><div class="v">[Z]</div><div class="l">Features</div></div>
+      </div>
+
+      <h3>Zentrale Herausforderung</h3>
+      <div class="bx">
+        [Was war die schwierigste Stelle im Data Engineering? Zeigt Kompetenz bei echten Datenproblemen.]
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 3 — APPROACH
+     Ziel: Methodik auf einen Blick.
+     Regel: Visuell, kein Fließtext.
+══════════════════════════════════════════ -->
+<section class="s-content">
+  <div class="cslide">
+    <div class="cl">
+      <span class="cat">Methodik</span>
+      <h2>AP-<br>PROACH</h2>
+    </div>
+    <div class="cr">
+      <h3>Pipeline</h3>
+      <div style="max-width: 560px; margin-top: 6px">
+        <div class="pstep"><strong>[Schritt 1]</strong><span class="d">[Kurzbeschreibung was hier passiert]</span></div>
+        <div class="pstep"><strong>[Schritt 2]</strong><span class="d">[Kurzbeschreibung]</span></div>
+        <div class="pstep accent"><strong>[Schritt 3]</strong><span class="d">[Wichtiger Join / Transformation]</span></div>
+        <div class="pstep"><strong>[Schritt 4]</strong><span class="d">[Kurzbeschreibung]</span></div>
+        <div class="pstep accent"><strong>[Schritt 5]</strong><span class="d">[Weiterer Key Step]</span></div>
+        <div class="pstep good"><strong>[Output]</strong><span class="d">[Was entsteht: Master-Dataset / Feature-Matrix / ...]</span></div>
+      </div>
+
+      <h3>Tech Stack</h3>
+      <div class="tags">
+        <span class="tag">Python</span>
+        <span class="tag">Polars</span>
+        <span class="tag">[Tool]</span>
+        <span class="tag">[Tool]</span>
+        <span class="tag">[Tool]</span>
+        <span class="tag">Jupyter</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 4 — SECTION SEPARATOR (optional)
+     Nutze für klare Abschnittstrennung.
+══════════════════════════════════════════ -->
+<section class="s-section">
+  <div class="s-section-inner">
+    <h1>FIND-<br>INGS ↘</h1>
+    <p class="sec-sub">[Anzahl] Erkenntnisse aus [Anzahl] Analyse-Notebooks</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 5 — FINDING 1 (wichtigstes Ergebnis)
+     Ziel: Stärkstes Insight prominent zeigen.
+     REGEL: Headline = Fazit, nicht Thema!
+     ❌ "Temporale Analyse"
+     ✅ "Peak um 21 Uhr — nicht 8 Uhr"
+══════════════════════════════════════════ -->
+<section class="s-content">
+  <div class="cslide">
+    <div class="cl">
+      <span class="cat">Finding 1</span>
+      <h2>[DIMEN-<br>SION]</h2>
+    </div>
+    <div class="cr">
+      <div class="cols">
+        <div>
+          <!-- HEADLINE = FAZIT -->
+          <h3>Erkenntnis</h3>
+          <p style="font-size:0.95em; font-weight:700; line-height:1.35; margin-bottom:12px">
+            "[Das wichtigste Finding in 1–2 Sätzen. Konkret mit Zahl.]"
+          </p>
+
+          <h3>Details</h3>
+          <ul>
+            <li>[Unterpunkt mit Zahl/Beleg]</li>
+            <li>[Unterpunkt mit Zahl/Beleg]</li>
+            <li>[Unterpunkt mit Zahl/Beleg]</li>
+          </ul>
+
+          <h3>Empfehlung</h3>
+          <div class="bx" style="margin-top: 6px">
+            → [Konkrete Handlungsempfehlung für wen?]
+          </div>
+        </div>
+        <div>
+          <!-- Chart: entweder chart-ph (Platzhalter) oder echte chart-tile -->
+          <div class="chart-ph" style="height: 200px; margin-bottom: 8px">
+            [Chart 1 — Klick öffnet Vollbild]
+          </div>
+          <div class="chart-ph" style="height: 100px">
+            [Chart 2 — optional]
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 6 — FINDING 2
+══════════════════════════════════════════ -->
+<section class="s-content">
+  <div class="cslide">
+    <div class="cl">
+      <span class="cat">Finding 2</span>
+      <h2>[DIMEN-<br>SION]</h2>
+    </div>
+    <div class="cr">
+      <div class="cols">
+        <div>
+          <h3>Erkenntnis</h3>
+          <p style="font-size:0.95em; font-weight:700; line-height:1.35; margin-bottom:12px">
+            "[Finding 2 — präzise mit Zahl]"
+          </p>
+
+          <h3>Details</h3>
+          <ul>
+            <li>[Unterpunkt]</li>
+            <li>[Unterpunkt]</li>
+            <li>[Unterpunkt]</li>
+          </ul>
+
+          <h3>Empfehlung</h3>
+          <div class="bx" style="margin-top: 6px">
+            → [Empfehlung]
+          </div>
+        </div>
+        <div>
+          <div class="cgrid">
+            <div class="chart-ph" style="height: 130px">[Chart A]</div>
+            <div class="chart-ph" style="height: 130px">[Chart B]</div>
+            <div class="chart-ph" style="height: 70px; grid-column:1/3">[Chart C — optional]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 7 — FINDING 3
+     Optional: Mehrere kleinere Findings zusammen.
+══════════════════════════════════════════ -->
+<section class="s-content">
+  <div class="cslide">
+    <div class="cl">
+      <span class="cat">Finding 3</span>
+      <h2>[DIMEN-<br>SION]</h2>
+    </div>
+    <div class="cr">
+      <!-- Option A: Wie Finding 1/2 (links Text, rechts Chart) -->
+      <!-- Option B: Finding-Grid für mehrere kleinere Erkenntnisse -->
+      <h3>Überblick</h3>
+      <div class="finding-grid">
+        <div class="finding-card">
+          <div class="fc-label">Finding 3a</div>
+          <div class="fc-title">[Kurzer prägnanter Titel]</div>
+          <p>[1–2 Sätze Erklärung mit Zahl]</p>
+        </div>
+        <div class="finding-card good">
+          <div class="fc-label">Finding 3b</div>
+          <div class="fc-title">[Kurzer prägnanter Titel]</div>
+          <p>[1–2 Sätze Erklärung mit Zahl]</p>
+        </div>
+        <div class="finding-card">
+          <div class="fc-label">Finding 3c</div>
+          <div class="fc-title">[Kurzer prägnanter Titel]</div>
+          <p>[1–2 Sätze Erklärung mit Zahl]</p>
+        </div>
+        <div class="finding-card good">
+          <div class="fc-label">Finding 3d</div>
+          <div class="fc-title">[Kurzer prägnanter Titel]</div>
+          <p>[1–2 Sätze Erklärung mit Zahl]</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 8 — MODEL / RESULTS  (nur bei ML-Projekten)
+     Ziel: Ergebnis vs. Baseline klar zeigen.
+══════════════════════════════════════════ -->
+<section class="s-content">
+  <div class="cslide">
+    <div class="cl">
+      <span class="cat">Data Science</span>
+      <h2>RE-<br>SULTS</h2>
+    </div>
+    <div class="cr">
+      <div class="cols">
+        <div>
+          <h3>Setup</h3>
+          <div class="mrow">
+            <div class="m"><div class="v">[Algo]</div><div class="l">Algorithmus</div></div>
+            <div class="m"><div class="v">[N]</div><div class="l">Features</div></div>
+            <div class="m"><div class="v">[N]</div><div class="l">Bäume / Iter.</div></div>
+          </div>
+          <div class="bx n" style="font-size:0.8em; margin-top:6px">
+            [Loss / Optimierungsziel · Key Hyperparameter · Split-Strategie]
+          </div>
+
+          <h3>Baseline vs. Modell</h3>
+          <table>
+            <thead><tr><th>Ansatz</th><th>Metrik</th></tr></thead>
+            <tbody>
+              <tr><td>[Baseline 1]</td><td>[Wert]</td></tr>
+              <tr><td>[Baseline 2 — Benchmark]</td><td>[Wert]</td></tr>
+              <tr class="hl"><td><strong>[Modell]</strong></td><td><strong>[Wert] ✅</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3>Ergebnis</h3>
+          <div class="mrow" style="margin-bottom: 12px">
+            <div class="m"><div class="v">[Val]</div><div class="l">Val-Metrik</div></div>
+            <div class="m good"><div class="v">[Test]</div><div class="l">Test-Metrik ✅</div></div>
+            <div class="m good"><div class="v">[Gain]</div><div class="l">vs. Baseline</div></div>
+          </div>
+
+          <h3>Feature Importance</h3>
+          <ol style="font-size:0.82em; padding-left:1.1em">
+            <li>[Feature 1] — [Interpretation]</li>
+            <li>[Feature 2] — [Interpretation]</li>
+            <li>[Feature 3] — [Interpretation]</li>
+            <li>[Feature 4] — [Interpretation]</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 9 — IMPLICATIONS
+     Ziel: So-what zeigen. Handlungskompetenz.
+     Regel: 3 Empfehlungen max. Jede mit Stakeholder.
+══════════════════════════════════════════ -->
+<section class="s-content">
+  <div class="cslide">
+    <div class="cl">
+      <span class="cat">Konsequenzen</span>
+      <h2>IMPLI-<br>CATIONS</h2>
+    </div>
+    <div class="cr">
+      <h3>Empfehlungen</h3>
+      <div class="impl-grid">
+
+        <div class="impl-card">
+          <div class="impl-title">[Empfehlung 1 — prägnant]</div>
+          <p>[1–2 Sätze Begründung aus den Findings]</p>
+          <span class="stakeholder">[Stakeholder: z.B. Betrieb]</span>
+        </div>
+
+        <div class="impl-card">
+          <div class="impl-title">[Empfehlung 2 — prägnant]</div>
+          <p>[1–2 Sätze Begründung]</p>
+          <span class="stakeholder">[Stakeholder: z.B. Planung]</span>
+        </div>
+
+        <div class="impl-card">
+          <div class="impl-title">[Empfehlung 3 — prägnant]</div>
+          <p>[1–2 Sätze Begründung]</p>
+          <span class="stakeholder">[Stakeholder: z.B. Fahrgäste]</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SLIDE 10 — NEXT STEPS & KONTAKT
+══════════════════════════════════════════ -->
+<section class="s-section">
+  <div class="s-section-inner">
+    <h1>DANKE ↘</h1>
+    <div class="next-grid">
+      <div class="next-block">
+        <h3>Next Steps</h3>
+        <p>[Was kommt als nächstes: z.B. Dashboard · Live-Tool · Weitere Analyse]</p>
+      </div>
+      <div class="next-block">
+        <h3>Projekt</h3>
+        <p>
+          <a href="[GITHUB-URL]">[github.com/kaywiegand/[projekt]]</a><br>
+          [Kontakt / LinkedIn]
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    transition: document.body.classList.contains('theme-dark') ? 'slide' : 'fade',
+    controls: false,
+    progress: true,
+    center: false,
+    plugins: [RevealNotes]
+  });
+
+  // Chart tiles — Bilder in weißem Fenster öffnen
+  document.querySelectorAll('a.chart-tile').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var img = a.querySelector('img');
+      if (!img) return;
+      var w = window.open('', '_blank');
+      w.document.write('<!DOCTYPE html><html><head><style>*{margin:0;padding:0}body{background:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}</style></head><body><img src="' + img.src + '" style="max-width:100vw;max-height:100vh;object-fit:contain"></body></html>');
+      w.document.close();
+      w.focus();
+    });
+  });
+
+  // HTML-Karten in neuem Tab öffnen
+  document.querySelectorAll('a.chart-tile-html').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var w = window.open(a.href, '_blank');
+      if (w) w.focus();
+    });
+  });
+</script>
+</body>
+</html>
