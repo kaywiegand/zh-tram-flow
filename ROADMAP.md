@@ -157,6 +157,25 @@
 - ✅ Feature Importance (Gain) — schließt Kreis Analyse → Modell
 - ✅ Predicted vs. Actual (Hexbin) — Bias visuell greifbar
 
+### LightGBM v2 + Kaskadenfeature (`06_prediction_4-model_v2.ipynb`) · OFFEN
+- [ ] Feature Engineering: `prev_trip_delay` (Kaskadenindikator, r ≥ 0.85) + `stop_sequence_pct`
+- [ ] Export: `train_final_v2.parquet` + `test_final_v2.parquet`
+- [ ] Training: LightGBM v2 — identische Hyperparameter, erweitertes Feature-Set
+- [ ] Ergebnis: Val MAE v1 vs. v2 — isolierter Kaskadeneffekt messbar
+- [ ] Feature Importance — steht `prev_trip_delay` in Top-5?
+- [ ] SHAP-Werte (benötigt `uv pip install -e ".[dsc]"`)
+- [ ] Fehleranalyse nach Stunde / Linie / Wetter
+- [ ] Bias-Kalibrierung: Isotonic Regression — MBE reduzieren
+- [ ] Export: `lgbm_v2.txt` + `lgbm_v2_meta.json` + `test_predictions_v2.parquet`
+
+### Modellvergleich (`06_prediction_5-comparison.ipynb`) · OFFEN
+- [ ] XGBoost Training — gleiche v2-Features, identischer Split, `enable_categorical=True`
+- [ ] Metriken-Tabelle: Baseline → LightGBM v1 → v2 → v2 kalibriert → XGBoost
+- [ ] Feature Importance Vergleich: v1 vs. v2 — Kaskadenfeature-Rang
+- [ ] Fehlerprofile nach Segment (alle Modelle überlagert)
+- [ ] Residual-Verteilung aller Modelle
+- [ ] Fazit: welches Modell + warum
+
 ---
 
 ## Phase 5 — Dashboard & Präsentation · GEPLANT

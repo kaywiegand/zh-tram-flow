@@ -718,3 +718,79 @@ Das ist keine Datenbereinigung (die Daten sind korrekt), sondern eine bewusste E
 Angewendet auf: `plot_line_delay_profile_map` und `plot_line_dwell_profile_map`.
 
 **Nächster Schritt:** `03_analysis_4-spatial.ipynb` ausführen — beide Karten (Delay + Dwell) verifizieren: Jahr-Toggle, Alle-aus/ein, Linien-Klick, keine Spurious Stops mehr
+
+---
+
+### 2026-05-27 — 04_insights.ipynb: 4-Schritt-Beweiskette in Geografie-Sektion
+
+**Was wurde gemacht:**
+
+Der Geografie-Abschnitt in `04_insights.ipynb` wurde ausgebaut. Bisher gab es dort nur `plot_stop_delay_map` (Anomalie-Karte) und `plot_district_combined`. Die Beweiskette war unvollständig — das Bild nicht aussagekräftig genug.
+
+**6 neue Zellen nach `plot_stop_delay_map`:**
+
+1. `[2fd856ce]` **Text: "Das Muster entlang der Strecke: L11 vs. L6"** — Fragt "warum sitzt die Verspätung dort?" und setzt L11 (schlechteste Linie) als Kontrast zu L6 (beste Linie)
+2. `[aa3ca77c]` **Code: `plot_line_delay_profile_map(lf_clean, lines=["11", "6"])`** — Zeigt den Delay-Gradienten: L11-Bubbles wachsen zur Peripherie, L6-Bubbles bleiben gleichmässig klein
+3. `[688a0910]` **Text: "Mechanismus: Kein Puffer — keine Erholung"** — Erklärt die Dwell-Map: Farbe = Delay, Grösse = % Halte ohne Puffer (dwell_time=0). Smoking Gun: röteste Bubbles = grösste Bubbles
+4. `[5ab24fca]` **Code: `plot_stop_dwell_map(lf_clean, line_name="11")`** — Die Dwell-Map als "Smoking Gun" — L11-Endhalte sind gleichzeitig am rötesten und grössten
+5. `[a6e7123b]` **Text: "Beweiskette: Kaskadeneffekt netzweit"** — Schliesst die Beweiskette mit 4-Schritt-Zusammenfassung und erklärt den Pearson-r
+6. `[efbf5feb]` **Code: `plot_cascade_effect(lf_clean)`** — Alle 16 Linien r ≥ 0.85: systematische Kaskade, kein Einzelfall
+
+**Die 4-Schritt-Beweiskette ist jetzt vollständig:**
+1. Anomalie: `plot_stop_delay_map` — Hotspots an Endhalten
+2. Gradient: `plot_line_delay_profile_map(lines=["11","6"])` — Delay wächst entlang der Strecke, L11 vs. L6 als Kontrast
+3. Mechanismus: `plot_stop_dwell_map(line_name="11")` — kein Puffer = keine Erholung
+4. Beweis: `plot_cascade_effect` — Pearson r ≥ 0.85 netzweit
+
+**Nächster Schritt:** `04_insights.ipynb` komplett durchlaufen lassen · PROCESS_LOG commit · Dann: `03_analysis_4-spatial.ipynb` verifizieren (beide Profil-Karten nach Dwell-Filter-Ergänzung)
+
+---
+
+### 2026-05-27 — 04_insights.ipynb: Storyline auf "vorhersagbar = steuerbar" umgestellt
+
+**Was wurde gemacht:**
+
+Die bisherige Kernthese enthielt einen angreifbaren Claim ("das Geld wurde an den falschen Orten investiert") — wir wissen nicht, wie die Verspätung ohne den Netzausbau ausgesehen hätte. Der Claim war nicht durch unsere Daten gedeckt.
+
+**Neue Storyline:** "Die Verspätungen sind vorhersagbar — weil sie im Fahrplan-Design verankert sind, nicht im Betrieb."
+
+**4 Zellen geändert:**
+- `[d8c0bc6a]` **Kernthese** — dritter Bullet von "Investitions-Mismatch" zu "Konsequenz: Was vorhersagbar ist, ist steuerbar"
+- `[cac5c4f4]` **Netzausbau 2023** — Befund umgedreht: der Netzausbau hat die Verspätungsstruktur nicht verändert → das ist *Beweis* für die These (Infrastruktur ist nicht der Hebel), kein Vorwurf
+- `[acae4978]` **Empfehlungen** — "Kapazität K11/K12 erhöhen" und "Nächster Ausbau → K11/K12" gestrichen (nicht durch Daten gedeckt), ersetzt durch "Fahrplan-Redesign L11" (direkt gedeckt durch Dwell-Map)
+- `[13dc8a6a]` **Hotspots-Text** — "kein Netzausbau 2023" aus dem Befund entfernt (steht jetzt als Argument in Netzausbau-Sektion)
+
+**Alle Empfehlungen sind jetzt direkt durch Analysebefunde gedeckt** — kein Claim mehr der Gegeninfos braucht.
+
+**Nächster Schritt:** `04_insights.ipynb` komplett durchlaufen lassen (Kernel-Restart + Run All)
+
+---
+
+### 2026-05-28 — Neue Prediction-Notebooks: v2 + Modellvergleich
+
+**Was wurde gemacht:**
+
+Zwei neue Notebooks angelegt, die den bisherigen Modellierungsstand erweitern:
+
+**`06_prediction_4-model_v2.ipynb`** — LightGBM v2 mit Kaskadenfeature
+- `prev_trip_delay`: Delay am Vorgänger-Halt desselben Trips — direkter Kaskadenindikator (Pearson r ≥ 0.85 aus Spatial-Analyse)
+- `stop_sequence_pct`: Position entlang der Linie (0 = Anfang · 1 = Ende) — Akkumulationseffekt
+- Join-Strategie: `stop_sequence` aus `train_features.parquet` auf `train_final.parquet` joinen via `(trip_id, operating_date, stop_name)`
+- Export: `train_final_v2.parquet` + `test_final_v2.parquet`
+- Gleiche Hyperparameter wie v1 — isolierter Feature-Effekt messbar
+- SHAP-Werte (try/except — benötigt `uv pip install -e ".[dsc]"`)
+- Isotonic Regression als Post-hoc-Bias-Kalibrierung (MBE v1: +8.3s)
+- Export: `lgbm_v2.txt` + `lgbm_v2_calibrator.joblib` + `lgbm_v2_meta.json` + `test_predictions_v2.parquet`
+
+**`06_prediction_5-comparison.ipynb`** — Modellvergleich: Baseline → LightGBM v1 → v2 → XGBoost
+- XGBoost mit `enable_categorical=True` (2.0+, `tree_method=hist`) — gleiche v2-Features, faires Algorithmen-Benchmarking
+- Metriken-Tabelle: alle 5 Varianten nebeneinander (MAE, RMSE, MBE, OTP)
+- Feature Importance v1 vs. v2 — normalisiert, neue Features hervorgehoben
+- Fehlerprofile nach Stunde / Linie / Wetter — alle Modelle überlagert
+- Residual-Verteilungen nebeneinander
+- Bug gefixt: toter Code im Residuals-Block entfernt, `ae_v1` Längenprüfung mit `assert` gesichert
+
+**Begründung für `prev_trip_delay` als wichtigstes neues Feature:**
+Die neue Kernthese ("vorhersagbar = steuerbar") braucht einen Modell-Beweis. Wenn `prev_trip_delay` in der Feature Importance oben steht, bestätigt das: die Kaskade ist kein statistisches Artefakt — sie ist ein lernbares Signal. Das schließt den Kreis Analyse → Modell.
+
+**Nächster Schritt:** Notebooks sequenziell ausführen: 04 → 05 → Vergleichs-Ergebnis auswerten
