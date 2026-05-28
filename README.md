@@ -1,9 +1,11 @@
 # Zürich Tram Flow
 ### Verspätungsanalyse und Vorhersage im Tramnetz Zürich
 
-> **Typ:** DANSC &nbsp;|&nbsp; **Erstellt:** 2026-05-11 &nbsp;|&nbsp; **Version:** 0.4.0  
-> **Status:** Analyse ✅ (55 Findings · 6 Notebooks) · Feature Engineering ✅ · Modellierung 🔄 (LightGBM v1 · MAE 45.7s)  
+> **Typ:** DANSC &nbsp;|&nbsp; **Erstellt:** 2026-05-11 &nbsp;|&nbsp; **Version:** 0.5.0  
+> **Status:** Analyse ✅ (55 Findings · 6 Notebooks) · Feature Engineering ✅ · Modellierung ✅ (LightGBM v2 · MAE 18.56s · −63% vs. Baseline)  
 > **Datenbasis:** [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) — Research & Data Engineering Phase
+
+![Verspätungs-Hotspots im Zürcher Tramnetz](reports/figures/geo-delay-hotspots.png)
 
 ---
 
