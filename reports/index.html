@@ -1,35 +1,782 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zürich Tram Flow – Executive Summary</title>
-    <style>
-        body { font-family: -apple-system, sans-serif; max-width: 900px;
-               margin: 40px auto; padding: 0 20px; color: #333; }
-        h1   { color: #2E86AB; border-bottom: 2px solid #2E86AB; padding-bottom: 8px; }
-        h2   { color: #555; margin-top: 32px; }
-        .placeholder { background: #f5f5f5; border-left: 4px solid #2E86AB;
-                        padding: 12px 16px; margin: 16px 0; border-radius: 0 4px 4px 0; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zürich Tram Flow — Portfolio Report</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8f9fa;
+      color: #2d3748;
+      line-height: 1.65;
+    }
+
+    /* ── Tokens ───────────────────────────────────────────────── */
+    :root {
+      --navy:   #1a3a5c;
+      --blue:   #2E86AB;
+      --green:  #27ae60;
+      --amber:  #e67e22;
+      --red:    #e74c3c;
+      --light:  #f0f4f8;
+      --border: #d1dae4;
+      --text:   #2d3748;
+      --muted:  #718096;
+      --white:  #ffffff;
+      --max-w:  960px;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────── */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; }
+    section { padding: 3.5rem 0; }
+    section + section { border-top: 1px solid var(--border); }
+
+    /* ── Hero ─────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #234d7c 100%);
+      color: var(--white);
+      padding: 3.5rem 0 2.5rem;
+    }
+    .hero .eyebrow {
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 0.6rem;
+    }
+    .hero h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+    }
+    .hero .subtitle {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.8);
+      max-width: 640px;
+      margin-bottom: 2rem;
+    }
+    .kpi-strip {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .kpi-box {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 0.85rem 1.4rem;
+      text-align: center;
+      min-width: 130px;
+    }
+    .kpi-box .kpi-value {
+      display: block;
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .kpi-box .kpi-label {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.65);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Thesis block ─────────────────────────────────────────── */
+    .thesis-block {
+      background: var(--light);
+      border-left: 4px solid var(--blue);
+      border-radius: 0 8px 8px 0;
+      padding: 1.4rem 1.8rem;
+      font-size: 1.1rem;
+      color: var(--navy);
+      font-style: italic;
+      margin: 2rem 0;
+    }
+
+    /* ── Section headings ─────────────────────────────────────── */
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue);
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+    h2 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.3rem;
+    }
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 0.5rem;
+    }
+    .section-intro {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    /* ── Key Visual ───────────────────────────────────────────── */
+    .key-visual {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 1.5rem 0;
+      display: block;
+    }
+    .fig-caption {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: -0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── 4-Step Proof Chain ───────────────────────────────────── */
+    .proof-chain {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .proof-step {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--blue);
+      border-radius: 0 0 8px 8px;
+      padding: 1.2rem;
+    }
+    .proof-step .step-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 0.3rem;
+    }
+    .proof-step h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 0.4rem;
+    }
+    .proof-step p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .proof-step .proof-number {
+      display: inline-block;
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    /* ── Finding Cards ────────────────────────────────────────── */
+    .findings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+    .finding-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+    .finding-card .finding-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--blue);
+      border-radius: 3px;
+      padding: 0.15rem 0.5rem;
+      display: inline-block;
+      margin-bottom: 0.6rem;
+    }
+    .finding-card .finding-tag.spatial { background: #5b21b6; }
+    .finding-card .finding-tag.temporal { background: #0369a1; }
+    .finding-card .finding-tag.meteo    { background: #0891b2; }
+    .finding-card .finding-tag.events   { background: #15803d; }
+    .finding-card .finding-tag.cascade  { background: #b45309; }
+    .finding-card h4 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.4rem;
+    }
+    .finding-card p {
+      font-size: 0.84rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .finding-card .finding-number {
+      margin-top: 0.75rem;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .finding-card .finding-source {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+
+    /* ── Chart rows ───────────────────────────────────────────── */
+    .chart-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin: 1.5rem 0;
+    }
+    .chart-block { background: var(--white); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .chart-block img { width: 100%; display: block; }
+    .chart-block .chart-label {
+      padding: 0.6rem 0.9rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Tables ───────────────────────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.88rem; }
+    th { background: var(--navy); color: var(--white); text-align: left; padding: 0.6rem 0.9rem; font-weight: 600; }
+    td { padding: 0.55rem 0.9rem; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: var(--light); }
+    .highlight-row td { font-weight: 700; color: var(--navy); background: #eaf4ff !important; }
+
+    /* ── Model section ────────────────────────────────────────── */
+    .model-progression {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+
+    /* ── Metric boxes ─────────────────────────────────────────── */
+    .metric-row { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.2rem 0; }
+    .metric-box {
+      flex: 1;
+      min-width: 140px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      text-align: center;
+    }
+    .metric-box .m-value { font-size: 2rem; font-weight: 700; color: var(--navy); }
+    .metric-box .m-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+    .metric-box.good .m-value { color: var(--green); }
+    .metric-box.warn .m-value { color: var(--amber); }
+
+    /* ── Recommendations ──────────────────────────────────────── */
+    .reco-list { list-style: none; margin-top: 1.5rem; }
+    .reco-list li {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--green);
+      border-radius: 0 8px 8px 0;
+      padding: 1.1rem 1.4rem;
+      margin-bottom: 0.9rem;
+    }
+    .reco-list li h4 { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 0.3rem; }
+    .reco-list li p { font-size: 0.86rem; color: var(--text); }
+    .reco-list li .reco-badge {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--green); color: var(--white); border-radius: 3px;
+      padding: 0.1rem 0.45rem; display: inline-block; margin-bottom: 0.45rem;
+    }
+
+    /* ── Orange highlight box ─────────────────────────────────── */
+    .box-orange {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-size: 0.86rem;
+      color: #92400e;
+      margin: 1.25rem 0;
+    }
+    .box-orange strong { color: #78350f; }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    footer {
+      background: var(--navy);
+      color: rgba(255,255,255,0.55);
+      padding: 1.5rem 0;
+      font-size: 0.78rem;
+      text-align: center;
+    }
+    footer a { color: rgba(255,255,255,0.75); }
+
+    /* ── Print ────────────────────────────────────────────────── */
+    @media print {
+      .hero { background: var(--navy) !important; -webkit-print-color-adjust: exact; }
+      section { padding: 1.5rem 0; }
+    }
+  </style>
 </head>
 <body>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCAN-EBENE — Titel · Key Visual · Pitch · 3 Kernzahlen
+     ════════════════════════════════════════════════════════════ -->
+
+<div class="hero">
+  <div class="container">
+    <p class="eyebrow">Portfolio Report · DANSC · 2026</p>
     <h1>Zürich Tram Flow</h1>
-    <p><em>Executive Summary Report – generiert aus reports/</em></p>
+    <p class="subtitle">
+      Was 93.9 Millionen Verspätungsdatenpunkte über das Zürcher Tramnetz verraten —
+      und warum das Problem lösbar ist.
+    </p>
+    <div class="kpi-strip">
+      <div class="kpi-box">
+        <span class="kpi-value">~85M</span>
+        <span class="kpi-label">Datenpunkte (lf_clean)</span>
+      </div>
+      <div class="kpi-box">
+        <span class="kpi-value">55</span>
+        <span class="kpi-label">Analysebefunde</span>
+      </div>
+      <div class="kpi-box">
+        <span class="kpi-value">−63%</span>
+        <span class="kpi-label">MAE vs. Baseline</span>
+      </div>
+      <div class="kpi-box">
+        <span class="kpi-value">18.6s</span>
+        <span class="kpi-label">MAE LightGBM v2</span>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <h2>🎯 Problem Statement</h2>
-    <div class="placeholder">Platzhalter – hier das Business-Problem beschreiben.</div>
+<div class="container">
+  <div class="thesis-block">
+    „Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplan-Design
+    verankert sind, nicht im zufälligen Betrieb. Was vorhersagbar ist, ist steuerbar."
+  </div>
 
-    <h2>📊 Key Findings</h2>
-    <div class="placeholder">Platzhalter – die 3 wichtigsten Erkenntnisse.</div>
+  <img src="img/geo-delay-hotspots.png" alt="Verspätungs-Hotspots im Zürcher Tramnetz" class="key-visual">
+  <p class="fig-caption">Abb. 1 — Ø Verspätung je Haltestelle 2023–2025. Periphere Aussenkorridore dominieren, nicht zentrale Knotenpunkte.</p>
+</div>
 
-    <h2>📈 Ergebnisse</h2>
-    <div class="placeholder">Platzhalter – Metriken, Modell-Performance oder Analyse-Resultate.</div>
+<!-- ════════════════════════════════════════════════════════════
+     DIVE-EBENE — Befunde je Dimension
+     ════════════════════════════════════════════════════════════ -->
 
-    <h2>📋 Empfehlungen</h2>
-    <div class="placeholder">Platzhalter – konkrete nächste Schritte.</div>
+<section>
+  <div class="container">
+    <p class="section-label">Das Problem</p>
+    <h2>OTP 87% — und warum das Netz nicht besser wird</h2>
+    <p class="section-intro">
+      VBZ-Ziel: 95% OTP (arrival_delay ≤ 120s). Ist: 87%. Die Lücke von 8 Prozentpunkten
+      ist nicht zufällig — sie ist systematisch erzeugt.
+    </p>
 
-    <h2>🖼️ Visualisierungen</h2>
-    <div class="placeholder">Platzhalter – Plots aus reports/figures/ hier einbinden.</div>
+    <div class="metric-row">
+      <div class="metric-box warn">
+        <div class="m-value">87%</div>
+        <div class="m-label">OTP (Ist)</div>
+      </div>
+      <div class="metric-box">
+        <div class="m-value">95%</div>
+        <div class="m-label">OTP (VBZ-Ziel)</div>
+      </div>
+      <div class="metric-box warn">
+        <div class="m-value">71.5%</div>
+        <div class="m-label">Halte akkumulieren Delay</div>
+      </div>
+      <div class="metric-box warn">
+        <div class="m-value">71.3%</div>
+        <div class="m-label">dwell_time = 0s</div>
+      </div>
+    </div>
+
+    <p>
+      An 71.5% aller Halte akkumuliert die Tram Verspätung (delay_delta > 0) — und 71.3% aller
+      Haltestellen haben 0s Standzeit eingebaut. Kein Puffer bedeutet: ist die Tram einmal verspätet,
+      kann sie sich nicht erholen. Das ist keine Wetter- und kein Event-Problem. Es ist ein
+      Fahrplan-Design-Problem.
+    </p>
+
+    <div class="chart-row" style="margin-top:1.5rem;">
+      <div class="chart-block">
+        <img src="img/total-network-otp.png" alt="OTP aller Linien">
+        <div class="chart-label">OTP nach Linie — L11 (82%) und L8 weit unter Ziel</div>
+      </div>
+      <div class="chart-block">
+        <img src="img/total-network-delay-delta.png" alt="Delay Delta aller Linien">
+        <div class="chart-label">Delay Delta — alle Linien akkumulieren positiv</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <p class="section-label">Beweiskette</p>
+    <h2>4 Schritte vom Befund zur Erklärung</h2>
+    <p class="section-intro">
+      Die These ist nicht behauptet, sondern bewiesen — mit vier aufeinanderfolgenden
+      Analysen, die voneinander unabhängig auf dasselbe Muster zeigen.
+    </p>
+
+    <div class="proof-chain">
+      <div class="proof-step">
+        <div class="step-num">Schritt 1 — Anomalie</div>
+        <h4>Hotspots an der Peripherie</h4>
+        <p>Friedhof Enzenbühl (93.8s), Balgrist (85.2s), Leutschenbach (82.7s) — nicht Central oder Paradeplatz. 0 Overlap zwischen Liniendichte und Delay.</p>
+        <span class="proof-number">0 Overlap Top-Dichte × Top-Delay</span>
+      </div>
+      <div class="proof-step">
+        <div class="step-num">Schritt 2 — Gradient</div>
+        <h4>Delay wächst entlang der Strecke</h4>
+        <p>L11 zeigt wachsende Bubbles von Innenstadt zur Peripherie. L6 (beste Linie) bleibt gleichmässig. Das Muster ist linienspezifisch, nicht haltespezifisch.</p>
+        <span class="proof-number">L11 68.7s · L6 best performer</span>
+      </div>
+      <div class="proof-step">
+        <div class="step-num">Schritt 3 — Mechanismus</div>
+        <h4>Kein Puffer — keine Erholung</h4>
+        <p>71.3% aller Haltestellen haben dwell_time = 0s. Die rötesten Stops (höchster Delay) sind gleichzeitig die grössten (höchster %-Anteil ohne Puffer). Smoking Gun.</p>
+        <span class="proof-number">71.3% dwell_time = 0s</span>
+      </div>
+      <div class="proof-step">
+        <div class="step-num">Schritt 4 — Kaskade</div>
+        <h4>Pearson r ≥ 0.85 auf allen 16 Linien</h4>
+        <p>Der Delay an Halt n korreliert mit r ≥ 0.85 mit dem Delay an Halt n+1 — netzweit. Kein statistisches Artefakt: das Modell lernt dieses Signal direkt.</p>
+        <span class="proof-number">r ≥ 0.85 · alle 16 Linien</span>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-block">
+        <img src="img/total-network-line-dwell.png" alt="Dwell-Time-Profil">
+        <div class="chart-label">Dwell-Time-Profil aller Linien — dominiert von 0s-Werten</div>
+      </div>
+      <div class="chart-block">
+        <img src="img/total-network-line-delay-dwell.png" alt="Delay + Dwell kombiniert">
+        <div class="chart-label">Linie: Delay (Balken) + Dwell-Anteil — strukturelle Kopplung</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Findings je Dimension ──────────────────────────────────── -->
+
+<section>
+  <div class="container">
+    <p class="section-label">Analysebefunde</p>
+    <h2>55 Findings — 6 davon entscheiden</h2>
+    <p class="section-intro">
+      Sechs Analyse-Notebooks · 3 Jahre Daten · 16 Tramlinien · Zürich.
+      Hier die stärksten Findings pro Dimension.
+    </p>
+
+    <div class="findings-grid">
+
+      <div class="finding-card">
+        <span class="finding-tag spatial">Spatial</span>
+        <h4>Hotspots an der Peripherie</h4>
+        <p>Friedhof Enzenbühl (93.8s), Balgrist (85.2s), Leutschenbach (82.7s). Central und Paradeplatz liegen unter Netzschnitt. Kreis 11 schlechtester Stadtkreis (68.3s, OTP 83%).</p>
+        <div class="finding-number">0 Overlap</div>
+        <div class="finding-source">03_analysis_4-spatial.ipynb · F-SPAT-01/03/07</div>
+      </div>
+
+      <div class="finding-card">
+        <span class="finding-tag temporal">Temporal</span>
+        <h4>Kein Morgenrush — Peak um 21h</h4>
+        <p>7h liegt mit 48.9s unter dem Netzschnitt. Der echte Peak ist 21h (67.9s) durch Events-Abreisewellen. Donnerstag kritischster Wochentag (60.4s, P95=194s). November jeweils Jahreshöchstwert (72.6s in 2024).</p>
+        <div class="finding-number">+11.7s um 21h</div>
+        <div class="finding-source">03_analysis_3-temporal.ipynb · F-TEMP-01/02/05</div>
+      </div>
+
+      <div class="finding-card">
+        <span class="finding-tag">Struktur</span>
+        <h4>Kein Puffer eingebaut</h4>
+        <p>71.5% aller Halte akkumulieren Delay (delay_delta > 0). 71.3% aller Haltestellen haben 0s dwell_time. Das System hat keinen Erholungsmechanismus eingebaut — Verspätung ist das Default.</p>
+        <div class="finding-number">71.3% dwell_time = 0s</div>
+        <div class="finding-source">03_analysis_1-target.ipynb · 03_analysis_4-spatial.ipynb</div>
+      </div>
+
+      <div class="finding-card">
+        <span class="finding-tag meteo">Meteo</span>
+        <h4>Schnee geografisch trennbar von Regen</h4>
+        <p>Schnee stärkster Einzeleffekt (+54s, OTP −10.9pp). Geografisch klar getrennt: Schnee trifft Höhenlagen (K10/K4/K12), Regen trifft Flusstäler (K5). L9: Schnee +75.9s vs. Regen +10.0s — L17 umgekehrt.</p>
+        <div class="finding-number">Schnee +54s · Regen +23.3s</div>
+        <div class="finding-source">03_analysis_5-meteo.ipynb · F-WEAT-01/07/09</div>
+      </div>
+
+      <div class="finding-card">
+        <span class="finding-tag events">Events</span>
+        <h4>Feiertage beste Tage · Fachmessen schlechteste</h4>
+        <p>Feiertage 46.3s (−9.9s vs. Normal) — MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist ein Abend-Phänomen (18–22h): tagsüber kein Unterschied. Fachmessen (66.0s) schlagen Taylor Swift (75.4s).</p>
+        <div class="finding-number">Feiertage −9.9s</div>
+        <div class="finding-source">03_analysis_6-events.ipynb · F-EVNT-01/03/04</div>
+      </div>
+
+      <div class="finding-card">
+        <span class="finding-tag cascade">Kaskade</span>
+        <h4>Pearson r ≥ 0.85 auf allen 16 Linien</h4>
+        <p>Der Delay an einem Halt überträgt sich mit r ≥ 0.85 auf den Folgehalt desselben Trips — netzweit auf allen 16 Linien. Das ist kein Artefakt: LightGBM v2 lernt genau dieses Signal und senkt MAE von 45.7s auf 18.6s.</p>
+        <div class="finding-number">r ≥ 0.85 (alle 16 Linien)</div>
+        <div class="finding-source">03_analysis_4-spatial.ipynb · 06_prediction_4-model_v2.ipynb</div>
+      </div>
+
+    </div>
+
+    <!-- Spatial charts -->
+    <h3 style="margin-top:2.5rem;">Spatial</h3>
+    <div class="chart-row">
+      <div class="chart-block">
+        <img src="img/geo-delay-otp-stadkreise.png" alt="OTP nach Stadtkreis">
+        <div class="chart-label">OTP nach Stadtkreis — K11/K12 als Priority Zones</div>
+      </div>
+      <div class="chart-block">
+        <img src="img/geo-stadtkreise-haltestellen-delay.png" alt="Delay nach Stadtkreis + Stops">
+        <div class="chart-label">Ø Delay: Stadtkreise + Haltestellen kombiniert</div>
+      </div>
+    </div>
+
+    <!-- Temporal charts -->
+    <h3 style="margin-top:1.5rem;">Temporal</h3>
+    <div class="chart-row">
+      <div class="chart-block">
+        <img src="img/tempo-day-hours.png" alt="Delay nach Stunde">
+        <div class="chart-label">Ø Delay nach Stunde — Peak 21h, nicht 8h</div>
+      </div>
+      <div class="chart-block">
+        <img src="img/tempo-week-days.png" alt="Delay nach Wochentag">
+        <div class="chart-label">Ø Delay nach Wochentag — Donnerstag kritisch</div>
+      </div>
+      <div class="chart-block">
+        <img src="img/tempo-saison.png" alt="Delay nach Saison">
+        <div class="chart-label">Ø Delay nach Saison — Winter überraschend beste Jahreszeit</div>
+      </div>
+    </div>
+
+    <!-- Meteo charts -->
+    <h3 style="margin-top:1.5rem;">Meteo</h3>
+    <div class="chart-row">
+      <div class="chart-block">
+        <img src="img/meteo-types.png" alt="Wettertypen-Vergleich">
+        <div class="chart-label">Wettertypen: Normal / Regen / Schnee im Vergleich</div>
+      </div>
+      <div class="chart-block">
+        <img src="img/meteo-schnee.png" alt="Schnee-Effekt nach Stadtkreis">
+        <div class="chart-label">Schnee-Effekt nach Stadtkreis — Höhenlagen betroffen</div>
+      </div>
+      <div class="chart-block">
+        <img src="img/meteo-starkregen.png" alt="Starkregen-Effekt">
+        <div class="chart-label">Starkregen-Effekt — Fluss-Korridor K5</div>
+      </div>
+    </div>
+
+    <!-- Events charts -->
+    <h3 style="margin-top:1.5rem;">Events</h3>
+    <div class="chart-row">
+      <div class="chart-block">
+        <img src="img/events-timeline.png" alt="Event-Timeline">
+        <div class="chart-label">Event-Timeline 2023–2025 mit Kategorien</div>
+      </div>
+      <div class="chart-block">
+        <img src="img/events-delta.png" alt="Event-Kategorien Delay-Vergleich">
+        <div class="chart-label">Event-Kategorien — Fachmessen schlechteste Kategorie</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════
+     DEEP-DIVE-EBENE — Modell · Feature Importance · Fehleranalyse
+     ════════════════════════════════════════════════════════════ -->
+
+<section>
+  <div class="container">
+    <p class="section-label">Data Science</p>
+    <h2>Modellentwicklung — vom Baseline zum Real-Time Signal</h2>
+    <p class="section-intro">
+      Drei Schritte: Baseline-Benchmark → LightGBM v1 (Schedule + Weather + Events) →
+      LightGBM v2 (+Kaskadenindikator). Der Sprung von v1 auf v2 ist kein Hyperparameter-Tuning —
+      es ist Feature Engineering, das die Analyse bestätigt.
+    </p>
+
+    <h3>Baseline Benchmark</h3>
+    <table>
+      <tr><th>Modell</th><th>Logik</th><th>Test MAE</th></tr>
+      <tr><td>Grand Mean</td><td>Immer ⌀ Netzschnitt vorhersagen</td><td>50.6s</td></tr>
+      <tr><td>Hour Mean</td><td>⌀ nach Tagesstunde</td><td>50.5s</td></tr>
+      <tr><td>Line Mean</td><td>⌀ nach Linie</td><td>50.4s</td></tr>
+      <tr class="highlight-row"><td><strong>Stop Mean</strong></td><td>⌀ nach Haltestelle ← Benchmark</td><td><strong>50.0s</strong></td></tr>
+    </table>
+
+    <h3 style="margin-top:1.5rem;">Modellprogression</h3>
+    <table>
+      <tr><th>Modell</th><th>Features</th><th>Test MAE</th><th>vs. Baseline</th><th>Datenbedarf</th></tr>
+      <tr><td>Stop Mean</td><td>—</td><td>50.0s</td><td>—</td><td>Historischer Stop-Ø</td></tr>
+      <tr><td>LightGBM v1</td><td>34 (Zeit · Wetter · Events · Stop · Linie)</td><td>45.7s</td><td>−4.3s</td><td>Fahrplan + Wetter + Events</td></tr>
+      <tr class="highlight-row"><td><strong>LightGBM v2</strong></td><td>36 (+prev_trip_delay, +stop_sequence_pct)</td><td><strong>18.6s</strong></td><td><strong>−31.4s (−63%)</strong></td><td>+ Live-Signal (Vorgänger-Halt)</td></tr>
+    </table>
+
+    <div class="metric-row">
+      <div class="metric-box">
+        <div class="m-value">50.0s</div>
+        <div class="m-label">Baseline MAE</div>
+      </div>
+      <div class="metric-box warn">
+        <div class="m-value">45.7s</div>
+        <div class="m-label">LightGBM v1</div>
+      </div>
+      <div class="metric-box good">
+        <div class="m-value">18.6s</div>
+        <div class="m-label">LightGBM v2</div>
+      </div>
+      <div class="metric-box good">
+        <div class="m-value">−0.7s</div>
+        <div class="m-label">MBE v2 (bias-frei)</div>
+      </div>
+    </div>
+
+    <div class="box-orange">
+      <strong>Robustheits-Check:</strong> XGBoost auf gleichem Feature-Set → val MAE ~21.4s
+      (150 Runden, Abbruch nach >90 Min auf 85M Zeilen) — 5× langsamere Trainingszeit.
+      Das Signal steckt in den Daten, nicht im Algorithmus. LightGBM klar überlegen.
+    </div>
+
+    <h3 style="margin-top:1.5rem;">Was das Modell bestätigt</h3>
+    <p>
+      <code>prev_trip_delay</code> ist das wichtigste neue Feature in v2 — der direkte Kaskadenindikator
+      aus der Analyse (Pearson r ≥ 0.85). Die Feature Importance bestätigt: das Modell hat dieselbe
+      Struktur gelernt wie die 55 Findings der Analyse-Phase. Analyse und Modell zeigen auf dasselbe Muster.
+    </p>
+    <p style="margin-top:0.75rem;">
+      LightGBM v1 (Pre-Trip-Modell) arbeitet nur mit Fahrplan, Wetter und Events — nutzbar für
+      Disposition am Vortag. LightGBM v2 (In-Trip-Signal) braucht den Vorgänger-Halt als Input —
+      nutzbar für Real-Time Dispatch während des Betriebs.
+    </p>
+
+    <h3 style="margin-top:1.5rem;">Live-Szenario</h3>
+    <table>
+      <tr><th>Input</th><th>Wert</th></tr>
+      <tr><td>Wochentag · Uhrzeit</td><td>Dienstag · 17:00</td></tr>
+      <tr><td>Haltestelle</td><td>Paradeplatz</td></tr>
+      <tr><td>Linie</td><td>11</td></tr>
+      <tr><td>Wetter</td><td>Leichter Regen</td></tr>
+      <tr class="highlight-row"><td><strong>Vorhergesagter Delay</strong></td><td><strong>~52s</strong></td></tr>
+    </table>
+
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <p class="section-label">Empfehlungen</p>
+    <h2>4 Handlungsfelder — alle durch Daten gedeckt</h2>
+    <p class="section-intro">
+      Jede Empfehlung ist direkt auf einen Analysebefund zurückführbar.
+      Keine unbegründeten Claims.
+    </p>
+
+    <ul class="reco-list">
+      <li>
+        <span class="reco-badge">Hebel #1</span>
+        <h4>Fahrplan-Redesign L11 — gezielter Puffer einbauen</h4>
+        <p>71.3% aller Haltestellen haben 0s dwell_time — kein Erholungsmechanismus. L11 (68.7s, OTP 82%)
+           und ihre Endstationen zeigen die stärkste Akkumulation. Selbst +10s Puffer an 3–5 kritischen
+           Koppelstellen würde den Kaskadeneffekt unterbrechen. (Basis: F-SPAT-08 · Pearson r ≥ 0.85)</p>
+      </li>
+      <li>
+        <span class="reco-badge">Modell</span>
+        <h4>Real-Time Dispatch — Kaskadenmodell operativ nutzen</h4>
+        <p>LightGBM v2 erreicht MAE 18.6s (−63% vs. Baseline) mit prev_trip_delay als Live-Signal.
+           Das Signal ist echtzeit-verfügbar (Vorgänger-Halt als Input). Ein Dispatchsystem könnte
+           automatisch Taktlücken schliessen bevor der Kaskadeneffekt entsteht.</p>
+      </li>
+      <li>
+        <span class="reco-badge">Betrieb</span>
+        <h4>Kapazitätsmanagement 20–22h — Event-Abreisewelle abfedern</h4>
+        <p>Peak ist 21h (+11.7s vs. Netzschnitt) durch Abreisewellen nach Events. Donnerstag und Freitag
+           mit Grossevents ist die kritischste Kombination. Takterhöhung 20–22h auf L11/L8 wäre durch
+           Daten direkt begründbar. (Basis: F-TEMP-01 · F-EVNT-03)</p>
+      </li>
+      <li>
+        <span class="reco-badge">Monitoring</span>
+        <h4>OTP-Monitoring nach Stadtkreis — K11/K12 als Priority Zones</h4>
+        <p>Kreis 11 (68.3s, OTP 83%) und Kreis 12 (66.3s) sind strukturell benachteiligt.
+           Automatisiertes Alert-System auf Haltestellenebene — kombiniert mit dem Prediction-Modell
+           als Frühwarnsignal — ermöglicht proaktive Steuerung statt reaktiver Entstörung.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <p class="section-label">Projekt-Übersicht</p>
+    <h2>Stack · Daten · Architektur</h2>
+
+    <div class="chart-row">
+      <div style="flex:2; min-width: 260px;">
+        <h3>Tech Stack</h3>
+        <table>
+          <tr><th>Bereich</th><th>Tools</th></tr>
+          <tr><td>Data Engineering</td><td>Polars · Parquet · GTFS · Open-Meteo</td></tr>
+          <tr><td>EDA &amp; Analyse</td><td>Polars LazyFrame · Pandas · wgnd.inspect</td></tr>
+          <tr><td>Visualisierung</td><td>Plotly Mapbox · Matplotlib · Seaborn</td></tr>
+          <tr><td>Modellierung</td><td>LightGBM · scikit-learn · Isotonic Regression</td></tr>
+          <tr><td>Notebooks</td><td>Jupyter · nbconvert · uv</td></tr>
+        </table>
+      </div>
+      <div style="flex:1; min-width: 200px;">
+        <h3>Datenbasis</h3>
+        <table>
+          <tr><th>Kennzahl</th><th>Wert</th></tr>
+          <tr><td>Rohdaten total</td><td>93.9M Zeilen</td></tr>
+          <tr><td>lf_clean (Modell)</td><td>~85M Zeilen</td></tr>
+          <tr><td>Train-Set</td><td>41.2M Zeilen</td></tr>
+          <tr><td>Test-Set</td><td>~29M Zeilen</td></tr>
+          <tr><td>Zeitraum</td><td>2023–2025</td></tr>
+          <tr><td>Linien</td><td>16 Tramlinien</td></tr>
+          <tr><td>Quellen</td><td>VBZ IST + GTFS + Meteo + Events</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <h3 style="margin-top:1.5rem;">Bekannte Limitierungen</h3>
+    <table>
+      <tr><th>Limitierung</th><th>Konsequenz</th></tr>
+      <tr><td>LightGBM v2 braucht prev_trip_delay als Live-Signal (In-Trip-Kontext)</td><td>Für Pre-Trip-Vorhersage ist v1 der richtige Ansatz</td></tr>
+      <tr><td>stop_name als native Categorical statt Target Encoding</td><td>BACKLOG #16 — Verbesserungspotenzial in v3</td></tr>
+      <tr><td>GTFS-Artefakt Nov/Dez 2025 (j25→j26 Fahrplanwechsel)</td><td>departure_delay/delay_delta maskiert — arrival_delay unberührt</td></tr>
+      <tr><td>XGBoost: >90 Min Training auf 85M Zeilen (CPU)</td><td>Robustheits-Check mit 150 Runden — LightGBM klar überlegen</td></tr>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>Zürich Tram Flow · Kay Wiegand · 2026 ·
+       <a href="presentation-v3.html">Präsentation →</a> ·
+       <a href="network-map.html">Netzwerkkarte →</a>
+    </p>
+    <p style="margin-top:0.4rem;">Datenbasis: VBZ IST-Daten · GTFS · Open-Meteo · Zürich Events — 2023–2025</p>
+  </div>
+</footer>
+
 </body>
 </html>

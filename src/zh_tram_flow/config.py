@@ -25,7 +25,7 @@ PATHS = {
     "processed": _SRC / "data" / "processed",
     "models":    _SRC / "models",
     "reports":   _SRC / "reports",
-    "figures":   _SRC / "reports" / "figures",
+    "figures":   _SRC / "reports" / "img",
     "configs":   _SRC / "configs",
 }
 
