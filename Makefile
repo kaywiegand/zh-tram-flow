@@ -9,20 +9,20 @@
 
 setup: ## Virtuelle Umgebung erstellen + Dependencies installieren
 	uv venv
-	. .venv/bin/activate && uv pip install -e ".[dan,dev]"
+	. .venv/bin/activate && uv pip install -e ".[dan,dsc,dev]"
 	@echo ""
 	@echo "✅ Setup fertig. Umgebung aktivieren mit:"
 	@echo "   source .venv/bin/activate"
 
 install: ## Dependencies (neu) installieren
-	. .venv/bin/activate && uv pip install -e ".[dan,dev]"
+	. .venv/bin/activate && uv pip install -e ".[dan,dsc,dev]"
 
 kernel: ## Jupyter Kernel registrieren
 	. .venv/bin/activate && python -m ipykernel install --user --name zh_tram_flow --display-name "Python (zh_tram_flow)"
 	@echo "✅ Kernel 'zh_tram_flow' registriert."
 
 test: ## Tests ausführen
-	. .venv/bin/activate && pytest tests/ -v
+	uv run --extra dev python -m pytest tests/ -v
 
 lint: ## Code prüfen (ruff + black)
 	. .venv/bin/activate && ruff check src/ && black --check src/
@@ -35,19 +35,22 @@ clean: ## Umgebung + Cache aufräumen
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	@echo "✅ Aufgeräumt."
 
-maps: ## Alle Karten (reports/figures/*.html) im Browser öffnen
-	@for f in reports/figures/*.html; do open "$$f"; done
+maps: ## Alle interaktiven Karten (reports/img/*.html) im Browser öffnen
+	@for f in reports/img/*.html; do open "$$f"; done
 	@echo "✅ Karten geöffnet."
 
-map-tram: ## tram_lines_map.html im Browser öffnen
-	open reports/figures/tram_lines_map.html
+map-stops: ## Interaktive Haltestellen-Delay-Karte öffnen
+	open reports/img/geo-stop-delay-interactive.html
 
-map-network: ## network_changes_map.html im Browser öffnen
-	open reports/figures/network_changes_map.html
+map-network: ## Interaktive Netzwerk-Delta-Karte öffnen
+	open reports/img/network-line-delta-map.html
 
-report: ## Notebook als HTML exportieren (kein Code sichtbar)
-	. .venv/bin/activate && jupyter nbconvert --to html --no-input notebooks/04_insights.ipynb --output ../reports/report.html
-	open reports/report.html
+map-meteo: ## Interaktive Wetter-Impact-Karte öffnen
+	open reports/img/meteo-weather-impact-map.html
+
+report: ## Notebook als HTML exportieren → reports/index.html
+	. .venv/bin/activate && jupyter nbconvert --to html --no-input --output-dir reports --output index notebooks/04_insights.ipynb
+	open reports/index.html
 	@echo "✅ Report exportiert und geöffnet."
 
 help: ## Alle verfügbaren Targets anzeigen
