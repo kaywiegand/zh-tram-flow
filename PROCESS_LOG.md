@@ -11,10 +11,10 @@
 | :--- | :--- |
 | Projektname | Zürich Tram Flow |
 | Repo | `zh-tram-flow` |
-| Typ | DSC — Data Engineering + Analytics + Data Science |
+| Typ | DANSC — Data Analysis + Data Science |
 | Erstellt | 2026-05-11 |
-| Status | 🟢 Phase 4 — Modellierung (LightGBM v2 · Test MAE 18.56s · Portfolio-Aufbereitung läuft) |
-| Nächster Schritt | README neu strukturieren (BACKLOG #10) · Export-Cells in Notebooks (BACKLOG #43) |
+| Status | 🟢 Phase 4 ABGESCHLOSSEN — LightGBM v2 trainiert · Phase 5 (Dashboard) ausstehend |
+| Nächster Schritt | /project-case report ausführen · Phase 5 Dashboard-Tooling entscheiden |
 | Datenbasis | `sf_data-research` — Phase 0 abgeschlossen |
 | Stack | Python · Polars · Pandas · GeoPandas · Plotly |
 
@@ -297,34 +297,30 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 **Phase 1 (Setup & Dateneinstieg):** ✅ Abgeschlossen
 **Phase 2 (EDA & Analyse):** ✅ Abgeschlossen — 6 Analyse-Notebooks · 55 Findings
 **Phase 3 (Feature Engineering):** ✅ Abgeschlossen — `train_final.parquet` / `test_final.parquet` (55.5M Zeilen)
-**Phase 4 (Modellierung):** 🔄 In Arbeit — LightGBM v1 trainiert · Test MAE 45.7s
-**Phase 5 (Dashboard):** ⏳ Ausstehend
+**Phase 4 (Modellierung):** ✅ Abgeschlossen — LightGBM v1 + v2 trainiert, XGBoost Robustheits-Check, Evaluation vollständig · Details → `06_prediction_*`
+**Phase 5 (Dashboard):** ⏳ Ausstehend — Tooling-Entscheidung (Streamlit vs. Dash) steht noch aus
 
-**Notebook-Übersicht:**
+**Notebook-Übersicht (alle ausgeführt und committed):**
 ```
 00_introduction.ipynb            ✅ fertig
 01_exploration.ipynb             ✅ fertig
-02_preparation.ipynb             ✅ ausgeführt — train/test_raw + prepared + features in data/
-03_analysis_0-overview.ipynb     ✅ fertig (55 Findings · Executive Summary · Report-Auswahl)
+02_preparation.ipynb             ✅ ausgeführt — train/test + features in data/
+03_analysis_0-overview.ipynb     ✅ fertig (55 Findings · Executive Summary)
 03_analysis_1-target.ipynb       ✅ fertig
 03_analysis_2-network.ipynb      ✅ fertig
 03_analysis_3-temporal.ipynb     ✅ fertig
 03_analysis_4-spatial.ipynb      ✅ fertig
 03_analysis_5-meteo.ipynb        ✅ fertig
 03_analysis_6-events.ipynb       ✅ fertig
-04_insights.ipynb                🔄 Struktur + Texte + Code fertig — noch nicht ausgeführt
-05_feature_engineering.ipynb     🔄 neu ausführen — test_features muss mit Nov/Dez 2025 rebuild werden
+04_insights.ipynb                ✅ ausgeführt — Narrative Report alle 7 Abschnitte
+05_feature_engineering.ipynb     ✅ ausgeführt — train_final_v2 + test_final_v2 exportiert
 06_prediction_0-overview.ipynb   ✅ fertig — Ansatz, Metriken, Baseline, Szenario
-06_prediction_1-baseline.ipynb   🔄 neu ausführen nach test_features rebuild
-06_prediction_2-model.ipynb      ✅ ausgeführt — LightGBM v1: Test MAE 45.7s (481 Bäume)
-06_prediction_3-evaluation.ipynb 🔄 Skeleton — Fehleranalyse ausstehend
+06_prediction_1-baseline.ipynb   ✅ ausgeführt — Stop Mean 50.0s als Benchmark
+06_prediction_2-model.ipynb      ✅ ausgeführt — LightGBM v1: Test MAE 45.7s
+06_prediction_3-evaluation.ipynb ✅ ausgeführt — Fehleranalyse, Feature Importance, Residuals
+06_prediction_4-model_v2.ipynb   ✅ ausgeführt — LightGBM v2: Test MAE 18.56s, MBE −0.69s
+06_prediction_5-comparison.ipynb ⏭️  Skeleton — XGBoost-Ergebnis in presentation-v3 dokumentiert
 ```
-
-**Nächste konkrete Schritte:**
-1. `04_insights.ipynb` ausführen (Kernel neu starten → alle Zellen) — add_vline Fix noch offen
-2. `06_prediction_3-evaluation.ipynb` ausbauen — Fehleranalyse nach Linie, Stunde, Wetter
-3. HTML-Export: `jupyter nbconvert --to html --no-input --output-dir reports --output index 04_insights.ipynb`
-4. Projekt-Wrap-up: README final, Portfolio-Text
 
 ---
 

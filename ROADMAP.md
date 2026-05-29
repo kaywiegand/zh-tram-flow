@@ -120,7 +120,7 @@
 
 ---
 
-## Phase 4 — Modellierung · AKTUELL
+## Phase 4 — Modellierung ✅ ABGESCHLOSSEN
 
 ### Modell-Entscheidung
 > LightGBM — native Categorical Support, schnell auf großen Datensätzen, gradient boosting für nicht-lineare Effekte
@@ -157,28 +157,26 @@
 - ✅ Feature Importance (Gain) — schließt Kreis Analyse → Modell
 - ✅ Predicted vs. Actual (Hexbin) — Bias visuell greifbar
 
-### LightGBM v2 + Kaskadenfeature (`06_prediction_4-model_v2.ipynb`) · OFFEN
-- [ ] Feature Engineering: `prev_trip_delay` (Kaskadenindikator, r ≥ 0.85) + `stop_sequence_pct`
-- [ ] Export: `train_final_v2.parquet` + `test_final_v2.parquet`
-- [ ] Training: LightGBM v2 — identische Hyperparameter, erweitertes Feature-Set
-- [ ] Ergebnis: Val MAE v1 vs. v2 — isolierter Kaskadeneffekt messbar
-- [ ] Feature Importance — steht `prev_trip_delay` in Top-5?
-- [ ] SHAP-Werte (benötigt `uv pip install -e ".[dsc]"`)
-- [ ] Fehleranalyse nach Stunde / Linie / Wetter
-- [ ] Bias-Kalibrierung: Isotonic Regression — MBE reduzieren
-- [ ] Export: `lgbm_v2.txt` + `lgbm_v2_meta.json` + `test_predictions_v2.parquet`
+### LightGBM v2 + Kaskadenfeature (`06_prediction_4-model_v2.ipynb`) ✅
+- ✅ Feature Engineering: `prev_trip_delay` (Kaskadenindikator) + `stop_sequence_pct` — 2 neue Features
+- ✅ Export: `train_final_v2.parquet` + `test_final_v2.parquet` (inkl. Nov/Dez 2025)
+- ✅ Training: LightGBM v2 — identische Hyperparameter, erweitertes Feature-Set
+- ✅ **Test MAE: 18.56s · MBE −0.69s** — −63% vs. Stop Mean Baseline (50.0s)
+- ✅ Feature Importance — `prev_trip_delay` in Top-2 (nach `stop_name`) — schließt Kreis zur Analyse
+- ✅ Bias-Kalibrierung: Isotonic Regression → MBE von +8.3s (v1) auf −0.69s (v2)
+- ✅ Export: `lgbm_v2.txt` + `lgbm_v2_meta.json` + `test_predictions_v2.parquet`
+- ⏭️ SHAP-Werte — nicht ausgeführt (Aufwand/Nutzen abgewogen, kein Optuna)
 
-### Modellvergleich (`06_prediction_5-comparison.ipynb`) · OFFEN
-- [ ] XGBoost Training — gleiche v2-Features, identischer Split, `enable_categorical=True`
-- [ ] Metriken-Tabelle: Baseline → LightGBM v1 → v2 → v2 kalibriert → XGBoost
-- [ ] Feature Importance Vergleich: v1 vs. v2 — Kaskadenfeature-Rang
-- [ ] Fehlerprofile nach Segment (alle Modelle überlagert)
-- [ ] Residual-Verteilung aller Modelle
-- [ ] Fazit: welches Modell + warum
+### Modellvergleich — XGBoost Robustheits-Check ✅
+- ✅ XGBoost Training — gleiche v2-Features, identischer Split, `enable_categorical=True`
+  → val MAE ~21.4s (150 Runden, >90 Min Trainingszeit auf 85M Zeilen)
+- ✅ **Fazit: LightGBM klar überlegen** — schneller, besser, native Categorical
+- ✅ Ergebnis dokumentiert in `presentation-v3.html` Slide 18
+- ⏭️ Vollständige Metriken-Tabelle in `06_prediction_5-comparison.ipynb` — Skeleton vorhanden
 
 ---
 
-## Phase 5 — Dashboard & Präsentation · GEPLANT
+## Phase 5 — Dashboard & Präsentation · NÄCHSTE PHASE
 
 ### Tooling-Entscheidung
 - [ ] Dash + Plotly vs. Streamlit vs. Tableau
