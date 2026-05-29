@@ -72,10 +72,10 @@
 - ✅ `src/zh_tram_flow/cleaning.py` erstellt — strukturelle Pipeline + Meteo-Imputation
 - ✅ `02_preparation.ipynb` aufgebaut — Split-Strategie dokumentiert
 - ✅ lf_clean-Strategie definiert (canceled=False, stop_sequence>1, kein L-E/L50/L51, departure_delay/delay_delta maskiert für Nov 14–Dez 23 2025 — arrival_delay clean)
-- [ ] `02_preparation.ipynb` ausführen: strukturelles Cleaning auf Rohdaten
-- [ ] Train/Test-Split ausführen — 2025 als Test-Jahr (temporal, kein Shuffle)
-- [ ] Meteo-Imputation (Forward/Backward Fill) auf Train + Test
-- [ ] Cleaning-Report: tatsächliche Zahlen nach Ausführung dokumentieren
+- ✅ `02_preparation.ipynb` ausgeführt: strukturelles Cleaning auf Rohdaten
+- ✅ Train/Test-Split ausgeführt — 2025 als Test-Jahr (temporal, kein Shuffle)
+- ✅ Meteo-Imputation (Forward/Backward Fill) auf Train + Test
+- ✅ Cleaning-Report: Zahlen in Notebook dokumentiert
 
 ### Feature Engineering (Kandidaten aus Analyse-Phase)
 
@@ -132,7 +132,7 @@
 - ✅ Wetter-Karten mit vmax=60 (gleiche Farbskala Schnee/Regen)
 - ✅ Fahrplanwechsel-Narrative korrigiert (Dez 2023 / Dez 2025)
 - ✅ Plotly-Renderer auf `notebook_connected` gesetzt — HTML-Export-kompatibel
-- ✅ HTML-Export: `reports/insights.html` (3.4 MB · alle 3 Plotly-Karten sichtbar)
+- ✅ HTML-Export: `reports/index.html` (narrativer 3-Ebenen-Report · alle Plotly-Karten sichtbar)
 
 ### Baseline (`06_prediction_1-baseline.ipynb`) ✅
 - ✅ Grand Mean Baseline: 50.6s MAE

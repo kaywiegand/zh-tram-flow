@@ -11,10 +11,10 @@
 | :--- | :--- |
 | Projektname | Zürich Tram Flow |
 | Repo | `zh-tram-flow` |
-| Typ | DANSC (EDA + Modellierung + Dashboard) |
+| Typ | DSC — Data Engineering + Analytics + Data Science |
 | Erstellt | 2026-05-11 |
-| Status | 🟢 Phase 4 — Modellierung (LightGBM v1 trainiert · Test MAE 45.7s) |
-| Nächster Schritt | `06_prediction_3-evaluation.ipynb` ausbauen · Fehleranalyse · Portfolio-Aufbereitung starten (BACKLOG #10, #19) |
+| Status | 🟢 Phase 4 — Modellierung (LightGBM v2 · Test MAE 18.56s · Portfolio-Aufbereitung läuft) |
+| Nächster Schritt | README neu strukturieren (BACKLOG #10) · Export-Cells in Notebooks (BACKLOG #43) |
 | Datenbasis | `sf_data-research` — Phase 0 abgeschlossen |
 | Stack | Python · Polars · Pandas · GeoPandas · Plotly |
 
