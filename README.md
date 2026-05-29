@@ -202,6 +202,7 @@ jupyter lab
 | 03-6 | [Events](notebooks/03_analysis_6-events.ipynb) | Holidays, concerts, football — impact by size + hour |
 | 04 | [Insights](notebooks/04_insights.ipynb) | Synthesised narrative across all dimensions |
 | 05 | [Feature Engineering](notebooks/05_feature_engineering.ipynb) | Feature construction, encoding decisions, export |
+| 06-0 | [ML Overview](notebooks/06_prediction_0-overview.ipynb) | ML approach, metrics definition, baseline explanation |
 | 06-1 | [Baseline](notebooks/06_prediction_1-baseline.ipynb) | Stop Mean baseline = 50.0s MAE |
 | 06-2 | [LightGBM v1](notebooks/06_prediction_2-model.ipynb) | First model: 32 features, Test MAE 45.7s |
 | 06-3 | [Evaluation](notebooks/06_prediction_3-evaluation.ipynb) | Residuals, error analysis, feature importance |
