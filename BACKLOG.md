@@ -37,6 +37,15 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 | 34 | **Single Source of Truth für Zahlen + Metriken** — Audit: Welche Zahl steht wo? Für jeden Fakt (MAE, Baseline, Zeilenzahlen, Finding-Counts) einen Primärort (Notebook-Zelle) festlegen. Alle anderen Vorkommen durch Pointer ersetzen. Kein Fakt doppelt in MD-Files. | 1 |
 | 43 | **Export-Cells in Analyse-Notebooks** — Jedes Notebook bekommt eine letzte `## Export`-Cell mit `save_fig(fig, "name")`. Sichert alle relevanten Charts reproduzierbar und benannt. Kandidaten: temporal, spatial, meteo, events, network, prediction. | 2 |
 
+<!-- Erledigt 2026-05-29:
+  Portfolio-Pipeline ausgeführt:
+  - reports/mds/portfolio.md erstellt (Interface-File: Kernthese, 6 Findings, Modellprogression, 4 Empfehlungen)
+  - reports/index.html erstellt (narrativer 3-Ebenen-Report: Scan · Dive · Deep-Dive)
+  - reports/ als Web-Projekt restrukturiert: img/ · mds/ · index.html · network-map.html
+  - insights_v1.html + template.html entfernt · config.py PATHS["figures"] → reports/img/
+  - wgnd-scaffolding + globale CLAUDE.md auf neue Struktur aktualisiert (3 Commits)
+-->
+
 <!-- Erledigt 2026-05-28:
   #41 Key-Visual: geo-delay-hotspots.png in README eingebunden ✅
   #35 Reporting aufräumen: plotly_chart_1/2/3.html → beschreibende Namen, meteo-saison.png (Duplikat) gelöscht ✅

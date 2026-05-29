@@ -827,6 +827,34 @@ XGBoost-Zelle im Vergleichs-Notebook läuft noch — Ergebnis wird in Slide 13 a
 
 ---
 
+### 2026-05-29 — Notebooks stabilisiert · Portfolio-Pipeline · reports/ als Web-Projekt
+
+**Was wurde gemacht:**
+
+- **Notebook-Stabilisierung** (`06_prediction_4-model_v2.ipynb` + `06_prediction_5-comparison.ipynb`):
+  - Load-if-exists Pattern in beiden Modell-Notebooks — kein Re-Training bei Kernel-Neustart
+  - SKIP_XGB Flag in comparison Notebook — XGBoost-Zellen überspringen wenn kein Model-File vorhanden
+  - `params` aus `lgbm_v2_meta.json` im Load-Branch gelesen — NameError in Export-Zelle behoben
+  - Beide Notebooks von Kay erfolgreich vollständig durchlaufen lassen ✅
+
+- **Portfolio-Pipeline ausgeführt** (`/portfolio story` + `/portfolio report`):
+  - `reports/mds/portfolio.md` — Interface-File: Kernthese, 6 Findings, Modellprogression, 21 Figures inventarisiert, 4 Empfehlungen
+  - `reports/index.html` — narrativer HTML-Report (3 Lese-Ebenen: Scan · Dive · Deep-Dive)
+
+- **`reports/` als Web-Projekt restrukturiert:**
+  - `figures/` → `img/` · `portfolio.md` → `mds/` · `report.html` → `index.html`
+  - `tram_lines_map.html` → `network-map.html`
+  - `insights_v1.html` + `template.html` entfernt
+  - `config.py`: `PATHS["figures"]` zeigt jetzt auf `reports/img/`
+
+- **Infrastruktur-Updates (3 Repos, 3 Commits):**
+  - `wgnd-scaffolding`: 7 Template-Files auf `img/` + `mds/` umgestellt
+  - Globale `CLAUDE.md`: Struktur-Diagramm (2 Stellen) aktualisiert
+
+**Nächster Schritt:** BACKLOG #10 (Portfolio-Beschreibung README) + #43 (Export-Cells in Notebooks)
+
+---
+
 ### 2026-05-28 — presentation-v3.html + XGBoost-Abschluss + Portfolio-Skills-Infrastruktur
 
 **`reports/presentation-v3.html` — 16 Feedback-Punkte eingearbeitet:**
