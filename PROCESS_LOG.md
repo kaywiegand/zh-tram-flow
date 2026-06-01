@@ -910,3 +910,27 @@ Ziel: `/portfolio story` auf einem Projekt aufrufen → `reports/portfolio_summa
 - 16/16 Tests grün nach allen Änderungen
 
 **Nächster Schritt:** #39 Interaktive Linienansicht — `plot_line_route_map` in `analytics/spatial.py`
+
+---
+
+### 2026-06-01 — Backlog #39 Interaktive Linienansicht abgeschlossen
+
+**Was wurde gemacht** (commit `2bbc9d5`):
+
+- `analytics/spatial.py`: Neue Funktionen `plot_line_route_map` + `table_line_route_map` eingefügt
+  - Zwei Plotly-Traces: Trace 0 = GTFS-Routen-Linie (VBZ-Linienfarbe, opacity 50%), Trace 1 = Stop-Bubbles (grün → amber → rot, Größe ∝ Delay)
+  - Top-3 Problemstops: Text-Annotation inline im selben Trace (`mode="markers+text"`), leere Strings für alle anderen
+  - `stop_short` in `customdata[3]` für Hover — `text`-Array ist durch Annotations belegt
+  - 5%-of-max-n Displayfilter (gleich wie `plot_line_delay_profile_map`) filtert Baustellen-Kurzläufer
+  - GTFS-Geometrie über bestehenden `_load_gtfs_shapes([line_name], year=year)` Helper geladen
+  - `table_line_route_map` als Companion-Tabelle (sortiert nach Ø Delay absteigend)
+- `03_analysis_4-spatial.ipynb`: Zwei neue Zellen zwischen `plot_stop_dwell_map` und `## Kaskadenanalyse`:
+  - Markdown-Cell: Sektionsheader + Kurzbeschreibung
+  - Code-Cell: `an.plot_line_route_map(lf_clean, line_name="11")` + `show_df(an.table_line_route_map(...))`
+
+**Entscheidungen:**
+- `customdata[3]` statt separater Trace für Hover-Namen — sauberer, kein redundanter Trace
+- Annotation-Format: `"Haltestelle (Xs)"` mit `int(round(...))` für saubere Ganzzahl
+- Plotly `carto-positron` als Basemap — konsistent mit allen anderen Spatial-Plots
+
+**Nächster Schritt:** #40 Situationsvergleich (gleiche Linie, verschiedene Kontexte — Normal/Event/Winter/Rush-Hour) · oder #10/#34 Portfolio-Prio-1-Items

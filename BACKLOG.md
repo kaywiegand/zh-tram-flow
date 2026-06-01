@@ -39,6 +39,8 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
   #43 Export-Cells in Analyse-Notebooks — save_as=None zu allen 35 matplotlib Plot-Funktionen ergänzt;
        ## Export Sektion (Markdown + Code) in 03_analysis_2/3/4/5/6-*.ipynb eingefügt;
        35 PNGs reproduzierbar nach reports/img/ exportierbar (temporal/spatial/meteo/events/network)
+  #39 Interaktive Linienansicht — plot_line_route_map + table_line_route_map in analytics/spatial.py;
+       GTFS-Routen-Linie + Stop-Bubbles (grün→amber→rot) + Top-3 Annotation; Notebook-Cells in 03_analysis_4-spatial.ipynb
 -->
 
 <!-- Erledigt 2026-05-29:
@@ -65,7 +67,6 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 39 | **Interaktive Linienansicht: Kritische Streckenabschnitte** — Neue Plotly-Karte in `03_analysis_4-spatial.ipynb`: Linie wählbar → Linienverlauf auf Karte → Haltestellen nach Ø Delay eingefärbt (grün → rot) → Top-3 Problemstops annotiert. Frage: "Wo auf der Linie beginnt das Problem?" Nutzt GTFS Shapes aus `data/raw/gtfs/`. Basis für #40. | 1 |
 | 40 | **Situationsvergleich: gleiche Linie, verschiedene Kontexte** — Erweiterung von #39: dieselbe Linien-Karte filterbar nach Normal · Event · Winter (has_snow=True) · Rush-Hour (17–19h) · Late Night (21h+). Zeigt wie sich das Streckenbild je nach Kontext verändert. Braucht #39 als Basis. | 2 |
 | 9 | **Linie 12 Baustellen-Zeitraum** (Jan 2023 – Jun 2024) validieren — genaue Daten aus VBZ-Quellen bestätigen, dann: herausfiltern oder als Binary-Feature kodieren? | 2 |
 | 14 | **Events-Notebook: Haltestellen- + Linien-Ranking** — analog zu Meteo-Notebook. Welche Stops/Linien leiden am meisten unter Events? `analytics/events.py` erweitern. | 2 |
