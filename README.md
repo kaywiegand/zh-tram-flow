@@ -61,9 +61,22 @@ The goal is not just a model, but a full analytical story: analysis dictates the
 - Output: `vbz_master.parquet` — 26 columns, fully validated (8 checks)
 
 ### Data Analysis
-- 6 analysis notebooks · **55 structured findings** across 6 dimensions:
-  Target distribution · Network changes · Temporal patterns · Spatial distribution · Weather effects · Event impact
-- Tools: Polars (lazy evaluation), Plotly Mapbox
+6 analysis notebooks · **55 structured findings** across 6 dimensions:
+Target · Network · Temporal · Spatial · Weather · Events
+
+Every finding gets a structured entry — like a ticket:
+
+| Field | Example |
+| :--- | :--- |
+| **ID** | `F-NET-07` — unique, citable across notebooks and docs |
+| **Finding** | Cascade effect confirmed: Pearson r ≥ 0.85 between consecutive stop delays within a trip |
+| **Impact** | High — affects every trip in the network, not just individual stops |
+| **Action → Feature** | `prev_trip_delay` added to LightGBM v2 |
+| **Result** | MAE dropped from 45.7s to **18.56s** — the single largest improvement |
+
+This mirrors professional data team workflows (think Jira for analysis): findings are tracked systematically, impact-rated, and linked to concrete outputs — features, model decisions, or recommendations. The analysis overview notebook ([`03_analysis_0-overview.ipynb`](notebooks/03_analysis_0-overview.ipynb)) is the index across all 55 findings.
+
+**"Analysis dictates the model"** — no finding was added to the model speculatively. Every feature has a traceable origin in this system.
 
 ### Data Science / ML
 - Target: `arrival_delay` (seconds) — regression
