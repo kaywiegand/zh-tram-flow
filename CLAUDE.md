@@ -12,7 +12,7 @@
 | Slug | `zh-tram-flow` |
 | Paket | `zh_tram_flow` (Import mit Underscores) |
 | Typ | DANSC — Data Analysis + Data Science |
-| Stack | Polars · Pandas · GeoPandas · Plotly · Folium · LightGBM · Jupyter · uv |
+| Stack | Polars · Pandas · Plotly · LightGBM · Jupyter · uv |
 
 ---
 

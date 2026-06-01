@@ -63,7 +63,7 @@ The goal is not just a model, but a full analytical story: analysis dictates the
 ### Data Analysis
 - 6 analysis notebooks · **55 structured findings** across 6 dimensions:
   Target distribution · Network changes · Temporal patterns · Spatial distribution · Weather effects · Event impact
-- Tools: Polars (lazy evaluation), Plotly Mapbox, GeoPandas spatial joins
+- Tools: Polars (lazy evaluation), Plotly Mapbox
 
 ### Data Science / ML
 - Target: `arrival_delay` (seconds) — regression
@@ -103,7 +103,7 @@ Top features (LightGBM v2 by gain): `stop_name` · `prev_trip_delay` · `hour` �
 | :--- | :--- |
 | Language | Python 3.10 |
 | Data (large) | Polars 0.20+ — lazy evaluation, Parquet I/O |
-| Data (geo/small) | Pandas, GeoPandas |
+| Data (small) | Pandas |
 | Visualisation | Plotly (interactive maps + charts), Matplotlib, Seaborn |
 | ML | LightGBM 4.0+ (native categorical support) |
 | Packaging | uv, pyproject.toml |
