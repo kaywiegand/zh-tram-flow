@@ -1926,6 +1926,204 @@ def plot_stop_dwell_map(lf: pl.LazyFrame, line_name: str = "11", min_n: int = 20
 
 
 # ---------------------------------------------------------------------------
+# Interaktive Linienansicht: Kritische Streckenabschnitte
+# ---------------------------------------------------------------------------
+
+def plot_line_route_map(
+    lf: pl.LazyFrame,
+    line_name: str = "11",
+    min_n: int = 1000,
+    year: str = "2025",
+    cfg=None,
+) -> None:
+    """Plotly-Karte: Linienverlauf + Haltestellen nach Ø Arrival Delay.
+
+    Zeigt wo auf der Linie die Verspätung beginnt und sich aufbaut.
+    Beantwortet: "Wo auf der Strecke liegt das Problem?"
+
+    Trace-Layout:
+      Trace 0: Route-Linie (GTFS-Geometrie, VBZ-Linienfarbe)
+      Trace 1: Haltestellen als Bubbles (Farbe + Größe = Ø Delay, grün → amber → rot)
+               Top-3 Problemstops erhalten Text-Annotation im selben Trace.
+
+    Farb-Skala: grün (pünktlich) → amber → rot (verspätet), auto-skaliert auf Linienbereich.
+    Größe: power-skaliert (8–26 px) — kleine Unterschiede werden sichtbar.
+
+    year: GTFS-Fahrplanjahr für Gleisgeometrie ("2023" / "2024" / "2025").
+    min_n: Mindest-Beobachtungen pro Haltestelle.
+    Input: lf_clean.
+    """
+    import plotly.graph_objects as go
+    from zh_tram_flow.config import line_color as _lc
+    cfg = _get_cfg(cfg)
+
+    # ── Stop aggregation ─────────────────────────────────────────────────────
+    stops = (
+        lf.filter(pl.col("canceled") == False)
+          .filter(pl.col("line_name").cast(pl.Utf8) == line_name)
+          .group_by("stop_name")
+          .agg([
+              pl.col("arrival_delay").mean().alias("mean_delay"),
+              (pl.col("arrival_delay").abs() <= 120).mean().alias("otp_rate"),
+              pl.col("stop_lat").mean(),
+              pl.col("stop_lon").mean(),
+              pl.col("stop_sequence").mean().alias("mean_seq"),
+              pl.len().alias("n"),
+          ])
+          .filter(pl.col("n") >= min_n)
+          .sort("mean_seq")
+          .collect()
+          .to_pandas()
+    )
+
+    if stops.empty:
+        print(f"⚠  Keine Daten für Linie {line_name} (min_n={min_n})")
+        return
+
+    # Display filter: 5% of max-n — removes rare route variants (see plot_line_delay_profile_map)
+    max_n = stops["n"].max()
+    stops = stops[stops["n"] >= max_n * 0.05].copy().reset_index(drop=True)
+
+    stops["stop_short"] = stops["stop_name"].str.replace("Zürich, ", "", regex=False)
+    stops["mean_delay_r"] = stops["mean_delay"].round(1)
+    stops["otp_pct"] = (stops["otp_rate"] * 100).round(1)
+
+    # Bubble size: power-scaled for visual contrast within the line
+    d_min = float(stops["mean_delay"].min())
+    d_max = float(stops["mean_delay"].max())
+    norm = (stops["mean_delay"] - d_min) / (d_max - d_min + 1e-9)
+    stops["bubble"] = 8 + (norm ** 1.5) * 18  # range 8–26 px
+
+    # ── Top-3 annotation: inline text labels in the bubble trace ─────────────
+    top3_names = set(stops.nlargest(3, "mean_delay")["stop_name"])
+    stops["text_label"] = stops.apply(
+        lambda row: (
+            row["stop_short"] + " (" + str(int(round(row["mean_delay"]))) + "s)"
+            if row["stop_name"] in top3_names else ""
+        ),
+        axis=1,
+    )
+
+    # ── GTFS route geometry ───────────────────────────────────────────────────
+    line_col = _lc(line_name)
+    shapes = _load_gtfs_shapes([line_name], year=year)
+    route_pts = shapes[shapes["line_name"] == line_name] if not shapes.empty else shapes
+
+    center_lat = float(stops["stop_lat"].mean())
+    center_lon = float(stops["stop_lon"].mean())
+
+    fig = go.Figure()
+
+    # Trace 0: Route line — GTFS track geometry, VBZ line color
+    fig.add_trace(go.Scattermapbox(
+        lat=route_pts["lat"].tolist() if not route_pts.empty else [None],
+        lon=route_pts["lon"].tolist() if not route_pts.empty else [None],
+        mode="lines",
+        line=dict(color=line_col, width=3),
+        opacity=0.50,
+        showlegend=False,
+        hoverinfo="skip",
+        name=f"L{line_name} Route",
+    ))
+
+    # Trace 1: Stop bubbles — color + size = Ø delay; top-3 get text labels.
+    # Plotly Scattermapbox: %{text} = annotation label (nur für Top-3 befüllt).
+    # stop_short in customdata[3] damit der Hover-Name unabhängig vom Label ist.
+    customdata = stops[["mean_delay_r", "otp_pct", "n", "stop_short"]].values
+    fig.add_trace(go.Scattermapbox(
+        lat=stops["stop_lat"],
+        lon=stops["stop_lon"],
+        mode="markers+text",
+        marker=dict(
+            size=stops["bubble"],
+            color=stops["mean_delay_r"],
+            colorscale=[[0.0, "#25ac82"], [0.5, "#ffa600"], [1.0, "#de425b"]],
+            cmin=d_min,
+            cmax=d_max,
+            colorbar=dict(
+                title="Ø Arrival<br>Delay (s)",
+                thickness=12,
+                len=0.50,
+                x=1.00,
+                tickformat=".0f",
+            ),
+            opacity=0.88,
+        ),
+        text=stops["text_label"],
+        textposition="top right",
+        textfont=dict(size=10, color="#de425b"),
+        customdata=customdata,
+        hovertemplate=(
+            "<b>%{customdata[3]}</b><br>"
+            "Ø Arrival Delay: <b>%{customdata[0]:.0f} s</b><br>"
+            "OTP (±120s): <b>%{customdata[1]:.0f} %</b><br>"
+            "N Beobachtungen: %{customdata[2]:,}<extra></extra>"
+        ),
+        showlegend=False,
+        name=f"Linie {line_name}",
+    ))
+
+    fig.update_layout(
+        mapbox=dict(
+            style="carto-positron",
+            center=dict(lat=center_lat, lon=center_lon),
+            zoom=12,
+        ),
+        margin=dict(l=0, r=0, t=65, b=0),
+        height=650,
+        title=dict(
+            text=(
+                f"Linie {line_name} — Wo beginnt das Problem?<br>"
+                "<sup>Farbe + Größe: Ø Arrival Delay · Top-3 Problemstops annotiert</sup>"
+            ),
+            x=0, xanchor="left",
+        ),
+    )
+    fig.show()
+
+
+def table_line_route_map(
+    lf: pl.LazyFrame,
+    line_name: str = "11",
+    min_n: int = 1000,
+) -> pd.DataFrame:
+    """Tabelle: Alle Haltestellen der Linie, sortiert nach Ø Delay (absteigend)."""
+    stops = (
+        lf.filter(pl.col("canceled") == False)
+          .filter(pl.col("line_name").cast(pl.Utf8) == line_name)
+          .group_by("stop_name")
+          .agg([
+              pl.col("arrival_delay").mean().alias("mean_delay"),
+              (pl.col("arrival_delay").abs() <= 120).mean().alias("otp_rate"),
+              pl.col("stop_sequence").mean().alias("mean_seq"),
+              pl.len().alias("n"),
+          ])
+          .filter(pl.col("n") >= min_n)
+          .sort("mean_delay", descending=True)
+          .collect()
+          .to_pandas()
+    )
+
+    if stops.empty:
+        return pd.DataFrame()
+
+    # 5%-of-max-n filter — same display rule as plot_line_route_map
+    max_n = stops["n"].max()
+    stops = stops[stops["n"] >= max_n * 0.05].copy()
+
+    stops.insert(0, "Haltestelle",
+                 stops["stop_name"].str.replace("Zürich, ", "", regex=False))
+    stops["Ø Delay (s)"] = stops["mean_delay"].round(1)
+    stops["OTP (%)"] = (stops["otp_rate"] * 100).round(1)
+    stops["Ø Stop-Seq"] = stops["mean_seq"].round(1)
+    return (
+        stops[["Haltestelle", "Ø Delay (s)", "OTP (%)", "Ø Stop-Seq", "n"]]
+        .rename(columns={"n": "N"})
+        .set_index("Haltestelle")
+    )
+
+
+# ---------------------------------------------------------------------------
 # Kaskadeneffekt
 # ---------------------------------------------------------------------------
 
