@@ -34,7 +34,7 @@ def _add_schulferien(ax, alpha: float = 0.13, color: str = "#999999") -> None:
         labeled = True
 
 
-def plot_hour_of_day(lf, cfg=None):
+def plot_hour_of_day(lf, cfg=None, save_as=None):
     """Ø Arrival Delay nach Stunde — Delay-Balken (links) + Datenvolumen (rechts, twinx)."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -89,6 +89,8 @@ def plot_hour_of_day(lf, cfg=None):
                fontsize=9, frameon=False, loc="upper right", ncol=2)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -114,7 +116,7 @@ def table_hour_of_day(lf) -> pd.DataFrame:
     )
 
 
-def plot_day_of_week(lf, cfg=None):
+def plot_day_of_week(lf, cfg=None, save_as=None):
     """Ø Arrival Delay + OTP nach Wochentag (Mo–So)."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -168,6 +170,8 @@ def plot_day_of_week(lf, cfg=None):
               fontsize=9, frameon=False, loc="upper right", ncol=3)
     ax.spines[["top", "right"]].set_visible(False)
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -199,7 +203,7 @@ def table_day_of_week(lf) -> pd.DataFrame:
     )
 
 
-def plot_month_seasonality(lf, cfg=None, panel: str = "both"):
+def plot_month_seasonality(lf, cfg=None, panel: str = "both", save_as=None):
     """Saisonalität + Jahresvergleich nach Monat.
 
     panel: 'both' (default) — zwei Panels nebeneinander
@@ -267,6 +271,8 @@ def plot_month_seasonality(lf, cfg=None, panel: str = "both"):
         ax2.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -298,7 +304,7 @@ def table_month_seasonality(lf) -> pd.DataFrame:
     return monthly_pivot.set_index("Monat")
 
 
-def plot_season_heatmap(lf, cfg=None):
+def plot_season_heatmap(lf, cfg=None, save_as=None):
     """Saisonaler Delay + OTP + Stunde × Wochentag Heatmap."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -363,6 +369,8 @@ def plot_season_heatmap(lf, cfg=None):
     plt.colorbar(im, ax=ax2, label="Ø Arrival Delay (s)", shrink=0.8)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 

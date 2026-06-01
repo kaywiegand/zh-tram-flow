@@ -97,7 +97,7 @@ def _load_gtfs_shapes(lines: list[str], year: str = "2025") -> pd.DataFrame:
     )
 
 
-def plot_top_delay_stops(lf, cfg=None):
+def plot_top_delay_stops(lf, cfg=None, save_as=None):
     """Top 20 Haltestellen nach Ø Delay + Top 10 Frühankünfte (Terminus)."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -152,6 +152,8 @@ def plot_top_delay_stops(lf, cfg=None):
     ax2.spines[["top", "right"]].set_visible(False)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -180,7 +182,7 @@ def table_top_delay_stops(lf) -> pd.DataFrame:
     )
 
 
-def plot_lines_density_vs_delay(lf, cfg=None):
+def plot_lines_density_vs_delay(lf, cfg=None, save_as=None):
     """Linien-Dichte vs. Verspätung — Scatter + Top 15 nach Linienanzahl."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -246,6 +248,8 @@ def plot_lines_density_vs_delay(lf, cfg=None):
         print(f"  {s}: {r['n_lines']:.0f} Linien, Ø {r['avg_delay']:.1f}s")
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -272,7 +276,7 @@ def table_lines_density_vs_delay(lf) -> pd.DataFrame:
     )
 
 
-def plot_start_stop_diagnosis(lf, cfg=None):
+def plot_start_stop_diagnosis(lf, cfg=None, save_as=None):
     """Starthaltestellen-Diagnose: Frühankunft vs. Delta — Kandidaten identifizieren."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -345,6 +349,8 @@ def plot_start_stop_diagnosis(lf, cfg=None):
     ax2.spines[["top", "right"]].set_visible(False)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
     print(f"Gesamtstatistik:")
@@ -389,7 +395,7 @@ def table_start_stop_candidates(lf) -> pd.DataFrame:
     )
 
 
-def plot_district_analysis(lf, cfg=None):
+def plot_district_analysis(lf, cfg=None, save_as=None):
     """Verspätung und OTP nach Stadtkreis — zwei Panels."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -442,10 +448,12 @@ def plot_district_analysis(lf, cfg=None):
     ax2.legend(fontsize=9, frameon=False, loc="upper right")
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
-def plot_district_combined(lf, cfg=None):
+def plot_district_combined(lf, cfg=None, save_as=None):
     """Verspätung nach Stadtkreis — ein Panel mit OTP als zweite Achse.
 
     Balken: Ø Arrival Delay (s), Zonenfarben, alpha=0.6.
@@ -513,6 +521,8 @@ def plot_district_combined(lf, cfg=None):
     ax.legend(h, l, fontsize=9, frameon=False, loc="upper right")
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -539,7 +549,7 @@ def table_district_analysis(lf) -> pd.DataFrame:
     )
 
 
-def plot_line_analysis(lf, cfg=None):
+def plot_line_analysis(lf, cfg=None, save_as=None):
     """Linien-Profil: Arrival Delay / OTP / Delay Delta nach Linie — drei Panels."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -595,6 +605,8 @@ def plot_line_analysis(lf, cfg=None):
 
     plt.suptitle("Linien-Profil: Arrival Delay · OTP · Delta", fontsize=12, color=cfg.CHART_TITLE)
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -624,7 +636,7 @@ def table_line_analysis(lf) -> pd.DataFrame:
     )
 
 
-def plot_dwell_time(lf, cfg=None):
+def plot_dwell_time(lf, cfg=None, save_as=None):
     """Feature dwell_time: Verteilung / Delay-Korrelation / nach Linie — drei Panels."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -720,6 +732,8 @@ def plot_dwell_time(lf, cfg=None):
 
     plt.suptitle("Feature dwell_time — Haltezeit als Puffer-Indikator", fontsize=11, color=cfg.CHART_TITLE)
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
     avg_dwell = (dwell_dist["dwell_time"] * dwell_dist["n"]).sum() / dwell_dist["n"].sum()
@@ -1024,7 +1038,7 @@ def plot_line_delay_map(lf: pl.LazyFrame, cfg=None, min_n: int = 5000) -> None:
 # Line × Hour Heatmap
 # ---------------------------------------------------------------------------
 
-def plot_line_hour_heatmap(lf: pl.LazyFrame, cfg=None) -> None:
+def plot_line_hour_heatmap(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Heatmap: Linie × Stunde — Ø arrival_delay. Zeigt wann welche Linie am stärksten leidet."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -1060,6 +1074,8 @@ def plot_line_hour_heatmap(lf: pl.LazyFrame, cfg=None) -> None:
     cbar = fig.colorbar(im, ax=ax, fraction=0.02, pad=0.02)
     cbar.set_label("Ø Delay (s)", fontsize=9)
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -1913,7 +1929,7 @@ def plot_stop_dwell_map(lf: pl.LazyFrame, line_name: str = "11", min_n: int = 20
 # Kaskadeneffekt
 # ---------------------------------------------------------------------------
 
-def plot_cascade_effect(lf: pl.LazyFrame, cfg=None) -> None:
+def plot_cascade_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Kaskadeneffekt: Pearson-r zwischen delay(Halt n) und delay(Halt n+1) je Linie.
 
     Misst wie stark sich Verspätung innerhalb einer Fahrt von Halt zu Halt überträgt.
@@ -1990,6 +2006,8 @@ def plot_cascade_effect(lf: pl.LazyFrame, cfg=None) -> None:
     ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
     ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=9)
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 

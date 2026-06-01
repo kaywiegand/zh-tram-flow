@@ -33,7 +33,7 @@ def _get_cfg(cfg):
 # Events Overview
 # ---------------------------------------------------------------------------
 
-def plot_events_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
+def plot_events_overview(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     """Stacked bars: Normal (grau) + Delta (Farbe) je Event-Kategorie.
     Rechte Achse: Delta in % (teal Linie). Analog zu plot_weather_overview.
     """
@@ -132,6 +132,8 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
               loc="upper right", ncol=4)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -181,7 +183,7 @@ def table_events_overview(lf: pl.LazyFrame) -> pd.DataFrame:
 # Event type + hourly profile
 # ---------------------------------------------------------------------------
 
-def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
+def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     """Bar chart of delay by event type + line chart hourly profile (normal vs event day)."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -242,6 +244,8 @@ def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     ax2.spines[["top", "right"]].set_visible(False)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -249,7 +253,7 @@ def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
 # Event district effect
 # ---------------------------------------------------------------------------
 
-def plot_event_district_effect(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
+def plot_event_district_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     """Bar charts: event impact (delta + absolute) per Stadtkreis."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -321,10 +325,12 @@ def plot_event_district_effect(lf: pl.LazyFrame, cfg=None) -> plt.Figure:
     ax2.spines[["top", "right"]].set_visible(False)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
-def plot_monthly_holiday_timeline(lf: pl.LazyFrame, cfg=None) -> None:
+def plot_monthly_holiday_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Monthly avg delay per year (2023/2024/2025) with school break shading and holiday markers."""
     from wgnd.core.theme import mpl_style
     from zh_tram_flow.analytics.temporal import _add_schulferien
@@ -384,6 +390,8 @@ def plot_monthly_holiday_timeline(lf: pl.LazyFrame, cfg=None) -> None:
     ax.spines[["top", "right"]].set_visible(False)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -587,7 +595,7 @@ def table_event_stop_map(lf: pl.LazyFrame) -> pd.DataFrame:
     )
 
 
-def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None) -> None:
+def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Daily avg delay 2023–2025 in einem Plot — Schulferien + Event-Marker (kein Sonstiges)."""
     from wgnd.core.theme import mpl_style
     from zh_tram_flow.analytics.temporal import _add_schulferien
@@ -669,6 +677,8 @@ def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None) -> None:
     fig.suptitle("Daily Delay Timeline 2023–2025 — Events & Schulferien",
                  fontsize=14, fontweight="bold", color=cfg.CHART_TITLE, y=1.01)
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -758,7 +768,7 @@ def table_event_district_effect(lf: pl.LazyFrame) -> pd.DataFrame:
 # Holiday / Weekend Recovery
 # ---------------------------------------------------------------------------
 
-def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None) -> None:
+def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Kapazitäts-Erholung: Stundenprofil Normaler Werktag vs. Feiertag vs. Wochenende.
 
     Wenn Pendler und Privatverkehr wegbleiben, erholt sich das Tramnetz —
@@ -829,4 +839,6 @@ def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None) -> None:
     ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=9)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()

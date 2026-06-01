@@ -169,7 +169,7 @@ def plot_network_changes_map(changes: pd.DataFrame) -> None:
     fig.show()
 
 
-def plot_new_stops_by_district(changes: pd.DataFrame, lf_all, cfg=None):
+def plot_new_stops_by_district(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
     """Neue Haltestellen ab Dez 2023 nach Stadtkreis — Balkendiagramm."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -205,6 +205,8 @@ def plot_new_stops_by_district(changes: pd.DataFrame, lf_all, cfg=None):
     ax.set_xlabel("Anzahl neuer Haltestellen")
     ax.set_title("Neue Haltestellen ab Dez 2023 — nach Stadtkreis", fontweight="bold")
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -232,7 +234,7 @@ def table_new_stops_by_district(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
     return by_district.rename(columns={"district_name": "Stadtkreis", "new_stops": "Neue Halte (ab j24)"})
 
 
-def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None):
+def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None, save_as=None):
     """Haltestellenanzahl pro Linie 2023/2024/2025 + Netto-Änderung j23→j24."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -267,6 +269,8 @@ def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None):
     ax2.set_title("Netto-Änderung je Linie — Fahrplanwechsel Dez 2023", fontweight="bold")
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -280,7 +284,7 @@ def table_network_netto_changes(changes: pd.DataFrame) -> pd.DataFrame:
     return net_table.set_index("Linie")
 
 
-def plot_monthly_delay_all_lines(lf_all, cfg=None):
+def plot_monthly_delay_all_lines(lf_all, cfg=None, save_as=None):
     """Monatliche Ø Verspätung aller Linien vor/nach Fahrplanwechsel Dez 2023."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -328,6 +332,8 @@ def plot_monthly_delay_all_lines(lf_all, cfg=None):
     ax.legend(fontsize=7, ncol=5, loc="upper left")
     ax.spines[["top", "right"]].set_visible(False)
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -380,7 +386,7 @@ def table_delay_before_after_switch(lf_all) -> pd.DataFrame:
     )
 
 
-def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None):
+def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
     """Einlaufzeit: Neue vs. bestehende Haltestellen ab Jan 2024 — alle Linien."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -444,6 +450,8 @@ def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None):
     plt.suptitle("Einlaufzeit: Neue vs. bestehende Haltestellen ab Jan 2024 — alle Linien",
                  fontsize=12, fontweight="bold")
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -487,7 +495,7 @@ def table_einlaufzeit(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
     return einlauf_summary.rename(columns={"line": "Linie"}).set_index("Linie")
 
 
-def plot_hotspots(changes: pd.DataFrame, lf_all, cfg=None):
+def plot_hotspots(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
     """Haltestellen-Hotspots nach Linienanzahl + Linienanzahl vs. Verspätung Scatter."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -548,6 +556,8 @@ def plot_hotspots(changes: pd.DataFrame, lf_all, cfg=None):
     ax2.legend(fontsize=9)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -694,7 +704,7 @@ def plot_service_quality_district_map(lf_all) -> None:
     fig.show()
 
 
-def plot_service_quality_by_district(lf_all, cfg=None):
+def plot_service_quality_by_district(lf_all, cfg=None, save_as=None):
     """Versorgungsqualität: Veränderung der Linienanbindung nach Stadtkreis 2023→2025."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -735,6 +745,8 @@ def plot_service_quality_by_district(lf_all, cfg=None):
     ax.set_xlabel("Δ Anzahl Linien (2025 vs. 2023)")
     ax.set_title("Veränderung der Linienanbindung nach Stadtkreis — 2023 → 2025", fontweight="bold")
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -774,7 +786,7 @@ def table_service_quality_by_district(lf_all) -> pd.DataFrame:
 # Line Profiles — Strukturelle Kennzahlen aller Linien
 # ---------------------------------------------------------------------------
 
-def plot_line_profiles(lf_all: pl.LazyFrame, cfg=None) -> None:
+def plot_line_profiles(lf_all: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Liniencharakter-Profil: Strukturelle Kennzahlen aller Tram-Linien als Heatmap.
 
     Fünf Dimensionen je Linie:
@@ -889,4 +901,6 @@ def plot_line_profiles(lf_all: pl.LazyFrame, cfg=None) -> None:
     cbar.ax.tick_params(labelsize=8)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
