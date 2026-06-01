@@ -16,7 +16,7 @@
 | Status | 🟢 Phase 4 ABGESCHLOSSEN — LightGBM v2 trainiert · Phase 5 (Dashboard) ausstehend |
 | Nächster Schritt | /project-case report ausführen · Phase 5 Dashboard-Tooling entscheiden |
 | Datenbasis | `sf_data-research` — Phase 0 abgeschlossen |
-| Stack | Python · Polars · Pandas · GeoPandas · Plotly |
+| Stack | Python · Polars · Pandas · Plotly · LightGBM · uv |
 
 ---
 
@@ -36,6 +36,37 @@ Manche Tramlinien bedienen neben dem Hauptkurs auch seltenere Kurs-Varianten (z.
 **GTFS-Referenztabellen:** `data/raw/gtfs/`
 - 9 Parquet-Dateien (Stops, Routes, Shapes, Trips — Tram + Gesamtnetz)
 - Referenzjahr: 2024
+
+---
+
+## Fakten-Register — Single Source of Truth
+
+Primärorte für alle Kernzahlen des Projekts.
+**Regel:** Zahlen stehen in Notebooks. Nur die unten gelisteten Files dürfen Zahlen direkt enthalten.
+PROCESS_LOG Session-Notes verwenden ab dieser Sektion Pointer auf Notebooks — keine Metriken-Tabellen.
+
+| Fakt | Wert | Primärquelle (Notebook) | Sekundär erlaubt in |
+| :--- | :--- | :--- | :--- |
+| Master-Datensatz Zeilen | 94.4M | `00_introduction.ipynb` — Dateicheck-Zelle | README · portfolio.md |
+| lf_clean Zeilen | ~85M | `02_preparation.ipynb` | portfolio.md |
+| Train / Val / Test Zeilen | 41.2M / 14.3M / ~29M | `05_feature_engineering.ipynb` | portfolio.md |
+| Findings gesamt | 55 | `03_analysis_0-overview.ipynb` | README · ROADMAP · portfolio.md |
+| OTP netzweit | 87.0% | `03_analysis_1-target.ipynb` | README · ROADMAP · portfolio.md |
+| Delay-Akkumulation | 71.5% | `03_analysis_1-target.ipynb` | README · portfolio.md |
+| Stop Mean Baseline MAE | 50.0s | `06_prediction_1-baseline.ipynb` | README · ROADMAP · portfolio.md |
+| LightGBM v1 Test MAE / MBE | 45.7s / +8.3s | `06_prediction_2-model.ipynb` | README · ROADMAP · portfolio.md |
+| LightGBM v2 Test MAE / MBE | 18.56s / −0.69s | `06_prediction_4-model_v2.ipynb` | README · ROADMAP · portfolio.md |
+| XGBoost val MAE (Robustheits-Check) | ~21.4s | `06_prediction_5-comparison.ipynb` | portfolio.md |
+
+**Konvention — welche Files dürfen Zahlen enthalten:**
+
+| File | Zahlen erlaubt? | Begründung |
+| :--- | :--- | :--- |
+| `reports/mds/portfolio.md` | ✅ ja — ist Präsentations-Interface | Einzige Quelle für `/portfolio slides` + `/portfolio report` |
+| `README.md` | ✅ ja — externe Leser | Kernzahlen (Modell-Tabelle, Key Findings) direkt lesbar |
+| `ROADMAP.md` | ✅ ja — Phase-Completion-Flags | Meilenstein-Nachweis, historisch korrekt |
+| `PROCESS_LOG.md` (ab jetzt) | ⚠️ nur Pointer | Session-Notes zeigen auf Notebook, keine Metriken-Tabellen |
+| `CLAUDE.md` / `BACKLOG.md` | ❌ nein | Meta-Files — kein Platz für Fakten |
 
 ---
 
