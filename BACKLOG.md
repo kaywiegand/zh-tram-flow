@@ -35,7 +35,11 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 | :--- | :--- | :--- |
 | 10 | **Portfolio-Beschreibung** — Findings-System (strukturierte IDs, Impact, Action, Status) als bewusste Engineering-Entscheidung hervorheben. Analogie zu Ticket-Systemen. Gehört in README + Bewerbungsunterlagen. | 1 |
 | 34 | **Single Source of Truth für Zahlen + Metriken** — Audit: Welche Zahl steht wo? Für jeden Fakt (MAE, Baseline, Zeilenzahlen, Finding-Counts) einen Primärort (Notebook-Zelle) festlegen. Alle anderen Vorkommen durch Pointer ersetzen. Kein Fakt doppelt in MD-Files. | 1 |
-| 43 | **Export-Cells in Analyse-Notebooks** — Jedes Notebook bekommt eine letzte `## Export`-Cell mit `save_fig(fig, "name")`. Sichert alle relevanten Charts reproduzierbar und benannt. Kandidaten: temporal, spatial, meteo, events, network, prediction. | 2 |
+<!-- Erledigt 2026-06-01:
+  #43 Export-Cells in Analyse-Notebooks — save_as=None zu allen 35 matplotlib Plot-Funktionen ergänzt;
+       ## Export Sektion (Markdown + Code) in 03_analysis_2/3/4/5/6-*.ipynb eingefügt;
+       35 PNGs reproduzierbar nach reports/img/ exportierbar (temporal/spatial/meteo/events/network)
+-->
 
 <!-- Erledigt 2026-05-29:
   Portfolio-Pipeline ausgeführt:

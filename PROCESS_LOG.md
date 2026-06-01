@@ -883,3 +883,30 @@ Drei neue Files für wiederverwendbaren Portfolio-Aufbereitungs-Workflow:
 Ziel: `/portfolio story` auf einem Projekt aufrufen → `reports/portfolio_summary.md` wird aus Notebook-Markdown-Cells befüllt → `/portfolio slides` generiert daraus `presentation.html` ohne Notebooks erneut lesen zu müssen.
 
 **Nächster Schritt:** `/portfolio check` auf zh-tram-flow als ersten Echttest · dann `/portfolio story` für `reports/portfolio_summary.md`
+
+---
+
+### 2026-06-01 — Backlog #43 Export-Cells abgeschlossen
+
+**Was wurde gemacht:**
+
+**Teil 1 — `save_as` für alle matplotlib Plot-Funktionen** (commit `e7d4796`, vorherige Session):
+- `analytics/events.py`: 6 Funktionen — `plot_events_overview`, `plot_event_type_hourly_profile`, `plot_event_district_effect`, `plot_monthly_holiday_timeline`, `plot_daily_delay_timeline`, `plot_holiday_recovery`
+- `analytics/meteo.py`: 9 Funktionen — `plot_weather_overview` bis `plot_snow_structural_interaction`
+- `analytics/network.py`: 7 Funktionen — `plot_new_stops_by_district` bis `plot_line_profiles`
+- `analytics/spatial.py`: 9 Funktionen — `plot_top_delay_stops` bis `plot_cascade_effect`
+- `analytics/temporal.py` (4 von 6 Funktionen) — `plot_full_year_trend` + `plot_gtfs_year_comparison` fehlten noch
+
+**Teil 2 — Fehlende temporal.py Funktionen + Export-Cells** (commit `7ee9ac5`):
+- `temporal.py`: `save_as=None` zu `plot_full_year_trend` (L405) + `plot_gtfs_year_comparison` (L482) ergänzt
+- Pattern: savefig-Block vor `plt.show()` eingefügt — bei `plot_gtfs_year_comparison` korrekt vor den `print()`-Statements nach show
+- **5 Analyse-Notebooks** erhalten je eine `## Export` Sektion (Markdown + Code):
+  - `03_analysis_2-network.ipynb`: 7 Plots → `reports/img/network-*.png`
+  - `03_analysis_3-temporal.ipynb`: 6 Plots → `reports/img/temporal-*.png`
+  - `03_analysis_4-spatial.ipynb`: 8 Plots → `reports/img/spatial-*.png`
+  - `03_analysis_5-meteo.ipynb`: 9 Plots → `reports/img/meteo-*.png`
+  - `03_analysis_6-events.ipynb`: 5 Plots → `reports/img/events-*.png`
+- Plotly/Folium-Karten bewusst ausgeschlossen — haben bereits `save_html`, kein PNG-Export nötig
+- 16/16 Tests grün nach allen Änderungen
+
+**Nächster Schritt:** #39 Interaktive Linienansicht — `plot_line_route_map` in `analytics/spatial.py`
