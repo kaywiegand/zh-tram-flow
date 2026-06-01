@@ -402,7 +402,7 @@ def table_season(lf) -> pd.DataFrame:
     )
 
 
-def plot_full_year_trend(lf, cfg=None):
+def plot_full_year_trend(lf, cfg=None, save_as=None):
     """7-Tage Rolling Average — täglicher Delay + OTP mit Schulferien-Annotation."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -453,6 +453,8 @@ def plot_full_year_trend(lf, cfg=None):
     ax2.spines[["top", "right"]].set_visible(False)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
@@ -479,7 +481,7 @@ def table_full_year_monthly(lf) -> pd.DataFrame:
     return yearly_monthly_avg.drop(columns=["month"]).set_index("Monat")
 
 
-def plot_gtfs_year_comparison(lf_delay, cfg=None):
+def plot_gtfs_year_comparison(lf_delay, cfg=None, save_as=None):
     """gtfs_year Feature: j23 vs. j24_j25 — netzweit + umgebaute Linien."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -566,6 +568,8 @@ def plot_gtfs_year_comparison(lf_delay, cfg=None):
                  transform=ax2.transAxes, fontsize=12)
 
     plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
     print("gtfs_year Vergleich:")
