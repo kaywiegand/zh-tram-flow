@@ -13,6 +13,8 @@ data/processed/
 *.csv
 *.xlsx
 *.parquet
+# Ausnahme: Dashboard-Aggregationen sind kleine pre-computed Tabellen (~100KB)
+!apps/dashboard/data/*.parquet
 *.feather
 *.h5
 *.hdf5

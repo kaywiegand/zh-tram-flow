@@ -53,5 +53,25 @@ report: ## Notebook als HTML exportieren → public/report.html
 	open public/report.html
 	@echo "✅ Report exportiert und geöffnet."
 
+dashboard: ## Dashboard starten (http://localhost:8501)
+	uv run streamlit run apps/dashboard/app.py
+
+precompute: ## Dashboard-Aggregationen vorberechnen (einmalig nach neuen Daten)
+	uv run python apps/dashboard/precompute.py
+
+deploy-pages: ## GitHub Pages deployen (public/ → gh-pages Branch)
+	@echo "GitHub Pages Setup:"
+	@echo "  1. Repo Settings → Pages → Source: Deploy from branch"
+	@echo "  2. Branch: main · Folder: /public"
+	@echo "  URL: https://kaywiegand.github.io/zh-tram-flow/"
+
+deploy-streamlit: ## Streamlit Cloud Setup anzeigen
+	@echo "Streamlit Cloud Setup:"
+	@echo "  1. https://share.streamlit.io → New app"
+	@echo "  2. Repo: kaywiegand/zh-tram-flow"
+	@echo "  3. Branch: main · File: apps/dashboard/app.py"
+	@echo "  Hinweis: precompute.py muss vorher lokal ausgeführt werden"
+	@echo "           dann apps/dashboard/data/ committen"
+
 help: ## Alle verfügbaren Targets anzeigen
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
