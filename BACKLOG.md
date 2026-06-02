@@ -116,3 +116,13 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
   #27 Interaktives Prediction-Tool — apps/dashboard/app.py Vorhersage-Modus: lgbm_v1 live-Inferenz, Stop-Lookup aus test_final.parquet
   #31 Dashboard Spielmodus + Vorhersagemodus — apps/dashboard/app.py: Erkunden (19 PNGs + 3 interaktive HTML-Karten + Scheduling-Map) + Vorhersagen; uv run streamlit run apps/dashboard/app.py
 -->
+
+---
+
+## Blueprint & Kommunikation
+
+| # | Beschreibung | Prio | Status |
+| :--- | :--- | :--- | :--- |
+| 32 | **Communication Concept in /project-review + /project-case** — Integration von `docs/portfolio/COMMUNICATION_CONCEPT.md` als Richtlinie. Checkliste für zielgruppengerechte Artefakte (Landing, Dashboard, Exports) in die Skills einbauen. | 1 | ✅ 2026-06-02 — Blueprint fertig, Workspace BACKLOG #15 |
+| 33 | **Short-Form Content (LinkedIn-Artikel)** — Case-Study: "How I built a portfolio project that reaches 8 different audiences." Nach Public Deployment. | 2 | – |
+
