@@ -59,19 +59,39 @@ dashboard: ## Dashboard starten (http://localhost:8501)
 precompute: ## Dashboard-Aggregationen vorberechnen (einmalig nach neuen Daten)
 	uv run python apps/dashboard/precompute.py
 
-deploy-pages: ## GitHub Pages deployen (public/ → gh-pages Branch)
-	@echo "GitHub Pages Setup:"
-	@echo "  1. Repo Settings → Pages → Source: Deploy from branch"
-	@echo "  2. Branch: main · Folder: /public"
-	@echo "  URL: https://kaywiegand.github.io/zh-tram-flow/"
+deploy-pages: ## GitHub Pages Setup (one-time configuration)
+	@echo "✓ GitHub Pages Setup (one-time):"
+	@echo ""
+	@echo "  1. Go to Repo Settings → Pages"
+	@echo "  2. Under 'Build and deployment':"
+	@echo "     • Source: Deploy from a branch"
+	@echo "     • Branch: main"
+	@echo "     • Folder: /public"
+	@echo "  3. Click Save"
+	@echo "  4. GitHub deploys automatically on every push to main"
+	@echo ""
+	@echo "  URLs will be:"
+	@echo "  • Main: https://kaywiegand.github.io/zh-tram-flow/"
+	@echo "  • Report: https://kaywiegand.github.io/zh-tram-flow/report.html"
+	@echo "  • Presentation: https://kaywiegand.github.io/zh-tram-flow/presentation.html"
 
-deploy-streamlit: ## Streamlit Cloud Setup anzeigen
-	@echo "Streamlit Cloud Setup:"
-	@echo "  1. https://share.streamlit.io → New app"
-	@echo "  2. Repo: kaywiegand/zh-tram-flow"
-	@echo "  3. Branch: main · File: apps/dashboard/app.py"
-	@echo "  Hinweis: precompute.py muss vorher lokal ausgeführt werden"
-	@echo "           dann apps/dashboard/data/ committen"
+deploy-streamlit: ## Streamlit Cloud Setup (one-time configuration)
+	@echo "✓ Streamlit Cloud Setup (one-time):"
+	@echo ""
+	@echo "  Prerequisites:"
+	@echo "  • Run 'make precompute' locally once"
+	@echo "  • Commit apps/dashboard/data/*.parquet to git"
+	@echo ""
+	@echo "  Steps:"
+	@echo "  1. Go to https://share.streamlit.io"
+	@echo "  2. Sign in with GitHub"
+	@echo "  3. Click 'New app'"
+	@echo "  4. Repository: kaywiegand/zh-tram-flow"
+	@echo "  5. Branch: main"
+	@echo "  6. File: apps/dashboard/app.py"
+	@echo "  7. Click Deploy"
+	@echo ""
+	@echo "  Your dashboard will be live at: https://zh-tram-flow.streamlit.app"
 
 help: ## Alle verfügbaren Targets anzeigen
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
