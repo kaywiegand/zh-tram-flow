@@ -2124,6 +2124,200 @@ def table_line_route_map(
 
 
 # ---------------------------------------------------------------------------
+# Situationsvergleich: gleiche Linie, verschiedene Kontexte (#40)
+# ---------------------------------------------------------------------------
+
+_CONTEXT_FILTERS: dict[str, pl.Expr] = {
+    "Normal":    (pl.col("has_snow") == False) & (pl.col("has_event") == False) & (pl.col("hour").is_between(7, 20)),
+    "Schnee":    pl.col("has_snow") == True,
+    "Event":     (pl.col("has_event") == True) & pl.col("hour").is_between(18, 22),
+    "Rush":      pl.col("hour").is_between(17, 19) & pl.col("weekday").is_in([3, 4]),
+    "Spätnacht": pl.col("hour") >= 21,
+}
+
+_CONTEXT_COLORS: dict[str, str] = {
+    "Normal":    "#2E86AB",
+    "Schnee":    "#6a5acd",
+    "Event":     "#de425b",
+    "Rush":      "#ffa600",
+    "Spätnacht": "#25ac82",
+}
+
+
+def plot_line_context_map(
+    lf: pl.LazyFrame,
+    line_name: str = "11",
+    contexts: list[str] | None = None,
+    min_n: int = 300,
+    year: str = "2025",
+    cfg=None,
+) -> None:
+    """Plotly-Karte: gleiche Linie, verschiedene Betriebskontexte im Vergleich.
+
+    Jeder Kontext ist ein eigener Trace (ein-/ausblendbar über Legende).
+    Bubbles: Farbe = Kontext, Größe = Ø Delay. Ergänzt plot_line_route_map (#39).
+
+    Kontexte: Normal · Schnee · Event · Rush · Spätnacht
+    """
+    import plotly.graph_objects as go
+    from zh_tram_flow.config import line_color as _lc
+
+    cfg = _get_cfg(cfg)
+    if contexts is None:
+        contexts = list(_CONTEXT_FILTERS.keys())
+
+    base_lf = (
+        lf.filter(pl.col("canceled") == False)
+          .filter(pl.col("line_name").cast(pl.Utf8) == line_name)
+    )
+
+    traces_data: list[tuple[str, pd.DataFrame]] = []
+
+    for ctx in contexts:
+        expr = _CONTEXT_FILTERS[ctx]
+        stops = (
+            base_lf.filter(expr)
+            .group_by("stop_name")
+            .agg([
+                pl.col("arrival_delay").mean().alias("mean_delay"),
+                (pl.col("arrival_delay").abs() <= 120).mean().alias("otp_rate"),
+                pl.col("stop_lat").mean(),
+                pl.col("stop_lon").mean(),
+                pl.col("stop_sequence").mean().alias("mean_seq"),
+                pl.len().alias("n"),
+            ])
+            .filter(pl.col("n") >= min_n)
+            .collect()
+            .to_pandas()
+        )
+        if stops.empty:
+            continue
+
+        max_n = stops["n"].max()
+        stops = stops[stops["n"] >= max_n * 0.05].copy().reset_index(drop=True)
+        stops["stop_short"] = stops["stop_name"].str.replace("Zürich, ", "", regex=False)
+        stops["mean_delay_r"] = stops["mean_delay"].round(1)
+        stops["otp_pct"] = (stops["otp_rate"] * 100).round(1)
+
+        d_min = float(stops["mean_delay"].min())
+        d_max = float(stops["mean_delay"].max())
+        norm = (stops["mean_delay"] - d_min) / (d_max - d_min + 1e-9)
+        stops["bubble"] = 6 + (norm ** 1.5) * 16   # 6–22 px
+
+        traces_data.append((ctx, stops))
+
+    if not traces_data:
+        print(f"⚠  Keine Daten für Linie {line_name}")
+        return
+
+    # GTFS route geometry
+    shapes = _load_gtfs_shapes([line_name], year=year)
+    route_pts = shapes[shapes["line_name"] == line_name] if not shapes.empty else shapes
+
+    all_lats = [s["stop_lat"].mean() for _, s in traces_data]
+    all_lons = [s["stop_lon"].mean() for _, s in traces_data]
+    center_lat = float(sum(all_lats) / len(all_lats))
+    center_lon = float(sum(all_lons) / len(all_lons))
+
+    fig = go.Figure()
+
+    # Route line
+    fig.add_trace(go.Scattermapbox(
+        lat=route_pts["lat"].tolist() if not route_pts.empty else [None],
+        lon=route_pts["lon"].tolist() if not route_pts.empty else [None],
+        mode="lines",
+        line=dict(color=_lc(line_name), width=3),
+        opacity=0.40,
+        showlegend=False,
+        hoverinfo="skip",
+        name=f"L{line_name} Route",
+    ))
+
+    for ctx, stops in traces_data:
+        col = _CONTEXT_COLORS[ctx]
+        customdata = stops[["mean_delay_r", "otp_pct", "n", "stop_short"]].values
+        fig.add_trace(go.Scattermapbox(
+            lat=stops["stop_lat"],
+            lon=stops["stop_lon"],
+            mode="markers",
+            name=ctx,
+            marker=dict(size=stops["bubble"], color=col, opacity=0.82),
+            customdata=customdata,
+            hovertemplate=(
+                "<b>%{customdata[3]}</b> · " + ctx + "<br>"
+                "Ø Arrival Delay: <b>%{customdata[0]:.0f} s</b><br>"
+                "OTP (±120s): <b>%{customdata[1]:.0f} %</b><br>"
+                "N Beobachtungen: %{customdata[2]:,}<extra></extra>"
+            ),
+        ))
+
+    ctx_labels = " · ".join(contexts)
+    fig.update_layout(
+        mapbox=dict(
+            style="carto-positron",
+            center=dict(lat=center_lat, lon=center_lon),
+            zoom=12,
+        ),
+        margin=dict(l=0, r=0, t=70, b=0),
+        height=650,
+        title=dict(
+            text=(
+                f"Linie {line_name} — Situationsvergleich nach Betriebskontext<br>"
+                f"<sup>Farbe: Kontext ({ctx_labels}) · Größe: Ø Arrival Delay</sup>"
+            ),
+            x=0, xanchor="left",
+        ),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
+    )
+    fig.show()
+
+
+def table_line_context_map(
+    lf: pl.LazyFrame,
+    line_name: str = "11",
+    min_n: int = 300,
+) -> pd.DataFrame:
+    """Tabelle: Ø Delay pro Haltestelle × Kontext für die gewählte Linie."""
+    base_lf = (
+        lf.filter(pl.col("canceled") == False)
+          .filter(pl.col("line_name").cast(pl.Utf8) == line_name)
+    )
+
+    frames = []
+    for ctx, expr in _CONTEXT_FILTERS.items():
+        stops = (
+            base_lf.filter(expr)
+            .group_by("stop_name")
+            .agg([
+                pl.col("arrival_delay").mean().alias("mean_delay"),
+                pl.len().alias("n"),
+            ])
+            .filter(pl.col("n") >= min_n)
+            .collect()
+            .to_pandas()
+        )
+        if stops.empty:
+            continue
+        stops["context"] = ctx
+        frames.append(stops)
+
+    if not frames:
+        return pd.DataFrame()
+
+    combined = pd.concat(frames, ignore_index=True)
+    pivot = (
+        combined.pivot_table(
+            index="stop_name", columns="context", values="mean_delay", aggfunc="mean"
+        )
+        .reindex(columns=list(_CONTEXT_FILTERS.keys()))
+    )
+    pivot.index = pivot.index.str.replace("Zürich, ", "", regex=False)
+    pivot.index.name = "Haltestelle"
+    pivot.columns.name = None
+    return pivot.round(1).sort_values("Normal", ascending=False)
+
+
+# ---------------------------------------------------------------------------
 # Kaskadeneffekt
 # ---------------------------------------------------------------------------
 
