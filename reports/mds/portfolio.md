@@ -18,7 +18,7 @@ stack:      Python · Polars · Pandas · LightGBM · Plotly · Jupyter · uv
 period:     2023–2025
 rows:       ~85M (lf_clean) · 94.4M total
 notebooks:  12
-findings:   55
+findings:   63
 ```
 
 ---

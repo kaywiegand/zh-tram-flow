@@ -62,7 +62,7 @@ The goal is not just a model, but a full analytical story: analysis dictates the
 - Output: `vbz_master.parquet` — 26 columns, fully validated (8 checks)
 
 ### Data Analysis
-6 analysis notebooks · **55 structured findings** across 6 dimensions:
+6 analysis notebooks · **63 structured findings** across 6 dimensions:
 Target · Network · Temporal · Spatial · Weather · Events
 
 Every finding gets a structured entry — like a ticket:
@@ -75,7 +75,7 @@ Every finding gets a structured entry — like a ticket:
 | **Action → Feature** | `prev_trip_delay` added to LightGBM v2 |
 | **Result** | MAE dropped from 45.7s to **18.56s** — the single largest improvement |
 
-This mirrors professional data team workflows (think Jira for analysis): findings are tracked systematically, impact-rated, and linked to concrete outputs — features, model decisions, or recommendations. The analysis overview notebook ([`03_analysis_0-overview.ipynb`](notebooks/03_analysis_0-overview.ipynb)) is the index across all 55 findings.
+This mirrors professional data team workflows (think Jira for analysis): findings are tracked systematically, impact-rated, and linked to concrete outputs — features, model decisions, or recommendations. The analysis overview notebook ([`03_analysis_0-overview.ipynb`](notebooks/03_analysis_0-overview.ipynb)) is the index across all 63 findings.
 
 **"Analysis dictates the model"** — no finding was added to the model speculatively. Every feature has a traceable origin in this system.
 
@@ -134,7 +134,7 @@ zh-tram-flow/
 │   ├── 00_introduction.ipynb          ← Start here — project context + data dictionary
 │   ├── 01_exploration.ipynb           ← EDA: distributions, integrity, correlations
 │   ├── 02_preparation.ipynb           ← Cleaning, train/test split, feature prep
-│   ├── 03_analysis_0-overview.ipynb   ← 55 findings index + executive summary
+│   ├── 03_analysis_0-overview.ipynb   ← 63 findings index + executive summary
 │   ├── 03_analysis_1-target.ipynb     ← Delay distribution, OTP, cancellations
 │   ├── 03_analysis_2-network.ipynb    ← Network changes 2023–2025, hotspots
 │   ├── 03_analysis_3-temporal.ipynb   ← Hour, weekday, month, season patterns
@@ -207,7 +207,7 @@ jupyter lab
 | 00 | [Introduction](notebooks/00_introduction.ipynb) | Project context, data dictionary, VBZ line colours |
 | 01 | [Exploration](notebooks/01_exploration.ipynb) | EDA: distributions, data quality, correlations, outliers |
 | 02 | [Preparation](notebooks/02_preparation.ipynb) | Cleaning strategy, temporal split, feature prep |
-| 03-0 | [Analysis Overview](notebooks/03_analysis_0-overview.ipynb) | All 55 findings indexed + executive summary |
+| 03-0 | [Analysis Overview](notebooks/03_analysis_0-overview.ipynb) | All 63 findings indexed + executive summary |
 | 03-1 | [Target](notebooks/03_analysis_1-target.ipynb) | Delay distribution, OTP 87%, cancellation patterns |
 | 03-2 | [Network](notebooks/03_analysis_2-network.ipynb) | Network changes 2023–2025, hotspot mapping |
 | 03-3 | [Temporal](notebooks/03_analysis_3-temporal.ipynb) | Hour/weekday/month patterns — peak at 21h |

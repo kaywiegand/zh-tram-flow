@@ -40,7 +40,7 @@
 - ✅ Outlier Detection (O1–O5, Vor/Nach-Vergleich Delays, Log-Skala Precipitation)
 - ✅ EDA-Abschluss: Konsolidierte Findings-Tabelle + Feature-Ideen + Cleaning-Prognose
 
-### Analyse-Notebooks (6 Notebooks · 55 Findings)
+### Analyse-Notebooks (6 Notebooks · 63 Findings)
 - ✅ `03_analysis_0-overview.ipynb` — Zentrale Findings, Kernfragen, Executive Summary, Report-Auswahl
 - ✅ `03_analysis_1-target.ipynb` — Delay-Verteilung, OTP 87%, Cancellations, lf_clean-Strategie (13 Findings)
 - ✅ `03_analysis_2-network.ipynb` — Netzveränderungen 2023–2025, Hotspots, Versorgungsqualität (9 Findings)
