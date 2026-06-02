@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zürich Tram Flow — Artefakt-Übersicht</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #2d3748;
+      line-height: 1.6;
+      background: white;
+    }
+
+    /* ─── Header ───────────────────────────────────────────────────────── */
+    header {
+      background: #1a3a5c;
+      color: white;
+      padding: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .header-brand h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .header-brand p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .header-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .header-links a:hover {
+      color: white;
+    }
+
+    /* ─── Main Content ─────────────────────────────────────────────────── */
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    section {
+      margin-bottom: 4rem;
+    }
+
+    section h2 {
+      font-size: 1.4rem;
+      color: #1a3a5c;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+    }
+
+    .intro-paragraph {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #4a5568;
+      margin-bottom: 1rem;
+    }
+
+    /* ─── Artifact Table ───────────────────────────────────────────────── */
+    .artifact-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 2rem 0;
+    }
+
+    .artifact-table th {
+      background: #f0f4f8;
+      color: #1a3a5c;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-bottom: 2px solid #e0e0e0;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .artifact-table td {
+      padding: 1.2rem 1rem;
+      border-bottom: 1px solid #e8eef5;
+    }
+
+    .artifact-table tr:hover {
+      background: #f8fafc;
+    }
+
+    .depth-indicator {
+      font-size: 1rem;
+      letter-spacing: 0.15em;
+      color: #2E86AB;
+      min-width: 80px;
+    }
+
+    .artifact-link {
+      color: #2E86AB;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .artifact-link:hover {
+      color: #1a3a5c;
+      text-decoration: underline;
+    }
+
+    /* ─── Tech Stack ───────────────────────────────────────────────────── */
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin: 1.5rem 0;
+    }
+
+    .tech-pill {
+      display: inline-block;
+      background: #f0f4f8;
+      color: #1a3a5c;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid #e0e0e0;
+      transition: all 0.2s;
+    }
+
+    .tech-pill:hover {
+      background: #2E86AB;
+      color: white;
+      border-color: #2E86AB;
+    }
+
+    /* ─── Footer ───────────────────────────────────────────────────────── */
+    footer {
+      background: #f8fafc;
+      border-top: 1px solid #e0e0e0;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .footer-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      font-size: 0.9rem;
+      color: #718096;
+    }
+
+    .footer-content a {
+      color: #2E86AB;
+      text-decoration: none;
+    }
+
+    .footer-content a:hover {
+      text-decoration: underline;
+    }
+
+    /* ─── Responsive ───────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .artifact-table {
+        font-size: 0.85rem;
+      }
+
+      .artifact-table th,
+      .artifact-table td {
+        padding: 0.8rem;
+      }
+
+      .depth-indicator {
+        min-width: 60px;
+      }
+
+      section h2 {
+        font-size: 1.2rem;
+      }
+
+      main {
+        padding: 2rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header>
+    <div class="header-container">
+      <div class="header-brand">
+        <h1>Zürich Tram Flow</h1>
+        <p>Verspätungsanalyse · 2023–2025 · VBZ</p>
+      </div>
+      <div class="header-links">
+        <a href="landingpage.html">← Landingpage</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <!-- Projekt Intro -->
+    <section>
+      <h2>Das Projekt</h2>
+      <p class="intro-paragraph">
+        <strong>Zürich Tram Flow</strong> analysiert Verspätungen im Zürcher Tramnetz (VBZ) auf Basis von
+        94,4 Millionen Halt-Ereignissen über drei Jahre. Das Projekt zeigt: Die Verspätungen sind nicht zufällig,
+        sondern im Fahrplandesign verankert — und damit vorhersagbar.
+      </p>
+      <p class="intro-paragraph">
+        Mit Data Analysis, Feature Engineering und Machine Learning wird ein Modell gebaut, das Delay mit
+        MAE 18,56 Sekunden vorhersagt (63% besser als die Baseline). Die Erkenntnisse führen zu
+        vier praktischen Handlungsfeldern für Fahrplan-Redesign bei VBZ.
+      </p>
+    </section>
+
+    <!-- Artefakte -->
+    <section>
+      <h2>Artefakte nach Tiefe & Zielgruppe</h2>
+      <p class="intro-paragraph">
+        Je nachdem wie tief du einsteigen möchtest — wähle dein Artefakt. Jede Spalte zeigt auf einen Blick:
+        wie viel Zeit du brauchst, was du bekommst, und wo es hinführt.
+      </p>
+
+      <table class="artifact-table">
+        <thead>
+          <tr>
+            <th>Artefakt</th>
+            <th>Tiefe</th>
+            <th>Was du bekommst</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Dashboard</strong> (Streamlit)</td>
+            <td><span class="depth-indicator">●</span> 5 Min</td>
+            <td>Interaktive Karten, Charts, live Delay-Vorhersage. Vier Seiten: Überblick · Analyse · Vorhersage · Empfehlungen.</td>
+            <td><a href="https://zh-tram-flow.streamlit.app" class="artifact-link">Öffnen →</a></td>
+          </tr>
+          <tr>
+            <td><strong>Landingpage</strong></td>
+            <td><span class="depth-indicator">●</span> 5 Min</td>
+            <td>Projekt-Überblick für alle Zielgruppen. Shareable Link für Social Media. Die Einladung zum Weitergehen.</td>
+            <td><a href="landingpage.html" class="artifact-link">Ansehen →</a></td>
+          </tr>
+          <tr>
+            <td><strong>Presentation</strong> (HTML)</td>
+            <td><span class="depth-indicator">●●</span> 15 Min</td>
+            <td>22 Slides. Vollständige Story: Problem → Methode → Findings → Modell → Empfehlungen.</td>
+            <td><a href="presentation.html" class="artifact-link">Ansehen →</a></td>
+          </tr>
+          <tr>
+            <td><strong>Full Report</strong> (HTML)</td>
+            <td><span class="depth-indicator">●●●</span> 45 Min</td>
+            <td>Alle 63 Findings. Narrative Report mit Beweisketten, Charts, Limitierungen. Technische Tiefe.</td>
+            <td><a href="report.html" class="artifact-link">Lesen →</a></td>
+          </tr>
+          <tr>
+            <td><strong>Notebooks</strong> (Jupyter)</td>
+            <td><span class="depth-indicator">●●●●</span> selbst entscheiden</td>
+            <td>Code, Outputs, Iterationen, Fact-Checking. 12 Notebooks in Python. Explore und reproducibles.</td>
+            <td><a href="https://github.com/kaywiegand/zh-tram-flow/tree/main/notebooks" class="artifact-link">Ansehen →</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Tech Stack -->
+    <section>
+      <h2>Tech Stack</h2>
+      <div class="tech-stack">
+        <span class="tech-pill">Python</span>
+        <span class="tech-pill">Polars</span>
+        <span class="tech-pill">Pandas</span>
+        <span class="tech-pill">LightGBM</span>
+        <span class="tech-pill">Plotly</span>
+        <span class="tech-pill">Streamlit</span>
+        <span class="tech-pill">Jupyter</span>
+        <span class="tech-pill">uv</span>
+        <span class="tech-pill">Git</span>
+        <span class="tech-pill">GTFS</span>
+      </div>
+    </section>
+
+    <!-- Weitere Links -->
+    <section>
+      <h2>Weitere Ressourcen</h2>
+      <ul style="list-style: none; padding: 0;">
+        <li style="margin-bottom: 0.8rem;">
+          📖 <a href="https://github.com/kaywiegand/zh-tram-flow" class="artifact-link">GitHub Repository</a> — Vollständiger Code, alle Daten-Transformationen, reproduzierbare Pipeline.
+        </li>
+        <li style="margin-bottom: 0.8rem;">
+          🔗 <a href="https://linkedin.com/in/kaywiegand" class="artifact-link">LinkedIn</a> — Weitere Projekte, Artikel, Gedanken zu Data Science und Workflow.
+        </li>
+        <li style="margin-bottom: 0.8rem;">
+          📊 <a href="https://github.com/kaywiegand/sf_data-research" class="artifact-link">Data Engineering Pipeline (sf_data-research)</a> — Die upstream-Phase: ETL, Cleaning, GTFS-Join, Feature-Konstruktion.
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-content">
+      <p>
+        <strong>Kay Alexander Wiegand</strong> · Senior Consultant · Data Scientist · Berlin<br>
+        <a href="https://linkedin.com/in/kaywiegand">LinkedIn</a> · <a href="https://github.com/kaywiegand">GitHub</a><br>
+        <small style="opacity: 0.7;">Daten: VBZ Zürich (Open Data) · Zeitraum 2023–2025 · Python · Polars · LightGBM · Streamlit</small>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

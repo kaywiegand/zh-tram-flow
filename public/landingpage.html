@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zürich Tram Flow — Verspätungsanalyse · Data Science Portfolio</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #2d3748;
+      line-height: 1.6;
+    }
+
+    /* ─── Hero Section ─────────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a3a5c 0%, #234d7c 100%);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(circle at 20% 50%, rgba(46, 134, 171, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(46, 134, 171, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 720px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.85);
+      padding: 0.5rem 1.2rem;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.2rem;
+      line-height: 1.15;
+    }
+
+    .hero .subtitle {
+      font-size: 1.15rem;
+      opacity: 0.9;
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+      max-width: 600px;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 4rem;
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 2rem;
+      background: white;
+      color: #1a3a5c;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .cta.secondary {
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+
+    .cta.secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: bounce 2s infinite;
+      opacity: 0.7;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ─── KPI Section ──────────────────────────────────────────────────── */
+    .kpi-section {
+      background: #f8fafc;
+      padding: 4rem 2rem;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .kpi-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      border-left: 4px solid #2E86AB;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .kpi-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #1a3a5c;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.4rem;
+    }
+
+    .kpi-sub {
+      font-size: 0.8rem;
+      color: #718096;
+    }
+
+    /* ─── Findings Section ─────────────────────────────────────────────── */
+    .findings-section {
+      padding: 5rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .findings-section h2 {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      color: #1a3a5c;
+    }
+
+    .finding {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 3rem;
+      align-items: center;
+      margin-bottom: 4rem;
+    }
+
+    .finding:nth-child(even) {
+      grid-template-columns: 1.5fr 1fr;
+    }
+
+    .finding:nth-child(even) .finding-icon {
+      order: 2;
+    }
+
+    .finding:nth-child(even) .finding-text {
+      order: 1;
+    }
+
+    .finding-icon {
+      font-size: 5rem;
+      text-align: center;
+      line-height: 1;
+    }
+
+    .finding-text h3 {
+      font-size: 1.4rem;
+      color: #1a3a5c;
+      margin-bottom: 0.8rem;
+      font-weight: 700;
+    }
+
+    .finding-text p {
+      font-size: 1rem;
+      color: #4a5568;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 768px) {
+      .finding {
+        grid-template-columns: 1fr !important;
+      }
+      .finding:nth-child(even) .finding-icon { order: unset; }
+      .finding:nth-child(even) .finding-text { order: unset; }
+      .finding-icon { font-size: 3rem; }
+      .finding-text h3 { font-size: 1.2rem; }
+    }
+
+    /* ─── Artifact Cards ───────────────────────────────────────────────── */
+    .artifacts-section {
+      background: #f8fafc;
+      padding: 5rem 2rem;
+    }
+
+    .artifacts-section h2 {
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      color: #1a3a5c;
+    }
+
+    .artifact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .artifact-card {
+      background: white;
+      border-radius: 10px;
+      padding: 2rem;
+      border-left: 4px solid #2E86AB;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .artifact-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 24px rgba(46, 134, 171, 0.15);
+      border-left-color: #e67e22;
+    }
+
+    .artifact-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      line-height: 1;
+    }
+
+    .artifact-card h3 {
+      font-size: 1.2rem;
+      color: #1a3a5c;
+      margin-bottom: 0.6rem;
+      font-weight: 700;
+    }
+
+    .artifact-card p {
+      font-size: 0.95rem;
+      color: #4a5568;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+      line-height: 1.6;
+    }
+
+    .artifact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #2E86AB;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: gap 0.2s;
+    }
+
+    .artifact-link:hover {
+      gap: 0.6rem;
+    }
+
+    /* ─── Footer ───────────────────────────────────────────────────────── */
+    .footer {
+      background: #1a3a5c;
+      color: white;
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .footer-author {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .footer-meta {
+      font-size: 0.8rem;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="badge">Portfolio-Projekt · Data Science · 2026</div>
+      <h1>Zürich Tram Flow</h1>
+      <p class="subtitle">Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplandesign verankert sind, nicht im zufälligen Betrieb.</p>
+      <div class="cta-group">
+        <a href="https://zh-tram-flow.streamlit.app" class="cta">Dashboard öffnen →</a>
+        <a href="https://github.com/kaywiegand/zh-tram-flow" class="cta secondary">GitHub ansehen →</a>
+      </div>
+    </div>
+    <div class="scroll-indicator">↓</div>
+  </section>
+
+  <!-- KPI SECTION -->
+  <section class="kpi-section">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-value">94,4 Mio.</div>
+        <div class="kpi-label">Datenpunkte</div>
+        <div class="kpi-sub">2023–2025 · VBZ Zürich</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">87,0%</div>
+        <div class="kpi-label">On-Time Performance</div>
+        <div class="kpi-sub">Ziel: 95% · Lücke: −8pp</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">18,56s</div>
+        <div class="kpi-label">Modell MAE</div>
+        <div class="kpi-sub">LightGBM · 63% unter Baseline</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">63</div>
+        <div class="kpi-label">Analyse-Findings</div>
+        <div class="kpi-sub">aus 12 Jupyter Notebooks</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINDINGS SECTION -->
+  <section class="findings-section">
+    <h2>Drei zentrale Befunde</h2>
+
+    <div class="finding">
+      <div class="finding-icon">🗺</div>
+      <div class="finding-text">
+        <h3>Die Peripherie leidet — nicht das Zentrum</h3>
+        <p>Friedhof Enzenbühl hat 93,8 Sekunden mittleren Delay — Paradeplatz mit 14 kreuzenden Linien nur 14 Sekunden. Das widerlegt die Intuition: Überlastung im Zentrum ist nicht das Problem.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-icon">❄️</div>
+      <div class="finding-text">
+        <h3>Schnee kostet 54 Sekunden — Regen kaum</h3>
+        <p>Schnee senkt die Pünktlichkeit um −10,9 Prozentpunkte und erhöht den mittleren Delay um ~54 Sekunden. Regen zeigt dagegen keinen messbaren Effekt auf das Netz.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-icon">🔗</div>
+      <div class="finding-text">
+        <h3>Der Delay kaskadiert — r ≥ 0,85 netzweit</h3>
+        <p>Alle 16 Tramlinien zeigen eine Korrelation von r ≥ 0,85 zwischen aufeinanderfolgenden Halten. Ein verspätetes Tram macht das nächste automatisch verspätet.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARTIFACTS SECTION -->
+  <section class="artifacts-section">
+    <h2>Artefakte</h2>
+    <div class="artifact-grid">
+      <div class="artifact-card">
+        <div class="artifact-icon">🎛</div>
+        <h3>Dashboard</h3>
+        <p>Interaktiv erkunden. Live Delay vorhersagen. Vier Seiten mit Analyse, Findings und Vorhersage-Tool.</p>
+        <a href="https://zh-tram-flow.streamlit.app" class="artifact-link">Öffnen →</a>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-icon">📊</div>
+        <h3>Presentation</h3>
+        <p>Die Story in 22 Slides. Vollständige Methodik, alle Findings, Modellvergleich, Empfehlungen.</p>
+        <a href="presentation.html" class="artifact-link">Ansehen →</a>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-icon">📄</div>
+        <h3>Full Report</h3>
+        <p>Alle 63 Findings, vollständige Analyse und Methodik. Narrative HTML-Seite mit allen Details.</p>
+        <a href="report.html" class="artifact-link">Lesen →</a>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-icon">💻</div>
+        <h3>GitHub</h3>
+        <p>Code, Notebooks, Datenpipeline. Vollständig reproduzierbar. Fork oder clone das Repo.</p>
+        <a href="https://github.com/kaywiegand/zh-tram-flow" class="artifact-link">Ansehen →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-author">Kay Alexander Wiegand · Senior Consultant · Data Scientist · Berlin</div>
+    <div class="footer-links">
+      <a href="https://linkedin.com/in/kaywiegand">LinkedIn</a>
+      <a href="https://github.com/kaywiegand">GitHub</a>
+    </div>
+    <div class="footer-meta">Daten: VBZ Zürich (Open Data) · Zeitraum 2023–2025 · 12 Notebooks · Python · Polars · LightGBM</div>
+  </footer>
+</body>
+</html>
