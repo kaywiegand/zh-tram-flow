@@ -18,7 +18,7 @@ import streamlit as st
 ROOT = Path(__file__).resolve().parent.parent.parent
 DATA = ROOT / "data"
 MODELS = DATA / "models"
-REPORTS = ROOT / "reports"
+REPORTS = ROOT / "public"
 IMG = REPORTS / "img"
 
 # ─── Page config ─────────────────────────────────────────────────────────────

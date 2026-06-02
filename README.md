@@ -11,7 +11,7 @@
 
 ## Key Visual
 
-![Delay hotspots in Zürich's tram network](reports/img/geo-delay-hotspots.png)
+![Delay hotspots in Zürich's tram network](public/img/geo-delay-hotspots.png)
 *Average arrival delay per stop (2023–2025). Hotspots concentrate in outer corridors — not at central interchange points.*
 
 ---
@@ -150,7 +150,7 @@ zh-tram-flow/
 │   ├── 06_prediction_4-model_v2.ipynb ← LightGBM v2 + cascade feature
 │   └── 06_prediction_5-comparison.ipynb ← Model comparison + final verdict
 │
-├── reports/
+├── public/
 │   ├── index.html                     ← Full narrative report (3-layer: Scan · Dive · Deep)
 │   ├── presentation.html              ← Slide deck (reveal.js)
 │   ├── img/                           ← All exported charts (21 PNGs + interactive HTML)
@@ -246,8 +246,8 @@ uv run streamlit run apps/dashboard/app.py
 
 | Report | Description |
 | :--- | :--- |
-| [Full Report](reports/index.html) | Narrative HTML report — Scan · Dive · Deep-Dive reading layers |
-| [Presentation](reports/presentation.html) | Slide deck — DSC pipeline, findings, model results |
+| [Full Report](public/report.html) | Narrative HTML report — Scan · Dive · Deep-Dive reading layers |
+| [Presentation](public/presentation.html) | Slide deck — DSC pipeline, findings, model results |
 
 ---
 

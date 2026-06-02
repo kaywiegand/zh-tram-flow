@@ -35,22 +35,22 @@ clean: ## Umgebung + Cache aufräumen
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	@echo "✅ Aufgeräumt."
 
-maps: ## Alle interaktiven Karten (reports/img/*.html) im Browser öffnen
-	@for f in reports/img/*.html; do open "$$f"; done
+maps: ## Alle interaktiven Karten (public/img/*.html) im Browser öffnen
+	@for f in public/img/*.html; do open "$$f"; done
 	@echo "✅ Karten geöffnet."
 
 map-stops: ## Interaktive Haltestellen-Delay-Karte öffnen
-	open reports/img/geo-stop-delay-interactive.html
+	open public/img/geo-stop-delay-interactive.html
 
 map-network: ## Interaktive Netzwerk-Delta-Karte öffnen
-	open reports/img/network-line-delta-map.html
+	open public/img/network-line-delta-map.html
 
 map-meteo: ## Interaktive Wetter-Impact-Karte öffnen
-	open reports/img/meteo-weather-impact-map.html
+	open public/img/meteo-weather-impact-map.html
 
-report: ## Notebook als HTML exportieren → reports/index.html
-	. .venv/bin/activate && jupyter nbconvert --to html --no-input --output-dir reports --output index notebooks/04_insights.ipynb
-	open reports/index.html
+report: ## Notebook als HTML exportieren → public/report.html
+	. .venv/bin/activate && jupyter nbconvert --to html --no-input --output-dir public --output report notebooks/04_insights.ipynb
+	open public/report.html
 	@echo "✅ Report exportiert und geöffnet."
 
 help: ## Alle verfügbaren Targets anzeigen
