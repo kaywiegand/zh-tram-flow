@@ -2,22 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "tram-map",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "reports/figures"],
-      "port": 8765
-    },
-    {
-      "name": "presentation",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "reports"],
-      "port": 8766
-    }
-  ,{
-      "name": "templates",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8767", "--directory", "/Users/kaywiegand/Workspace/docs/presentation-templates"],
-      "port": 8767
+      "name": "zh-tram-dashboard",
+      "runtimeExecutable": "uv",
+      "runtimeArgs": ["run", "streamlit", "run", "apps/dashboard/app.py", "--server.port", "8502", "--server.headless", "true"],
+      "port": 8502
     }
   ]
 }

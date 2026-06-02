@@ -106,5 +106,7 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 27 | **Interaktives Prediction-Tool** — Streamlit-App: Dropdown Stop/Linie/Stunde/Wetter → vorhergesagter Delay. LightGBM direkt laden, kein Server. Konzept im Planmodus entwerfen. | 2 |
-| 31 | **Dashboard — Spielmodus + Vorhersagemodus** — Zwei Modi: (1) Spielmodus: explorative Historik-Ansicht mit interaktiven Heatmaps, Zeitreihen und Karten; (2) Vorhersagemodus: Eingabemaske Stop × Linie × Stunde × Wetter → Delay. Erweitert #27 um den explorativen Modus. Tooling-Entscheidung ausstehend (Streamlit vs. Dash). | 2 |
+<!-- Erledigt 2026-06-02:
+  #27 Interaktives Prediction-Tool — apps/dashboard/app.py Vorhersage-Modus: lgbm_v1 live-Inferenz, Stop-Lookup aus test_final.parquet
+  #31 Dashboard Spielmodus + Vorhersagemodus — apps/dashboard/app.py: Erkunden (19 PNGs + 3 interaktive HTML-Karten + Scheduling-Map) + Vorhersagen; uv run streamlit run apps/dashboard/app.py
+-->

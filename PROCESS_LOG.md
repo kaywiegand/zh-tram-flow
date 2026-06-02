@@ -990,3 +990,21 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 → Modell (MAE 18.56s beweist Muster) → Empfehlung (Modell informiert Fahrplandesign)
 
 **Nächster Schritt:** #45 Findings-Index + #44 Presentation-Folie + #40 Situationsvergleich
+
+---
+
+### 2026-06-02 — Dashboard: Streamlit Prediction + Exploration App
+
+**Was wurde gemacht:**
+
+**`apps/dashboard/app.py`** (#27 + #31):
+- Streamlit-App mit zwei Modi: Erkunden + Vorhersagen
+- **Erkunden**: 19 statische PNGs aus `reports/img/` in 5 Sektionen (Netzwerk, Temporal, Meteo, Events, Geo) + 3 interaktive HTML-Karten als iframes + Scheduling-Empfehlungs-Map (mit Path.exists()-Guard)
+- **Vorhersagen**: Linie × Stop (gefiltert) × Stunde × Wochentag × Monat × Wetter → lgbm_v1 Prediction live; Stop-Features (district_nr, dwell_time_median, n_lines_at_stop, is_start/end_stop) aus Lookup-Tabelle via `@st.cache_data` aus `test_final.parquet`
+- Lookup-Tabellen: 190 Stops, 1170 Stop-Linie-Kombinationen (einmalig geladen)
+- Technische Validierung: Lookup + Prediction (L11 Stadelhofen 18h Do Juni → +60.3s) OK
+- Entscheidung Streamlit > Dash: Portfolio-Use-Case, kein Callback-Graph nötig, `@st.cache_data` ideal für Parquet-Loads
+- Start: `uv run streamlit run apps/dashboard/app.py`
+
+**Nächster Schritt:** /project-case check ausführen — Dashboard schließt den Projekt-Kreis
+

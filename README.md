@@ -222,6 +222,23 @@ jupyter lab
 | 06-3 | [Evaluation](notebooks/06_prediction_3-evaluation.ipynb) | Residuals, error analysis, feature importance |
 | 06-4 | [LightGBM v2](notebooks/06_prediction_4-model_v2.ipynb) | Cascade feature → Test MAE 18.56s |
 | 06-5 | [Comparison](notebooks/06_prediction_5-comparison.ipynb) | All models compared — final verdict |
+| 06-6 | [Dwell Simulator](notebooks/06_prediction_6-dwell_simulator.ipynb) | Dwell-time confounding analysis — binary distribution, cascade mechanism |
+| 06-7 | [Scheduling Recommendations](notebooks/06_prediction_7-scheduling_recommendations.ipynb) | Risk matrix Stop×Line×Context, scheduling buffer recommendations |
+
+---
+
+## Dashboard
+
+Interactive Streamlit app — two modes:
+
+| Mode | Description |
+| :--- | :--- |
+| **Explore** | Historical charts across 5 sections (network, temporal, meteo, events, geo) + interactive Plotly maps |
+| **Predict** | Live LightGBM v1 inference: select Stop × Line × Hour × Weekday × Weather → predicted delay |
+
+```bash
+uv run streamlit run apps/dashboard/app.py
+```
 
 ---
 
