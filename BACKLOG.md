@@ -46,6 +46,11 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
        strukturierte IDs (F-NET-07), Impact/Action/Result-Tabelle, Jira-Analogie, "Analysis dictates the model"
   #42 Dwell-Optimierungs-Simulator — 06_prediction_6-dwell_simulator.ipynb; Hauptbefund: dwell_time
        binär (0/60s), r=+0.16 Konfundierung, Feature Importance ≠ kausaler Hebel; F-SIM-01–04 dokumentiert
+  #45 Findings-Index — 03_analysis_0-overview.ipynb: F-SIM-01–04 + F-REC-01–04 eingetragen;
+       Executive Summary 6. Erkenntnis + Kernthese 4. Befund; Report-Auswahl neue Sektion
+  #44 Presentation Full-Circle-Folie — Slide 21 "Der vollständige Kreis" + Danke-Slide Next Steps aktualisiert
+  #40 Situationsvergleich — plot_line_context_map + table_line_context_map in spatial.py;
+       5 Kontexte (Normal/Schnee/Event/Rush/Spätnacht); Notebook-Cells in 03_analysis_4-spatial.ipynb
 -->
 
 <!-- Erledigt 2026-05-29:
@@ -72,9 +77,7 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 45 | **Findings-Index updaten** — `03_analysis_0-overview.ipynb`: F-SIM-01–04 (dwell_time Konfundierung, binäre Verteilung, Feature ≠ Hebel) + F-REC-01–04 (Full-Circle, Risiko-Matrix, kontextspezifische Puffer, A/B-Test-Caveat) in die zentrale Findings-Tabelle eintragen. | 1 |
 | 46 | **Empfehlungskarte als Report-Artefakt** — `06_prediction_7` Plotly-Karte als `reports/img/scheduling-recommendations-map.html` exportieren. Export-Zelle ins Notebook + in `reports/index.html` verlinken. | 2 |
-| 40 | **Situationsvergleich: gleiche Linie, verschiedene Kontexte** — Erweiterung von #39: dieselbe Linien-Karte filterbar nach Normal · Event · Winter (has_snow=True) · Rush-Hour (17–19h) · Late Night (21h+). Zeigt wie sich das Streckenbild je nach Kontext verändert. Braucht #39 als Basis. Jetzt auch Grundlage für #44 Presentation-Folie. | 2 |
 | 9 | **Linie 12 Baustellen-Zeitraum** (Jan 2023 – Jun 2024) validieren — genaue Daten aus VBZ-Quellen bestätigen, dann: herausfiltern oder als Binary-Feature kodieren? | 2 |
 | 14 | **Events-Notebook: Haltestellen- + Linien-Ranking** — analog zu Meteo-Notebook. Welche Stops/Linien leiden am meisten unter Events? `analytics/events.py` erweitern. | 2 |
 | 2 | **Visualisierungen in `01_exploration.ipynb`** — Data Distribution + Outlier Detection Charts überarbeiten. Welche bringen wirklich Mehrwert? | 2 |
