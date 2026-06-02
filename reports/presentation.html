@@ -840,7 +840,62 @@
 
 
 <!-- ══════════════════════════════════════
-     SLIDE 21 — Danke
+     SLIDE 21 — Der vollständige Kreis
+══════════════════════════════════════ -->
+<section>
+  <h2>Der vollständige Kreis <span class="slide-sub">— Vorhersagbar heisst: steuerbar</span></h2>
+
+  <div style="display:flex; align-items:stretch; gap:0; margin: 18px 0 14px 0;">
+
+    <div style="flex:1; background:#f5f9fc; border:1px solid #d0e8f5; border-radius:8px 0 0 8px; padding:14px 16px;">
+      <div style="font-size:0.62em; letter-spacing:0.1em; text-transform:uppercase; color:#2E86AB; font-weight:600; margin-bottom:6px;">① Analyse</div>
+      <div style="font-size:0.84em; font-weight:600; color:#1a3a5c; margin-bottom:4px;">55 strukturierte Findings</div>
+      <div style="font-size:0.72em; color:#555; line-height:1.5;">71.5% aller Halte akkumulieren Delay · 71.3% ohne Puffer · Hotspots an der Peripherie</div>
+    </div>
+
+    <div style="display:flex; align-items:center; padding:0 6px; color:#2E86AB; font-size:1.3em; font-weight:300;">→</div>
+
+    <div style="flex:1; background:#f5f9fc; border:1px solid #d0e8f5; padding:14px 16px;">
+      <div style="font-size:0.62em; letter-spacing:0.1em; text-transform:uppercase; color:#2E86AB; font-weight:600; margin-bottom:6px;">② Kernbefund</div>
+      <div style="font-size:0.84em; font-weight:600; color:#1a3a5c; margin-bottom:4px;">Delays sind strukturell</div>
+      <div style="font-size:0.72em; color:#555; line-height:1.5;">dwell_time = Feature #1 · Kaskadeneffekt r=0.85 · kein Puffer = kein Abbau möglich</div>
+    </div>
+
+    <div style="display:flex; align-items:center; padding:0 6px; color:#2E86AB; font-size:1.3em; font-weight:300;">→</div>
+
+    <div style="flex:1; background:#f5f9fc; border:1px solid #d0e8f5; padding:14px 16px;">
+      <div style="font-size:0.62em; letter-spacing:0.1em; text-transform:uppercase; color:#2E86AB; font-weight:600; margin-bottom:6px;">③ Modell</div>
+      <div style="font-size:0.84em; font-weight:600; color:#1a3a5c; margin-bottom:4px;">MAE 18.56s beweist Muster</div>
+      <div style="font-size:0.72em; color:#555; line-height:1.5;">Zufällige Delays sind nicht so präzise vorhersagbar — <em>vorhersagbar = strukturell</em></div>
+    </div>
+
+    <div style="display:flex; align-items:center; padding:0 6px; color:#27ae60; font-size:1.3em; font-weight:300;">→</div>
+
+    <div style="flex:1; background:#f2faf5; border:1px solid #a8d5b8; border-radius:0 8px 8px 0; padding:14px 16px;">
+      <div style="font-size:0.62em; letter-spacing:0.1em; text-transform:uppercase; color:#27ae60; font-weight:600; margin-bottom:6px;">④ Empfehlung</div>
+      <div style="font-size:0.84em; font-weight:600; color:#1a3a5c; margin-bottom:4px;">Modell informiert Fahrplan</div>
+      <div style="font-size:0.72em; color:#555; line-height:1.5;">Risiko-Matrix: WO und WANN Puffer fehlen · stopspezifische dwell_time statt 0/60s</div>
+    </div>
+
+  </div>
+
+  <div style="background:#fff8e1; border:1px solid #f0c040; border-radius:8px; padding:10px 16px; margin-top:10px; font-size:0.78em; color:#7a5c00; display:flex; align-items:center; gap:10px;">
+    <span style="font-size:1.2em;">💡</span>
+    <span><strong>Was das Modell leistet:</strong> Es sagt WO und WANN das Risiko hoch ist — nicht wie viel Puffer optimal wäre. Die Diagnose kommt vom Modell, die Dosis kommt vom Betrieb durch gezieltes A/B-Testing.</span>
+  </div>
+
+  <div class="metric-row" style="margin-top:12px;">
+    <div class="metric good"><div class="val">63</div><div class="lbl">strukturierte Findings</div></div>
+    <div class="metric"><div class="val">18.56s</div><div class="lbl">Test MAE (LightGBM v2)</div></div>
+    <div class="metric warn"><div class="val">71.3%</div><div class="lbl">Halte ohne Puffer</div></div>
+    <div class="metric good"><div class="val">Stop × Linie<br>× Kontext</div><div class="lbl">Risiko-Matrix-Dimensionen</div></div>
+  </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════
+     SLIDE 22 — Danke
 ══════════════════════════════════════ -->
 <section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)">
   <h1>Vielen Dank</h1>
@@ -851,16 +906,16 @@
     <div style="text-align:center; color:#b8d8ea">
       <div style="font-size:0.68em; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px; color:rgba(255,255,255,0.5)">Next Steps</div>
       <div style="font-size:0.86em; line-height:1.85; color:#b8d8ea">
-        XGBoost-Vergleich auswerten<br>
+        Scheduling-Empfehlung mit VBZ pilotieren<br>
         Interactive Dashboard (Streamlit)<br>
-        Live-Prediction API
+        Kontextsensitive Fahrpläne (Schnee/Event)
       </div>
     </div>
     <div style="text-align:center; color:#b8d8ea">
       <div style="font-size:0.68em; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px; color:rgba(255,255,255,0.5)">Projekt</div>
       <div style="font-size:0.86em; line-height:1.85; color:#b8d8ea">
         github.com/kaywiegand/zh-tram-flow<br>
-        94M Fahrtereignisse · 3 Jahre<br>
+        94M Fahrtereignisse · 3 Jahre · 63 Findings<br>
         LightGBM v2 · Test MAE 18.56s
       </div>
     </div>
