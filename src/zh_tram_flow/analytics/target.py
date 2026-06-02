@@ -1,6 +1,7 @@
 """Analytics-Modul für 03_analysis_1-target.ipynb — Zielvariable arrival_delay."""
 
 import polars as pl
+from zh_tram_flow.config import auto_export
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -64,6 +65,7 @@ def _draw_year_bars(ax, stats, cfg, style, with_trend=False):
     ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
 
 
+@auto_export("target-delay-overview-per-year")
 def plot_delay_overview_per_year(lf_all, lf_clean=None, cfg=None):
     """Ø Verspätung nach Jahr. lf_clean=None → nur roh; lf_clean übergeben → Vergleich roh vs. bereinigt."""
     cfg = _get_cfg(cfg)
@@ -131,6 +133,7 @@ def _compute_monthly(lf):
     return df.sort_values("date").reset_index(drop=True)
 
 
+@auto_export("target-monthly-delay")
 def plot_monthly_delay(lf_all, lf_clean=None, cfg=None):
     """Monatliche Delay-Zeitreihe. lf_clean=None → nur roh; lf_clean übergeben → bereinigt mit Trendlinien."""
     cfg = _get_cfg(cfg)
@@ -185,6 +188,7 @@ def table_monthly_delay(lf):
     return yr.set_index("Jahr")
 
 
+@auto_export("target-delay-distribution")
 def plot_delay_distribution(lf, cfg=None):
     """Delay-Verteilungs-Histogramme: Arrival / Departure / Delta (100k Sample)."""
     cfg = _get_cfg(cfg)
@@ -241,6 +245,7 @@ def table_delay_stats(lf):
     return pd.concat(rows).set_index("column").round(1)
 
 
+@auto_export("target-delay-distribution-comparison")
 def plot_delay_distribution_comparison(lf_all, lf_clean=None, cfg=None):
     """Verteilungsvergleich: lf_all (roh) vs. lf_clean (bereinigt) — 6 Histogramme."""
     cfg = _get_cfg(cfg)
@@ -311,6 +316,7 @@ def plot_delay_distribution_comparison(lf_all, lf_clean=None, cfg=None):
     plt.show()
 
 
+@auto_export("target-log-transform")
 def plot_log_transform(lf, cfg=None):
     """Log-Transform: Arrival Delay roh vs. Signed Log — mit Naive-Baseline MAE."""
     cfg = _get_cfg(cfg)
@@ -360,6 +366,7 @@ def plot_log_transform(lf, cfg=None):
 
 
 
+@auto_export("target-arrival-vs-departure")
 def plot_arrival_vs_departure(lf, cfg=None):
     """Boxplot: Arrival / Departure / Delay Delta nebeneinander (100k Sample)."""
     cfg = _get_cfg(cfg)
@@ -408,6 +415,7 @@ def plot_arrival_vs_departure(lf, cfg=None):
 
 
 
+@auto_export("target-delay-delta-detail")
 def plot_delay_delta_detail(lf, cfg=None):
     """Delay-Delta Verteilung im engen Bereich (±100s) — bimodale Struktur sichtbar."""
     cfg = _get_cfg(cfg)
@@ -436,6 +444,7 @@ def plot_delay_delta_detail(lf, cfg=None):
     plt.show()
 
 
+@auto_export("target-start-stop-analysis")
 def plot_start_stop_analysis(lf_delay, cfg=None):
     """Starthalte-Verzerrung: stop_sequence==1 vs. Rest — 3 Panels."""
     cfg = _get_cfg(cfg)
@@ -530,6 +539,7 @@ def plot_start_stop_analysis(lf_delay, cfg=None):
 
 
 
+@auto_export("target-otp")
 def plot_otp(lf, cfg=None):
     """OTP-Überblick: Arrival / Departure + Delay-Delta-Anteile."""
     cfg = _get_cfg(cfg)
@@ -615,6 +625,7 @@ def table_otp(lf):
     return otp_display
 
 
+@auto_export("target-otp-per-line")
 def plot_otp_per_line(lf_all, cfg=None):
     """OTP je Linie — monatliche Zeitreihen aller Linien (mit Linienfarben)."""
     cfg = _get_cfg(cfg)
@@ -714,6 +725,7 @@ def table_cancellations_by_line(lf):
     )
 
 
+@auto_export("target-cancellations-by-line")
 def plot_cancellations_by_line(lf, cfg=None):
     """Cancellation Rate — Top 15 Linien als horizontaler Balken."""
     cfg = _get_cfg(cfg)
@@ -752,6 +764,7 @@ def plot_cancellations_by_line(lf, cfg=None):
     plt.show()
 
 
+@auto_export("target-trip-level-validation")
 def plot_trip_level_validation(master_path, cfg=None):
     """Trip-Level Validierung: fully_canceled / mixed / fully_active — pre vs. post Juli 2024."""
     cfg = _get_cfg(cfg)
@@ -844,6 +857,7 @@ def plot_trip_level_validation(master_path, cfg=None):
     return summary.to_pandas()
 
 
+@auto_export("target-cancellation-rate-over-time")
 def plot_cancellation_rate_over_time(lf_all, cfg=None):
     """Monatliche Ausfallrate nach Linie — alle Linien als Zeitreihe."""
     cfg = _get_cfg(cfg)
@@ -895,6 +909,7 @@ def plot_cancellation_rate_over_time(lf_all, cfg=None):
     plt.show()
 
 
+@auto_export("target-delay-per-line-timeline")
 def plot_delay_per_line_timeline(lf_all, cfg=None):
     """Ø Delay nach Linie — monatliche Zeitreihe für alle 3 Metriken."""
     cfg = _get_cfg(cfg)

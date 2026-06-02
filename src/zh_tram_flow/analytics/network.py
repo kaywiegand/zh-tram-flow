@@ -8,6 +8,7 @@ Functions (line profiles):
 """
 
 import polars as pl
+from zh_tram_flow.config import auto_export
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -120,6 +121,7 @@ def build_changes_matrix(gtfs: dict, all_lines: list) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+@auto_export("network-changes-map")
 def plot_network_changes_map(changes: pd.DataFrame) -> None:
     """Plotly Mapbox: neue Haltestellen (orange) und entfernte (grau) ab Dez 2023."""
     import plotly.graph_objects as go
@@ -167,8 +169,10 @@ def plot_network_changes_map(changes: pd.DataFrame) -> None:
                    font=dict(size=14)),
     )
     fig.show()
+    return fig
 
 
+@auto_export("network-new-stops-by-district")
 def plot_new_stops_by_district(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
     """Neue Haltestellen ab Dez 2023 nach Stadtkreis — Balkendiagramm."""
     cfg = _get_cfg(cfg)
@@ -234,6 +238,7 @@ def table_new_stops_by_district(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
     return by_district.rename(columns={"district_name": "Stadtkreis", "new_stops": "Neue Halte (ab j24)"})
 
 
+@auto_export("network-stop-count-by-line")
 def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None, save_as=None):
     """Haltestellenanzahl pro Linie 2023/2024/2025 + Netto-Änderung j23→j24."""
     cfg = _get_cfg(cfg)
@@ -284,6 +289,7 @@ def table_network_netto_changes(changes: pd.DataFrame) -> pd.DataFrame:
     return net_table.set_index("Linie")
 
 
+@auto_export("network-monthly-delay-all-lines")
 def plot_monthly_delay_all_lines(lf_all, cfg=None, save_as=None):
     """Monatliche Ø Verspätung aller Linien vor/nach Fahrplanwechsel Dez 2023."""
     cfg = _get_cfg(cfg)
@@ -386,6 +392,7 @@ def table_delay_before_after_switch(lf_all) -> pd.DataFrame:
     )
 
 
+@auto_export("network-einlaufzeit")
 def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
     """Einlaufzeit: Neue vs. bestehende Haltestellen ab Jan 2024 — alle Linien."""
     cfg = _get_cfg(cfg)
@@ -495,6 +502,7 @@ def table_einlaufzeit(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
     return einlauf_summary.rename(columns={"line": "Linie"}).set_index("Linie")
 
 
+@auto_export("network-hotspots")
 def plot_hotspots(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
     """Haltestellen-Hotspots nach Linienanzahl + Linienanzahl vs. Verspätung Scatter."""
     cfg = _get_cfg(cfg)
@@ -602,6 +610,7 @@ def table_hotspots(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
     )
 
 
+@auto_export("network-service-quality-district-map")
 def plot_service_quality_district_map(lf_all) -> None:
     """Plotly Mapbox Choropleth: Δ Linienanbindung pro Stadtkreis 2023 → 2025."""
     import plotly.graph_objects as go
@@ -702,8 +711,10 @@ def plot_service_quality_district_map(lf_all) -> None:
                    font=dict(size=14)),
     )
     fig.show()
+    return fig
 
 
+@auto_export("network-service-quality-by-district")
 def plot_service_quality_by_district(lf_all, cfg=None, save_as=None):
     """Versorgungsqualität: Veränderung der Linienanbindung nach Stadtkreis 2023→2025."""
     cfg = _get_cfg(cfg)
@@ -786,6 +797,7 @@ def table_service_quality_by_district(lf_all) -> pd.DataFrame:
 # Line Profiles — Strukturelle Kennzahlen aller Linien
 # ---------------------------------------------------------------------------
 
+@auto_export("network-line-profiles")
 def plot_line_profiles(lf_all: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Liniencharakter-Profil: Strukturelle Kennzahlen aller Tram-Linien als Heatmap.
 
@@ -858,7 +870,7 @@ def plot_line_profiles(lf_all: pl.LazyFrame, cfg=None, save_as=None) -> None:
     col_fmts   = [d[2] for d in col_defs]
 
     data   = profiles[col_keys].values.astype(float)
-    normed = (data - data.min(axis=0)) / (data.ptp(axis=0) + 1e-9)
+    normed = (data - data.min(axis=0)) / ((data.max(axis=0) - data.min(axis=0)) + 1e-9)
 
     n_lines = len(profiles)
     n_cols  = len(col_keys)
@@ -892,7 +904,7 @@ def plot_line_profiles(lf_all: pl.LazyFrame, cfg=None, save_as=None) -> None:
     ax.set_title(
         "Liniencharakter-Profil — Strukturelle Kennzahlen aller Tram-Linien\n"
         "(Farbe normalisiert pro Spalte — dunkel = hoher Wert · sortiert nach Strukturfaktor)",
-        **style["title"], pad=14,
+        **style["title"],
     )
 
     # Colorbar as legend

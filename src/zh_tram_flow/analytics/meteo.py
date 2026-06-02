@@ -17,6 +17,7 @@ Functions:
 """
 
 import polars as pl
+from zh_tram_flow.config import auto_export
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -53,6 +54,7 @@ def _weather_compare(lf_delay: pl.LazyFrame, flag: str, label: str) -> pd.DataFr
 # Weather Overview
 # ---------------------------------------------------------------------------
 
+@auto_export("meteo-weather-overview")
 def plot_weather_overview(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     """Stacked bars: Normal (grau) + Delta (Blau-Skala) je Wetterbedingung.
     Rechte Achse: Delta in % (teal Linie).
@@ -175,6 +177,7 @@ def table_weather_overview(lf: pl.LazyFrame) -> pd.DataFrame:
 # Temperature + Precipitation
 # ---------------------------------------------------------------------------
 
+@auto_export("meteo-temperature-precipitation")
 def plot_temperature_precipitation(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     """Bar charts: delay by temperature bin and precipitation intensity."""
     from wgnd.core.theme import mpl_style
@@ -306,6 +309,7 @@ def table_temperature_bins(lf: pl.LazyFrame) -> pd.DataFrame:
 # is_hot feature
 # ---------------------------------------------------------------------------
 
+@auto_export("meteo-is-hot")
 def plot_is_hot(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     """Bar + temperature curve validating the is_hot (>20°C) feature."""
     from wgnd.core.theme import mpl_style
@@ -448,6 +452,7 @@ def table_is_hot(lf: pl.LazyFrame) -> pd.DataFrame:
 # Multicollinearity / correlation matrix
 # ---------------------------------------------------------------------------
 
+@auto_export("meteo-multicollinearity-matrix")
 def plot_multicollinearity_matrix(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     """Heatmap of Pearson correlations: weather × season × delay."""
     from wgnd.core.theme import mpl_style
@@ -543,6 +548,7 @@ def table_correlation_with_delay(lf: pl.LazyFrame) -> pd.DataFrame:
 # District Weather Sensitivity
 # ---------------------------------------------------------------------------
 
+@auto_export("meteo-district-weather-sensitivity")
 def plot_district_weather_sensitivity(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Two sorted bar charts (snow / heavy rain) with average line and above-avg highlight."""
     from wgnd.core.theme import mpl_style
@@ -657,6 +663,7 @@ def _weather_delta_df(lf_delay, flag, group_col, min_n=500):
     return merged
 
 
+@auto_export("meteo-stop-weather-ranking")
 def plot_stop_weather_ranking(lf: pl.LazyFrame, cfg=None, top_n: int = 20, save_as=None) -> None:
     """Horizontal bar charts: top stops by Δ delay for snow and heavy rain."""
     from wgnd.core.theme import mpl_style
@@ -721,6 +728,7 @@ def table_stop_weather_ranking(lf: pl.LazyFrame, top_n: int = 20) -> pd.DataFram
     return result.set_index("Haltestelle")
 
 
+@auto_export("meteo-line-weather-exposure")
 def plot_line_weather_exposure(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Sorted bar charts: Δ delay per line for snow and heavy rain."""
     from wgnd.core.theme import mpl_style
@@ -793,6 +801,7 @@ def table_line_weather_exposure(lf: pl.LazyFrame) -> pd.DataFrame:
 # Daily Delay Timeline — Weather markers
 # ---------------------------------------------------------------------------
 
+@auto_export("meteo-daily-delay-weather-timeline")
 def plot_daily_delay_weather_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Daily avg delay per year (3 subplots) with weather markers and temperature overlay."""
     from wgnd.core.theme import mpl_style
@@ -935,6 +944,7 @@ def table_daily_delay_weather_timeline(lf: pl.LazyFrame) -> pd.DataFrame:
 # Stop-level Weather Impact Map
 # ---------------------------------------------------------------------------
 
+@auto_export("meteo-weather-stop-map")
 def plot_weather_stop_map(
     lf: pl.LazyFrame,
     flag: str = "has_snow",
@@ -1068,8 +1078,10 @@ def plot_weather_stop_map(
     if save_html is not None:
         fig.write_html(save_html, include_plotlyjs="cdn")
     fig.show()
+    return fig
 
 
+@auto_export("meteo-weather-stop-map-combined")
 def plot_weather_stop_map_combined(
     lf: pl.LazyFrame,
     vmax: float = 60.0,
@@ -1303,6 +1315,7 @@ def plot_weather_stop_map_combined(
     if save_html is not None:
         fig.write_html(save_html, include_plotlyjs="cdn")
     fig.show()
+    return fig
 
 
 def table_weather_stop_map(lf: pl.LazyFrame, flag: str = "has_snow") -> pd.DataFrame:
@@ -1351,6 +1364,7 @@ def table_weather_stop_map(lf: pl.LazyFrame, flag: str = "has_snow") -> pd.DataF
 # Snow Structural Interaction
 # ---------------------------------------------------------------------------
 
+@auto_export("meteo-snow-structural-interaction")
 def plot_snow_structural_interaction(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Schnee-Verstärker: delay_delta (Akkumulationsrate) und arrival_delay — normal vs. Schnee.
 

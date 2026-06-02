@@ -1,6 +1,7 @@
 """Analytics-Modul für 03_analysis_3-temporal.ipynb — Zeitliche Muster."""
 
 import polars as pl
+from zh_tram_flow.config import auto_export
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -34,6 +35,7 @@ def _add_schulferien(ax, alpha: float = 0.13, color: str = "#999999") -> None:
         labeled = True
 
 
+@auto_export("temporal-hour-of-day")
 def plot_hour_of_day(lf, cfg=None, save_as=None):
     """Ø Arrival Delay nach Stunde — Delay-Balken (links) + Datenvolumen (rechts, twinx)."""
     cfg = _get_cfg(cfg)
@@ -116,6 +118,7 @@ def table_hour_of_day(lf) -> pd.DataFrame:
     )
 
 
+@auto_export("temporal-day-of-week")
 def plot_day_of_week(lf, cfg=None, save_as=None):
     """Ø Arrival Delay + OTP nach Wochentag (Mo–So)."""
     cfg = _get_cfg(cfg)
@@ -203,6 +206,7 @@ def table_day_of_week(lf) -> pd.DataFrame:
     )
 
 
+@auto_export("temporal-month-seasonality")
 def plot_month_seasonality(lf, cfg=None, panel: str = "both", save_as=None):
     """Saisonalität + Jahresvergleich nach Monat.
 
@@ -304,6 +308,7 @@ def table_month_seasonality(lf) -> pd.DataFrame:
     return monthly_pivot.set_index("Monat")
 
 
+@auto_export("temporal-season-heatmap")
 def plot_season_heatmap(lf, cfg=None, save_as=None):
     """Saisonaler Delay + OTP + Stunde × Wochentag Heatmap."""
     cfg = _get_cfg(cfg)
@@ -402,6 +407,7 @@ def table_season(lf) -> pd.DataFrame:
     )
 
 
+@auto_export("temporal-full-year-trend")
 def plot_full_year_trend(lf, cfg=None, save_as=None):
     """7-Tage Rolling Average — täglicher Delay + OTP mit Schulferien-Annotation."""
     cfg = _get_cfg(cfg)
@@ -481,6 +487,7 @@ def table_full_year_monthly(lf) -> pd.DataFrame:
     return yearly_monthly_avg.drop(columns=["month"]).set_index("Monat")
 
 
+@auto_export("temporal-gtfs-year-comparison")
 def plot_gtfs_year_comparison(lf_delay, cfg=None, save_as=None):
     """gtfs_year Feature: j23 vs. j24_j25 — netzweit + umgebaute Linien."""
     cfg = _get_cfg(cfg)

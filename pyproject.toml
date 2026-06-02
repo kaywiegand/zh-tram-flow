@@ -49,6 +49,7 @@ dsc = [
 ]
 dan = [
   "plotly>=5.0",
+  "kaleido>=0.2",
 ]
 dev = [
   "pytest>=7.0",

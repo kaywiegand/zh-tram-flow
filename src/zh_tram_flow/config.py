@@ -75,3 +75,66 @@ def line_color(line: str, fallback: str = "#8c8c8c") -> str:
 def line_colors(lines: list[str], fallback: str = "#8c8c8c") -> list[str]:
     """Gibt eine Liste offizieller VBZ-Farben für mehrere Linien zurück."""
     return [line_color(ln, fallback) for ln in lines]
+
+
+# ─── Auto-Export Decorator ─────────────────────────────────────────────────
+# Jede Plot-Funktion speichert automatisch nach PATHS["figures"].
+# Kein separater Export-Block in Notebooks nötig.
+#
+# matplotlib-Funktionen (haben save_as-Parameter):
+#   @auto_export("stem.png") → injiziert PATHS["figures"]/stem.png als Default.
+#   Explizit überschreiben: plot_xyz(..., save_as="/anderer/pfad.png")
+#   Export überspringen:    plot_xyz(..., save_as=None)
+#
+# Plotly-Funktionen (kein save_as, geben fig zurück):
+#   @auto_export("stem") → speichert nach dem Aufruf .html + .png (via kaleido).
+#   Export überspringen:    plot_xyz(..., save_as=None)
+
+import inspect as _inspect
+from functools import wraps as _wraps
+
+
+def auto_export(stem: str):
+    """Decorator: auto-saves plot to PATHS['figures'] on every call.
+
+    matplotlib (save_as param present):
+        Injects PATHS['figures'] / f'{stem}.png' as default save_as.
+
+    Plotly (no save_as param, function must return go.Figure):
+        After call, writes .html (CDN) + .png (kaleido, silent fallback).
+
+    Override:  pass save_as="/other/path.png"
+    Skip:      pass save_as=None
+    """
+    def decorator(func):
+        sig       = _inspect.signature(func)
+        _is_mpl   = "save_as" in sig.parameters
+        _fig_path = PATHS["figures"] / stem
+
+        @_wraps(func)
+        def wrapper(*args, **kwargs):
+            if _is_mpl:
+                # matplotlib: inject default path, function handles saving
+                if "save_as" not in kwargs:
+                    kwargs["save_as"] = _fig_path.with_suffix(".png")
+                return func(*args, **kwargs)
+            else:
+                # Plotly: pop save_as (not a real param), call function, save result
+                save_target = kwargs.pop("save_as", _fig_path)
+                result = func(*args, **kwargs)
+                if save_target is not None and result is not None:
+                    p = Path(save_target)
+                    PATHS["figures"].mkdir(parents=True, exist_ok=True)
+                    html_out = p.parent / f"{p.stem}.html"
+                    png_out  = p.parent / f"{p.stem}.png"
+                    try:
+                        result.write_html(str(html_out), include_plotlyjs="cdn")
+                    except Exception:
+                        pass
+                    try:
+                        result.write_image(str(png_out), scale=2)
+                    except Exception:
+                        pass  # kaleido not available
+                return result
+        return wrapper
+    return decorator

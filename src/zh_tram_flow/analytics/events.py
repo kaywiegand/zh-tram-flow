@@ -20,6 +20,7 @@ import polars as pl
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from zh_tram_flow.config import auto_export
 
 
 def _get_cfg(cfg):
@@ -33,6 +34,7 @@ def _get_cfg(cfg):
 # Events Overview
 # ---------------------------------------------------------------------------
 
+@auto_export("events-events-overview")
 def plot_events_overview(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     """Stacked bars: Normal (grau) + Delta (Farbe) je Event-Kategorie.
     Rechte Achse: Delta in % (teal Linie). Analog zu plot_weather_overview.
@@ -183,6 +185,7 @@ def table_events_overview(lf: pl.LazyFrame) -> pd.DataFrame:
 # Event type + hourly profile
 # ---------------------------------------------------------------------------
 
+@auto_export("events-event-type-hourly-profile")
 def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     """Bar chart of delay by event type + line chart hourly profile (normal vs event day)."""
     from wgnd.core.theme import mpl_style
@@ -253,6 +256,7 @@ def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None, save_as=None) -> 
 # Event district effect
 # ---------------------------------------------------------------------------
 
+@auto_export("events-event-district-effect")
 def plot_event_district_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     """Bar charts: event impact (delta + absolute) per Stadtkreis."""
     from wgnd.core.theme import mpl_style
@@ -330,6 +334,7 @@ def plot_event_district_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.
     plt.show()
 
 
+@auto_export("events-monthly-holiday-timeline")
 def plot_monthly_holiday_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Monthly avg delay per year (2023/2024/2025) with school break shading and holiday markers."""
     from wgnd.core.theme import mpl_style
@@ -425,6 +430,7 @@ def table_event_type_hourly_profile(lf: pl.LazyFrame) -> pd.DataFrame:
     return result.set_index("hour")
 
 
+@auto_export("events-stop-map")
 def plot_event_stop_map(lf: pl.LazyFrame) -> None:
     """Plotly bubble map: Δ delay per stop (event days vs normal days)."""
     import plotly.graph_objects as go
@@ -547,6 +553,7 @@ def plot_event_stop_map(lf: pl.LazyFrame) -> None:
         title=dict(text="Event Impact per Stop — Δ Delay (Event vs. Normal)", x=0, xanchor="left"),
     )
     fig.show()
+    return fig
 
 
 def table_event_stop_map(lf: pl.LazyFrame) -> pd.DataFrame:
@@ -595,6 +602,7 @@ def table_event_stop_map(lf: pl.LazyFrame) -> pd.DataFrame:
     )
 
 
+@auto_export("events-daily-delay-timeline")
 def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Daily avg delay 2023–2025 in einem Plot — Schulferien + Event-Marker (kein Sonstiges)."""
     from wgnd.core.theme import mpl_style
@@ -772,6 +780,7 @@ def table_event_district_effect(lf: pl.LazyFrame) -> pd.DataFrame:
 # Stop & Line Ranking
 # ---------------------------------------------------------------------------
 
+@auto_export("events-stop-ranking")
 def plot_event_stop_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     """Horizontal bar chart: Top 15 stops by Δ delay on event days vs. normal days."""
     from wgnd.core.theme import mpl_style
@@ -832,6 +841,7 @@ def plot_event_stop_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Fig
     return fig
 
 
+@auto_export("events-line-ranking")
 def plot_event_line_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     """Horizontal bar chart: all lines ranked by Δ delay on event days vs. normal days."""
     from wgnd.core.theme import mpl_style
@@ -945,6 +955,7 @@ def table_event_line_ranking(lf: pl.LazyFrame) -> pd.DataFrame:
     return result.set_index("Linie")
 
 
+@auto_export("events-holiday-recovery")
 def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Kapazitäts-Erholung: Stundenprofil Normaler Werktag vs. Feiertag vs. Wochenende.
 

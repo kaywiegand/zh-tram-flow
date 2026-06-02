@@ -7,6 +7,7 @@ Added functions:
 """
 
 import polars as pl
+from zh_tram_flow.config import auto_export
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -97,6 +98,7 @@ def _load_gtfs_shapes(lines: list[str], year: str = "2025") -> pd.DataFrame:
     )
 
 
+@auto_export("spatial-top-delay-stops")
 def plot_top_delay_stops(lf, cfg=None, save_as=None):
     """Top 20 Haltestellen nach Ø Delay + Top 10 Frühankünfte (Terminus)."""
     cfg = _get_cfg(cfg)
@@ -182,6 +184,7 @@ def table_top_delay_stops(lf) -> pd.DataFrame:
     )
 
 
+@auto_export("spatial-lines-density-vs-delay")
 def plot_lines_density_vs_delay(lf, cfg=None, save_as=None):
     """Linien-Dichte vs. Verspätung — Scatter + Top 15 nach Linienanzahl."""
     cfg = _get_cfg(cfg)
@@ -276,6 +279,7 @@ def table_lines_density_vs_delay(lf) -> pd.DataFrame:
     )
 
 
+@auto_export("spatial-start-stop-diagnosis")
 def plot_start_stop_diagnosis(lf, cfg=None, save_as=None):
     """Starthaltestellen-Diagnose: Frühankunft vs. Delta — Kandidaten identifizieren."""
     cfg = _get_cfg(cfg)
@@ -395,6 +399,7 @@ def table_start_stop_candidates(lf) -> pd.DataFrame:
     )
 
 
+@auto_export("spatial-district-analysis")
 def plot_district_analysis(lf, cfg=None, save_as=None):
     """Verspätung und OTP nach Stadtkreis — zwei Panels."""
     cfg = _get_cfg(cfg)
@@ -453,6 +458,7 @@ def plot_district_analysis(lf, cfg=None, save_as=None):
     plt.show()
 
 
+@auto_export("spatial-district-combined")
 def plot_district_combined(lf, cfg=None, save_as=None):
     """Verspätung nach Stadtkreis — ein Panel mit OTP als zweite Achse.
 
@@ -549,6 +555,7 @@ def table_district_analysis(lf) -> pd.DataFrame:
     )
 
 
+@auto_export("spatial-line-analysis")
 def plot_line_analysis(lf, cfg=None, save_as=None):
     """Linien-Profil: Arrival Delay / OTP / Delay Delta nach Linie — drei Panels."""
     cfg = _get_cfg(cfg)
@@ -636,6 +643,7 @@ def table_line_analysis(lf) -> pd.DataFrame:
     )
 
 
+@auto_export("spatial-dwell-time")
 def plot_dwell_time(lf, cfg=None, save_as=None):
     """Feature dwell_time: Verteilung / Delay-Korrelation / nach Linie — drei Panels."""
     cfg = _get_cfg(cfg)
@@ -785,6 +793,7 @@ def table_dwell_time_by_line(lf) -> pd.DataFrame:
 # Stop Delay Map
 # ---------------------------------------------------------------------------
 
+@auto_export("spatial-stop-delay-map")
 def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
     """Plotly Mapbox: stops colored by avg arrival_delay. Choropleth districts underneath."""
     import plotly.graph_objects as go
@@ -916,6 +925,7 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
         title=dict(text="Haltestellen nach Ø Arrival Delay", x=0, xanchor="left"),
     )
     fig.show()
+    return fig
 
 
 def table_stop_delay_map(lf: pl.LazyFrame, top_n: int = 20, min_n: int = 5000) -> pd.DataFrame:
@@ -949,6 +959,7 @@ def table_stop_delay_map(lf: pl.LazyFrame, top_n: int = 20, min_n: int = 5000) -
 # Line Delay Map
 # ---------------------------------------------------------------------------
 
+@auto_export("spatial-line-delay-map")
 def plot_line_delay_map(lf: pl.LazyFrame, cfg=None, min_n: int = 5000) -> None:
     """Plotly Mapbox: stops per line colored by wgnd palette, gray background for all stops."""
     import plotly.graph_objects as go
@@ -1032,12 +1043,14 @@ def plot_line_delay_map(lf: pl.LazyFrame, cfg=None, min_n: int = 5000) -> None:
         legend=dict(orientation="v", x=1.0, y=1.0),
     )
     fig.show()
+    return fig
 
 
 # ---------------------------------------------------------------------------
 # Line × Hour Heatmap
 # ---------------------------------------------------------------------------
 
+@auto_export("spatial-line-hour-heatmap")
 def plot_line_hour_heatmap(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Heatmap: Linie × Stunde — Ø arrival_delay. Zeigt wann welche Linie am stärksten leidet."""
     from wgnd.core.theme import mpl_style
@@ -1106,6 +1119,7 @@ def table_line_hour_heatmap(lf: pl.LazyFrame) -> pd.DataFrame:
 # Direction Map — delay per stop split by trip direction
 # ---------------------------------------------------------------------------
 
+@auto_export("spatial-stop-delay-by-direction")
 def plot_stop_delay_by_direction(lf: pl.LazyFrame, line_name: str, min_n: int = 200) -> None:
     """Two Plotly maps side by side: same line, opposite directions, stops colored by delay."""
     import plotly.graph_objects as go
@@ -1197,6 +1211,7 @@ def plot_stop_delay_by_direction(lf: pl.LazyFrame, line_name: str, min_n: int = 
         title=dict(text=f"Linie {line_name} — Ø Delay nach Fahrtrichtung", x=0, xanchor="left"),
     )
     fig.show()
+    return fig
 
 
 # ---------------------------------------------------------------------------
@@ -1257,6 +1272,7 @@ def _make_vis_year_buttons(N: int) -> list:
     return buttons
 
 
+@auto_export("spatial-line-delay-profile-map")
 def plot_line_delay_profile_map(
     lf: pl.LazyFrame,
     lines: list | None = None,
@@ -1543,8 +1559,10 @@ def plot_line_delay_profile_map(
         ),
     )
     fig.show()
+    return fig
 
 
+@auto_export("spatial-line-dwell-profile-map")
 def plot_line_dwell_profile_map(
     lf: pl.LazyFrame,
     lines: list | None = None,
@@ -1822,8 +1840,10 @@ def plot_line_dwell_profile_map(
         ),
     )
     fig.show()
+    return fig
 
 
+@auto_export("spatial-stop-dwell-map")
 def plot_stop_dwell_map(lf: pl.LazyFrame, line_name: str = "11", min_n: int = 2000, cfg=None) -> None:
     """Plotly Mapbox: Delay-Profil einer einzelnen Linie.
 
@@ -1923,12 +1943,14 @@ def plot_stop_dwell_map(lf: pl.LazyFrame, line_name: str = "11", min_n: int = 20
         ),
     )
     fig.show()
+    return fig
 
 
 # ---------------------------------------------------------------------------
 # Interaktive Linienansicht: Kritische Streckenabschnitte
 # ---------------------------------------------------------------------------
 
+@auto_export("spatial-line-route-map")
 def plot_line_route_map(
     lf: pl.LazyFrame,
     line_name: str = "11",
@@ -2080,6 +2102,7 @@ def plot_line_route_map(
         ),
     )
     fig.show()
+    return fig
 
 
 def table_line_route_map(
@@ -2144,6 +2167,7 @@ _CONTEXT_COLORS: dict[str, str] = {
 }
 
 
+@auto_export("spatial-line-context-map")
 def plot_line_context_map(
     lf: pl.LazyFrame,
     line_name: str = "11",
@@ -2270,6 +2294,7 @@ def plot_line_context_map(
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
     )
     fig.show()
+    return fig
 
 
 def table_line_context_map(
@@ -2321,6 +2346,7 @@ def table_line_context_map(
 # Kaskadeneffekt
 # ---------------------------------------------------------------------------
 
+@auto_export("spatial-cascade-effect")
 def plot_cascade_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Kaskadeneffekt: Pearson-r zwischen delay(Halt n) und delay(Halt n+1) je Linie.
 
