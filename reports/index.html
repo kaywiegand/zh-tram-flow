@@ -727,6 +727,62 @@
 
 <section>
   <div class="container">
+    <p class="section-label">Der vollständige Kreis</p>
+    <h2>Vorhersagbar heisst: steuerbar</h2>
+    <p class="section-intro">
+      Das Projekt endet nicht mit dem Modell — es endet mit einer Handlungsgrundlage.
+      Delays sind strukturell, nicht zufällig. Was Muster hat, kann man designen.
+    </p>
+
+    <div class="proof-chain">
+      <div class="proof-step">
+        <div class="step-num">① Analyse</div>
+        <h4>63 strukturierte Findings</h4>
+        <p>71.5% aller Halte akkumulieren Delay. 71.3% ohne Puffer. Hotspots an der Peripherie — nicht an Knotenpunkten.</p>
+        <span class="proof-number">F-SPAT-08 · F-TARGET-03</span>
+      </div>
+      <div class="proof-step">
+        <div class="step-num">② Kernbefund</div>
+        <h4>Delays sind intrinsisch</h4>
+        <p>dwell_time = Feature&nbsp;#1. Kaskadeneffekt r&nbsp;=&nbsp;0.85. Das System kann Verspätung nicht abbauen — kein Puffer eingebaut.</p>
+        <span class="proof-number">F-SIM-01 · F-SIM-02</span>
+      </div>
+      <div class="proof-step" style="border-top-color: var(--green);">
+        <div class="step-num" style="color: var(--green);">③ Modell</div>
+        <h4>MAE 18.56s beweist Muster</h4>
+        <p>Zufällige Delays sind nicht so präzise vorhersagbar. Vorhersagbarkeit ist der Beweis für Strukturalität.</p>
+        <span class="proof-number" style="color: var(--green);">−63% vs. Baseline</span>
+      </div>
+      <div class="proof-step" style="border-top-color: var(--green);">
+        <div class="step-num" style="color: var(--green);">④ Empfehlung</div>
+        <h4>Modell informiert Fahrplan</h4>
+        <p>Risiko-Matrix: Stop × Linie × Kontext. WO und WANN Puffer fehlen — Grundlage für stopspezifische dwell_time-Kalibrierung.</p>
+        <span class="proof-number" style="color: var(--green);">F-REC-01 · F-REC-02</span>
+      </div>
+    </div>
+
+    <div class="thesis-block" style="margin-top: 1.5rem;">
+      Das Modell liefert die <strong>Diagnose</strong> (WO und WANN das Risiko hoch ist) — der Betrieb liefert die <strong>Dosis</strong> (wie viel Puffer pro Stop). Validierung durch gezieltes A/B-Testing: Stops mit angepasster dwell_time → Δ Delay messen → kalibrieren.
+    </div>
+
+    <h3 style="margin-top: 2rem; margin-bottom: 0.75rem;">Fahrplan-Puffer-Empfehlungen — interaktive Karte</h3>
+    <p style="font-size: 0.88rem; color: var(--muted); margin-bottom: 1rem;">
+      Alle Haltestellen mit Puffer-Bedarf nach Betriebskontext (Normal · Schnee · Event · Rush · Spätnacht).
+      Farbe = Kontext · Größe = empfohlener Puffer. Traces über die Legende ein-/ausblendbar.
+    </p>
+    <iframe
+      src="img/scheduling-recommendations-map.html"
+      width="100%"
+      height="560"
+      style="border: 1px solid var(--border); border-radius: 8px; display: block;"
+      title="Scheduling Recommendations Map">
+    </iframe>
+    <p class="fig-caption">Quelle: LightGBM v1 Risiko-Matrix · Schwelle 60s pred. Delay · Notebook: 06_prediction_7</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
     <p class="section-label">Projekt-Übersicht</p>
     <h2>Stack · Daten · Architektur</h2>
 
