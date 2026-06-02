@@ -965,3 +965,28 @@ Ziel: `/portfolio story` auf einem Projekt aufrufen → `reports/portfolio_summa
 - Plotly `carto-positron` als Basemap — konsistent mit allen anderen Spatial-Plots
 
 **Nächster Schritt:** #40 Situationsvergleich (gleiche Linie, verschiedene Kontexte — Normal/Event/Winter/Rush-Hour) · oder #10/#34 Portfolio-Prio-1-Items
+
+---
+
+### 2026-06-02 — Dwell-Simulator + Scheduling Recommendations (#42, neu #43)
+
+**Was wurde gemacht:**
+
+**`06_prediction_6-dwell_simulator.ipynb`** (commit `7100fde` + `1778118`):
+- Simulation: dwell_time 0→60s (einziger valider Wert — Daten sind binär 0/60)
+- Kernbefund: Modell erhöht Vorhersage bei Simulation (+19.96s L11, +20.72s netzweit)
+- Ursache: Konfundierung — VBZ gibt Puffer an komplexen Stops, die auch mehr Delay haben → r=+0.16
+- F-SIM-01–04: Feature Importance ≠ kausaler Hebel; dwell_time ist Proxy, kein Hebel
+- Einsicht: VBZ nutzt dwell_time binär (0/60) statt stopspezifisch kalibriert
+
+**`06_prediction_7-scheduling_recommendations.ipynb`** (commit `a97ed0c`):
+- Risiko-Matrix: Stop × Linie × Kontext (Normal/Schnee/Event/Rush/Spätnacht)
+- lgbm_v1 (schedule-time Features, kein prev_trip_delay) für Planungsempfehlung
+- Schwellenwert 60s → Buffer-Empfehlung = 1/3 Überschuss, gerundet auf 5s
+- F-REC-01–04: "Vorhersagbar = Strukturell = Steuerbar" als Projektkernthese
+
+**Full-Circle-Narrative:**
+Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufällig)
+→ Modell (MAE 18.56s beweist Muster) → Empfehlung (Modell informiert Fahrplandesign)
+
+**Nächster Schritt:** #45 Findings-Index + #44 Presentation-Folie + #40 Situationsvergleich

@@ -21,6 +21,7 @@
 - **Delays are a periphery problem, not a city-centre problem.** Friedhof Enzenbühl (93.8s) and Balgrist (85.2s) are the worst stops — while Paradeplatz (14–15 lines crossing) performs well.
 - **Snow is the strongest single factor:** +54s average delay, OTP −10.9 percentage points. Geographically separable from rain — snow hits elevation zones (K10/K4/K12), rain hits river valleys (K5).
 - **LightGBM v2 predicts delay with MAE 18.56s — 63% below the Stop Mean baseline of 50.0s.** Adding a cascade feature (`prev_trip_delay`) drove the main improvement, confirming that delay propagates through the network.
+- **Predictable = structural = actionable.** A MAE of 18.56s is only achievable if delays follow patterns — random events don't predict this well. The model identifies which stops, lines, and operating conditions need schedule buffer, turning analysis findings directly into scheduling recommendations.
 
 ---
 

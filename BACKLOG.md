@@ -12,6 +12,7 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
+| 44 | **Presentation — Full-Circle-Folie** — Neue Schluss-Folie in `reports/presentation.html`: Schema `Analyse → Befund → Modell → Fahrplanempfehlung` + Empfehlungskarte als Visual. Schließt den Bogen den die Kernthese ("vorhersagbar = steuerbar") aufmacht. Basis: `06_prediction_7-scheduling_recommendations.ipynb`. | 1 |
 | 26 | **Präsentation — Live Vorhersage als HTML-Widget** — Predictions vorberechnen → JSON → JavaScript-Lookup. Kein Server nötig. Dropdown: Stop × Linie × Stunde × Wetter-Flag | 2 |
 
 <!-- Erledigt 2026-05-28 → presentation-v2.html + presentation-v3.html:
@@ -71,7 +72,9 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 40 | **Situationsvergleich: gleiche Linie, verschiedene Kontexte** — Erweiterung von #39: dieselbe Linien-Karte filterbar nach Normal · Event · Winter (has_snow=True) · Rush-Hour (17–19h) · Late Night (21h+). Zeigt wie sich das Streckenbild je nach Kontext verändert. Braucht #39 als Basis. | 2 |
+| 45 | **Findings-Index updaten** — `03_analysis_0-overview.ipynb`: F-SIM-01–04 (dwell_time Konfundierung, binäre Verteilung, Feature ≠ Hebel) + F-REC-01–04 (Full-Circle, Risiko-Matrix, kontextspezifische Puffer, A/B-Test-Caveat) in die zentrale Findings-Tabelle eintragen. | 1 |
+| 46 | **Empfehlungskarte als Report-Artefakt** — `06_prediction_7` Plotly-Karte als `reports/img/scheduling-recommendations-map.html` exportieren. Export-Zelle ins Notebook + in `reports/index.html` verlinken. | 2 |
+| 40 | **Situationsvergleich: gleiche Linie, verschiedene Kontexte** — Erweiterung von #39: dieselbe Linien-Karte filterbar nach Normal · Event · Winter (has_snow=True) · Rush-Hour (17–19h) · Late Night (21h+). Zeigt wie sich das Streckenbild je nach Kontext verändert. Braucht #39 als Basis. Jetzt auch Grundlage für #44 Presentation-Folie. | 2 |
 | 9 | **Linie 12 Baustellen-Zeitraum** (Jan 2023 – Jun 2024) validieren — genaue Daten aus VBZ-Quellen bestätigen, dann: herausfiltern oder als Binary-Feature kodieren? | 2 |
 | 14 | **Events-Notebook: Haltestellen- + Linien-Ranking** — analog zu Meteo-Notebook. Welche Stops/Linien leiden am meisten unter Events? `analytics/events.py` erweitern. | 2 |
 | 2 | **Visualisierungen in `01_exploration.ipynb`** — Data Distribution + Outlier Detection Charts überarbeiten. Welche bringen wirklich Mehrwert? | 2 |
