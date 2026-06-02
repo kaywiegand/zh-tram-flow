@@ -57,6 +57,9 @@ dev = [
   "ruff>=0.1",
   "nbstripout>=0.7",
 ]
+apps = [
+    "streamlit>=1.58.0",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

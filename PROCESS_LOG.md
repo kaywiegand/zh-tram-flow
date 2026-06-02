@@ -1008,3 +1008,28 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 
 **Nächster Schritt:** /project-case check ausführen — Dashboard schließt den Projekt-Kreis
 
+
+### 2026-06-02 — #6 Meta-Abgleich · #14 Events Ranking · #26 Live-Vorhersage Widget
+
+**Was wurde gemacht:**
+
+**#6 Meta-Abgleich** (`00_introduction.ipynb` · `README.md` · `ROADMAP.md`):
+- `00_introduction.ipynb` Cell 6: TODO-Platzhalter durch tatsächliche Modell-Ergebnisse ersetzt (LightGBM v1 45.7s · v2 18.56s · Tabelle mit Baseline-Vergleich)
+- `00_introduction.ipynb` Cell 15: "55 Findings" → "63 Findings", MAE-Zahlen korrigiert (50.7→50.0, 46.3→45.7), fehlende Notebooks 06-4 bis 06-7 ergänzt, Status-Emojis aktualisiert (🔄→✅)
+- `00_introduction.ipynb` Cell 2 (Facts): Stack-Zeile bereinigt — GeoPandas + Folium entfernt
+- `README.md`: Notebooks-Tabelle um 06-6 (Dwell Simulator) + 06-7 (Scheduling Recommendations) ergänzt
+- `ROADMAP.md`: Phase 4 um "Simulation & Empfehlungen" Sub-Sektion erweitert (06-6/06-7 als ✅)
+
+**#14 Events-Notebook Ranking** (`analytics/events.py` · `03_analysis_6-events.ipynb`):
+- 3 neue Funktionen in `events.py`: `plot_event_stop_ranking` (Top-15 Stops nach Δ Delay, matplotlib), `plot_event_line_ranking` (alle Tramlinien sortiert nach Δ Delay), `table_event_line_ranking`
+- Neue Section "## Haltestellen- & Linien-Ranking" in `03_analysis_6-events.ipynb` (6 neue Zellen) — nach Kapazitäts-Erholung, vor Key Findings
+- Export-Block um `events-stop-ranking.png` + `events-line-ranking.png` erweitert
+- Keine neuen Finding-IDs — visuell ergänzt zu F-EVNT-05/06
+
+**#26 Live-Vorhersage HTML-Widget** (`scripts/generate_widget_data.py` · `reports/live-prediction.html`):
+- `scripts/generate_widget_data.py`: lädt lgbm_v1, extrahiert 1170 (stop, line)-Paare aus test_final.parquet, generiert 168.480 Vorhersagen (× 24h × 2 Tagtypen × 3 Wetter), baut JSON-Struktur
+- `reports/live-prediction.html`: standalone Widget mit 5 Steuerelementen (Stop · Linie · Stunde · Tagtyp · Wetter), vorhergesagte Verspätung als große Zahl + OTP-Badge + Farbbalken + SVG-Sparkline über 24h
+- JSON (~945 KB) direkt in HTML eingebettet — kein Server nötig
+- Link-Button auf Danke-Slide in `presentation.html` ergänzt
+
+**Nächster Schritt:** /project-case check ausführen — alle Analyse-Notebooks und Portfolio-Items abgeschlossen

@@ -167,6 +167,10 @@
 - ✅ Export: `lgbm_v2.txt` + `lgbm_v2_meta.json` + `test_predictions_v2.parquet`
 - ⏭️ SHAP-Werte — nicht ausgeführt (Aufwand/Nutzen abgewogen, kein Optuna)
 
+### Simulation & Empfehlungen
+- ✅ `06_prediction_6-dwell_simulator.ipynb` — Dwell-Time binär (0/60s), Konfundierung r=+0.16 dokumentiert, F-SIM-01–04
+- ✅ `06_prediction_7-scheduling_recommendations.ipynb` — Risikomatrix Stop×Linie×Kontext, Empfehlungskarte, F-REC-01–04
+
 ### Modellvergleich — XGBoost Robustheits-Check ✅
 - ✅ XGBoost Training — gleiche v2-Features, identischer Split, `enable_categorical=True`
   → val MAE ~21.4s (150 Runden, >90 Min Trainingszeit auf 85M Zeilen)

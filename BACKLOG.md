@@ -12,7 +12,11 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 26 | **Präsentation — Live Vorhersage als HTML-Widget** — Predictions vorberechnen → JSON → JavaScript-Lookup. Kein Server nötig. Dropdown: Stop × Linie × Stunde × Wetter-Flag | 2 |
+<!-- Erledigt 2026-06-02:
+  #26 Live Vorhersage HTML-Widget — scripts/generate_widget_data.py → lgbm_v1 → 168k Predictions →
+       JSON in reports/live-prediction.html eingebettet; 5 Controls: Stop × Linie × Stunde × Tagtyp × Wetter;
+       SVG-Sparkline Tageskurve; Link-Button auf Danke-Slide in presentation.html
+-->
 
 <!-- Erledigt 2026-05-28 → presentation-v2.html + presentation-v3.html:
   #19 Präsentation erstellt (21 Slides, T-Shape, Data Engineering, Analysis, Data Science)
@@ -71,7 +75,10 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 -->
 | 1 | **README vs. `00_introduction.ipynb`** — Rollentrennung klären: wer liest was, wozu? Redundanz auflösen, klare Regel dokumentieren. | 2 |
 | 5 | **Pipeline-Skizze dokumentieren** — vollständige Datenpipeline in `00_introduction.ipynb`: wann lazy, wann collect(), wann sink_parquet() und warum. Format: Diagramm + Begründungstabelle. | 2 |
-| 6 | **Meta-Abgleich** — `00_introduction.ipynb` · `README.md` · `ROADMAP.md` synchronisieren: Phasen-Namen · Variablen-Konventionen. | 2 |
+<!-- Erledigt 2026-06-02:
+  #6 Meta-Abgleich — 00_introduction.ipynb (Cell 6: Modellauswahl aktualisiert, Cell 15: 55→63 Findings + 4 neue Notebooks, MAEs korrigiert, Statuses ✅); README (06-6/07 ergänzt); ROADMAP (Phase 4 um Simulation & Empfehlungen erweitert)
+  #14 Events-Ranking — plot_event_stop_ranking + plot_event_line_ranking + table_event_line_ranking in analytics/events.py; neue Section in 03_analysis_6-events.ipynb; Export-Cells ergänzt
+-->
 
 ---
 
@@ -80,7 +87,6 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
 | 9 | **Linie 12 Baustellen-Zeitraum** (Jan 2023 – Jun 2024) validieren — genaue Daten aus VBZ-Quellen bestätigen, dann: herausfiltern oder als Binary-Feature kodieren? | 2 |
-| 14 | **Events-Notebook: Haltestellen- + Linien-Ranking** — analog zu Meteo-Notebook. Welche Stops/Linien leiden am meisten unter Events? `analytics/events.py` erweitern. | 2 |
 | 2 | **Visualisierungen in `01_exploration.ipynb`** — Data Distribution + Outlier Detection Charts überarbeiten. Welche bringen wirklich Mehrwert? | 2 |
 | 3 | **Sampling-Validierung** — `gather_every(2)` vs. `gather_every(3)` für Wetterextreme validieren. Stratifiziertes Sampling nach `line_name` vor Modellierung. | 2 |
 | 8 | **Segment-Fahrzeit-Analyse** — war die Tram zwischen zwei Halten schneller/langsamer als geplant? Für `03_analysis_spatial` prüfen. | 3 |

@@ -768,6 +768,183 @@ def table_event_district_effect(lf: pl.LazyFrame) -> pd.DataFrame:
 # Holiday / Weekend Recovery
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Stop & Line Ranking
+# ---------------------------------------------------------------------------
+
+def plot_event_stop_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
+    """Horizontal bar chart: Top 15 stops by Δ delay on event days vs. normal days."""
+    from wgnd.core.theme import mpl_style
+    cfg = _get_cfg(cfg)
+
+    lf_delay = lf.filter(pl.col("canceled") == False)
+
+    stop_event = (
+        lf_delay
+        .group_by(["stop_name", "has_event"])
+        .agg([
+            pl.col("arrival_delay").mean().alias("avg_delay"),
+            pl.len().alias("n"),
+        ])
+        .collect()
+        .to_pandas()
+    )
+
+    normal = (
+        stop_event[stop_event["has_event"] == False]
+        [["stop_name", "avg_delay", "n"]]
+        .rename(columns={"avg_delay": "normal", "n": "n_normal"})
+    )
+    event = (
+        stop_event[stop_event["has_event"] == True]
+        [["stop_name", "avg_delay", "n"]]
+        .rename(columns={"avg_delay": "event", "n": "n_event"})
+    )
+
+    stops = normal.merge(event, on="stop_name").dropna()
+    stops = stops[stops["n_event"] > 5000]
+    stops["delta"] = (stops["event"] - stops["normal"]).round(1)
+    stops = stops.sort_values("delta", ascending=False).head(15)
+
+    style  = mpl_style()
+    colors = [cfg.COLOR_NEGATIVE if d > 0 else cfg.COLOR_POSITIVE for d in stops["delta"]]
+
+    fig, ax = plt.subplots(figsize=(10, 7))
+
+    bars = ax.barh(stops["stop_name"], stops["delta"], color=colors, alpha=0.85)
+    ax.bar_label(
+        bars,
+        labels=[f"+{v:.1f}s" if v > 0 else f"{v:.1f}s" for v in stops["delta"]],
+        padding=4, fontsize=9,
+    )
+    ax.axvline(0, color=cfg.ANNO_REF, lw=1, linestyle=":")
+    ax.invert_yaxis()
+    ax.set_xlabel("Δ Delay Event − Normal (s)", **style["label"])
+    ax.set_title("Top 15 Haltestellen nach Event-Impact", **style["title"])
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=9)
+
+    plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
+    plt.show()
+    return fig
+
+
+def plot_event_line_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
+    """Horizontal bar chart: all lines ranked by Δ delay on event days vs. normal days."""
+    from wgnd.core.theme import mpl_style
+    cfg = _get_cfg(cfg)
+
+    lf_delay = lf.filter(pl.col("canceled") == False)
+
+    line_event = (
+        lf_delay
+        .group_by(["line_name", "has_event"])
+        .agg([
+            pl.col("arrival_delay").mean().alias("avg_delay"),
+            pl.len().alias("n"),
+        ])
+        .collect()
+        .to_pandas()
+    )
+
+    normal = (
+        line_event[line_event["has_event"] == False]
+        [["line_name", "avg_delay", "n"]]
+        .rename(columns={"avg_delay": "normal", "n": "n_normal"})
+    )
+    event = (
+        line_event[line_event["has_event"] == True]
+        [["line_name", "avg_delay", "n"]]
+        .rename(columns={"avg_delay": "event", "n": "n_event"})
+    )
+
+    lines = normal.merge(event, on="line_name").dropna()
+    lines["delta"] = (lines["event"] - lines["normal"]).round(1)
+    lines = lines.sort_values("delta", ascending=False)
+
+    style  = mpl_style()
+    colors = [cfg.COLOR_NEGATIVE if d > 2 else cfg.PALETTE_CATEGORICAL[4]
+              for d in lines["delta"]]
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    bars = ax.barh(
+        lines["line_name"].apply(lambda x: f"L{x}"),
+        lines["delta"],
+        color=colors, alpha=0.85,
+    )
+    ax.bar_label(
+        bars,
+        labels=[f"+{v:.1f}s" if v > 0 else f"{v:.1f}s" for v in lines["delta"]],
+        padding=4, fontsize=9,
+    )
+    ax.axvline(0, color=cfg.ANNO_REF, lw=1, linestyle=":")
+    ax.invert_yaxis()
+    ax.set_xlabel("Δ Delay Event − Normal (s)", **style["label"])
+    ax.set_title("Linien-Ranking: Event-Impact auf alle Tramlinien", **style["title"])
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+
+    plt.tight_layout()
+    if save_as is not None:
+        plt.savefig(save_as, dpi=150, bbox_inches="tight")
+    plt.show()
+    return fig
+
+
+def table_event_line_ranking(lf: pl.LazyFrame) -> pd.DataFrame:
+    """Return event impact per tram line: normal vs. event-day delay, sorted by delta."""
+    lf_delay = lf.filter(pl.col("canceled") == False)
+
+    line_event = (
+        lf_delay
+        .group_by(["line_name", "has_event"])
+        .agg([
+            pl.col("arrival_delay").mean().alias("avg_delay"),
+            (pl.col("arrival_delay").abs() <= 120).mean().alias("otp_rate"),
+            pl.len().alias("n"),
+        ])
+        .collect()
+        .to_pandas()
+    )
+
+    normal = (
+        line_event[line_event["has_event"] == False]
+        [["line_name", "avg_delay", "otp_rate", "n"]]
+        .rename(columns={"avg_delay": "normal", "otp_rate": "otp_normal", "n": "n_normal"})
+    )
+    event = (
+        line_event[line_event["has_event"] == True]
+        [["line_name", "avg_delay", "otp_rate", "n"]]
+        .rename(columns={"avg_delay": "event", "otp_rate": "otp_event", "n": "n_event"})
+    )
+
+    lines = normal.merge(event, on="line_name").dropna()
+    lines["delta"] = (lines["event"] - lines["normal"]).round(1)
+    lines["otp_delta"] = ((lines["otp_event"] - lines["otp_normal"]) * 100).round(1)
+    lines = lines.sort_values("delta", ascending=False)
+
+    result = (
+        lines[["line_name", "normal", "event", "delta", "otp_delta", "n_event"]]
+        .rename(columns={
+            "line_name":  "Linie",
+            "normal":     "Normal (s)",
+            "event":      "Event-Tag (s)",
+            "delta":      "Δ (s)",
+            "otp_delta":  "ΔOTP (pp)",
+            "n_event":    "N Halte (Events)",
+        })
+        .round({"Normal (s)": 1, "Event-Tag (s)": 1})
+    )
+    result["N Halte (Events)"] = result["N Halte (Events)"].apply(lambda x: f"{x:,.0f}")
+    result["Linie"] = result["Linie"].apply(lambda x: f"L{x}")
+    return result.set_index("Linie")
+
+
 def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     """Kapazitäts-Erholung: Stundenprofil Normaler Werktag vs. Feiertag vs. Wochenende.
 
