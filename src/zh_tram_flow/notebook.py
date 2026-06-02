@@ -120,11 +120,9 @@ def setup_analysis(notebook_name: str = "notebook"):
     Usage:
         TRAIN, TEST, lf, lf_all, lf_delay, lf_clean = setup_analysis("03_analysis_1-target")
     """
-    from wgnd.core.theme import setup
     from zh_tram_flow.cleaning import apply_lf_clean
 
-    setup_plotting()
-    setup()
+    setup_plotting()   # activates wgnd theme (matplotlib + seaborn)
     logger.info(f"{notebook_name} started")
 
     TRAIN = PATHS["processed"] / "train_features.parquet"
