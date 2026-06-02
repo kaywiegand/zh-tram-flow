@@ -43,6 +43,8 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
        Konvention dokumentiert: portfolio.md = Präsentations-Interface, README = externe Leser, PROCESS_LOG ab jetzt Pointer
   #10 Portfolio-Beschreibung README — Findings-System in README → Approach/Data Analysis erklärt:
        strukturierte IDs (F-NET-07), Impact/Action/Result-Tabelle, Jira-Analogie, "Analysis dictates the model"
+  #42 Dwell-Optimierungs-Simulator — 06_prediction_6-dwell_simulator.ipynb; Hauptbefund: dwell_time
+       binär (0/60s), r=+0.16 Konfundierung, Feature Importance ≠ kausaler Hebel; F-SIM-01–04 dokumentiert
 -->
 
 <!-- Erledigt 2026-05-29:
@@ -99,4 +101,3 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 | :--- | :--- | :--- |
 | 27 | **Interaktives Prediction-Tool** — Streamlit-App: Dropdown Stop/Linie/Stunde/Wetter → vorhergesagter Delay. LightGBM direkt laden, kein Server. Konzept im Planmodus entwerfen. | 2 |
 | 31 | **Dashboard — Spielmodus + Vorhersagemodus** — Zwei Modi: (1) Spielmodus: explorative Historik-Ansicht mit interaktiven Heatmaps, Zeitreihen und Karten; (2) Vorhersagemodus: Eingabemaske Stop × Linie × Stunde × Wetter → Delay. Erweitert #27 um den explorativen Modus. Tooling-Entscheidung ausstehend (Streamlit vs. Dash). | 2 |
-| 42 | **Dwell-Optimierungs-Simulator** — Zweites Prediction-Tool: Nutzer gibt modifizierte `dwell_time`-Werte für Haltestellen/Linien ein → lgbm_v1 berechnet neue Delays → Δ-Delay wird angezeigt. Schließt den Kreis: Analyse (dwell_time = Feature #1) → Modell (LightGBM) → Handlungsempfehlung (Puffer +10s → Δ MAE?). Umsetzung in `06_prediction_4-dwell_simulator.ipynb`. | 1 |
