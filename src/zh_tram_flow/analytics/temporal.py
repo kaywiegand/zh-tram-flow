@@ -1,7 +1,11 @@
 """Analytics-Modul für 03_analysis_3-temporal.ipynb — Zeitliche Muster."""
 
 import polars as pl
-from zh_tram_flow.config import auto_export
+from zh_tram_flow.plot_styles import (style_ax, LEGEND_KW, LEGEND_KW_RIGHT, LEGEND_KW_LEFT,
+                                               mean_kw, median_kw, otp_kw, trend_kw, data_line_kw,
+                                               FIG_SINGLE, FIG_2PANEL, FIG_3PANEL, FIG_TIMELINE, FIG_WIDE, FIG_TALL,
+                                               TITLE_KW, fmt_line_axis, fmt_line_legend)
+from zh_tram_flow.config import ANNO_MEDIAN, auto_export, ANNO_MEAN, YEAR_COLORS, SEASON_COLORS, BAR_NEUTRAL, DELAY_COLOR, OTP_ON_TIME
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,7 +34,7 @@ def _add_schulferien(ax, alpha: float = 0.13, color: str = "#999999") -> None:
     """Schulferienperioden als graue Flächen in eine Achse einzeichnen."""
     labeled = False
     for s, e in _SCHULFERIEN:
-        lbl = "Schulferien ZH" if not labeled else None
+        lbl = "School Holidays ZH" if not labeled else None
         ax.axvspan(pd.Timestamp(s), pd.Timestamp(e), alpha=alpha, color=color, label=lbl, zorder=0)
         labeled = True
 
@@ -56,39 +60,35 @@ def plot_hour_of_day(lf, cfg=None, save_as=None):
 
     style = mpl_style()
     avg = hourly["avg_delay"].mean()
-    _teal = cfg.COLOR_POSITIVE
-    threshold = hourly.loc[hourly["hour"] == 8, "avg_delay"].values[0]
-    colors = [cfg.COLOR_NEGATIVE if v >= threshold else "#aaaaaa"
+    _volume_color = "#7f8fa6"   # stahlblau-grau — klar verschieden von OTP-Grün und Delay-Amber
+    threshold = avg
+    colors = [DELAY_COLOR if v >= threshold else BAR_NEUTRAL
               for v in hourly["avg_delay"]]
 
     fig, ax1 = plt.subplots(figsize=(14, 5))
     ax2 = ax1.twinx()
 
     pct_n = hourly["n"] / hourly["n"].sum() * 100
-    ax2.plot(hourly["hour"], pct_n, color=_teal,
-             lw=1.5, linestyle="--", zorder=1, label="Anteil Halt-Ereignisse (%)")
-    ax2.set_ylabel("Anteil Halt-Ereignisse (%)", fontsize=11, color=_teal, labelpad=8)
+    ax2.plot(hourly["hour"], pct_n, color=_volume_color,
+             lw=1.0, linestyle="-.", zorder=1, label="Share of Stop Events (%)")
+    ax2.set_ylabel("Share of Stop Events (%)", fontsize=11, color=_volume_color, labelpad=8)
     ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0f}%"))
-    ax2.tick_params(axis="y", colors=_teal, labelsize=9)
+    ax2.tick_params(axis="y", colors=_volume_color, labelsize=9)
     ax2.spines[["top", "left"]].set_visible(False)
-    ax2.spines["right"].set_color(_teal)
+    ax2.spines["right"].set_color(_volume_color)
 
     ax1.bar(hourly["hour"], hourly["avg_delay"], color=colors, alpha=0.6,
             width=0.9, zorder=2)
-    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":",
-                label=f"Ø {avg:.1f}s", zorder=3)
-    ax1.set_xlabel("Stunde", **style["label"])
-    ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax1.set_title("Ø Verspätung nach Stunde des Tages", **style["title"])
+    ax1.axhline(avg, **mean_kw(f"Ø {avg:.1f}s"))
+    ax1.set_xlabel("Hour", **style["label"])
+    ax1.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+    ax1.set_title("Avg. Delay by Hour of Day", **TITLE_KW)
     ax1.set_xticks(range(0, 24, 2))
-    ax1.spines[["top", "right"]].set_visible(False)
-    ax1.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-    ax1.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+    style_ax(ax1)
 
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines1 + lines2, labels1 + labels2,
-               fontsize=9, frameon=False, loc="upper right", ncol=2)
+    ax1.legend(lines1 + lines2, labels1 + labels2, **LEGEND_KW_RIGHT)
 
     plt.tight_layout()
     if save_as is not None:
@@ -111,10 +111,10 @@ def table_hour_of_day(lf) -> pd.DataFrame:
         .to_pandas()
     )
     return (
-        hourly.rename(columns={"hour": "Stunde", "avg_delay": "Ø Delay (s)", "med_delay": "Median (s)", "n": "N Halte"})
+        hourly.rename(columns={"hour": "Hour", "avg_delay": "Avg. Delay (s)", "med_delay": "Median (s)", "n": "N Halte"})
         .assign(**{"N Halte": lambda df: df["N Halte"].apply(lambda x: f"{x:,.0f}")})
-        .round({"Ø Delay (s)": 1, "Median (s)": 1})
-        .set_index("Stunde")
+        .round({"Avg. Delay (s)": 1, "Median (s)": 1})
+        .set_index("Hour")
     )
 
 
@@ -141,37 +141,35 @@ def plot_day_of_week(lf, cfg=None, save_as=None):
     day_labels = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
     style = mpl_style()
     avg = daily["avg_delay"].mean()
-    _teal = cfg.COLOR_POSITIVE
-    colors = [cfg.COLOR_NEGATIVE if v > 58.5 else "#aaaaaa"
+    colors = [DELAY_COLOR if v > avg else BAR_NEUTRAL
               for v in daily["avg_delay"]]
 
     fig, ax = plt.subplots(figsize=(14, 5))
     x = range(len(day_labels))
 
     ax.bar(x, daily["avg_delay"], color=colors, alpha=0.6)
-    ax.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":", label=f"Ø {avg:.1f}s")
+    ax.axhline(avg, **mean_kw(f"Ø {avg:.1f}s"))
 
     for i, v in enumerate(daily["avg_delay"]):
         ax.text(i, v + 0.3, f"{v:+.1f}s", ha="center", va="bottom", fontsize=9)
 
     ax2 = ax.twinx()
-    ax2.plot(x, daily["otp_pct"], color=_teal, lw=1.5,
-             marker="D", markersize=4, linestyle="--", alpha=0.7, label="OTP (%)")
-    ax2.set_ylabel("OTP (%)", color=_teal, fontsize=10)
+    ax2.plot(x, daily["otp_pct"], color=OTP_ON_TIME, lw=1.0,
+             marker="D", markersize=4, linestyle="--", alpha=0.85, label="OTP (%)")
+    ax2.set_ylabel("OTP (%)", color=OTP_ON_TIME, fontsize=10)
     ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0f}%"))
-    ax2.tick_params(axis="y", labelcolor=_teal)
+    ax2.tick_params(axis="y", labelcolor=OTP_ON_TIME)
     ax2.spines[["top", "left"]].set_visible(False)
-    ax2.spines["right"].set_color(_teal)
+    ax2.spines["right"].set_color(OTP_ON_TIME)
 
     ax.set_xticks(x)
     ax.set_xticklabels(day_labels, fontsize=11)
-    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax.set_title("Ø Verspätung + OTP nach Wochentag", **style["title"])
+    ax.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+    ax.set_title("Avg. Delay + OTP by Day of Week", **TITLE_KW)
     lines1, labels1 = ax.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    ax.legend(lines1 + lines2, labels1 + labels2,
-              fontsize=9, frameon=False, loc="upper right", ncol=3)
-    ax.spines[["top", "right"]].set_visible(False)
+    ax.legend(lines1 + lines2, labels1 + labels2, **LEGEND_KW_RIGHT)
+    style_ax(ax)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -196,13 +194,13 @@ def table_day_of_week(lf) -> pd.DataFrame:
     )
     day_labels = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
     daily_table = daily.copy()
-    daily_table.insert(0, "Wochentag", day_labels[:len(daily_table)])
+    daily_table.insert(0, "Weekday", day_labels[:len(daily_table)])
     return (
-        daily_table[["Wochentag", "avg_delay", "med_delay", "p95_delay", "n"]]
-        .rename(columns={"avg_delay": "Ø Delay (s)", "med_delay": "Median (s)", "p95_delay": "P95 (s)", "n": "N Halte"})
+        daily_table[["Weekday", "avg_delay", "med_delay", "p95_delay", "n"]]
+        .rename(columns={"avg_delay": "Avg. Delay (s)", "med_delay": "Median (s)", "p95_delay": "P95 (s)", "n": "N Halte"})
         .assign(**{"N Halte": lambda df: df["N Halte"].apply(lambda x: f"{x:,.0f}")})
-        .round({"Ø Delay (s)": 1, "Median (s)": 1, "P95 (s)": 1})
-        .set_index("Wochentag")
+        .round({"Avg. Delay (s)": 1, "Median (s)": 1, "P95 (s)": 1})
+        .set_index("Weekday")
     )
 
 
@@ -230,7 +228,7 @@ def plot_month_seasonality(lf, cfg=None, panel: str = "both", save_as=None):
     style = mpl_style()
 
     avg = monthly_avg["avg_delay"].mean()
-    bar_colors = [cfg.COLOR_NEGATIVE if v > avg else "#aaaaaa"
+    bar_colors = [DELAY_COLOR if v > avg else BAR_NEUTRAL
                   for v in monthly_avg["avg_delay"]]
 
     if panel == "left":
@@ -250,29 +248,26 @@ def plot_month_seasonality(lf, cfg=None, panel: str = "both", save_as=None):
 
     ax1.bar(range(1, 13), monthly_avg["avg_delay"], color=bar_colors, alpha=0.6,
             edgecolor="#bbbbbb", linewidth=0.5)
-    ax1.axhline(avg, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":", label=f"Ø {avg:.1f}s")
+    ax1.axhline(avg, **mean_kw(f"Ø {avg:.1f}s"))
     ax1.set_xticks(range(1, 13))
     ax1.set_xticklabels(month_names, fontsize=9)
-    ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax1.set_title("Ø Verspätung nach Monat (2023–2025)", **style["title"])
-    ax1.legend(fontsize=9, frameon=False, loc="upper right")
-    ax1.spines[["top", "right"]].set_visible(False)
-    ax1.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-    ax1.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=9)
+    ax1.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+    ax1.set_title("Avg. Delay by Month (2023–2025)", **TITLE_KW)
+    ax1.legend(**LEGEND_KW_RIGHT)
+    style_ax(ax1)
 
     if panel != "left":
-        colors = cfg.palette_n(3)
-        for (yr, color) in zip([2023, 2024, 2025], colors):
+        for yr in [2023, 2024, 2025]:
+            color = YEAR_COLORS.get(str(yr), BAR_NEUTRAL)
             df = monthly_by_year[monthly_by_year["year"] == yr].sort_values("month")
-            ax2.plot(df["month"], df["avg_delay"], color=color, lw=2,
+            ax2.plot(df["month"], df["avg_delay"], color=color, lw=1.0,
                      marker="o", markersize=5, label=str(yr))
         ax2.set_xticks(range(1, 13))
         ax2.set_xticklabels(month_names, fontsize=9)
-        ax2.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-        ax2.set_title("Jahresvergleich — gleicher Monat (bereinigt)", **style["title"])
-        ax2.legend(fontsize=9, frameon=False, loc="upper right")
-        ax2.spines[["top", "right"]].set_visible(False)
-        ax2.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
+        ax2.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+        ax2.set_title("Year Comparison — same month (cleaned)", **TITLE_KW)
+        ax2.legend(**LEGEND_KW_RIGHT)
+        style_ax(ax2)
 
     plt.tight_layout()
     if save_as is not None:
@@ -302,10 +297,10 @@ def table_month_seasonality(lf) -> pd.DataFrame:
     )
     month_names = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
     monthly_pivot = monthly_by_year.pivot(index="month", columns="year", values="avg_delay").round(1).reset_index()
-    monthly_pivot.insert(0, "Monat", [month_names[m - 1] for m in monthly_pivot["month"]])
+    monthly_pivot.insert(0, "Month", [month_names[m - 1] for m in monthly_pivot["month"]])
     monthly_pivot = monthly_pivot.drop(columns=["month"])
     monthly_pivot["Ø gesamt"] = monthly_avg["avg_delay"].round(1).values
-    return monthly_pivot.set_index("Monat")
+    return monthly_pivot.set_index("Month")
 
 
 @auto_export("temporal-season-heatmap")
@@ -314,7 +309,7 @@ def plot_season_heatmap(lf, cfg=None, save_as=None):
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
 
-    season_names = {1: "Winter", 2: "Frühling", 3: "Sommer", 4: "Herbst"}
+    season_names = {1: "Winter", 2: "Spring", 3: "Summer", 4: "Autumn"}
 
     seasonal = (
         lf
@@ -342,20 +337,25 @@ def plot_season_heatmap(lf, cfg=None, save_as=None):
     day_labels = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
 
     style = mpl_style()
-    colors = cfg.palette_n(4)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
 
     avg = seasonal["avg_delay"].mean()
-    sc = [cfg.COLOR_NEGATIVE if v > avg * 1.1 else cfg.PALETTE_CATEGORICAL[4] for v in seasonal["avg_delay"]]
+    sc = [SEASON_COLORS.get(name, BAR_NEUTRAL) for name in seasonal["season_name"]]
     ax1.bar(seasonal["season_name"], seasonal["avg_delay"], color=sc, alpha=0.85)
     ax1b = ax1.twinx()
-    ax1b.plot(seasonal["season_name"], seasonal["otp_rate"], color=cfg.ANNO_MEAN, lw=2, marker="o", label="OTP")
+    ax1b.plot(seasonal["season_name"], seasonal["otp_rate"],
+              color=OTP_ON_TIME, lw=1.0, marker="o", linestyle="--", label="OTP")
     ax1b.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
-    ax1b.set_ylabel("OTP Rate", color=cfg.ANNO_MEAN)
-    ax1.axhline(avg, color=cfg.ANNO_REF, lw=1, linestyle="--")
-    ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax1.set_title("Verspätung + OTP nach Jahreszeit", **style["title"])
+    ax1b.set_ylabel("OTP Rate", color=OTP_ON_TIME)
+    ax1b.tick_params(axis="y", colors=OTP_ON_TIME)
+    ax1b.spines["right"].set_color(OTP_ON_TIME)
+    ax1.axhline(avg, **mean_kw(f"Ø {avg:.1f}s"))
+    h1, l1 = ax1.get_legend_handles_labels()
+    h2, l2 = ax1b.get_legend_handles_labels()
+    ax1.legend(h1 + h2, l1 + l2, **LEGEND_KW_RIGHT)
+    ax1.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+    ax1.set_title("Delay + OTP by Season", **TITLE_KW)
     ax1.spines[["top", "right"]].set_visible(False)
 
     flat_vals = heatmap_data.values.flatten()
@@ -369,9 +369,9 @@ def plot_season_heatmap(lf, cfg=None, save_as=None):
     ax2.set_xticklabels(day_labels, fontsize=9)
     ax2.set_yticks(range(0, 24, 2))
     ax2.set_yticklabels([f"{h}h" for h in range(0, 24, 2)], fontsize=8)
-    ax2.set_title("Heatmap: Stunde × Wochentag", **style["title"])
-    ax2.set_ylabel("Stunde", **style["label"])
-    plt.colorbar(im, ax=ax2, label="Ø Arrival Delay (s)", shrink=0.8)
+    ax2.set_title("Heatmap: Hour × Day of Week", **TITLE_KW)
+    ax2.set_ylabel("Hour", **style["label"])
+    plt.colorbar(im, ax=ax2, label="Avg. Arrival Delay (s)", shrink=0.8)
 
     plt.tight_layout()
     if save_as is not None:
@@ -381,7 +381,7 @@ def plot_season_heatmap(lf, cfg=None, save_as=None):
 
 def table_season(lf) -> pd.DataFrame:
     """Tabelle: Saisonvergleich Delay + OTP."""
-    season_names = {1: "Winter", 2: "Frühling", 3: "Sommer", 4: "Herbst"}
+    season_names = {1: "Winter", 2: "Spring", 3: "Summer", 4: "Autumn"}
     seasonal = (
         lf
         .group_by("season")
@@ -398,12 +398,12 @@ def table_season(lf) -> pd.DataFrame:
     return (
         seasonal[["season", "avg_delay", "otp_rate", "n"]]
         .assign(Jahreszeit=seasonal["season"].map(season_names))
-        .rename(columns={"avg_delay": "Ø Delay (s)", "otp_rate": "OTP", "n": "N Halte"})
+        .rename(columns={"avg_delay": "Avg. Delay (s)", "otp_rate": "OTP", "n": "N Halte"})
         .assign(OTP=lambda df: df["OTP"].apply(lambda x: f"{x:.1%}"))
         .assign(**{"N Halte": lambda df: df["N Halte"].apply(lambda x: f"{x:,.0f}")})
-        .round({"Ø Delay (s)": 1})
-        [["Jahreszeit", "Ø Delay (s)", "OTP", "N Halte"]]
-        .set_index("Jahreszeit")
+        .round({"Avg. Delay (s)": 1})
+        [["Season", "Avg. Delay (s)", "OTP", "N Halte"]]
+        .set_index("Season")
     )
 
 
@@ -432,31 +432,29 @@ def plot_full_year_trend(lf, cfg=None, save_as=None):
     yearly["rolling_otp"] = yearly["otp_rate"].rolling(7, center=True).mean()
 
     style = mpl_style()
-    colors = cfg.palette_n(2)
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 8), sharex=True)
 
     _add_schulferien(ax1)
     ax1.plot(yearly["date"], yearly["avg_delay"], color=cfg.COLOR_NEUTRAL, lw=0.5, alpha=0.3)
-    ax1.plot(yearly["date"], yearly["rolling"], color=colors[0], lw=2, label="7-Tage Ø")
-    ax1.axhline(yearly["avg_delay"].mean(), color=cfg.ANNO_REF, lw=1, linestyle=":",
-                label=f"Ø {yearly['avg_delay'].mean():.1f}s")
+    ax1.plot(yearly["date"], yearly["rolling"], color=DELAY_COLOR, lw=1.0, label="7-Day Avg.")
+    ax1.axhline(yearly["avg_delay"].mean(), **mean_kw(f"Ø {yearly['avg_delay'].mean():.1f}s"))
     for year in [2024, 2025]:
         ax1.axvline(pd.Timestamp(f"{year}-01-01"), color=cfg.CHART_AXIS, lw=1, linestyle=":")
-    ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax1.set_title("Tägliche Verspätung + 7-Tage Rolling Average (Jan 2023 – Okt 2025)", **style["title"])
-    ax1.legend(fontsize=9)
-    ax1.spines[["top", "right"]].set_visible(False)
+    ax1.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+    ax1.set_title("Daily Delay + 7-Day Rolling Average (Jan 2023 – Oct 2025)", **TITLE_KW)
+    ax1.legend(**LEGEND_KW_RIGHT)
+    style_ax(ax1)
 
     _add_schulferien(ax2)
     ax2.plot(yearly["date"], yearly["otp_rate"], color=cfg.COLOR_NEUTRAL, lw=0.5, alpha=0.3)
-    ax2.plot(yearly["date"], yearly["rolling_otp"], color=colors[1], lw=2, label="OTP 7-Tage Ø")
+    ax2.plot(yearly["date"], yearly["rolling_otp"], color=OTP_ON_TIME, lw=1.0, label="OTP 7-Day Avg.")
     ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     for year in [2024, 2025]:
         ax2.axvline(pd.Timestamp(f"{year}-01-01"), color=cfg.CHART_AXIS, lw=1, linestyle=":")
     ax2.set_ylabel("OTP Rate", **style["label"])
-    ax2.legend(fontsize=9)
-    ax2.spines[["top", "right"]].set_visible(False)
+    ax2.legend(**LEGEND_KW_RIGHT)
+    style_ax(ax2)
 
     plt.tight_layout()
     if save_as is not None:
@@ -483,8 +481,8 @@ def table_full_year_monthly(lf) -> pd.DataFrame:
         .groupby(["year", "month"], observed=True)["avg_delay"].mean().round(1)
         .unstack("year").reset_index()
     )
-    yearly_monthly_avg.insert(0, "Monat", [month_names[m - 1] for m in yearly_monthly_avg["month"]])
-    return yearly_monthly_avg.drop(columns=["month"]).set_index("Monat")
+    yearly_monthly_avg.insert(0, "Month", [month_names[m - 1] for m in yearly_monthly_avg["month"]])
+    return yearly_monthly_avg.drop(columns=["month"]).set_index("Month")
 
 
 @auto_export("temporal-gtfs-year-comparison")
@@ -543,7 +541,7 @@ def plot_gtfs_year_comparison(lf_delay, cfg=None, save_as=None):
 
     labels = list(gtfs_compare["_gtfs_year"])
     vals = list(gtfs_compare["avg_delay"])
-    colors_gtfs = [cfg.PALETTE_CATEGORICAL[0], cfg.PALETTE_CATEGORICAL[1]]
+    colors_gtfs = [YEAR_COLORS["2023"], YEAR_COLORS["2024"]]
     bars = ax1.bar(labels, vals, color=colors_gtfs[:len(labels)], alpha=0.85)
     for bar, v, row in zip(bars, vals, gtfs_compare.itertuples()):
         ax1.text(bar.get_x() + bar.get_width() / 2, v + 0.3,
@@ -551,10 +549,10 @@ def plot_gtfs_year_comparison(lf_delay, cfg=None, save_as=None):
                  ha="center", fontsize=9)
     if len(vals) == 2:
         delta = vals[1] - vals[0]
-        ax1.set_title(f"gtfs_year — Netzweit\nDelta j24_j25 vs. j23: {delta:+.1f}s", **style["title"])
+        ax1.set_title(f"gtfs_year — Netzweit\nDelta j24_j25 vs. j23: {delta:+.1f}s", **TITLE_KW)
     else:
-        ax1.set_title("gtfs_year — Netzweit", **style["title"])
-    ax1.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+        ax1.set_title("gtfs_year — Netzweit", **TITLE_KW)
+    ax1.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
     ax1.spines[["top", "right"]].set_visible(False)
 
     if len(gtfs_lines) > 0:
@@ -565,10 +563,10 @@ def plot_gtfs_year_comparison(lf_delay, cfg=None, save_as=None):
             ax2.bar([xi - width / 2 for xi in x], pivot["j23"], width, label="j23", color=colors_gtfs[0], alpha=0.85)
             ax2.bar([xi + width / 2 for xi in x], pivot["j24_j25"], width, label="j24_j25", color=colors_gtfs[1], alpha=0.85)
         ax2.set_xticks(x)
-        ax2.set_xticklabels([f"Linie {l}" for l in pivot.index], fontsize=11)
-        ax2.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-        ax2.set_title("Umgebaute Linien 9, 11, 13\nj23 vs. j24_j25 (Vor/Nach-Vergleich)", **style["title"])
-        ax2.legend(fontsize=9)
+        ax2.set_xticklabels([fmt_line_legend(str(l)) for l in pivot.index], fontsize=11)
+        ax2.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+        ax2.set_title("Umgebaute Linien 9, 11, 13\nj23 vs. j24_j25 (Vor/Nach-Vergleich)", **TITLE_KW)
+        ax2.legend(**LEGEND_KW_RIGHT)
         ax2.spines[["top", "right"]].set_visible(False)
     else:
         ax2.text(0.5, 0.5, "Keine Daten für Linien 9, 11, 13", ha="center", va="center",
@@ -617,11 +615,11 @@ def table_gtfs_year_comparison(lf_delay) -> pd.DataFrame:
     )
     return (
         gtfs_compare.rename(columns={
-            "_gtfs_year": "GTFS-Epoche", "avg_delay": "Ø Delay (s)", "med_delay": "Median (s)",
+            "_gtfs_year": "GTFS-Epoche", "avg_delay": "Avg. Delay (s)", "med_delay": "Median (s)",
             "otp_rate": "OTP", "n": "N Halte", "date_from": "Von", "date_to": "Bis"
         })
         .assign(OTP=lambda df: df["OTP"].apply(lambda x: f"{x:.1%}"))
         .assign(**{"N Halte": lambda df: df["N Halte"].apply(lambda x: f"{x:,.0f}")})
-        .round({"Ø Delay (s)": 1, "Median (s)": 1})
+        .round({"Avg. Delay (s)": 1, "Median (s)": 1})
         .set_index("GTFS-Epoche")
     )

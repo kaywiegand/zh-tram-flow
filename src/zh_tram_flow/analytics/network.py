@@ -8,7 +8,11 @@ Functions (line profiles):
 """
 
 import polars as pl
-from zh_tram_flow.config import auto_export
+from zh_tram_flow.plot_styles import (style_ax, LEGEND_KW, LEGEND_KW_RIGHT, LEGEND_KW_LEFT,
+                                               mean_kw, median_kw, otp_kw, trend_kw, data_line_kw,
+                                               FIG_SINGLE, FIG_2PANEL, FIG_3PANEL, FIG_TIMELINE, FIG_WIDE, FIG_TALL,
+                                               TITLE_KW, fmt_line_axis, fmt_line_legend, plotly_title)
+from zh_tram_flow.config import ANNO_MEDIAN, auto_export, ANNO_MEAN, YEAR_COLORS, BAR_NEUTRAL, district_color
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -144,9 +148,9 @@ def plot_network_changes_map(changes: pd.DataFrame) -> None:
             lat=rem["lat"], lon=rem["lon"],
             mode="markers",
             marker=dict(size=8, color="#bbbbbb", opacity=0.7),
-            text=rem.apply(lambda r: f"{r['name'].replace('Zürich, ', '')}<br>L{r['line']} — entfernt nach j23", axis=1),
+            text=rem.apply(lambda r: f"{r['name'].replace('Zürich, ', '')}<br>L {r['line']} — removed Dec 2023", axis=1),
             hovertemplate="<b>%{text}</b><extra></extra>",
-            name="Entfernt nach j23",
+            name="Removed Dec 2023",
         ))
 
     if added_rows:
@@ -155,9 +159,9 @@ def plot_network_changes_map(changes: pd.DataFrame) -> None:
             lat=add["lat"], lon=add["lon"],
             mode="markers",
             marker=dict(size=10, color="#FF6B00", opacity=0.85),
-            text=add.apply(lambda r: f"{r['name'].replace('Zürich, ', '')}<br>L{r['line']} — neu ab Dez 2023", axis=1),
+            text=add.apply(lambda r: f"{r['name'].replace('Zürich, ', '')}<br>L {r['line']} — new Dec 2023", axis=1),
             hovertemplate="<b>%{text}</b><extra></extra>",
-            name="Neu ab Dez 2023",
+            name="New Dec 2023",
         ))
 
     fig.update_layout(
@@ -165,8 +169,7 @@ def plot_network_changes_map(changes: pd.DataFrame) -> None:
         margin=dict(l=0, r=0, t=40, b=0),
         height=520,
         legend=dict(x=0.01, y=0.99, bgcolor="rgba(255,255,255,0.85)", borderwidth=1),
-        title=dict(text="Netzänderungen Dez 2023 — neue und entfernte Haltestellen",
-                   font=dict(size=14)),
+        title=plotly_title("Network Changes Dec 2023 — New and Removed Stops"),
     )
     fig.show()
     return fig
@@ -201,13 +204,21 @@ def plot_new_stops_by_district(changes: pd.DataFrame, lf_all, cfg=None, save_as=
                    .sort_values("new_stops", ascending=False)
                    .dropna())
 
+    # district_nr lookup für Farbzuweisung
+    _nr_lookup = (
+        lf_all.select(["district_name", "district_nr"]).drop_nulls().unique().collect().to_pandas()
+        .set_index("district_name")["district_nr"].to_dict()
+    )
+    _bar_colors = [district_color(_nr_lookup.get(name, 0)) for name in by_district["district_name"]]
+
     style = mpl_style()
     fig, ax = plt.subplots(figsize=(10, 4))
     bars = ax.barh(by_district["district_name"], by_district["new_stops"],
-                   color=cfg.palette_n(len(by_district)))
+                   color=_bar_colors)
     ax.bar_label(bars, padding=3, fontsize=10)
-    ax.set_xlabel("Anzahl neuer Haltestellen")
-    ax.set_title("Neue Haltestellen ab Dez 2023 — nach Stadtkreis", fontweight="bold")
+    ax.set_xlabel("Number of New Stops", **style["label"])
+    ax.set_title("New Stops since Dec 2023 — by District", **TITLE_KW)
+    style_ax(ax)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -235,7 +246,7 @@ def table_new_stops_by_district(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
                    .nunique().reset_index(name="new_stops")
                    .sort_values("new_stops", ascending=False)
                    .dropna())
-    return by_district.rename(columns={"district_name": "Stadtkreis", "new_stops": "Neue Halte (ab j24)"})
+    return by_district.rename(columns={"district_name": "District", "new_stops": "Neue Halte (ab j24)"})
 
 
 @auto_export("network-stop-count-by-line")
@@ -247,20 +258,19 @@ def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None, save_as=Non
     lines_with_data = changes[changes[["n_j23", "n_j24", "n_j25"]].max(axis=1) > 0]
     x = np.arange(len(lines_with_data))
     w = 0.27
-    colors = cfg.palette_n(3)
 
     style = mpl_style()
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
     ax = axes[0]
-    ax.bar(x - w, lines_with_data["n_j23"], w, label="2023", color=colors[0], alpha=0.85)
-    ax.bar(x, lines_with_data["n_j24"], w, label="2024", color=colors[1], alpha=0.85)
-    ax.bar(x + w, lines_with_data["n_j25"], w, label="2025", color=colors[2], alpha=0.85)
+    ax.bar(x - w, lines_with_data["n_j23"], w, label="2023", color=YEAR_COLORS["2023"], alpha=0.85)
+    ax.bar(x, lines_with_data["n_j24"], w, label="2024", color=YEAR_COLORS["2024"], alpha=0.85)
+    ax.bar(x + w, lines_with_data["n_j25"], w, label="2025", color=YEAR_COLORS["2025"], alpha=0.85)
     ax.set_xticks(x)
-    ax.set_xticklabels([f"L{ln}" for ln in lines_with_data["line"]], fontsize=9)
-    ax.set_ylabel("Anzahl Haltestellen")
-    ax.set_title("Haltestellen pro Linie — 2023 / 2024 / 2025", fontweight="bold")
-    ax.legend()
+    ax.set_xticklabels([fmt_line_axis(ln) for ln in lines_with_data["line"]], fontsize=9)
+    ax.set_ylabel("Number of Stops")
+    ax.set_title("Stops per Line — 2023 / 2024 / 2025", **TITLE_KW)
+    ax.legend(**LEGEND_KW_RIGHT)
 
     ax2 = axes[1]
     changed = changes[changes["added_j24"] + changes["removed_j24"] > 0].copy()
@@ -268,10 +278,9 @@ def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None, save_as=Non
     changed = changed.sort_values("net", ascending=True)
     bar_colors = [LINE_COLORS.get(ln, "#888") for ln in changed["line"]]
     bars = ax2.barh(changed["line"], changed["net"], color=bar_colors, edgecolor="white", linewidth=0.5)
-    ax2.axvline(0, color="#999", linewidth=0.8, linestyle="--")
     ax2.bar_label(bars, labels=[f"+{v}" if v > 0 else str(v) for v in changed["net"]], padding=3, fontsize=9)
     ax2.set_xlabel("Netto neue Haltestellen (j23 → j24)")
-    ax2.set_title("Netto-Änderung je Linie — Fahrplanwechsel Dez 2023", fontweight="bold")
+    ax2.set_title("Net Change per Line — Schedule Change Dec 2023", **TITLE_KW)
 
     plt.tight_layout()
     if save_as is not None:
@@ -285,8 +294,8 @@ def table_network_netto_changes(changes: pd.DataFrame) -> pd.DataFrame:
     net_table["net_j24"] = net_table["added_j24"] - net_table["removed_j24"]
     net_table["net_j25"] = net_table["added_j25"] - net_table["removed_j25"]
     net_table = net_table[net_table[["n_j23", "n_j24", "n_j25"]].max(axis=1) > 0]
-    net_table.columns = ["Linie", "Halte j23", "Halte j24", "Halte j25", "+j24", "-j24", "+j25", "-j25", "Δ j23→j24", "Δ j24→j25"]
-    return net_table.set_index("Linie")
+    net_table.columns = ["Line", "Halte j23", "Halte j24", "Halte j25", "+j24", "-j24", "+j25", "-j25", "Δ j23→j24", "Δ j24→j25"]
+    return net_table.set_index("Line")
 
 
 @auto_export("network-monthly-delay-all-lines")
@@ -294,7 +303,7 @@ def plot_monthly_delay_all_lines(lf_all, cfg=None, save_as=None):
     """Monatliche Ø Verspätung aller Linien vor/nach Fahrplanwechsel Dez 2023."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
-    from zh_tram_flow.config import line_color
+    from zh_tram_flow.config import line_color, ANNO_MEAN
 
     monthly = (
         lf_all
@@ -322,20 +331,22 @@ def plot_monthly_delay_all_lines(lf_all, cfg=None, save_as=None):
     for ln in all_lines_sorted:
         sub = monthly[monthly["line"] == ln].sort_values("month")
         ax.plot(sub["month"], sub["avg_delay"],
-                color=line_color(ln), lw=1.0, marker="o", markersize=2, label=f"L{ln}")
+                color=line_color(ln), lw=1.0, marker="o", markersize=2, label=fmt_line_legend(ln))
 
-    ax.plot(avg_all["month"], avg_all["avg_delay"],
-            color=cfg.ANNO_MEAN, lw=2.5, linestyle="--", alpha=0.9, label="Ø alle Linien")
-    ax.axvline(FAHRPLANWECHSEL, color=cfg.COLOR_NEGATIVE, lw=1.5,
-               linestyle="--", alpha=0.8, label="Fahrplanwechsel Dez 2023")
+    ax.axvline(FAHRPLANWECHSEL, color=cfg.COLOR_NEGATIVE, lw=1.0,
+               linestyle="--", alpha=0.8, label="Schedule Changes")
+    ax.axvline(pd.Timestamp("2024-12-01"), color=cfg.COLOR_NEGATIVE, lw=1.0,
+               linestyle="--", alpha=0.8)
+    ax.axvline(pd.Timestamp("2025-06-01"), color=cfg.COLOR_NEGATIVE, lw=1.0,
+               linestyle="--", alpha=0.8)
     for year in [2024, 2025]:
         ax.axvline(pd.Timestamp(f"{year}-01-01"), color=cfg.CHART_AXIS, lw=0.8, linestyle=":")
 
-    ax.set_xlabel("Monat", **style["label"])
-    ax.set_ylabel("Ø Ankunftsverspätung (s)", **style["label"])
-    ax.set_title("Monatliche Ø Verspätung — alle Linien (Jan 2023 – Okt 2025)", **style["title"])
+    ax.set_xlabel("Month", **style["label"])
+    ax.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+    ax.set_title("Monthly Avg. Delay — All Lines (Jan 2023 – Oct 2025)", **TITLE_KW)
     ax.set_xlim(pd.Timestamp("2023-01-01"), pd.Timestamp("2025-11-30"))
-    ax.legend(fontsize=7, ncol=5, loc="upper left")
+    ax.legend(**LEGEND_KW_RIGHT)
     ax.spines[["top", "right"]].set_visible(False)
     plt.tight_layout()
     if save_as is not None:
@@ -387,7 +398,7 @@ def table_delay_before_after_switch(lf_all) -> pd.DataFrame:
     )
     sort_col = "Δ (s)" if "Δ (s)" in delay_summary.columns else "line"
     return (
-        delay_summary.rename(columns={"line": "Linie"})
+        delay_summary.rename(columns={"line": "Line"})
         .sort_values(sort_col, ascending=False, na_position="last")
     )
 
@@ -397,7 +408,7 @@ def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
     """Einlaufzeit: Neue vs. bestehende Haltestellen ab Jan 2024 — alle Linien."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
-    from zh_tram_flow.config import line_color
+    from zh_tram_flow.config import line_color, ANNO_MEAN
     import math
 
     new_stop_names = set()
@@ -436,8 +447,8 @@ def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
         sub = monthly_stops[monthly_stops["line"] == ln]
         lc = line_color(ln)
         for is_new, label, ls, alpha in [
-            (False, "Bestehende Halte", "-", 1.0),
-            (True, "Neue Halte (ab j24)", "--", 0.75),
+            (False, "Existing Stops", "-", 1.0),
+            (True, "New Stops (from Jan 2024)", "--", 0.75),
         ]:
             s = sub[sub["is_new"] == is_new].sort_values("month")
             if not s.empty:
@@ -445,17 +456,17 @@ def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
                         label=label, lw=1.0, linestyle=ls,
                         color=lc, alpha=alpha,
                         marker="o", markersize=2)
-        ax.set_title(f"Linie {ln}", fontweight="bold", fontsize=10)
-        ax.set_ylabel("Ø Delay (s)", fontsize=8)
+        ax.set_title(fmt_line_legend(ln), **TITLE_KW)
+        ax.set_ylabel("Avg. Delay (s)", fontsize=8)
         ax.tick_params(axis="x", labelrotation=30, labelsize=7)
-        ax.legend(fontsize=7)
+        ax.legend(**LEGEND_KW_RIGHT)
         ax.spines[["top", "right"]].set_visible(False)
 
     for ax in axes_flat[len(all_lines_sorted):]:
         ax.set_visible(False)
 
-    plt.suptitle("Einlaufzeit: Neue vs. bestehende Haltestellen ab Jan 2024 — alle Linien",
-                 fontsize=12, fontweight="bold")
+    plt.suptitle("Ramp-up: New vs. Existing Stops from Jan 2024 — All Lines",
+                 fontsize=11, fontweight="bold", x=0.05, ha="left", y=1.01)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -499,7 +510,7 @@ def table_einlaufzeit(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
     einlauf_summary["Δ neu−best. (s)"] = (
         einlauf_summary["Neue Halte (s)"] - einlauf_summary["Bestehende Halte (s)"]
     ).round(1)
-    return einlauf_summary.rename(columns={"line": "Linie"}).set_index("Linie")
+    return einlauf_summary.rename(columns={"line": "Line"}).set_index("Line")
 
 
 @auto_export("network-hotspots")
@@ -543,25 +554,27 @@ def plot_hotspots(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
     ax = axes[0]
     bars = ax.barh(hotspot_df["stop_name"][:15][::-1],
                    hotspot_df["n_lines"][:15][::-1],
-                   color=cfg.palette_n(1)[0])
+                   color=BAR_NEUTRAL)
     ax.bar_label(bars, padding=3, fontsize=9)
-    ax.set_xlabel("Anzahl Linien")
-    ax.set_title("Top 15 Haltestellen nach Linienanzahl (j25)", fontweight="bold")
+    ax.set_xlabel("Number of Lines", **style["label"])
+    ax.set_title("Top 15 Stops by Number of Lines (2025)", **TITLE_KW)
+    style_ax(ax)
 
     ax2 = axes[1]
     scatter = ax2.scatter(hotspot_merged["n_lines"], hotspot_merged["avg_delay"],
                           s=hotspot_merged["n_obs"] / 500, alpha=0.7,
-                          color=cfg.palette_n(1)[0], edgecolors="white", linewidth=0.5)
+                          color=BAR_NEUTRAL, edgecolors="white", linewidth=0.5)
     for _, r in hotspot_merged[hotspot_merged["n_lines"] >= 4].iterrows():
         ax2.annotate(r["stop_name"], (r["n_lines"], r["avg_delay"]),
                      fontsize=8, ha="left", va="bottom",
                      xytext=(4, 4), textcoords="offset points")
-    ax2.set_xlabel("Anzahl Linien an der Haltestelle")
-    ax2.set_ylabel("Ø Ankunftsverspätung (s)")
-    ax2.set_title("Linienanzahl vs. Verspätung — Knotenpunkte 2024–2025", fontweight="bold")
+    ax2.set_xlabel("Number of Lines per Stop", **style["label"])
+    ax2.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+    ax2.set_title("Line Count vs. Delay — Hub Stops 2024–2025", **TITLE_KW)
     ax2.axhline(delay_per_stop["avg_delay"].median(), color="#999", linestyle="--",
                 linewidth=1, label=f"Median {delay_per_stop['avg_delay'].median():.0f}s")
-    ax2.legend(fontsize=9)
+    ax2.legend(**LEGEND_KW_RIGHT)
+    style_ax(ax2)
 
     plt.tight_layout()
     if save_as is not None:
@@ -602,10 +615,10 @@ def table_hotspots(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
         hotspot_merged[["stop_name", "n_lines", "lines", "avg_delay", "n_obs"]]
         .sort_values("n_lines", ascending=False)
         .rename(columns={
-            "stop_name": "Haltestelle", "n_lines": "Linien",
-            "lines": "Linienliste", "avg_delay": "Ø Delay (s)", "n_obs": "Beobachtungen"
+            "stop_name": "Stop", "n_lines": "Linien",
+            "lines": "Linienliste", "avg_delay": "Avg. Delay (s)", "n_obs": "Beobachtungen"
         })
-        .round({"Ø Delay (s)": 1})
+        .round({"Avg. Delay (s)": 1})
         .reset_index(drop=True)
     )
 
@@ -645,7 +658,7 @@ def plot_service_quality_district_map(lf_all) -> None:
     cmp["delta"] = cmp["lines_j25"] - cmp["lines_j23"]
     cmp["district_nr_str"] = cmp["district_nr"].astype(str)
     cmp["label"] = cmp.apply(
-        lambda r: f"Kreis {r['district_nr']}<br>j23: {r['lines_j23']} Linien → j25: {r['lines_j25']} Linien<br>Δ: {'+' if r['delta'] > 0 else ''}{r['delta']}",
+        lambda r: f"District {r['district_nr']}<br>2023: {r['lines_j23']} lines → 2025: {r['lines_j25']} lines<br>Δ: {'+' if r['delta'] > 0 else ''}{r['delta']}",
         axis=1
     )
 
@@ -667,14 +680,14 @@ def plot_service_quality_district_map(lf_all) -> None:
         zmax=abs_max,
         marker=dict(line=dict(color="white", width=1.5), opacity=0.75),
         colorbar=dict(
-            title="Δ Linien",
+            title="Δ Lines",
             thickness=14,
             len=0.55,
             tickvals=list(range(-abs_max, abs_max + 1)),
         ),
         text=cmp["label"],
         hovertemplate="%{text}<extra></extra>",
-        name="Δ Linienanbindung",
+        name="Δ Line Coverage",
     ))
 
     for _, row in cmp.iterrows():
@@ -707,8 +720,7 @@ def plot_service_quality_district_map(lf_all) -> None:
         mapbox=dict(style="carto-positron", center=dict(lat=47.378, lon=8.540), zoom=11.3),
         margin=dict(l=0, r=0, t=40, b=0),
         height=520,
-        title=dict(text="Veränderung der Linienanbindung nach Stadtkreis — 2023 → 2025",
-                   font=dict(size=14)),
+        title=plotly_title("Line Coverage Change by District — 2023 → 2025"),
     )
     fig.show()
     return fig
@@ -748,13 +760,17 @@ def plot_service_quality_by_district(lf_all, cfg=None, save_as=None):
 
     style = mpl_style()
     fig, ax = plt.subplots(figsize=(10, 5))
-    colors_bar = ["#E20A16" if d < 0 else "#00892F" if d > 0 else "#aaa" for d in dist_cmp["delta"]]
+    dist_nr_lookup = (
+        lf_all.select(["district_name", "district_nr"]).drop_nulls().unique().collect().to_pandas()
+        .assign(district_name=lambda df: df["district_name"].astype(str))
+        .set_index("district_name")["district_nr"].astype(str).to_dict()
+    )
+    colors_bar = [district_color(dist_nr_lookup.get(d, "")) for d in dist_cmp["district_name"]]
     bars = ax.barh(dist_cmp["district_name"], dist_cmp["delta"], color=colors_bar, edgecolor="white")
     ax.bar_label(bars, labels=[f"+{v:.0f}" if v > 0 else f"{v:.0f}" for v in dist_cmp["delta"]],
                  padding=3, fontsize=9)
-    ax.axvline(0, color="#999", linewidth=0.8)
-    ax.set_xlabel("Δ Anzahl Linien (2025 vs. 2023)")
-    ax.set_title("Veränderung der Linienanbindung nach Stadtkreis — 2023 → 2025", fontweight="bold")
+    ax.set_xlabel("Δ Number of Lines (2025 vs. 2023)")
+    ax.set_title("Change in Line Coverage by District — 2023 → 2025", **TITLE_KW)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -817,6 +833,16 @@ def plot_line_profiles(lf_all: pl.LazyFrame, cfg=None, save_as=None) -> None:
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
     style = mpl_style()
+
+    print(
+        "Tram Line Metrics — 5 dimensions per line:\n"
+        "  avg_stops           — avg stops per trip (route length)\n"
+        "  n_districts         — districts served (geographic reach)\n"
+        "  pct_city_center     — share of stops in districts 1–5 (city centre exposure)\n"
+        "  structural_per_trip — avg (departure_delay − arrival_delay) × avg_stops (cumulative build-up)\n"
+        "  mean_arr            — avg arrival delay (passenger-visible outcome)\n"
+        "Color normalized per column — dark = high value · sorted by structural factor."
+    )
 
     lf_f = lf_all.filter(pl.col("canceled") == False)
 
@@ -895,17 +921,13 @@ def plot_line_profiles(lf_all: pl.LazyFrame, cfg=None, save_as=None) -> None:
                    colors=cfg.CHART_AXIS_TEXT, labelsize=10)
 
     ax.set_yticks(range(n_lines))
-    line_tick_labels = [f"Linie {ln}" for ln in profiles["line_name"].values]
+    line_tick_labels = [fmt_line_legend(ln) for ln in profiles["line_name"].values]
     ax.set_yticklabels(line_tick_labels, fontsize=10, fontweight="bold")
     for tick, ln in zip(ax.get_yticklabels(), profiles["line_name"].values):
         tick.set_color(LINE_COLORS.get(str(ln), "#333333"))
     ax.tick_params(axis="y", colors=cfg.CHART_AXIS_TEXT, labelsize=10)
 
-    ax.set_title(
-        "Liniencharakter-Profil — Strukturelle Kennzahlen aller Tram-Linien\n"
-        "(Farbe normalisiert pro Spalte — dunkel = hoher Wert · sortiert nach Strukturfaktor)",
-        **style["title"],
-    )
+    ax.set_title("Tram Line Metrics", **TITLE_KW)
 
     # Colorbar as legend
     cbar = fig.colorbar(im, ax=ax, fraction=0.02, pad=0.04)

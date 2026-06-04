@@ -20,7 +20,11 @@ import polars as pl
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from zh_tram_flow.config import auto_export
+from zh_tram_flow.plot_styles import (style_ax, LEGEND_KW, LEGEND_KW_RIGHT, LEGEND_KW_LEFT,
+                                               mean_kw, median_kw, otp_kw, trend_kw, data_line_kw,
+                                               FIG_SINGLE, FIG_2PANEL, FIG_3PANEL, FIG_TIMELINE, FIG_WIDE, FIG_TALL,
+                                               TITLE_KW, fmt_line_axis, fmt_line_legend, plotly_title)
+from zh_tram_flow.config import ANNO_MEDIAN, auto_export, ANNO_MEAN, BAR_NEUTRAL
 
 
 def _get_cfg(cfg):
@@ -48,7 +52,7 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure
     categories = (
         lf_delay
         .with_columns([
-            pl.when(pl.col("is_holiday")).then(pl.lit("Feiertag"))
+            pl.when(pl.col("is_holiday")).then(pl.lit("Holiday"))
               .when(pl.col("has_event") & (pl.col("event_weight") == 1)).then(pl.lit("Event klein (1)"))
               .when(pl.col("has_event") & (pl.col("event_weight") == 2)).then(pl.lit("Event mittel (2)"))
               .when(pl.col("has_event") & (pl.col("event_weight") == 3)).then(pl.lit("Event gross (3)"))
@@ -66,7 +70,7 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure
 
     normal_val = categories.loc[categories["day_type"] == "Normal", "avg_delay"].values[0]
 
-    order    = ["Event gross (3)", "Event mittel (2)", "Event klein (1)", "Feiertag"]
+    order    = ["Event gross (3)", "Event mittel (2)", "Event klein (1)", "Holiday"]
     cat_plot = categories.set_index("day_type").reindex(order).dropna().reset_index()
 
     deltas     = [v - normal_val for v in cat_plot["avg_delay"]]
@@ -76,7 +80,7 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure
         "Event gross (3)":  "#d73027",
         "Event mittel (2)": "#d73027",
         "Event klein (1)":  "#fed976",
-        "Feiertag":         "#92c5de",   # blau — unter Normal (positiv)
+        "Holiday":         "#92c5de",   # blau — unter Normal (positiv)
     }
 
     style  = mpl_style()
@@ -106,7 +110,7 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure
     r_max      = max(delta_pcts) * 1.25 if max(delta_pcts) > 0 else 10
     r_min      = -left_frac * r_max / (1 - left_frac)  # damit 0% genau bei left_frac liegt
 
-    ax_r.plot(x_arr, delta_pcts, color=_teal, lw=1.5, linestyle="--",
+    ax_r.plot(x_arr, delta_pcts, color=_teal, lw=1.0, linestyle="--",
               marker="o", markersize=5, zorder=5)
     ax_r.set_ylim(r_min, r_max)
     ax_r.set_ylabel("Delta (%)", fontsize=10, color=_teal)
@@ -118,20 +122,17 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure
     ax.set_xticks(x_arr)
     ax.set_xticklabels(cat_plot["day_type"], fontsize=10)
     ax.set_ylim(0, left_max)
-    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax.set_title("Auswirkung Event-Kategorien auf Verspätungen", **style["title"])
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+    ax.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+    ax.set_title("Event Category Impact on Delays", **TITLE_KW)
+    style_ax(ax)
 
     legend_handles = [
-        Line2D([0], [0], color="#aaaaaa", lw=2,               label="Normal"),
-        Line2D([0], [0], color="#d73027", lw=2,               label="+Delta"),
-        Line2D([0], [0], color="#92c5de", lw=2,               label="−Delta"),
-        Line2D([0], [0], color=_teal,     lw=2, linestyle="--", label="Δ (%)"),
+        Line2D([0], [0], color="#aaaaaa", lw=1.0,               label="Normal"),
+        Line2D([0], [0], color="#d73027", lw=1.0,               label="+Delta"),
+        Line2D([0], [0], color="#92c5de", lw=1.0,               label="−Delta"),
+        Line2D([0], [0], color=_teal,     lw=1.0, linestyle="--", label="Δ (%)"),
     ]
-    ax.legend(handles=legend_handles, fontsize=9, frameon=False,
-              loc="upper right", ncol=4)
+    ax.legend(**LEGEND_KW_RIGHT)
 
     plt.tight_layout()
     if save_as is not None:
@@ -146,7 +147,7 @@ def table_events_overview(lf: pl.LazyFrame) -> pd.DataFrame:
     categories = (
         lf_delay
         .with_columns([
-            pl.when(pl.col("is_holiday")).then(pl.lit("Feiertag"))
+            pl.when(pl.col("is_holiday")).then(pl.lit("Holiday"))
               .when(pl.col("has_event") & (pl.col("event_weight") == 1)).then(pl.lit("Event klein (1)"))
               .when(pl.col("has_event") & (pl.col("event_weight") == 2)).then(pl.lit("Event mittel (2)"))
               .when(pl.col("has_event") & (pl.col("event_weight") == 3)).then(pl.lit("Event gross (3)"))
@@ -163,21 +164,21 @@ def table_events_overview(lf: pl.LazyFrame) -> pd.DataFrame:
         .to_pandas()
     )
 
-    order    = ["Normal", "Feiertag", "Event klein (1)", "Event mittel (2)", "Event gross (3)"]
+    order    = ["Normal", "Holiday", "Event klein (1)", "Event mittel (2)", "Event gross (3)"]
     cat_plot = categories.set_index("day_type").reindex(order).dropna().reset_index()
 
     result = (
         cat_plot[["day_type", "avg_delay", "otp_rate", "n"]]
         .rename(columns={
             "day_type":  "Kategorie",
-            "avg_delay": "Ø Delay (s)",
+            "avg_delay": "Avg. Delay (s)",
             "otp_rate":  "OTP",
             "n":         "N Halte",
         })
         .assign(OTP=lambda df: df["OTP"].apply(lambda x: f"{x:.1%}"))
         .assign(**{"N Halte": lambda df: df["N Halte"].apply(lambda x: f"{x:,.0f}")})
     )
-    result["Ø Delay (s)"] = result["Ø Delay (s)"].round(2)
+    result["Avg. Delay (s)"] = result["Avg. Delay (s)"].round(2)
     return result.set_index("Kategorie")
 
 
@@ -223,27 +224,26 @@ def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None, save_as=None) -> 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 5))
 
     # Event-Typ Balken
-    et_colors = [cfg.COLOR_NEGATIVE if v > baseline * 1.15 else cfg.PALETTE_CATEGORICAL[4]
+    et_colors = [cfg.COLOR_NEGATIVE if v > baseline * 1.15 else BAR_NEUTRAL
                  for v in event_type["avg_delay"]]
     ax1.barh(event_type["event_type"], event_type["avg_delay"], color=et_colors, alpha=0.85)
-    ax1.axvline(baseline, color=cfg.ANNO_MEAN, lw=1.5, linestyle="--",
-                label=f"Ø Normal: {baseline:.1f}s")
-    ax1.set_xlabel("Ø Arrival Delay (s)", **style["label"])
-    ax1.set_title("Delay nach Event-Typ", **style["title"])
+    ax1.axvline(baseline, **mean_kw(f"Ø Normal: {baseline:.1f}s"))
+    ax1.set_xlabel("Avg. Arrival Delay (s)", **style["label"])
+    ax1.set_title("Delay by Event Type", **TITLE_KW)
     ax1.invert_yaxis()
-    ax1.legend(fontsize=9)
+    ax1.legend(**LEGEND_KW_RIGHT)
     ax1.spines[["top", "right"]].set_visible(False)
 
     # Stunden-Profil
-    for has_ev, label, color in [(False, "Normaltag", colors[0]), (True, "Event-Tag", colors[1])]:
+    for has_ev, label, color in [(False, "Regular Day", colors[0]), (True, "Event Day", colors[1])]:
         df = hourly_event[hourly_event["has_event"] == has_ev].sort_values("hour")
-        ax2.plot(df["hour"], df["avg_delay"], color=color, lw=2,
+        ax2.plot(df["hour"], df["avg_delay"], color=color, lw=1.0,
                  marker="o", markersize=4, label=label)
     ax2.set_xticks(range(0, 24, 2))
-    ax2.set_xlabel("Stunde", **style["label"])
-    ax2.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax2.set_title("Stunden-Profil: Normaltag vs. Event-Tag", **style["title"])
-    ax2.legend(fontsize=9)
+    ax2.set_xlabel("Hour", **style["label"])
+    ax2.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+    ax2.set_title("Hourly Profile: Regular Day vs. Event Day", **TITLE_KW)
+    ax2.legend(**LEGEND_KW_RIGHT)
     ax2.spines[["top", "right"]].set_visible(False)
 
     plt.tight_layout()
@@ -296,7 +296,7 @@ def plot_event_district_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.
     pivot_district = pivot_district.sort_values("delta", ascending=False)
 
     style      = mpl_style()
-    colors_bar = [cfg.COLOR_NEGATIVE if d > 2 else cfg.PALETTE_CATEGORICAL[4]
+    colors_bar = [cfg.COLOR_NEGATIVE if d > 2 else BAR_NEUTRAL
                   for d in pivot_district["delta"]]
     colors2    = cfg.palette_n(2)
 
@@ -305,13 +305,12 @@ def plot_event_district_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.
     # Delta
     bars = ax1.barh(pivot_district["district_name"], pivot_district["delta"],
                     color=colors_bar, alpha=0.85)
-    ax1.axvline(0, color=cfg.ANNO_REF, lw=1, linestyle=":")
     ax1.bar_label(bars,
                   labels=[f"+{v:.1f}s" if v > 0 else f"{v:.1f}s"
                           for v in pivot_district["delta"]],
                   padding=3, fontsize=8)
     ax1.set_xlabel("Δ Delay Event − Normal (s)", **style["label"])
-    ax1.set_title("Event-Effekt nach Stadtkreis", **style["title"])
+    ax1.set_title("Event Effect by District", **TITLE_KW)
     ax1.spines[["top", "right"]].set_visible(False)
 
     # Absolute Delays
@@ -320,12 +319,12 @@ def plot_event_district_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.
     ax2.bar([xi - w / 2 for xi in x], pivot_district["normal"], w,
             label="Normal", color=colors2[0], alpha=0.85)
     ax2.bar([xi + w / 2 for xi in x], pivot_district["event"], w,
-            label="Event-Tag", color=colors2[1], alpha=0.85)
+            label="Event Day", color=colors2[1], alpha=0.85)
     ax2.set_xticks(x)
     ax2.set_xticklabels(pivot_district["district_name"], rotation=45, ha="right", fontsize=9)
-    ax2.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax2.set_title("Ø Delay — Normal vs. Event-Tag nach Kreis", **style["title"])
-    ax2.legend(fontsize=9)
+    ax2.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+    ax2.set_title("Avg. Delay — Normal vs. Event Day by District", **TITLE_KW)
+    ax2.legend(**LEGEND_KW_RIGHT)
     ax2.spines[["top", "right"]].set_visible(False)
 
     plt.tight_layout()
@@ -379,19 +378,19 @@ def plot_monthly_holiday_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> N
     for i, year in enumerate([2023, 2024, 2025]):
         df_year = monthly[monthly["year"] == year].sort_values("date")
         ax.plot(df_year["date"], df_year["avg_delay"],
-                color=colors[i], lw=2, marker="o", markersize=4, label=str(year))
+                color=colors[i], lw=1.0, marker="o", markersize=4, label=str(year))
 
     _add_schulferien(ax, alpha=0.13, color="#999999")
 
     for i, hdate in enumerate(holiday_dates):
-        lbl = "Feiertag" if i == 0 else None
+        lbl = "Holiday" if i == 0 else None
         ax.axvline(pd.Timestamp(hdate), color="#bbbbbb", lw=0.8,
                    linestyle="--", alpha=0.5, label=lbl)
 
-    ax.set_xlabel("Monat", **style["label"])
-    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax.set_title("Monthly Delay Profile — Holidays & School Breaks", **style["title"])
-    ax.legend(fontsize=9)
+    ax.set_xlabel("Month", **style["label"])
+    ax.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
+    ax.set_title("Monthly Delay Profile — Holidays & School Breaks", **TITLE_KW)
+    ax.legend(**LEGEND_KW_RIGHT)
     ax.spines[["top", "right"]].set_visible(False)
 
     plt.tight_layout()
@@ -550,7 +549,7 @@ def plot_event_stop_map(lf: pl.LazyFrame) -> None:
         mapbox_center={"lat": 47.378, "lon": 8.540},
         margin={"r": 0, "t": 40, "l": 0, "b": 0},
         height=650,
-        title=dict(text="Event Impact per Stop — Δ Delay (Event vs. Normal)", x=0, xanchor="left"),
+        title=plotly_title("Event Impact per Stop — Δ Delay (Event vs. Normal)"),
     )
     fig.show()
     return fig
@@ -590,8 +589,8 @@ def table_event_stop_map(lf: pl.LazyFrame) -> pd.DataFrame:
         stops[["stop_name", "district_name", "normal", "event", "delta", "n_event"]]
         .head(20)
         .rename(columns={
-            "stop_name":     "Haltestelle",
-            "district_name": "Stadtkreis",
+            "stop_name":     "Stop",
+            "district_name": "District",
             "normal":        "Normal (s)",
             "event":         "Event-Tag (s)",
             "delta":         "Δ (s)",
@@ -655,9 +654,8 @@ def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
 
     baseline = daily["avg_delay"].mean()
     ax.plot(daily["operating_date"], daily["avg_delay"],
-            color="#222222", lw=1.2, alpha=0.85)
-    ax.axhline(baseline, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":",
-               alpha=0.7, label=f"Ø {baseline:.1f}s")
+            color="#222222", lw=1.0, alpha=0.85)
+    ax.axhline(baseline, **mean_kw(f"Ø {baseline:.1f}s"))
 
     _add_schulferien(ax, alpha=0.22, color="#999999")
 
@@ -675,15 +673,13 @@ def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
                    lw=1.0, alpha=0.8, label=lbl)
         shown.add(cat)
 
-    ax.set_ylabel("Ø Delay (s)", **style["label"])
-    ax.set_xlabel("Datum", **style["label"])
-    ax.legend(fontsize=9, frameon=False, loc="upper left", ncol=5)
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+    ax.set_ylabel("Avg. Delay (s)", **style["label"])
+    ax.set_xlabel("Date", **style["label"])
+    ax.legend(**LEGEND_KW_RIGHT)
+    style_ax(ax)
 
-    fig.suptitle("Daily Delay Timeline 2023–2025 — Events & Schulferien",
-                 fontsize=14, fontweight="bold", color=cfg.CHART_TITLE, y=1.01)
+    fig.suptitle("Daily Delay Timeline 2023–2025 — Events & School Holidays",
+                 fontsize=11, fontweight="bold", x=0.05, ha="left", y=1.01)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -711,12 +707,12 @@ def table_daily_delay_timeline(lf: pl.LazyFrame) -> pd.DataFrame:
             "operating_date": "Datum",
             "event_type":     "Event-Typ",
             "event_name":     "Event",
-            "avg_delay":      "Ø Delay (s)",
+            "avg_delay":      "Avg. Delay (s)",
             "otp":            "OTP",
             "n":              "N Halte",
         })
         .assign(OTP=lambda df: df["OTP"].apply(lambda x: f"{x:.1%}"))
-        .assign(**{"Ø Delay (s)": lambda df: df["Ø Delay (s)"].round(1)})
+        .assign(**{"Avg. Delay (s)": lambda df: df["Avg. Delay (s)"].round(1)})
         .reset_index(drop=True)
     )
 
@@ -758,7 +754,7 @@ def table_event_district_effect(lf: pl.LazyFrame) -> pd.DataFrame:
     result = (
         pivot_district[["district_name", "normal", "event", "delta", "n_event"]]
         .rename(columns={
-            "district_name": "Stadtkreis",
+            "district_name": "District",
             "normal":        "Normal (s)",
             "event":         "Event-Tag (s)",
             "delta":         "Δ (s)",
@@ -769,7 +765,7 @@ def table_event_district_effect(lf: pl.LazyFrame) -> pd.DataFrame:
     result["N Halte (Events)"] = result["N Halte (Events)"].apply(
         lambda x: f"{x:,.0f}" if pd.notna(x) else "—"
     )
-    return result.set_index("Stadtkreis")
+    return result.set_index("District")
 
 
 # ---------------------------------------------------------------------------
@@ -826,13 +822,10 @@ def plot_event_stop_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Fig
         labels=[f"+{v:.1f}s" if v > 0 else f"{v:.1f}s" for v in stops["delta"]],
         padding=4, fontsize=9,
     )
-    ax.axvline(0, color=cfg.ANNO_REF, lw=1, linestyle=":")
     ax.invert_yaxis()
-    ax.set_xlabel("Δ Delay Event − Normal (s)", **style["label"])
-    ax.set_title("Top 15 Haltestellen nach Event-Impact", **style["title"])
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=9)
+    ax.set_xlabel("Δ Delay (Event − Normal, s)", **style["label"])
+    ax.set_title("Top 15 Stops by Event Impact", **TITLE_KW)
+    style_ax(ax)
 
     plt.tight_layout()
     if save_as is not None:
@@ -876,7 +869,7 @@ def plot_event_line_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Fig
     lines = lines.sort_values("delta", ascending=False)
 
     style  = mpl_style()
-    colors = [cfg.COLOR_NEGATIVE if d > 2 else cfg.PALETTE_CATEGORICAL[4]
+    colors = [cfg.COLOR_NEGATIVE if d > 2 else BAR_NEUTRAL
               for d in lines["delta"]]
 
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -891,13 +884,10 @@ def plot_event_line_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Fig
         labels=[f"+{v:.1f}s" if v > 0 else f"{v:.1f}s" for v in lines["delta"]],
         padding=4, fontsize=9,
     )
-    ax.axvline(0, color=cfg.ANNO_REF, lw=1, linestyle=":")
     ax.invert_yaxis()
     ax.set_xlabel("Δ Delay Event − Normal (s)", **style["label"])
-    ax.set_title("Linien-Ranking: Event-Impact auf alle Tramlinien", **style["title"])
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+    ax.set_title("Line Ranking: Event Impact on All Tram Lines", **TITLE_KW)
+    style_ax(ax)
 
     plt.tight_layout()
     if save_as is not None:
@@ -941,7 +931,7 @@ def table_event_line_ranking(lf: pl.LazyFrame) -> pd.DataFrame:
     result = (
         lines[["line_name", "normal", "event", "delta", "otp_delta", "n_event"]]
         .rename(columns={
-            "line_name":  "Linie",
+            "line_name":  "Line",
             "normal":     "Normal (s)",
             "event":      "Event-Tag (s)",
             "delta":      "Δ (s)",
@@ -951,8 +941,8 @@ def table_event_line_ranking(lf: pl.LazyFrame) -> pd.DataFrame:
         .round({"Normal (s)": 1, "Event-Tag (s)": 1})
     )
     result["N Halte (Events)"] = result["N Halte (Events)"].apply(lambda x: f"{x:,.0f}")
-    result["Linie"] = result["Linie"].apply(lambda x: f"L{x}")
-    return result.set_index("Linie")
+    result["Line"] = result["Line"].apply(lambda x: f"L{x}")
+    return result.set_index("Line")
 
 
 @auto_export("events-holiday-recovery")
@@ -977,7 +967,7 @@ def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
         lf.filter(pl.col("canceled") == False)
         .with_columns(
             pl.when(pl.col("is_holiday"))
-              .then(pl.lit("Feiertag"))
+              .then(pl.lit("Holiday"))
               .when(pl.col("is_weekend"))
               .then(pl.lit("Wochenende"))
               .otherwise(pl.lit("Normaler Werktag"))
@@ -993,9 +983,9 @@ def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     day_styles = {
         "Normaler Werktag": {"color": "#aaaaaa",          "lw": 2.0, "ls": "-",  "zorder": 2},
         "Wochenende":       {"color": cfg.COLOR_SIGNAL,   "lw": 2.0, "ls": "--", "zorder": 3},
-        "Feiertag":         {"color": cfg.COLOR_POSITIVE, "lw": 2.5, "ls": "-",  "zorder": 4},
+        "Holiday":         {"color": cfg.COLOR_POSITIVE, "lw": 2.5, "ls": "-",  "zorder": 4},
     }
-    order = ["Normaler Werktag", "Wochenende", "Feiertag"]
+    order = ["Normaler Werktag", "Wochenende", "Holiday"]
 
     fig, ax = plt.subplots(figsize=(12, 5))
 
@@ -1013,18 +1003,16 @@ def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
                 f"{last['mean_delay']:.0f} s",
                 color=s["color"], fontsize=9, va="center")
 
-    ax.set_xlabel("Stunde", **style["label"])
-    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+    ax.set_xlabel("Hour", **style["label"])
+    ax.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
     ax.set_title(
-        "Kapazitäts-Erholung: Feiertage und Wochenenden entlasten das Tramnetz",
-        **style["title"],
+        "Capacity Recovery: Holidays and Weekends Relieve the Tram Network",
+        **TITLE_KW,
     )
     ax.set_xticks(range(0, 24))
     ax.set_xlim(-0.5, 24.5)
-    ax.legend(fontsize=10, frameon=False, loc="upper left")
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=9)
+    ax.legend(**LEGEND_KW_RIGHT)
+    style_ax(ax)
 
     plt.tight_layout()
     if save_as is not None:

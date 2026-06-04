@@ -51,3 +51,16 @@ from zh_tram_flow.settings import setup_plotting, logger
 - `canceled = True` Zeilen behalten — relevante Extremfälle für das Modell
 - Lernmomente mit Polars explizit kommentieren — dieses Projekt ist auch Lernprojekt
 - Alle Outputs (Charts, Daten) → `reports/` oder `data/processed/`, nie im Notebook-Root
+
+## Qualitätssicherung — Pflicht nach jeder Code-Änderung
+
+Nach jeder nicht-trivialen Änderung an Python-Files **vor** der Fertigmeldung:
+
+```bash
+source .venv/bin/activate && python -c "from zh_tram_flow.[modul] import [symbol]; print('OK')"
+```
+
+Mindestens das geänderte Modul importieren. Bei Decorator/Config-Änderungen zusätzlich
+einen echten Funktionsaufruf testen (wie `auto_export`-Test mit `exists: True, size: X bytes`).
+
+Nicht akzeptabel: Code als fertig melden ohne Import-Test.
