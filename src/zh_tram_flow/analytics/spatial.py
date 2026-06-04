@@ -403,7 +403,7 @@ def table_start_stop_candidates(lf) -> pd.DataFrame:
 
 
 @auto_export("spatial-district-analysis")
-def plot_district_analysis(lf, cfg=None, save_as=None):
+def plot_district_analysis(lf, cfg=None, ylim_delay=None, ylim_otp=None, save_as=None):
     """Verspätung und OTP nach Stadtkreis — zwei Panels."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -436,6 +436,8 @@ def plot_district_analysis(lf, cfg=None, save_as=None):
     ax1.tick_params(axis="x", rotation=45)
     ax1.spines[["top", "right"]].set_visible(False)
     ax1.legend(**LEGEND_KW_RIGHT)
+    if ylim_delay is not None:
+        ax1.set_ylim(*ylim_delay)
 
     ax2.bar(districts["district_name"], districts["otp_rate"], color=colors, alpha=0.75,
             edgecolor="#bbbbbb", linewidth=0.5)
@@ -446,6 +448,8 @@ def plot_district_analysis(lf, cfg=None, save_as=None):
     ax2.tick_params(axis="x", rotation=45)
     ax2.spines[["top", "right"]].set_visible(False)
     ax2.legend(**LEGEND_KW_RIGHT)
+    if ylim_otp is not None:
+        ax2.set_ylim(*ylim_otp)
 
     plt.tight_layout()
     if save_as is not None:
@@ -454,7 +458,7 @@ def plot_district_analysis(lf, cfg=None, save_as=None):
 
 
 @auto_export("spatial-district-combined")
-def plot_district_combined(lf, cfg=None, save_as=None):
+def plot_district_combined(lf, cfg=None, ylim=None, save_as=None):
     """Verspätung nach Stadtkreis — ein Panel mit OTP als zweite Achse.
 
     Balken: Ø Arrival Delay (s), Zonenfarben, alpha=0.6.
@@ -513,6 +517,8 @@ def plot_district_combined(lf, cfg=None, save_as=None):
 
     h, l = ax_r.get_legend_handles_labels()
     ax.legend(h, l, **LEGEND_KW_RIGHT)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
 
     plt.tight_layout()
     if save_as is not None:

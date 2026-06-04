@@ -39,7 +39,7 @@ def _get_cfg(cfg):
 # ---------------------------------------------------------------------------
 
 @auto_export("events-events-overview")
-def plot_events_overview(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
+def plot_events_overview(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> plt.Figure:
     """Stacked bars: Normal (grau) + Delta (Farbe) je Event-Kategorie.
     Rechte Achse: Delta in % (teal Linie). Analog zu plot_weather_overview.
     """
@@ -122,6 +122,8 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure
     ax.set_xticks(x_arr)
     ax.set_xticklabels(cat_plot["day_type"], fontsize=10)
     ax.set_ylim(0, left_max)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     ax.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
     ax.set_title("Event Category Impact on Delays", **TITLE_KW)
     style_ax(ax)
@@ -187,7 +189,7 @@ def table_events_overview(lf: pl.LazyFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 @auto_export("events-event-type-hourly-profile")
-def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
+def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None, ylim_hourly=None, save_as=None) -> plt.Figure:
     """Bar chart of delay by event type + line chart hourly profile (normal vs event day)."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -245,6 +247,8 @@ def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None, save_as=None) -> 
     ax2.set_title("Hourly Profile: Regular Day vs. Event Day", **TITLE_KW)
     ax2.legend(**LEGEND_KW_RIGHT)
     ax2.spines[["top", "right"]].set_visible(False)
+    if ylim_hourly is not None:
+        ax2.set_ylim(*ylim_hourly)
 
     plt.tight_layout()
     if save_as is not None:
@@ -257,7 +261,7 @@ def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None, save_as=None) -> 
 # ---------------------------------------------------------------------------
 
 @auto_export("events-event-district-effect")
-def plot_event_district_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
+def plot_event_district_effect(lf: pl.LazyFrame, cfg=None, ylim_abs=None, save_as=None) -> plt.Figure:
     """Bar charts: event impact (delta + absolute) per Stadtkreis."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -326,6 +330,8 @@ def plot_event_district_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.
     ax2.set_title("Avg. Delay — Normal vs. Event Day by District", **TITLE_KW)
     ax2.legend(**LEGEND_KW_RIGHT)
     ax2.spines[["top", "right"]].set_visible(False)
+    if ylim_abs is not None:
+        ax2.set_ylim(*ylim_abs)
 
     plt.tight_layout()
     if save_as is not None:
@@ -334,7 +340,7 @@ def plot_event_district_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.
 
 
 @auto_export("events-monthly-holiday-timeline")
-def plot_monthly_holiday_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
+def plot_monthly_holiday_timeline(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> None:
     """Monthly avg delay per year (2023/2024/2025) with school break shading and holiday markers."""
     from wgnd.core.theme import mpl_style
     from zh_tram_flow.analytics.temporal import _add_schulferien
@@ -392,6 +398,8 @@ def plot_monthly_holiday_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> N
     ax.set_title("Monthly Delay Profile — Holidays & School Breaks", **TITLE_KW)
     ax.legend(**LEGEND_KW_RIGHT)
     ax.spines[["top", "right"]].set_visible(False)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
 
     plt.tight_layout()
     if save_as is not None:
@@ -602,7 +610,7 @@ def table_event_stop_map(lf: pl.LazyFrame) -> pd.DataFrame:
 
 
 @auto_export("events-daily-delay-timeline")
-def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
+def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> None:
     """Daily avg delay 2023–2025 in einem Plot — Schulferien + Event-Marker (kein Sonstiges)."""
     from wgnd.core.theme import mpl_style
     from zh_tram_flow.analytics.temporal import _add_schulferien
@@ -677,6 +685,8 @@ def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     ax.set_xlabel("Date", **style["label"])
     ax.legend(**LEGEND_KW_RIGHT)
     style_ax(ax)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
 
     fig.suptitle("Daily Delay Timeline 2023–2025 — Events & School Holidays",
                  fontsize=11, fontweight="bold", x=0.05, ha="left", y=1.01)
@@ -777,7 +787,7 @@ def table_event_district_effect(lf: pl.LazyFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 @auto_export("events-stop-ranking")
-def plot_event_stop_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
+def plot_event_stop_ranking(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> plt.Figure:
     """Horizontal bar chart: Top 15 stops by Δ delay on event days vs. normal days."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -826,6 +836,8 @@ def plot_event_stop_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Fig
     ax.set_xlabel("Δ Delay (Event − Normal, s)", **style["label"])
     ax.set_title("Top 15 Stops by Event Impact", **TITLE_KW)
     style_ax(ax)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
 
     plt.tight_layout()
     if save_as is not None:
@@ -835,7 +847,7 @@ def plot_event_stop_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Fig
 
 
 @auto_export("events-line-ranking")
-def plot_event_line_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
+def plot_event_line_ranking(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> plt.Figure:
     """Horizontal bar chart: all lines ranked by Δ delay on event days vs. normal days."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -888,6 +900,8 @@ def plot_event_line_ranking(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Fig
     ax.set_xlabel("Δ Delay Event − Normal (s)", **style["label"])
     ax.set_title("Line Ranking: Event Impact on All Tram Lines", **TITLE_KW)
     style_ax(ax)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
 
     plt.tight_layout()
     if save_as is not None:
@@ -946,7 +960,7 @@ def table_event_line_ranking(lf: pl.LazyFrame) -> pd.DataFrame:
 
 
 @auto_export("events-holiday-recovery")
-def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
+def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> None:
     """Kapazitäts-Erholung: Stundenprofil Normaler Werktag vs. Feiertag vs. Wochenende.
 
     Wenn Pendler und Privatverkehr wegbleiben, erholt sich das Tramnetz —
@@ -1013,6 +1027,8 @@ def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     ax.set_xlim(-0.5, 24.5)
     ax.legend(**LEGEND_KW_RIGHT)
     style_ax(ax)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
 
     plt.tight_layout()
     if save_as is not None:

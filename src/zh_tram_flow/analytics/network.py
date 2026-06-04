@@ -176,7 +176,7 @@ def plot_network_changes_map(changes: pd.DataFrame) -> None:
 
 
 @auto_export("network-new-stops-by-district")
-def plot_new_stops_by_district(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
+def plot_new_stops_by_district(changes: pd.DataFrame, lf_all, cfg=None, ylim=None, save_as=None):
     """Neue Haltestellen ab Dez 2023 nach Stadtkreis — Balkendiagramm."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -219,6 +219,8 @@ def plot_new_stops_by_district(changes: pd.DataFrame, lf_all, cfg=None, save_as=
     ax.set_xlabel("Number of New Stops", **style["label"])
     ax.set_title("New Stops since Dec 2023 — by District", **TITLE_KW)
     style_ax(ax)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -250,7 +252,7 @@ def table_new_stops_by_district(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
 
 
 @auto_export("network-stop-count-by-line")
-def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None, save_as=None):
+def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None, ylim_count=None, ylim_net=None, save_as=None):
     """Haltestellenanzahl pro Linie 2023/2024/2025 + Netto-Änderung j23→j24."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -271,6 +273,8 @@ def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None, save_as=Non
     ax.set_ylabel("Number of Stops")
     ax.set_title("Stops per Line — 2023 / 2024 / 2025", **TITLE_KW)
     ax.legend(**LEGEND_KW_RIGHT)
+    if ylim_count is not None:
+        ax.set_ylim(*ylim_count)
 
     ax2 = axes[1]
     changed = changes[changes["added_j24"] + changes["removed_j24"] > 0].copy()
@@ -281,6 +285,8 @@ def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None, save_as=Non
     ax2.bar_label(bars, labels=[f"+{v}" if v > 0 else str(v) for v in changed["net"]], padding=3, fontsize=9)
     ax2.set_xlabel("Netto neue Haltestellen (j23 → j24)")
     ax2.set_title("Net Change per Line — Schedule Change Dec 2023", **TITLE_KW)
+    if ylim_net is not None:
+        ax2.set_ylim(*ylim_net)
 
     plt.tight_layout()
     if save_as is not None:
@@ -299,7 +305,7 @@ def table_network_netto_changes(changes: pd.DataFrame) -> pd.DataFrame:
 
 
 @auto_export("network-monthly-delay-all-lines")
-def plot_monthly_delay_all_lines(lf_all, cfg=None, save_as=None):
+def plot_monthly_delay_all_lines(lf_all, cfg=None, ylim=None, save_as=None):
     """Monatliche Ø Verspätung aller Linien vor/nach Fahrplanwechsel Dez 2023."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -348,6 +354,8 @@ def plot_monthly_delay_all_lines(lf_all, cfg=None, save_as=None):
     ax.set_xlim(pd.Timestamp("2023-01-01"), pd.Timestamp("2025-11-30"))
     ax.legend(**LEGEND_KW_RIGHT)
     ax.spines[["top", "right"]].set_visible(False)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -727,7 +735,7 @@ def plot_service_quality_district_map(lf_all) -> None:
 
 
 @auto_export("network-service-quality-by-district")
-def plot_service_quality_by_district(lf_all, cfg=None, save_as=None):
+def plot_service_quality_by_district(lf_all, cfg=None, ylim=None, save_as=None):
     """Versorgungsqualität: Veränderung der Linienanbindung nach Stadtkreis 2023→2025."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -771,6 +779,8 @@ def plot_service_quality_by_district(lf_all, cfg=None, save_as=None):
                  padding=3, fontsize=9)
     ax.set_xlabel("Δ Number of Lines (2025 vs. 2023)")
     ax.set_title("Change in Line Coverage by District — 2023 → 2025", **TITLE_KW)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")

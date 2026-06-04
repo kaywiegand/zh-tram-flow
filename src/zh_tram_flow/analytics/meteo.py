@@ -59,7 +59,7 @@ def _weather_compare(lf_delay: pl.LazyFrame, flag: str, label: str) -> pd.DataFr
 # ---------------------------------------------------------------------------
 
 @auto_export("meteo-weather-overview")
-def plot_weather_overview(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
+def plot_weather_overview(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> plt.Figure:
     """Stacked bars: Normal (grau) + Delta (Blau-Skala) je Wetterbedingung.
     Rechte Achse: Delta in % (teal Linie).
     """
@@ -128,6 +128,8 @@ def plot_weather_overview(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figur
     ax.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
     ax.set_title("Weather Effect on Delays", **TITLE_KW)
     style_ax(ax)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
 
     legend_handles = [
         Line2D([0], [0], color="#aaaaaa", lw=1.0,                  label="Normal"),
@@ -179,7 +181,7 @@ def table_weather_overview(lf: pl.LazyFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 @auto_export("meteo-temperature-precipitation")
-def plot_temperature_precipitation(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
+def plot_temperature_precipitation(lf: pl.LazyFrame, cfg=None, ylim_temp=None, ylim_precip=None, save_as=None) -> plt.Figure:
     """Bar charts: delay by temperature bin and precipitation intensity."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -249,6 +251,8 @@ def plot_temperature_precipitation(lf: pl.LazyFrame, cfg=None, save_as=None) -> 
     ax1.set_title("Delay by Temperature (5°C Bins)", **TITLE_KW)
     ax1.legend(**LEGEND_KW_RIGHT)
     ax1.spines[["top", "right"]].set_visible(False)
+    if ylim_temp is not None:
+        ax1.set_ylim(*ylim_temp)
 
     # Precipitation intensity
     pc = [
@@ -262,6 +266,8 @@ def plot_temperature_precipitation(lf: pl.LazyFrame, cfg=None, save_as=None) -> 
     ax2.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
     ax2.set_title("Delay by Precipitation Intensity (Rain Days)", **TITLE_KW)
     ax2.spines[["top", "right"]].set_visible(False)
+    if ylim_precip is not None:
+        ax2.set_ylim(*ylim_precip)
 
     plt.tight_layout()
     if save_as is not None:
@@ -311,7 +317,7 @@ def table_temperature_bins(lf: pl.LazyFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 @auto_export("meteo-is-hot")
-def plot_is_hot(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
+def plot_is_hot(lf: pl.LazyFrame, cfg=None, ylim_compare=None, ylim_curve=None, save_as=None) -> plt.Figure:
     """Bar + temperature curve validating the is_hot (>20°C) feature."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -378,6 +384,8 @@ def plot_is_hot(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     ax1.set_title(f"is_hot — Delta: {delta:+.1f}s", **TITLE_KW)
     ax1.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
     ax1.spines[["top", "right"]].set_visible(False)
+    if ylim_compare is not None:
+        ax1.set_ylim(*ylim_compare)
 
     # Panel 2: Temperaturkurve mit 20°C-Schwelle
     bin_colors = [cfg.COLOR_NEGATIVE if tb >= 4 else BAR_NEUTRAL
@@ -393,6 +401,8 @@ def plot_is_hot(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
     ax2.set_title("Temperature Curve — 20°C Threshold Marked", **TITLE_KW)
     ax2.legend(**LEGEND_KW_RIGHT)
     ax2.spines[["top", "right"]].set_visible(False)
+    if ylim_curve is not None:
+        ax2.set_ylim(*ylim_curve)
 
     plt.tight_layout()
     if save_as is not None:
@@ -550,7 +560,7 @@ def table_correlation_with_delay(lf: pl.LazyFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 @auto_export("meteo-district-weather-sensitivity")
-def plot_district_weather_sensitivity(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
+def plot_district_weather_sensitivity(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> None:
     """Two sorted bar charts (snow / heavy rain) with average line and above-avg highlight."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -599,6 +609,8 @@ def plot_district_weather_sensitivity(lf: pl.LazyFrame, cfg=None, save_as=None) 
         ax.set_title(f"Weather Sensitivity — {titles[flag]}", **TITLE_KW)
         ax.legend(**LEGEND_KW_RIGHT)
         ax.spines[["top", "right"]].set_visible(False)
+        if ylim is not None:
+            ax.set_ylim(*ylim)
 
     _st = {k: v for k, v in TITLE_KW.items() if k not in ("loc", "pad")}
     plt.suptitle("District Comparison: Snow vs. Heavy Rain", **_st, y=1.02)
@@ -665,7 +677,7 @@ def _weather_delta_df(lf_delay, flag, group_col, min_n=500):
 
 
 @auto_export("meteo-stop-weather-ranking")
-def plot_stop_weather_ranking(lf: pl.LazyFrame, cfg=None, top_n: int = 20, save_as=None) -> None:
+def plot_stop_weather_ranking(lf: pl.LazyFrame, cfg=None, top_n: int = 20, ylim=None, save_as=None) -> None:
     """Horizontal bar charts: top stops by Δ delay for snow and heavy rain."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -700,6 +712,8 @@ def plot_stop_weather_ranking(lf: pl.LazyFrame, cfg=None, top_n: int = 20, save_
         ax.set_title(f"Top {top_n} Stops — {titles[flag]}", **TITLE_KW)
         ax.legend(**LEGEND_KW_RIGHT)
         ax.spines[["top", "right"]].set_visible(False)
+        if ylim is not None:
+            ax.set_ylim(*ylim)
 
     _st = {k: v for k, v in TITLE_KW.items() if k not in ("loc", "pad")}
     plt.suptitle("Stop Ranking: Snow vs. Heavy Rain", **_st, y=1.02)
@@ -730,7 +744,7 @@ def table_stop_weather_ranking(lf: pl.LazyFrame, top_n: int = 20) -> pd.DataFram
 
 
 @auto_export("meteo-line-weather-exposure")
-def plot_line_weather_exposure(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
+def plot_line_weather_exposure(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> None:
     """Sorted bar charts: Δ delay per line for snow and heavy rain."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -765,6 +779,8 @@ def plot_line_weather_exposure(lf: pl.LazyFrame, cfg=None, save_as=None) -> None
         ax.set_title(f"Line Exposure — {titles[flag]}", **TITLE_KW)
         ax.legend(**LEGEND_KW_RIGHT)
         ax.spines[["top", "right"]].set_visible(False)
+        if ylim is not None:
+            ax.set_ylim(*ylim)
 
     _st = {k: v for k, v in TITLE_KW.items() if k not in ("loc", "pad")}
     plt.suptitle("Which Lines Suffer Most from Weather?", **_st, y=1.02)
@@ -803,7 +819,7 @@ def table_line_weather_exposure(lf: pl.LazyFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 @auto_export("meteo-daily-delay-weather-timeline")
-def plot_daily_delay_weather_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
+def plot_daily_delay_weather_timeline(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> None:
     """Daily avg delay per year (3 subplots) with weather markers and temperature overlay."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -869,6 +885,8 @@ def plot_daily_delay_weather_timeline(lf: pl.LazyFrame, cfg=None, save_as=None) 
         ax.set_ylabel("Avg. Delay (s)", **style["label"])
         ax.set_xlim(pd.Timestamp(f"{year}-01-01"), pd.Timestamp(f"{year}-12-31"))
         ax.spines[["top", "right"]].set_visible(False)
+        if ylim is not None:
+            ax.set_ylim(*ylim)
 
         # Temperature overlay (second y-axis)
         ax2 = ax.twinx()
@@ -1363,7 +1381,7 @@ def table_weather_stop_map(lf: pl.LazyFrame, flag: str = "has_snow") -> pd.DataF
 # ---------------------------------------------------------------------------
 
 @auto_export("meteo-snow-structural-interaction")
-def plot_snow_structural_interaction(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
+def plot_snow_structural_interaction(lf: pl.LazyFrame, cfg=None, ylim_dd=None, ylim_arr=None, save_as=None) -> None:
     """Schnee-Verstärker: delay_delta (Akkumulationsrate) und arrival_delay — normal vs. Schnee.
 
     Zeigt dass Schnee nicht nur einen externen Zusatz-Delay verursacht,
@@ -1424,6 +1442,8 @@ def plot_snow_structural_interaction(lf: pl.LazyFrame, cfg=None, save_as=None) -
     ax1.set_title("Structural Accumulation Rate\n(delay_delta per Stop)",
                   **TITLE_KW)
     ax1.set_ylim(0, max(dd_vals) * 1.6)
+    if ylim_dd is not None:
+        ax1.set_ylim(*ylim_dd)
     style_ax(ax1)
 
     # --- Panel 2: arrival_delay (Fahrgast-Impact) ---
@@ -1443,6 +1463,8 @@ def plot_snow_structural_interaction(lf: pl.LazyFrame, cfg=None, save_as=None) -
     ax2.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
     ax2.set_title("Visible Passenger Impact\n(Arrival Delay)", **TITLE_KW)
     ax2.set_ylim(0, max(arr_vals) * 1.4)
+    if ylim_arr is not None:
+        ax2.set_ylim(*ylim_arr)
     style_ax(ax2)
 
     n_snow = int(snow_row["n"])

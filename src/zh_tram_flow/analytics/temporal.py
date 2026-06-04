@@ -40,7 +40,7 @@ def _add_schulferien(ax, alpha: float = 0.13, color: str = "#999999") -> None:
 
 
 @auto_export("temporal-hour-of-day")
-def plot_hour_of_day(lf, cfg=None, save_as=None):
+def plot_hour_of_day(lf, cfg=None, ylim=None, save_as=None):
     """Ø Arrival Delay nach Stunde — Delay-Balken (links) + Datenvolumen (rechts, twinx)."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -89,6 +89,8 @@ def plot_hour_of_day(lf, cfg=None, save_as=None):
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax1.legend(lines1 + lines2, labels1 + labels2, **LEGEND_KW_RIGHT)
+    if ylim is not None:
+        ax1.set_ylim(*ylim)
 
     plt.tight_layout()
     if save_as is not None:
@@ -119,7 +121,7 @@ def table_hour_of_day(lf) -> pd.DataFrame:
 
 
 @auto_export("temporal-day-of-week")
-def plot_day_of_week(lf, cfg=None, save_as=None):
+def plot_day_of_week(lf, cfg=None, ylim=None, save_as=None):
     """Ø Arrival Delay + OTP nach Wochentag (Mo–So)."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -170,6 +172,8 @@ def plot_day_of_week(lf, cfg=None, save_as=None):
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax.legend(lines1 + lines2, labels1 + labels2, **LEGEND_KW_RIGHT)
     style_ax(ax)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -205,7 +209,7 @@ def table_day_of_week(lf) -> pd.DataFrame:
 
 
 @auto_export("temporal-month-seasonality")
-def plot_month_seasonality(lf, cfg=None, panel: str = "both", save_as=None):
+def plot_month_seasonality(lf, cfg=None, panel: str = "both", ylim=None, save_as=None):
     """Saisonalität + Jahresvergleich nach Monat.
 
     panel: 'both' (default) — zwei Panels nebeneinander
@@ -269,6 +273,8 @@ def plot_month_seasonality(lf, cfg=None, panel: str = "both", save_as=None):
         ax2.legend(**LEGEND_KW_RIGHT)
         style_ax(ax2)
 
+    if ylim is not None:
+        ax1.set_ylim(*ylim)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -304,7 +310,7 @@ def table_month_seasonality(lf) -> pd.DataFrame:
 
 
 @auto_export("temporal-season-heatmap")
-def plot_season_heatmap(lf, cfg=None, save_as=None):
+def plot_season_heatmap(lf, cfg=None, ylim_season=None, save_as=None):
     """Saisonaler Delay + OTP + Stunde × Wochentag Heatmap."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -357,6 +363,8 @@ def plot_season_heatmap(lf, cfg=None, save_as=None):
     ax1.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
     ax1.set_title("Delay + OTP by Season", **TITLE_KW)
     ax1.spines[["top", "right"]].set_visible(False)
+    if ylim_season is not None:
+        ax1.set_ylim(*ylim_season)
 
     flat_vals = heatmap_data.values.flatten()
     flat_vals = flat_vals[~np.isnan(flat_vals)]
@@ -408,7 +416,7 @@ def table_season(lf) -> pd.DataFrame:
 
 
 @auto_export("temporal-full-year-trend")
-def plot_full_year_trend(lf, cfg=None, save_as=None):
+def plot_full_year_trend(lf, cfg=None, ylim_delay=None, ylim_otp=None, save_as=None):
     """7-Tage Rolling Average — täglicher Delay + OTP mit Schulferien-Annotation."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -445,6 +453,8 @@ def plot_full_year_trend(lf, cfg=None, save_as=None):
     ax1.set_title("Daily Delay + 7-Day Rolling Average (Jan 2023 – Oct 2025)", **TITLE_KW)
     ax1.legend(**LEGEND_KW_RIGHT)
     style_ax(ax1)
+    if ylim_delay is not None:
+        ax1.set_ylim(*ylim_delay)
 
     _add_schulferien(ax2)
     ax2.plot(yearly["date"], yearly["otp_rate"], color=cfg.COLOR_NEUTRAL, lw=0.5, alpha=0.3)
@@ -455,6 +465,8 @@ def plot_full_year_trend(lf, cfg=None, save_as=None):
     ax2.set_ylabel("OTP Rate", **style["label"])
     ax2.legend(**LEGEND_KW_RIGHT)
     style_ax(ax2)
+    if ylim_otp is not None:
+        ax2.set_ylim(*ylim_otp)
 
     plt.tight_layout()
     if save_as is not None:
@@ -486,7 +498,7 @@ def table_full_year_monthly(lf) -> pd.DataFrame:
 
 
 @auto_export("temporal-gtfs-year-comparison")
-def plot_gtfs_year_comparison(lf_delay, cfg=None, save_as=None):
+def plot_gtfs_year_comparison(lf_delay, cfg=None, ylim=None, save_as=None):
     """gtfs_year Feature: j23 vs. j24_j25 — netzweit + umgebaute Linien."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -572,6 +584,10 @@ def plot_gtfs_year_comparison(lf_delay, cfg=None, save_as=None):
         ax2.text(0.5, 0.5, "Keine Daten für Linien 9, 11, 13", ha="center", va="center",
                  transform=ax2.transAxes, fontsize=12)
 
+    if ylim is not None:
+        ax1.set_ylim(*ylim)
+        if len(gtfs_lines) > 0:
+            ax2.set_ylim(*ylim)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")

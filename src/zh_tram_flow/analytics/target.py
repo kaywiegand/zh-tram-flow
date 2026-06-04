@@ -380,7 +380,7 @@ def plot_log_transform(lf, cfg=None):
 
 
 @auto_export("target-arrival-vs-departure")
-def plot_arrival_vs_departure(lf, cfg=None):
+def plot_arrival_vs_departure(lf, cfg=None, ylim=None):
     """Boxplot: Arrival / Departure / Delay Delta nebeneinander (100k Sample)."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -412,6 +412,8 @@ def plot_arrival_vs_departure(lf, cfg=None):
     ax.set_title("Distribution — 100k Sample (clipped −300 to +600s)", **TITLE_KW)
     style_ax(ax)
     ax.legend(**LEGEND_KW_RIGHT)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     plt.tight_layout()
     plt.show()
 
@@ -427,7 +429,7 @@ def plot_arrival_vs_departure(lf, cfg=None):
 
 
 @auto_export("target-delay-delta-detail")
-def plot_delay_delta_detail(lf, cfg=None):
+def plot_delay_delta_detail(lf, cfg=None, ylim=None):
     """Delay-Delta Verteilung im engen Bereich (±100s) — bimodale Struktur sichtbar."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -449,6 +451,8 @@ def plot_delay_delta_detail(lf, cfg=None):
     ax.set_title("Delay Delta Distribution — Detail (clipped −100 to +100s)", **TITLE_KW)
     style_ax(ax)
     ax.legend(**LEGEND_KW_RIGHT)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     plt.tight_layout()
     plt.show()
 
@@ -548,7 +552,7 @@ def plot_start_stop_analysis(lf_delay, cfg=None):
 
 
 @auto_export("target-otp")
-def plot_otp(lf, cfg=None):
+def plot_otp(lf, cfg=None, ylim_otp=None, ylim_delta=None):
     """OTP-Überblick: Arrival / Departure + Delay-Delta-Anteile."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -582,6 +586,8 @@ def plot_otp(lf, cfg=None):
     ax1.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax1.legend(**LEGEND_KW_RIGHT)
     style_ax(ax1)
+    if ylim_otp is not None:
+        ax1.set_ylim(*ylim_otp)
     for bar in [*b1, *b2]:
         ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.003,
                  f"{bar.get_height():.1%}", ha="center", va="bottom", fontsize=9)
@@ -595,6 +601,8 @@ def plot_otp(lf, cfg=None):
     ax2.set_title("Delay Delta — Recovery vs Growth", **TITLE_KW)
     ax2.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     style_ax(ax2)
+    if ylim_delta is not None:
+        ax2.set_ylim(*ylim_delta)
     for bar in b3:
         ax2.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.003,
                  f"{bar.get_height():.1%}", ha="center", va="bottom", fontsize=9)
@@ -864,7 +872,7 @@ def plot_trip_level_validation(master_path, cfg=None):
 
 
 @auto_export("target-cancellation-rate-over-time")
-def plot_cancellation_rate_over_time(lf_all, cfg=None):
+def plot_cancellation_rate_over_time(lf_all, cfg=None, ylim=None):
     """Monatliche Ausfallrate nach Linie — alle Linien als Zeitreihe."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -903,6 +911,8 @@ def plot_cancellation_rate_over_time(lf_all, cfg=None):
         ax.axvline(pd.Timestamp(f"{year}-01-01"), color=cfg.CHART_AXIS, lw=1, linestyle=":")
 
     ax.set_ylim(0, 0.5)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax.set_ylabel("Cancellation Rate", **style["label"])
     ax.set_title("Monthly Cancellation Rate by Line", **TITLE_KW)
