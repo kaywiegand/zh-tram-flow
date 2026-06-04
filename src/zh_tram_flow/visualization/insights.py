@@ -20,9 +20,12 @@ from matplotlib.lines import Line2D
 import polars as pl
 
 from wgnd.core.config import cfg
-from wgnd.core.theme import mpl_style
 
 from zh_tram_flow.config import PATHS, line_color
+from zh_tram_flow.plot_styles import (style_ax, LEGEND_KW, LEGEND_KW_RIGHT, LEGEND_KW_LEFT,
+                                       mean_kw, median_kw, otp_kw, trend_kw, data_line_kw,
+                                       FIG_SINGLE, FIG_2PANEL, FIG_3PANEL, FIG_TIMELINE, FIG_WIDE, FIG_TALL,
+                                       TITLE_KW, fmt_line_axis, fmt_line_legend, plotly_title)
 
 
 # ── Shared helpers ────────────────────────────────────────────────────────────
@@ -46,25 +49,18 @@ def _milestone_legend_handle() -> Line2D:
     return Line2D(
         [0], [0],
         color=cfg.ANNO_REF, lw=1.2, linestyle="--",
-        label="Fahrplanwechsel / Baustelle",
+        label="Timetable Change / Construction",
     )
 
-
-def _spine_style(ax: plt.Axes) -> None:
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
 
 
 # ── Section: Netzstruktur ─────────────────────────────────────────────────────
 
-def plot_monthly_delay_by_line(lf: pl.LazyFrame) -> None:
+def plot_monthly_delay_by_line(lf: pl.LazyFrame, ylim=None) -> None:
     """Monatliche Ø Arrival Delay pro Linie — 1 Panel, nur arrival_delay.
 
     Input: lf_clean (canceled=False, stop_sequence>1, kein E/L50/L51).
     """
-    style = mpl_style()
-
     monthly = (
         lf
         .with_columns([
@@ -92,16 +88,16 @@ def plot_monthly_delay_by_line(lf: pl.LazyFrame) -> None:
     for ln in lines:
         df = monthly[monthly["line_name"] == ln].sort_values("date")
         ax.plot(df["date"], df["avg_delay"],
-                color=line_color(ln), lw=1.2, label=f"L{ln}")
+                color=line_color(ln), lw=1.2, label=fmt_line_legend(ln))
 
     _add_milestones(ax)
 
-    ax.set_ylim(0, 120)
-    ax.set_title("Monatliche Ø Ankunftsverspätung — alle Linien 2023–2025",
-                 **style["title"])
-    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
+    ax.set_ylim(*(ylim if ylim is not None else (0, 120)))
+    ax.set_title("Monthly Avg. Arrival Delay — All Lines 2023–2025",
+                 **TITLE_KW)
+    ax.set_ylabel("Ø Arrival Delay (s)")
     ax.yaxis.set_major_formatter(mticker.FormatStrFormatter("%ds"))
-    _spine_style(ax)
+    style_ax(ax)
 
     # X-axis: month numbers 01–12, Jan 2026 tick visible for visual breathing room
     ax.set_xlim(pd.Timestamp("2023-01-01"), pd.Timestamp("2026-01-15"))
@@ -120,11 +116,10 @@ def plot_monthly_delay_by_line(lf: pl.LazyFrame) -> None:
     # Legend: always max 2 rows
     handles, labels = ax.get_legend_handles_labels()
     handles.append(_milestone_legend_handle())
-    labels.append("Fahrplanwechsel / Baustelle")
+    labels.append("Timetable Change / Construction")
     ncol = math.ceil(len(handles) / 2)
     ax.legend(handles=handles, labels=labels,
-              fontsize=9, loc="upper right", ncol=ncol,
-              frameon=False)
+              **{**LEGEND_KW_RIGHT, "ncol": ncol})
 
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.12)
@@ -133,10 +128,8 @@ def plot_monthly_delay_by_line(lf: pl.LazyFrame) -> None:
 
 # ── Section: OTP ─────────────────────────────────────────────────────────────
 
-def plot_otp_by_line(lf: pl.LazyFrame) -> None:
+def plot_otp_by_line(lf: pl.LazyFrame, ylim=None) -> None:
     """OTP pro Linie — vertikale Balkenchart mit Netz-Schnitt und VBZ-Ziel."""
-    style = mpl_style()
-
     otp = (
         lf
         .group_by("line_name")
@@ -151,7 +144,7 @@ def plot_otp_by_line(lf: pl.LazyFrame) -> None:
 
     otp_mean = (otp["otp_pct"] * otp["n"]).sum() / otp["n"].sum()
     bar_colors = [line_color(str(ln)) for ln in otp["line_name"]]
-    line_labels = [f"L{ln}" for ln in otp["line_name"]]
+    line_labels = [fmt_line_axis(ln) for ln in otp["line_name"]]
 
     fig, ax = plt.subplots(figsize=(14, 5))
     bars = ax.bar(line_labels, otp["otp_pct"], color=bar_colors, alpha=0.6)
@@ -159,25 +152,21 @@ def plot_otp_by_line(lf: pl.LazyFrame) -> None:
         ax.text(bar.get_x() + bar.get_width() / 2, val + 0.2,
                 f"{val:.1f}%", ha="center", fontsize=9, color=cfg.CHART_AXIS_TEXT)
 
-    ax.axhline(otp_mean, color=cfg.ANNO_MEAN, lw=1.0, linestyle=":",
-               label=f"Ø Netz {otp_mean:.0f}%")
-    ax.axhline(95, color=cfg.ANNO_REF, lw=1.0, linestyle="--",
-               label="Ziel VBZ 95%")
+    ax.axhline(otp_mean, **mean_kw(f"Ø Netz {otp_mean:.0f}%"))
+    ax.axhline(95, **median_kw("VBZ Target 95%"))
 
-    ax.set_ylim(75, 100)
-    ax.set_title("On-Time-Performance (OTP) pro Linie", **style["title"])
-    ax.set_ylabel("On-Time Performance (%)", **style["label"])
+    ax.set_ylim(*(ylim if ylim is not None else (75, 100)))
+    ax.set_title("On-Time Performance (OTP) per Line", **TITLE_KW)
+    ax.set_ylabel("On-Time Performance (%)")
     ax.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0f%%"))
-    _spine_style(ax)
-    ax.legend(fontsize=9, frameon=False, loc="upper right", ncol=2)
+    style_ax(ax)
+    ax.legend(**LEGEND_KW_RIGHT)
     plt.tight_layout()
     plt.show()
 
 
-def plot_otp_delta_distribution(lf: pl.LazyFrame) -> None:
+def plot_otp_delta_distribution(lf: pl.LazyFrame, ylim=None) -> None:
     """Delay Delta — 3-bar chart: wächst / sinkt / neutral."""
-    style = mpl_style()
-
     stats = (
         lf
         .filter(pl.col("delay_delta").is_not_null())
@@ -203,12 +192,12 @@ def plot_otp_delta_distribution(lf: pl.LazyFrame) -> None:
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.8,
                 f"{val:.1f}%", ha="center", va="bottom",
                 fontsize=10, color=cfg.CHART_AXIS_TEXT)
-    ax.set_ylim(0, 85)
-    ax.set_title("Delay Delta — Akkumulierend vs. Abnehmend (Anteil aller Halte)",
-                 **{**style["title"], "pad": 14})
-    ax.set_ylabel("Anteil (%)", **style["label"])
+    ax.set_ylim(*(ylim if ylim is not None else (0, 85)))
+    ax.set_title("Delay Delta — Accumulating vs. Recovering (Share of All Stops)",
+                 **TITLE_KW)
+    ax.set_ylabel("Share (%)")
     ax.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0f%%"))
-    _spine_style(ax)
+    style_ax(ax)
     plt.tight_layout()
     plt.show()
 
@@ -233,12 +222,12 @@ def _dwell_data(lf: pl.LazyFrame) -> tuple:
         .to_pandas()
     )
     x = np.arange(len(data))
-    line_labels = [f"L{ln}" for ln in data["line_name"]]
+    line_labels = [fmt_line_axis(ln) for ln in data["line_name"]]
     lc = [line_color(str(ln)) for ln in data["line_name"]]
     return data, x, line_labels, lc
 
 
-def plot_dwell_throughput(lf: pl.LazyFrame) -> None:
+def plot_dwell_throughput(lf: pl.LazyFrame, ylim=None) -> None:
     """Anteil Durchfahrtshalte (%) + Ø Verweilzeit (s) pro Linie.
 
     Balken: % Halte ohne Verweilzeit (Durchfahrt), Tramlinienfarben.
@@ -247,7 +236,6 @@ def plot_dwell_throughput(lf: pl.LazyFrame) -> None:
     """
     _teal = cfg.COLOR_POSITIVE  # #25ac82 — kein Overlap mit Tramlinienfarben
 
-    style = mpl_style()
     data, x, line_labels, lc = _dwell_data(lf)
 
     pct_null = data["pct_null_dwell"] * 100
@@ -260,30 +248,28 @@ def plot_dwell_throughput(lf: pl.LazyFrame) -> None:
                 fontsize=8, color="#555555")
     ax.set_xticks(x)
     ax.set_xticklabels(line_labels, fontsize=9)
-    ax.set_ylim(0, 108)
-    ax.set_title("Anteil Durchfahrtshalte pro Linie", **style["title"])
-    ax.set_ylabel("Durchfahrtshalte (%)", **style["label"])
+    ax.set_ylim(*(ylim if ylim is not None else (0, 108)))
+    ax.set_title("Share of Through-Stops per Line", **TITLE_KW)
+    ax.set_ylabel("Through-Stops (%)")
     ax.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0f%%"))
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+    style_ax(ax)
 
     ax_r = ax.twinx()
     ax_r.plot(x, data["avg_dwell"].fillna(0), color=_teal, lw=1.5, linestyle="--",
-              marker="o", markersize=3, label="Ø Verweilzeit (s)")
-    ax_r.set_ylabel("Ø Verweilzeit (s)", fontsize=10, color=_teal)
+              marker="o", markersize=3, label="Ø Dwell Time (s)")
+    ax_r.set_ylabel("Ø Dwell Time (s)", fontsize=10, color=_teal)
     ax_r.tick_params(axis="y", colors=_teal, labelsize=9)
     ax_r.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0fs"))
     ax_r.spines["top"].set_visible(False)
     ax_r.spines["left"].set_visible(False)
     h, l = ax_r.get_legend_handles_labels()
-    ax.legend(h, l, fontsize=9, frameon=False, loc="upper right")
+    ax.legend(h, l, **LEGEND_KW_RIGHT)
 
     plt.tight_layout()
     plt.show()
 
 
-def plot_dwell_vs_delay(lf: pl.LazyFrame) -> None:
+def plot_dwell_vs_delay(lf: pl.LazyFrame, ylim=None) -> None:
     """Ø Arrival Delay (s) + Verweilzeit (%) pro Linie.
 
     Balken: Ø Arrival Delay in Sekunden, Tramlinienfarben.
@@ -292,7 +278,6 @@ def plot_dwell_vs_delay(lf: pl.LazyFrame) -> None:
     """
     _teal = cfg.COLOR_POSITIVE  # #25ac82 — konsistent mit plot_dwell_throughput
 
-    style = mpl_style()
     data, x, line_labels, lc = _dwell_data(lf)
 
     pct_verweil = (1 - data["pct_null_dwell"]) * 100
@@ -305,22 +290,22 @@ def plot_dwell_vs_delay(lf: pl.LazyFrame) -> None:
                 fontsize=8, color="#555555")
     ax.set_xticks(x)
     ax.set_xticklabels(line_labels, fontsize=9)
-    ax.set_title("Verspätung vs. Verweilzeit pro Linie", **style["title"])
-    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.spines[["left", "bottom"]].set_color(cfg.CHART_AXIS)
-    ax.tick_params(colors=cfg.CHART_AXIS_TEXT, labelsize=10)
+    ax.set_title("Delay vs. Dwell Time per Line", **TITLE_KW)
+    ax.set_ylabel("Ø Arrival Delay (s)")
+    style_ax(ax)
 
     ax_r = ax.twinx()
     ax_r.plot(x, pct_verweil, color=_teal, lw=1.5, linestyle="--",
-              marker="o", markersize=3, label="Verweilzeit (%)")
-    ax_r.set_ylabel("Verweilzeit (%)", fontsize=10, color=_teal)
+              marker="o", markersize=3, label="Dwell Time (%)")
+    ax_r.set_ylabel("Dwell Time (%)", fontsize=10, color=_teal)
     ax_r.tick_params(axis="y", colors=_teal, labelsize=9)
     ax_r.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0f%%"))
     ax_r.spines["top"].set_visible(False)
     ax_r.spines["left"].set_visible(False)
     h, l = ax_r.get_legend_handles_labels()
-    ax.legend(h, l, fontsize=9, frameon=False, loc="upper right")
+    ax.legend(h, l, **LEGEND_KW_RIGHT)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
 
     plt.tight_layout()
     plt.show()
@@ -332,13 +317,11 @@ def plot_dwell_analysis(lf: pl.LazyFrame) -> None:
     plot_dwell_vs_delay(lf)
 
 
-def plot_dwell_by_stop_position(lf: pl.LazyFrame) -> None:
+def plot_dwell_by_stop_position(lf: pl.LazyFrame, ylim=None) -> None:
     """Ø Dwell Time nach Stop-Sequenz — zeigt Puffer-Konzentration am Starthalt.
 
     Input: lf_delay (alle Halte inkl. stop_sequence == 1).
     """
-    style = mpl_style()
-
     dwell_by_seq = (
         lf
         .with_columns(
@@ -374,25 +357,24 @@ def plot_dwell_by_stop_position(lf: pl.LazyFrame) -> None:
                     arrowprops=dict(arrowstyle="-", color=cfg.CHART_AXIS, lw=0.8))
 
     rest_mean = dwell_by_seq[dwell_by_seq["stop_sequence"] > 1]["avg_dwell"].mean()
-    ax.axhline(rest_mean, color=cfg.ANNO_REF, lw=1.2, linestyle="--",
-               label=f"Ø Zwischen-/End-Halte {rest_mean:.1f}s")
+    ax.axhline(rest_mean, **median_kw(f"Ø Mid-/End-Stops {rest_mean:.1f}s"))
 
-    ax.set_title("Dwell Time nach Stop-Position — Puffer fällt auf den Starthalt",
-                 **{**style["title"], "pad": 14})
-    ax.set_xlabel("Stop-Sequenz (Position im Trip)", **style["label"])
-    ax.set_ylabel("Ø Dwell Time (s)", **style["label"])
-    ax.legend(fontsize=9, frameon=False, loc="upper right")
-    _spine_style(ax)
+    ax.set_title("Dwell Time by Stop Position — Buffer concentrates at first stop",
+                 **TITLE_KW)
+    ax.set_xlabel("Stop Sequence (position in trip)")
+    ax.set_ylabel("Ø Dwell Time (s)")
+    ax.legend(**LEGEND_KW_RIGHT)
+    style_ax(ax)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     plt.tight_layout()
     plt.show()
 
 
 # ── Section: Geografie ────────────────────────────────────────────────────────
 
-def plot_top_delay_stops(lf: pl.LazyFrame, top_n: int = 20, min_obs: int = 50_000) -> None:
+def plot_top_delay_stops(lf: pl.LazyFrame, top_n: int = 20, min_obs: int = 50_000, ylim=None) -> None:
     """Top stops by average arrival delay, horizontal bar chart."""
-    style = mpl_style()
-
     df = (
         lf
         .group_by("stop_name")
@@ -419,11 +401,13 @@ def plot_top_delay_stops(lf: pl.LazyFrame, top_n: int = 20, min_obs: int = 50_00
                 f"{val:.0f}s", va="center", fontsize=8, color=cfg.CHART_AXIS_TEXT)
     ax.set_xlim(0, df["avg_delay"].max() * 1.15)
     ax.set_title(
-        f"Top {top_n} Haltestellen — Ø Arrival Delay (min. {min_obs // 1000}k Beobachtungen)",
-        **{**style["title"], "pad": 14},
+        f"Top {top_n} Stops — Ø Arrival Delay (min. {min_obs // 1000}k observations)",
+        **TITLE_KW,
     )
-    ax.set_xlabel("Ø Delay (s)", **style["label"])
-    _spine_style(ax)
+    ax.set_xlabel("Ø Delay (s)")
+    style_ax(ax)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     plt.tight_layout()
     plt.show()
 
@@ -699,10 +683,8 @@ def plot_infra_maps(lf_delay: pl.LazyFrame, lf_clean: pl.LazyFrame) -> None:
 
 # ── Section: Ereignisse / Temporalität ───────────────────────────────────────
 
-def plot_delay_delta_timeline(lf: pl.LazyFrame) -> None:
+def plot_delay_delta_timeline(lf: pl.LazyFrame, ylim=None) -> None:
     """Täglicher Ø Delay Delta 2023–2025 — positiv = Verspätung wächst."""
-    style = mpl_style()
-
     daily = (
         lf
         .filter(pl.col("delay_delta").is_not_null())
@@ -717,26 +699,26 @@ def plot_delay_delta_timeline(lf: pl.LazyFrame) -> None:
     neg = daily["delay_delta"].where(daily["delay_delta"] < 0)
 
     fig, ax = plt.subplots(figsize=(14, 5))
-    ax.plot(daily["operating_date"], pos, lw=1.2, color=cfg.COLOR_NEGATIVE, label="Akkumulierend (≥ 0)")
-    ax.plot(daily["operating_date"], neg, lw=1.2, color=cfg.COLOR_POSITIVE, label="Abnehmend (< 0)")
-    ax.axhline(0, color=cfg.ANNO_REF, lw=1, linestyle="--")
-    ax.set_title("Täglicher Delay Delta 2023–2025 — positiv = Verspätung wächst Stop zu Stop",
-                 **{**style["title"], "pad": 14})
-    ax.set_ylabel("Ø Delay Delta (s)", **style["label"])
-    _spine_style(ax)
-    ax.legend(fontsize=9, frameon=False, loc="upper left")
+    ax.plot(daily["operating_date"], pos, lw=1.2, color=cfg.COLOR_NEGATIVE, label="Accumulating (≥ 0)")
+    ax.plot(daily["operating_date"], neg, lw=1.2, color=cfg.COLOR_POSITIVE, label="Recovering (< 0)")
+    ax.axhline(0, **median_kw("0"))
+    ax.set_title("Daily Delay Delta 2023–2025 — positive = delay growing stop to stop",
+                 **TITLE_KW)
+    ax.set_ylabel("Ø Delay Delta (s)")
+    style_ax(ax)
+    ax.legend(**LEGEND_KW_LEFT)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     plt.tight_layout()
     plt.show()
 
 
-def plot_arrival_vs_departure_timeline(lf: pl.LazyFrame) -> None:
+def plot_arrival_vs_departure_timeline(lf: pl.LazyFrame, ylim=None) -> None:
     """Daily avg arrival delay 2023–2025 — 1 kombiniertes Panel mit Event-Markern.
 
     Analog zu plot_monthly_delay_by_line: gleiche Achsen, Skala und Stil.
     Input: lf_clean (canceled=False, stop_sequence>1, kein E/L50/L51).
     """
-    style = mpl_style()
-
     _event_category_map = {
         "Super League":  "Fussball",
         "Schweizer Cup": "Fussball",
@@ -794,7 +776,7 @@ def plot_arrival_vs_departure_timeline(lf: pl.LazyFrame) -> None:
     # Schulferien bands — ymax=0.9 so they don't bleed into the legend area
     labeled = False
     for s, e in _SCHULFERIEN:
-        lbl = "Schulferien ZH" if not labeled else None
+        lbl = "School Holidays ZH" if not labeled else None
         ax.axvspan(pd.Timestamp(s), pd.Timestamp(e),
                    ymin=0, ymax=0.9, alpha=0.10, color="#999999",
                    label=lbl, zorder=0)
@@ -814,16 +796,16 @@ def plot_arrival_vs_departure_timeline(lf: pl.LazyFrame) -> None:
         shown.add(cat)
 
     # Axes — identical to plot_monthly_delay_by_line
-    ax.set_ylim(0, 140)
+    ax.set_ylim(*(ylim if ylim is not None else (0, 140)))
     ax.set_xlim(pd.Timestamp("2023-01-01"), pd.Timestamp("2026-01-15"))
     ax.xaxis.set_major_locator(mdates.MonthLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%m"))
     ax.tick_params(axis="x", labelsize=8)
     ax.yaxis.set_major_formatter(mticker.FormatStrFormatter("%ds"))
-    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax.set_title("Daily Delay Timeline 2023–2025 — Events & Schulferien",
-                 **style["title"])
-    _spine_style(ax)
+    ax.set_ylabel("Ø Arrival Delay (s)")
+    ax.set_title("Daily Delay Timeline 2023–2025 — Events & School Holidays",
+                 **TITLE_KW)
+    style_ax(ax)
 
     # Year labels in second row below month ticks
     trans = ax.get_xaxis_transform()
@@ -836,15 +818,14 @@ def plot_arrival_vs_departure_timeline(lf: pl.LazyFrame) -> None:
     # Legend: all items in one row, right-aligned
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles=handles, labels=labels,
-              fontsize=9, loc="upper right", ncol=len(handles),
-              frameon=False)
+              **{**LEGEND_KW_RIGHT, "ncol": len(handles)})
 
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.12)
     plt.show()
 
 
-def plot_dwell_scatter(lf: pl.LazyFrame) -> None:
+def plot_dwell_scatter(lf: pl.LazyFrame, ylim=None) -> None:
     """Scatter: % dwell_time=0 vs. Ø Arrival Delay pro Haltestelle.
 
     Zeigt zwei strukturelle Stop-Typen:
@@ -854,7 +835,6 @@ def plot_dwell_scatter(lf: pl.LazyFrame) -> None:
     Input: lf_clean. dwell_time wird intern aus departure/arrival_schedule berechnet.
     Filter: n >= 50.000 Beobachtungen (stabile Mittelwerte).
     """
-    style = mpl_style()
     from matplotlib.colors import LinearSegmentedColormap
     import matplotlib.patheffects as pe_mod
 
@@ -915,20 +895,18 @@ def plot_dwell_scatter(lf: pl.LazyFrame) -> None:
     cbar.ax.tick_params(labelsize=8, colors=cfg.CHART_AXIS_TEXT)
 
     # Referenzlinien
-    ax.axhline(net_mean_arr, color=cfg.ANNO_REF, lw=1.0, linestyle="--", zorder=2,
-               label=f"Netz-Ø Arrival Delay ({net_mean_arr:.0f}s)")
-    ax.axvline(net_mean_dw0, color=cfg.ANNO_REF, lw=1.0, linestyle=":", zorder=2,
-               label=f"Netz-Ø dw0% ({net_mean_dw0:.0f}%)")
+    ax.axhline(net_mean_arr, **median_kw(f"Net Ø Arrival Delay ({net_mean_arr:.0f}s)"), zorder=2)
+    ax.axvline(net_mean_dw0, **mean_kw(f"Net Ø dw0% ({net_mean_dw0:.0f}%)"), zorder=2)
 
     # Quadrant-Labels
     _qkw = dict(fontsize=8.5, alpha=0.7, style="italic", transform=ax.transAxes)
-    ax.text(0.02, 0.98, "Recovery-Anker\n(Puffer vorhanden, noch verspätet)",
+    ax.text(0.02, 0.98, "Recovery Anchors\n(buffer present, still delayed)",
             va="top", ha="left", color=cfg.COLOR_POSITIVE, **_qkw)
-    ax.text(0.98, 0.98, "Akkumulations-Fallen\n(kein Puffer + hoher Delay)",
+    ax.text(0.98, 0.98, "Accumulation Traps\n(no buffer + high delay)",
             va="top", ha="right", color=cfg.COLOR_NEGATIVE, **_qkw)
-    ax.text(0.98, 0.02, "Früh-Route\n(kein Puffer, noch wenig akkumuliert)",
+    ax.text(0.98, 0.02, "Early Route\n(no buffer, little accumulated yet)",
             va="bottom", ha="right", color=cfg.ANNO_REF, **_qkw)
-    ax.text(0.02, 0.02, "Gut geplante Stops\n(Puffer + pünktlich)",
+    ax.text(0.02, 0.02, "Well-planned Stops\n(buffer + on time)",
             va="bottom", ha="left", color=cfg.ANNO_REF, **_qkw)
 
     # ── Extremstops annotieren ────────────────────────────────────────────────
@@ -959,21 +937,21 @@ def plot_dwell_scatter(lf: pl.LazyFrame) -> None:
         )
 
     # ── Achsen + Styling ──────────────────────────────────────────────────────
-    ax.set_xlabel("% Halte mit dwell_time = 0s (kein geplanter Puffer)", **style["label"])
-    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax.set_title("Stop-Typen: Akkumulations-Fallen vs. Recovery-Anker",
-                 **{**style["title"], "pad": 14})
+    ax.set_xlabel("% Stops with dwell_time = 0s (no scheduled buffer)")
+    ax.set_ylabel("Ø Arrival Delay (s)")
+    ax.set_title("Stop Types: Accumulation Traps vs. Recovery Anchors",
+                 **TITLE_KW)
     ax.set_xlim(10, 108)
-    ax.set_ylim(30, 140)
-    _spine_style(ax)
+    ax.set_ylim(*(ylim if ylim is not None else (30, 140)))
+    style_ax(ax)
     ax.grid(color="#eeeeee", lw=0.7, zorder=0)
-    ax.legend(fontsize=8.5, frameon=False, loc="center right")
+    ax.legend(**{**LEGEND_KW, "loc": "center right"})
 
     plt.tight_layout()
     plt.show()
 
 
-def plot_dwell_line_scatter(lf: pl.LazyFrame) -> None:
+def plot_dwell_line_scatter(lf: pl.LazyFrame, ylim=None) -> None:
     """Scatter: struktureller Aufbau pro Fahrt vs. Ø Arrival Delay — pro Linie.
 
     x = structural_per_trip (mean delay_delta × avg_stops) — kumulierter Aufbau
@@ -984,7 +962,6 @@ def plot_dwell_line_scatter(lf: pl.LazyFrame) -> None:
     Erklärt: warum L11 trotz gleicher dw0-Rate wie L6 viel mehr Delay hat
     → längere Route + höhere Ausgangs-Verspätung.
     """
-    style = mpl_style()
     from matplotlib.colors import LinearSegmentedColormap
     import matplotlib.patheffects as pe_mod
 
@@ -1017,7 +994,7 @@ def plot_dwell_line_scatter(lf: pl.LazyFrame) -> None:
           .merge(avg_stops_line, on="line_name")
           .assign(
               structural=lambda d: d["mean_dd"] * d["avg_stops"],
-              line_str=lambda d: "L" + d["line_name"].astype(str),
+              line_str=lambda d: d["line_name"].astype(str).apply(fmt_line_legend),
           ))
 
     cmap = LinearSegmentedColormap.from_list(
@@ -1060,22 +1037,24 @@ def plot_dwell_line_scatter(lf: pl.LazyFrame) -> None:
     for n_stops in [10, 18, 26]:
         sz = (n_stops - s_min) / (s_max - s_min) * 300 + 60
         ax.scatter([], [], s=sz, color="#bbbbbb", alpha=0.8,
-                   edgecolors="#888888", label=f"Ø {n_stops} Halte")
-    ax.legend(title="Routenlänge", fontsize=8.5, frameon=False,
+                   edgecolors="#888888", label=f"Ø {n_stops} stops")
+    ax.legend(title="Route Length", fontsize=8.5, frameon=False,
               title_fontsize=8.5, loc="upper left")
 
-    ax.set_xlabel("Strukturfaktor: Ø delay_delta × Ø Halte / Fahrt (s)", **style["label"])
-    ax.set_ylabel("Ø Arrival Delay (s)", **style["label"])
-    ax.set_title("Linien-Profil: Struktureller Aufbau vs. Ankunftsverspätung",
-                 **{**style["title"], "pad": 14})
-    _spine_style(ax)
+    ax.set_xlabel("Structural factor: Ø delay_delta × Ø stops / trip (s)")
+    ax.set_ylabel("Ø Arrival Delay (s)")
+    ax.set_title("Line Profile: Structural Build-up vs. Arrival Delay",
+                 **TITLE_KW)
+    style_ax(ax)
     ax.grid(color="#eeeeee", lw=0.7, zorder=0)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
 
     plt.tight_layout()
     plt.show()
 
 
-def plot_lever_comparison(lf: pl.LazyFrame) -> None:
+def plot_lever_comparison(lf: pl.LazyFrame, ylim=None) -> None:
     """Hebel-Vergleich: Fahrplan-Struktur vs. externe Einflussfaktoren.
 
     Strukturfaktor dynamisch aus lf berechnet: mean(delay_delta) × avg_stops_per_trip.
@@ -1084,8 +1063,6 @@ def plot_lever_comparison(lf: pl.LazyFrame) -> None:
         Strukturfaktor = kumulierter Verspätungsaufbau pro Ø Fahrt
         Externe        = Δ Arrival Delay pro Halt vs. Baseline-Bedingung
     """
-    style = mpl_style()
-
     # ── Struktureller Hebel (dynamisch) ───────────────────────────────────────
     mean_delta = (
         lf
@@ -1106,18 +1083,18 @@ def plot_lever_comparison(lf: pl.LazyFrame) -> None:
     # ── Externe Faktoren (verifiziert aus 03_analysis_*.ipynb) ────────────────
     # Δ Arrival Delay (s) — Aufschlag vs. Baseline-Bedingung, pro Halt
     _ext = [
-        ("Schnee",         +54.0, "#5b8db8"),   # F-WEAT-01
-        ("Starkregen",     +22.0, "#5b8db8"),   # F-WEAT-02
+        ("Snow",           +54.0, "#5b8db8"),   # F-WEAT-01
+        ("Heavy Rain",     +22.0, "#5b8db8"),   # F-WEAT-02
         ("November",       +16.4, "#7b9fc4"),   # F-TIME-05
-        ("Abend (21h)",    +11.7, "#7b9fc4"),   # F-TIME-01
-        ("Grossereignis",  +10.5, "#9bb5d0"),   # F-EVT-01
-        ("Donnerstag",     + 4.2, "#9bb5d0"),   # F-TIME-03
-        ("Feiertag",       - 9.9, cfg.COLOR_POSITIVE),  # F-EVT-04
+        ("Evening (21h)",  +11.7, "#7b9fc4"),   # F-TIME-01
+        ("Major Event",    +10.5, "#9bb5d0"),   # F-EVT-01
+        ("Thursday",       + 4.2, "#9bb5d0"),   # F-TIME-03
+        ("Holiday",        - 9.9, cfg.COLOR_POSITIVE),  # F-EVT-04
     ]
 
     # ── Daten zusammenstellen ─────────────────────────────────────────────────
     struct_label = (
-        f"Fahrplan-Struktur\n(Ø {avg_stops:.0f} Halte × {mean_delta:.1f}s / Halt)"
+        f"Schedule Structure\n(Ø {avg_stops:.0f} stops × {mean_delta:.1f}s / stop)"
     )
     labels = [struct_label] + [f[0] for f in _ext]
     values = [structural]   + [f[1] for f in _ext]
@@ -1155,18 +1132,18 @@ def plot_lever_comparison(lf: pl.LazyFrame) -> None:
     ax.axvline(0, color=cfg.ANNO_REF, lw=0.9, alpha=0.7, zorder=2)
 
     # Bereichs-Labels (links der Y-Achse)
-    ax.text(-x_abs_max * 0.025, n - 1, "STRUKTUR",
+    ax.text(-x_abs_max * 0.025, n - 1, "STRUCTURE",
             ha="right", va="center", fontsize=7.5,
             color=cfg.COLOR_SIGNAL, fontweight="bold")
     ext_mid_y = (y_pos[1] + y_pos[-1]) / 2
-    ax.text(-x_abs_max * 0.025, ext_mid_y, "EXTERN",
+    ax.text(-x_abs_max * 0.025, ext_mid_y, "EXTERNAL",
             ha="right", va="center", fontsize=7.5,
             color=cfg.CHART_AXIS_TEXT, fontweight="bold")
 
     # Einheiten-Hinweis (oben rechts, italic)
     ax.text(0.99, 0.99,
-            "Strukturfaktor: kumulierter Aufbau pro Fahrt\n"
-            "Externe Faktoren: Δ Arrival Delay pro Halt vs. Baseline",
+            "Structural factor: cumulative build-up per trip\n"
+            "External factors: Δ Arrival Delay per stop vs. baseline",
             transform=ax.transAxes, ha="right", va="top",
             fontsize=7.5, color=cfg.ANNO_REF, style="italic",
             linespacing=1.5)
@@ -1174,13 +1151,15 @@ def plot_lever_comparison(lf: pl.LazyFrame) -> None:
     # Achsen + Styling
     ax.set_yticks(y_pos)
     ax.set_yticklabels(labels, fontsize=10)
-    ax.set_xlabel("Sekunden (s)", **style["label"])
+    ax.set_xlabel("Seconds (s)")
     ax.set_title(
-        "Verspätungs-Hebel: Fahrplan-Struktur vs. Externe Faktoren",
-        **{**style["title"], "pad": 14},
+        "Delay Levers: Schedule Structure vs. External Factors",
+        **TITLE_KW,
     )
-    _spine_style(ax)
+    style_ax(ax)
     ax.grid(axis="x", color="#eeeeee", lw=0.8, zorder=0)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     ax.set_xlim(
         left=min(values) * 1.8,
         right=x_abs_max * 1.30,
