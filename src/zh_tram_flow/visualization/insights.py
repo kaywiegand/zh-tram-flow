@@ -482,8 +482,7 @@ def _district_map_layout(title_text: str) -> dict:
                     center={"lat": 47.378, "lon": 8.540}),
         margin={"r": 0, "t": 40, "l": 0, "b": 0},
         height=500, showlegend=False,
-        title=dict(text=title_text,
-                   font=dict(size=14, color=cfg.CHART_TITLE), x=0, xanchor="left"),
+        title=plotly_title(title_text),
     )
 
 
@@ -701,7 +700,6 @@ def plot_delay_delta_timeline(lf: pl.LazyFrame, ylim=None) -> None:
     fig, ax = plt.subplots(figsize=(14, 5))
     ax.plot(daily["operating_date"], pos, lw=1.2, color=cfg.COLOR_NEGATIVE, label="Accumulating (≥ 0)")
     ax.plot(daily["operating_date"], neg, lw=1.2, color=cfg.COLOR_POSITIVE, label="Recovering (< 0)")
-    ax.axhline(0, **median_kw("0"))
     ax.set_title("Daily Delay Delta 2023–2025 — positive = delay growing stop to stop",
                  **TITLE_KW)
     ax.set_ylabel("Ø Delay Delta (s)")
@@ -1038,8 +1036,8 @@ def plot_dwell_line_scatter(lf: pl.LazyFrame, ylim=None) -> None:
         sz = (n_stops - s_min) / (s_max - s_min) * 300 + 60
         ax.scatter([], [], s=sz, color="#bbbbbb", alpha=0.8,
                    edgecolors="#888888", label=f"Ø {n_stops} stops")
-    ax.legend(title="Route Length", fontsize=8.5, frameon=False,
-              title_fontsize=8.5, loc="upper left")
+    ax.legend(title="Route Length", fontsize=9,
+              title_fontsize=9, loc="upper left")
 
     ax.set_xlabel("Structural factor: Ø delay_delta × Ø stops / trip (s)")
     ax.set_ylabel("Ø Arrival Delay (s)")
@@ -1127,9 +1125,6 @@ def plot_lever_comparison(lf: pl.LazyFrame, ylim=None) -> None:
 
     # Trennlinie Strukturfaktor vs. externe Faktoren
     ax.axhline(n - 1.6, color=cfg.ANNO_REF, lw=0.8, linestyle="--", zorder=2)
-
-    # Null-Linie
-    ax.axvline(0, color=cfg.ANNO_REF, lw=0.9, alpha=0.7, zorder=2)
 
     # Bereichs-Labels (links der Y-Achse)
     ax.text(-x_abs_max * 0.025, n - 1, "STRUCTURE",

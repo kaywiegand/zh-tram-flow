@@ -283,7 +283,7 @@ def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None, ylim_count=
     bar_colors = [LINE_COLORS.get(ln, "#888") for ln in changed["line"]]
     bars = ax2.barh(changed["line"], changed["net"], color=bar_colors, edgecolor="white", linewidth=0.5)
     ax2.bar_label(bars, labels=[f"+{v}" if v > 0 else str(v) for v in changed["net"]], padding=3, fontsize=9)
-    ax2.set_xlabel("Netto neue Haltestellen (j23 → j24)")
+    ax2.set_xlabel("Net new stops (Dec 2023 → Dec 2024)")
     ax2.set_title("Net Change per Line — Schedule Change Dec 2023", **TITLE_KW)
     if ylim_net is not None:
         ax2.set_ylim(*ylim_net)
@@ -412,7 +412,7 @@ def table_delay_before_after_switch(lf_all) -> pd.DataFrame:
 
 
 @auto_export("network-einlaufzeit")
-def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
+def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None, ylim=None, save_as=None):
     """Einlaufzeit: Neue vs. bestehende Haltestellen ab Jan 2024 — alle Linien."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -475,6 +475,9 @@ def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
 
     plt.suptitle("Ramp-up: New vs. Existing Stops from Jan 2024 — All Lines",
                  fontsize=11, fontweight="bold", x=0.05, ha="left", y=1.01)
+    if ylim is not None:
+        for ax in axes_flat[:len(all_lines_sorted)]:
+            ax.set_ylim(*ylim)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -522,7 +525,7 @@ def table_einlaufzeit(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
 
 
 @auto_export("network-hotspots")
-def plot_hotspots(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
+def plot_hotspots(changes: pd.DataFrame, lf_all, cfg=None, ylim=None, ylim_scatter=None, save_as=None):
     """Haltestellen-Hotspots nach Linienanzahl + Linienanzahl vs. Verspätung Scatter."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -584,6 +587,10 @@ def plot_hotspots(changes: pd.DataFrame, lf_all, cfg=None, save_as=None):
     ax2.legend(**LEGEND_KW_RIGHT)
     style_ax(ax2)
 
+    if ylim is not None:
+        ax.set_ylim(*ylim)
+    if ylim_scatter is not None:
+        ax2.set_ylim(*ylim_scatter)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -824,7 +831,7 @@ def table_service_quality_by_district(lf_all) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 @auto_export("network-line-profiles")
-def plot_line_profiles(lf_all: pl.LazyFrame, cfg=None, save_as=None) -> None:
+def plot_line_profiles(lf_all: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> None:
     """Liniencharakter-Profil: Strukturelle Kennzahlen aller Tram-Linien als Heatmap.
 
     Fünf Dimensionen je Linie:

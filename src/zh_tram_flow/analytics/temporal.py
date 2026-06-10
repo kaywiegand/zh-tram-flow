@@ -577,11 +577,11 @@ def plot_gtfs_year_comparison(lf_delay, cfg=None, ylim=None, save_as=None):
         ax2.set_xticks(x)
         ax2.set_xticklabels([fmt_line_legend(str(l)) for l in pivot.index], fontsize=11)
         ax2.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
-        ax2.set_title("Umgebaute Linien 9, 11, 13\nj23 vs. j24_j25 (Vor/Nach-Vergleich)", **TITLE_KW)
+        ax2.set_title("Restructured Lines 9, 11, 13 — Before/After Comparison", **TITLE_KW)
         ax2.legend(**LEGEND_KW_RIGHT)
         ax2.spines[["top", "right"]].set_visible(False)
     else:
-        ax2.text(0.5, 0.5, "Keine Daten für Linien 9, 11, 13", ha="center", va="center",
+        ax2.text(0.5, 0.5, "No data for Lines 9, 11, 13", ha="center", va="center",
                  transform=ax2.transAxes, fontsize=12)
 
     if ylim is not None:

@@ -464,7 +464,7 @@ def table_is_hot(lf: pl.LazyFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 @auto_export("meteo-multicollinearity-matrix")
-def plot_multicollinearity_matrix(lf: pl.LazyFrame, cfg=None, save_as=None) -> plt.Figure:
+def plot_multicollinearity_matrix(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> plt.Figure:
     """Heatmap of Pearson correlations: weather × season × delay."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -1220,7 +1220,7 @@ def plot_weather_stop_map_combined(
         showlegend=False,
         marker=dict(line=dict(color="#888888", width=1.5), opacity=0.3),
         hovertemplate="<b>Kreis %{location}</b><br>Ø Delay (Schnee): %{z:.1f}s<extra></extra>",
-        name="Stadtkreise Schnee",
+        name="Districts Snow",
     ))
 
     # 2. Snow K-labels (carries the legend entry — one click toggles choropleth too)
@@ -1231,7 +1231,7 @@ def plot_weather_stop_map_combined(
         hoverinfo="skip",
         legendgroup="Districts Snow",
         showlegend=True,
-        name="Stadtkreise Schnee",
+        name="Districts Snow",
     ))
 
     # 3. Heavy rain district choropleth
@@ -1247,7 +1247,7 @@ def plot_weather_stop_map_combined(
         showlegend=False,
         marker=dict(line=dict(color="#888888", width=1.5), opacity=0.3),
         hovertemplate="<b>Kreis %{location}</b><br>Ø Delay (Starkregen): %{z:.1f}s<extra></extra>",
-        name="Stadtkreise Starkregen",
+        name="Districts Heavy Rain",
     ))
 
     # 4. Heavy rain K-labels
@@ -1258,7 +1258,7 @@ def plot_weather_stop_map_combined(
         hoverinfo="skip",
         legendgroup="Districts Heavy Rain",
         showlegend=True,
-        name="Stadtkreise Starkregen",
+        name="Districts Heavy Rain",
     ))
 
     # 5. All stops — gray background
@@ -1269,7 +1269,7 @@ def plot_weather_stop_map_combined(
         marker=dict(size=5, color="#666666", opacity=0.55),
         text=all_stops["stop_name"].str.replace("Zürich, ", ""),
         hovertemplate="<b>%{text}</b><extra></extra>",
-        name="Haltestellen",
+        name="Stops",
     ))
 
     # 6. Snow stop bubbles — reference shared coloraxis so colorbar is always visible
@@ -1290,7 +1290,7 @@ def plot_weather_stop_map_combined(
             "Ø Delay (Schnee): %{customdata[0]:.1f}s<br>"
             "N: %{customdata[1]:,.0f}<extra></extra>"
         ),
-        name="HS Verspätung bei Schnee",
+        name="Stop Delays — Snow",
     ))
 
     # 7. Heavy rain stop bubbles — same shared coloraxis
@@ -1311,7 +1311,7 @@ def plot_weather_stop_map_combined(
             "Ø Delay (Starkregen): %{customdata[0]:.1f}s<br>"
             "N: %{customdata[1]:,.0f}<extra></extra>"
         ),
-        name="HS Verspätung bei Starkregen",
+        name="Stop Delays — Heavy Rain",
     ))
 
     fig.update_layout(

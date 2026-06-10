@@ -104,7 +104,7 @@ def _load_gtfs_shapes(lines: list[str], year: str = "2025") -> pd.DataFrame:
 
 
 @auto_export("spatial-top-delay-stops")
-def plot_top_delay_stops(lf, cfg=None, save_as=None):
+def plot_top_delay_stops(lf, cfg=None, ylim=None, save_as=None):
     """Top 20 Haltestellen nach Ø Delay + Top 10 Frühankünfte (Terminus)."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -158,6 +158,8 @@ def plot_top_delay_stops(lf, cfg=None, save_as=None):
     ax2.invert_yaxis()
     ax2.spines[["top", "right"]].set_visible(False)
 
+    if ylim is not None:
+        ax1.set_ylim(*ylim)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -190,7 +192,7 @@ def table_top_delay_stops(lf) -> pd.DataFrame:
 
 
 @auto_export("spatial-lines-density-vs-delay")
-def plot_lines_density_vs_delay(lf, cfg=None, save_as=None):
+def plot_lines_density_vs_delay(lf, cfg=None, ylim=None, save_as=None):
     """Linien-Dichte vs. Verspätung — Scatter + Top 15 nach Linienanzahl."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -255,6 +257,8 @@ def plot_lines_density_vs_delay(lf, cfg=None, save_as=None):
         r = lines_per_stop[lines_per_stop["stop_name"] == s].iloc[0]
         print(f"  {s}: {r['n_lines']:.0f} Linien, Ø {r['avg_delay']:.1f}s")
 
+    if ylim is not None:
+        ax1.set_ylim(*ylim)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -285,7 +289,7 @@ def table_lines_density_vs_delay(lf) -> pd.DataFrame:
 
 
 @auto_export("spatial-start-stop-diagnosis")
-def plot_start_stop_diagnosis(lf, cfg=None, save_as=None):
+def plot_start_stop_diagnosis(lf, cfg=None, ylim=None, save_as=None):
     """Starthaltestellen-Diagnose: Frühankunft vs. Delta — Kandidaten identifizieren."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -355,6 +359,8 @@ def plot_start_stop_diagnosis(lf, cfg=None, save_as=None):
                   **TITLE_KW)
     ax2.spines[["top", "right"]].set_visible(False)
 
+    if ylim is not None:
+        ax1.set_ylim(*ylim)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -550,7 +556,7 @@ def table_district_analysis(lf) -> pd.DataFrame:
 
 
 @auto_export("spatial-line-analysis")
-def plot_line_analysis(lf, cfg=None, save_as=None):
+def plot_line_analysis(lf, cfg=None, ylim_arr=None, ylim_otp=None, ylim_delta=None, save_as=None):
     """Linien-Profil: Arrival Delay / OTP / Delay Delta nach Linie — drei Panels."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -606,6 +612,12 @@ def plot_line_analysis(lf, cfg=None, save_as=None):
     axes[2].spines[["top", "right"]].set_visible(False)
 
     plt.suptitle("Line Profile: Arrival Delay · OTP · Delta", fontsize=11, fontweight="bold", x=0.05, ha="left", y=1.01)
+    if ylim_arr is not None:
+        axes[0].set_ylim(*ylim_arr)
+    if ylim_otp is not None:
+        axes[1].set_ylim(*ylim_otp)
+    if ylim_delta is not None:
+        axes[2].set_ylim(*ylim_delta)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -639,7 +651,7 @@ def table_line_analysis(lf) -> pd.DataFrame:
 
 
 @auto_export("spatial-dwell-time")
-def plot_dwell_time(lf, cfg=None, save_as=None):
+def plot_dwell_time(lf, cfg=None, ylim_dist=None, ylim_delay=None, ylim_line=None, save_as=None):
     """Feature dwell_time: Verteilung / Delay-Korrelation / nach Linie — drei Panels."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -733,6 +745,12 @@ def plot_dwell_time(lf, cfg=None, save_as=None):
     axes[2].spines[["top", "right"]].set_visible(False)
 
     plt.suptitle("Feature dwell_time — Scheduled Buffer per Stop", fontsize=11, fontweight="bold", x=0.05, ha="left", y=1.01)
+    if ylim_dist is not None:
+        axes[0].set_ylim(*ylim_dist)
+    if ylim_delay is not None:
+        axes[1].set_ylim(*ylim_delay)
+    if ylim_line is not None:
+        axes[2].set_ylim(*ylim_line)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -859,7 +877,7 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
         showlegend=False,
         marker=dict(line=dict(color="#888888", width=1.5), opacity=0.55),
         hovertemplate="<b>Kreis %{location}</b><br>Ø Delay: %{z:.1f}s<extra></extra>",
-        name="Stadtkreise",
+        name="Districts",
     ))
 
     # Layer 2: All stops as gray dots (network skeleton)
@@ -870,7 +888,7 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
         marker=dict(size=5, color="#666666", opacity=0.55),
         text=all_stops["stop_name"].str.replace("Zürich, ", ""),
         hovertemplate="<b>%{text}</b><extra></extra>",
-        name="Alle Haltestellen",
+        name="All Stops",
     ))
 
     # Layer 3: Highlighted stops — bubbles sized and colored by delay
@@ -894,7 +912,7 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
             "OTP: %{customdata[1]:.1f}%<br>"
             "N: %{customdata[2]:,.0f}<extra></extra>"
         ),
-        name="HS Verspätungen",
+        name="Stop Delays",
     ))
 
     # Layer 4: K-labels — same legendgroup as choropleth → one click toggles both
@@ -907,7 +925,7 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
         hoverinfo="skip",
         legendgroup="Districts",
         showlegend=True,
-        name="Stadtkreise",
+        name="Districts",
     ))
 
     fig.update_layout(
@@ -1005,7 +1023,7 @@ def plot_line_delay_map(lf: pl.LazyFrame, cfg=None, min_n: int = 5000) -> None:
         marker=dict(size=5, color="#aaaaaa", opacity=0.35),
         text=all_stops["stop_name"].str.replace("Zürich, ", ""),
         hovertemplate="<b>%{text}</b><extra></extra>",
-        name="Alle Haltestellen",
+        name="All Stops",
     ))
 
     for i, line in enumerate(line_avg):
@@ -1045,7 +1063,7 @@ def plot_line_delay_map(lf: pl.LazyFrame, cfg=None, min_n: int = 5000) -> None:
 # ---------------------------------------------------------------------------
 
 @auto_export("spatial-line-hour-heatmap")
-def plot_line_hour_heatmap(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
+def plot_line_hour_heatmap(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> None:
     """Heatmap: Linie × Stunde — Ø arrival_delay. Zeigt wann welche Linie am stärksten leidet."""
     from wgnd.core.theme import mpl_style
     cfg = _get_cfg(cfg)
@@ -2341,7 +2359,7 @@ def table_line_context_map(
 # ---------------------------------------------------------------------------
 
 @auto_export("spatial-cascade-effect")
-def plot_cascade_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
+def plot_cascade_effect(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> None:
     """Kaskadeneffekt: Pearson-r zwischen delay(Halt n) und delay(Halt n+1) je Linie.
 
     Misst wie stark sich Verspätung innerhalb einer Fahrt von Halt zu Halt überträgt.
@@ -2415,6 +2433,8 @@ def plot_cascade_effect(lf: pl.LazyFrame, cfg=None, save_as=None) -> None:
     )
     ax.legend(**LEGEND_KW_RIGHT)
     style_ax(ax)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
