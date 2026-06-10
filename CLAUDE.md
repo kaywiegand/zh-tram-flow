@@ -52,6 +52,15 @@ from zh_tram_flow.settings import setup_plotting, logger
 - Lernmomente mit Polars explizit kommentieren — dieses Projekt ist auch Lernprojekt
 - Alle Outputs (Charts, Daten) → `reports/` oder `data/processed/`, nie im Notebook-Root
 
+## Style-Gate — automatisch aktiv
+
+`scripts/check_style.py` läuft automatisch nach jedem Edit an analytics- oder visualization-Python-Files.
+Bei Verstößen erscheint eine Warnung im Chat. Manuell ausführen:
+```bash
+source .venv/bin/activate && python scripts/check_style.py
+```
+Regeln: TITLE_KW, plotly_title(), LEGEND_KW_RIGHT, English labels, ylim-Parameter, keine Nulllinien.
+
 ## Qualitätssicherung — Pflicht nach jeder Code-Änderung
 
 Nach jeder nicht-trivialen Änderung an Python-Files **vor** der Fertigmeldung:
