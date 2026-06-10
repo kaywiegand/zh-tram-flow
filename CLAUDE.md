@@ -54,8 +54,15 @@ from zh_tram_flow.settings import setup_plotting, logger
 
 ## Style-Gate — automatisch aktiv
 
-`scripts/check_style.py` läuft automatisch nach jedem Edit an analytics- oder visualization-Python-Files.
-Bei Verstößen erscheint eine Warnung im Chat. Manuell ausführen:
+`scripts/check_style.py` läuft via PostToolUse-Hook automatisch nach jedem Edit an
+`analytics/*.py` und `visualization/*.py`. Bei Verstößen erscheint eine Warnung.
+
+**Session-Start-Pflicht für Claude:**
+1. Prüfen ob `.claude/settings.json` existiert → Hooks sind aktiv
+2. Kay beim ersten Edit darauf hinweisen: "Hook ist konfiguriert — style-check läuft automatisch"
+3. Bei neuem Session-Start Kay einmalig sagen: "Bitte /hooks öffnen damit der Settings-Watcher die Hooks aufnimmt"
+
+Manuell ausführen:
 ```bash
 source .venv/bin/activate && python scripts/check_style.py
 ```
