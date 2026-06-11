@@ -317,7 +317,7 @@ uv run streamlit run apps/dashboard/app.py
 
 **Kay Alexander Wiegand**
 Senior Consultant · Data Scientist · Berlin
-[LinkedIn](https://linkedin.com/in/kaywiegand) · [GitHub](https://github.com/kaywiegand)
+[LinkedIn](https://de.linkedin.com/in/kaywiegand) · [GitHub](https://github.com/kaywiegand)
 
 ---
 

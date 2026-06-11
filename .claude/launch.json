@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "zh-tram-reports",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8503", "--directory", "public"],
+      "port": 8503
+    },
+    {
       "name": "zh-tram-dashboard",
       "runtimeExecutable": "uv",
       "runtimeArgs": ["run", "streamlit", "run", "apps/dashboard/app.py", "--server.port", "8502", "--server.headless", "true"],

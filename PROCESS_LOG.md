@@ -1125,3 +1125,21 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - **README Notebooks-Tabelle**: bereits korrekt (06-6 + 06-7 vorhanden) — kein Fix nötig
 
 **Nächster Schritt:** `/project-case check` → `/project-case story` → Portfolio-Aufbereitung
+
+---
+
+### 2026-06-11 — Post-Review Fixes + PDF Export
+
+**Was wurde gemacht:**
+
+- **`analytics/network.py`**: `@auto_export("network-einlaufzeit")` → `"network-ramp-up"` — Export-Filename war nach Funktionsrename noch deutsch
+- **README.md**: LinkedIn-URL korrigiert auf `https://de.linkedin.com/in/kaywiegand`
+- **`docs/exports/report.pdf`**: PDF-Export aus `public/report.html` via WeasyPrint erstellt (87 KB) — schließt die letzte Lücke in den Communication-Exports
+- **`.claude/launch.json`**: committiert (Entwicklungsumgebungs-Konfiguration)
+- **ROADMAP Phase 5**: bleibt offen — Dashboard (Phase 5) ist laut Kay noch nicht fertig; der vorhandene `apps/dashboard/app.py` ist ein Entwicklungsstand, keine abgeschlossene Phase
+
+**Entscheidungen:**
+
+- WeasyPrint für PDF-Export: HTML-basierte Charts (Plotly) werden nicht gerendert, aber Layout und Text sind vollständig — ausreichend für Zielgruppe G/H (Obsidian, AI-Tools)
+
+**Nächster Schritt:** Phase 5 Dashboard fertigstellen, dann `/project-case check`

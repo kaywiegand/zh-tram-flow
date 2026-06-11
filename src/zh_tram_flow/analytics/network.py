@@ -412,7 +412,7 @@ def table_delay_before_after_switch(lf_all) -> pd.DataFrame:
     )
 
 
-@auto_export("network-einlaufzeit")
+@auto_export("network-ramp-up")
 def plot_ramp_up(changes: pd.DataFrame, lf_all, cfg=None, ylim=None, save_as=None):
     """Ramp-up: New vs. existing stops from Jan 2024 — all lines."""
     cfg = _get_cfg(cfg)
