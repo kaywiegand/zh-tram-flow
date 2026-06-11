@@ -1,0 +1,109 @@
+{
+  "project": {
+    "name": "Zürich Tram Flow",
+    "slug": "zh-tram-flow",
+    "type": "DANSC",
+    "description": "Delay analysis and prediction across Zürich's tram network — 94.4M stop events, 3 years, 16 lines.",
+    "thesis": "Delays in Zürich's tram network are predictable because they are embedded in schedule design, not random operations.",
+    "stage": "Phase 4 complete — LightGBM v2 trained and evaluated",
+    "period": "2023–2025"
+  },
+  "dataset": {
+    "source": "opentransportdata.swiss · Stadt Zürich OGD · ZVV GTFS",
+    "rows_total": 94400000,
+    "rows_model": 85000000,
+    "columns": 26,
+    "size_mb": 541,
+    "granularity": "per stop arrival/departure event",
+    "network": "VBZ Zürich — 16 tram lines",
+    "license": "Open Government Data (OGD)"
+  },
+  "findings": {
+    "total": 63,
+    "key": [
+      {
+        "id": "F-SPAT-01",
+        "dimension": "Spatial",
+        "finding": "Peripheral corridors dominate — Friedhof Enzenbühl (93.8s) and Balgrist (85.2s) are the worst stops, while central Paradeplatz performs well.",
+        "signal": "K11/K12 high-risk districts"
+      },
+      {
+        "id": "F-TEMP-01",
+        "dimension": "Temporal",
+        "finding": "Peak delay at 21h (post-event wave), not morning rush. Thursday is worst weekday.",
+        "signal": "21h avg. 67.9s"
+      },
+      {
+        "id": "F-WEAT-01",
+        "dimension": "Weather",
+        "finding": "Snow is the strongest single factor, geographically separable from rain.",
+        "signal": "Snow +54s, OTP −10.9pp"
+      },
+      {
+        "id": "F-EVNT-01",
+        "dimension": "Events",
+        "finding": "Large events add delay during 18–22h. Public holidays are the best day type.",
+        "signal": "Events +10.5s · Holidays −9.9s"
+      },
+      {
+        "id": "F-NET-07",
+        "dimension": "Network",
+        "finding": "Cascade effect confirmed: Pearson r ≥ 0.85 between consecutive stop delays within a trip.",
+        "signal": "prev_trip_delay top-2 feature in LightGBM v2"
+      }
+    ]
+  },
+  "model": {
+    "target": "arrival_delay (seconds)",
+    "strategy": "temporal train/test split — 2023–2024 train, 2025 hold-out test",
+    "baselines": [
+      { "name": "Stop Mean Baseline", "test_mae_s": 50.0 }
+    ],
+    "models": [
+      {
+        "name": "LightGBM v1",
+        "test_mae_s": 45.7,
+        "mbe_s": 8.3,
+        "features": 32,
+        "notes": "temporal split, native categorical"
+      },
+      {
+        "name": "LightGBM v2",
+        "test_mae_s": 18.56,
+        "mbe_s": -0.69,
+        "improvement_vs_baseline_pct": -63,
+        "notes": "added prev_trip_delay + stop_sequence_pct"
+      }
+    ],
+    "top_features": ["stop_name", "prev_trip_delay", "hour", "line_name", "has_snow"]
+  },
+  "stack": {
+    "language": "Python 3.10",
+    "data": ["Polars 0.20+", "Pandas"],
+    "ml": ["LightGBM 4.0+"],
+    "viz": ["Plotly", "Matplotlib", "Seaborn"],
+    "packaging": "uv + pyproject.toml",
+    "notebooks": "JupyterLab"
+  },
+  "artifacts": {
+    "landing_page": "https://kaywiegand.github.io/zh-tram-flow/landingpage.html",
+    "artifact_hub": "https://kaywiegand.github.io/zh-tram-flow/",
+    "full_report": "https://kaywiegand.github.io/zh-tram-flow/report.html",
+    "presentation": "https://kaywiegand.github.io/zh-tram-flow/presentation.html",
+    "dashboard": "https://zh-tram-flow.streamlit.app",
+    "github": "https://github.com/kaywiegand/zh-tram-flow",
+    "notebooks": 18,
+    "charts_exported": 64
+  },
+  "author": {
+    "name": "Kay Alexander Wiegand",
+    "role": "Senior Consultant · Data Scientist",
+    "location": "Berlin",
+    "linkedin": "https://linkedin.com/in/kaywiegand",
+    "github": "https://github.com/kaywiegand"
+  },
+  "meta": {
+    "generated": "2026-06-11",
+    "format_version": "1.0"
+  }
+}

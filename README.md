@@ -151,9 +151,11 @@ zh-tram-flow/
 │   └── 06_prediction_5-comparison.ipynb ← Model comparison + final verdict
 │
 ├── public/
-│   ├── index.html                     ← Full narrative report (3-layer: Scan · Dive · Deep)
+│   ├── index.html                     ← Artifact hub (GitHub Pages entry)
+│   ├── report.html                    ← Full narrative report (3-layer: Scan · Dive · Deep)
 │   ├── presentation.html              ← Slide deck (reveal.js)
-│   ├── img/                           ← All exported charts (21 PNGs + interactive HTML)
+│   ├── landingpage.html               ← Landing page for social / HR
+│   ├── img/                           ← All exported charts (64 PNGs + interactive HTML)
 │   └── mds/portfolio.md              ← Portfolio interface file
 │
 ├── src/zh_tram_flow/                  ← Importable Python package
