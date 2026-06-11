@@ -53,7 +53,7 @@ def setup_plotting() -> None:
         "ytick.color":            "#999999",
         "xtick.labelsize":        9,
         "ytick.labelsize":        9,
-        "axes.labelsize":         10,
+        "axes.labelsize":         9,
         "axes.labelcolor":        "#888888",   # leicht heller
 
         # Legende — kein Kasten, eine horizontale Zeile, oben rechts, dezent
@@ -88,3 +88,9 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger("project")
+
+# Kaleido / Choreographer — Plotly static export, verbose INFO suppressed
+logging.getLogger("kaleido").setLevel(logging.WARNING)
+logging.getLogger("choreographer").setLevel(logging.WARNING)
+# Matplotlib categorical units — noisy when string x-values are numeric-looking
+logging.getLogger("matplotlib.category").setLevel(logging.WARNING)

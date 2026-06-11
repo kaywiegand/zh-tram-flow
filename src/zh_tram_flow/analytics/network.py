@@ -11,7 +11,8 @@ import polars as pl
 from zh_tram_flow.plot_styles import (style_ax, LEGEND_KW, LEGEND_KW_RIGHT, LEGEND_KW_LEFT,
                                                mean_kw, median_kw, otp_kw, trend_kw, data_line_kw,
                                                FIG_SINGLE, FIG_2PANEL, FIG_3PANEL, FIG_TIMELINE, FIG_WIDE, FIG_TALL,
-                                               TITLE_KW, fmt_line_axis, fmt_line_legend, plotly_title)
+                                               TITLE_KW, fmt_line_axis, fmt_line_legend, plotly_title,
+                                               HEATMAP_CMAP, HEATMAP_COLORSCALE)
 from zh_tram_flow.config import ANNO_MEDIAN, auto_export, ANNO_MEAN, YEAR_COLORS, BAR_NEUTRAL, district_color
 import pandas as pd
 import numpy as np
@@ -281,7 +282,7 @@ def plot_network_stop_count_by_line(changes: pd.DataFrame, cfg=None, ylim_count=
     changed["net"] = changed["added_j24"] - changed["removed_j24"]
     changed = changed.sort_values("net", ascending=True)
     bar_colors = [LINE_COLORS.get(ln, "#888") for ln in changed["line"]]
-    bars = ax2.barh(changed["line"], changed["net"], color=bar_colors, edgecolor="white", linewidth=0.5)
+    bars = ax2.barh([fmt_line_axis(str(ln)) for ln in changed["line"]], changed["net"], color=bar_colors, edgecolor="white", linewidth=0.5)
     ax2.bar_label(bars, labels=[f"+{v}" if v > 0 else str(v) for v in changed["net"]], padding=3, fontsize=9)
     ax2.set_xlabel("Net new stops (Dec 2023 → Dec 2024)")
     ax2.set_title("Net Change per Line — Schedule Change Dec 2023", **TITLE_KW)
@@ -340,13 +341,13 @@ def plot_monthly_delay_all_lines(lf_all, cfg=None, ylim=None, save_as=None):
                 color=line_color(ln), lw=1.0, marker="o", markersize=2, label=fmt_line_legend(ln))
 
     ax.axvline(FAHRPLANWECHSEL, color=cfg.COLOR_NEGATIVE, lw=1.0,
-               linestyle="--", alpha=0.8, label="Schedule Changes")
+               linestyle="--", alpha=0.8, label="Schedule Changes", ymax=0.9)
     ax.axvline(pd.Timestamp("2024-12-01"), color=cfg.COLOR_NEGATIVE, lw=1.0,
-               linestyle="--", alpha=0.8)
+               linestyle="--", alpha=0.8, ymax=0.9)
     ax.axvline(pd.Timestamp("2025-06-01"), color=cfg.COLOR_NEGATIVE, lw=1.0,
-               linestyle="--", alpha=0.8)
+               linestyle="--", alpha=0.8, ymax=0.9)
     for year in [2024, 2025]:
-        ax.axvline(pd.Timestamp(f"{year}-01-01"), color=cfg.CHART_AXIS, lw=0.8, linestyle=":")
+        ax.axvline(pd.Timestamp(f"{year}-01-01"), color=cfg.CHART_AXIS, lw=0.8, linestyle=":", ymax=0.9)
 
     ax.set_xlabel("Month", **style["label"])
     ax.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
@@ -412,8 +413,8 @@ def table_delay_before_after_switch(lf_all) -> pd.DataFrame:
 
 
 @auto_export("network-einlaufzeit")
-def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None, ylim=None, save_as=None):
-    """Einlaufzeit: Neue vs. bestehende Haltestellen ab Jan 2024 — alle Linien."""
+def plot_ramp_up(changes: pd.DataFrame, lf_all, cfg=None, ylim=None, save_as=None):
+    """Ramp-up: New vs. existing stops from Jan 2024 — all lines."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
     from zh_tram_flow.config import line_color, ANNO_MEAN
@@ -475,17 +476,17 @@ def plot_einlaufzeit(changes: pd.DataFrame, lf_all, cfg=None, ylim=None, save_as
 
     plt.suptitle("Ramp-up: New vs. Existing Stops from Jan 2024 — All Lines",
                  fontsize=11, fontweight="bold", x=0.05, ha="left", y=1.01)
+    plt.tight_layout()
     if ylim is not None:
         for ax in axes_flat[:len(all_lines_sorted)]:
             ax.set_ylim(*ylim)
-    plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
     plt.show()
 
 
-def table_einlaufzeit(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
-    """Tabelle: Neue vs. bestehende Halte — Ø Delay alle Linien ab Jan 2024."""
+def table_ramp_up(changes: pd.DataFrame, lf_all) -> pd.DataFrame:
+    """Table: New vs. existing stops — mean delay all lines from Jan 2024."""
     new_stop_names = set()
     for _, row in changes.iterrows():
         new_stop_names.update(row["names_added_j24"])
@@ -919,7 +920,7 @@ def plot_line_profiles(lf_all: pl.LazyFrame, cfg=None, ylim=None, save_as=None) 
     n_cols  = len(col_keys)
 
     fig, ax = plt.subplots(figsize=(13, max(5, n_lines * 0.55 + 1.5)))
-    im = ax.imshow(normed, cmap="YlOrRd", aspect="auto", vmin=0, vmax=1)
+    im = ax.imshow(normed, cmap=HEATMAP_CMAP, aspect="auto", vmin=0, vmax=1)
 
     # Cell annotations
     for i in range(n_lines):

@@ -152,7 +152,7 @@ def plot_otp_by_line(lf: pl.LazyFrame, ylim=None) -> None:
         ax.text(bar.get_x() + bar.get_width() / 2, val + 0.2,
                 f"{val:.1f}%", ha="center", fontsize=9, color=cfg.CHART_AXIS_TEXT)
 
-    ax.axhline(otp_mean, **mean_kw(f"Ø Netz {otp_mean:.0f}%"))
+    ax.axhline(otp_mean, **mean_kw(f"Mean Netz {otp_mean:.0f}%"))
     ax.axhline(95, **median_kw("VBZ Target 95%"))
 
     ax.set_ylim(*(ylim if ylim is not None else (75, 100)))
@@ -256,7 +256,7 @@ def plot_dwell_throughput(lf: pl.LazyFrame, ylim=None) -> None:
 
     ax_r = ax.twinx()
     ax_r.plot(x, data["avg_dwell"].fillna(0), color=_teal, lw=1.5, linestyle="--",
-              marker="o", markersize=3, label="Ø Dwell Time (s)")
+              marker="o", markersize=3, label="Mean Dwell Time (s)")
     ax_r.set_ylabel("Ø Dwell Time (s)", fontsize=10, color=_teal)
     ax_r.tick_params(axis="y", colors=_teal, labelsize=9)
     ax_r.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.0fs"))
@@ -782,7 +782,7 @@ def plot_arrival_vs_departure_timeline(lf: pl.LazyFrame, ylim=None) -> None:
 
     # Daily delay line
     ax.plot(daily["operating_date"], daily["avg_delay"],
-            color="#222222", lw=1.0, alpha=0.85, label="Ø Delay", zorder=10)
+            color="#222222", lw=1.0, alpha=0.85, label="Mean Delay", zorder=10)
 
     # Event verticals — ymax=0.9, lw=2, etwas transparenter
     shown: set = set()
@@ -1035,7 +1035,7 @@ def plot_dwell_line_scatter(lf: pl.LazyFrame, ylim=None) -> None:
     for n_stops in [10, 18, 26]:
         sz = (n_stops - s_min) / (s_max - s_min) * 300 + 60
         ax.scatter([], [], s=sz, color="#bbbbbb", alpha=0.8,
-                   edgecolors="#888888", label=f"Ø {n_stops} stops")
+                   edgecolors="#888888", label=f"Mean {n_stops} stops")
     ax.legend(title="Route Length", fontsize=9,
               title_fontsize=9, loc="upper left")
 

@@ -223,7 +223,7 @@ def plot_delay_distribution(lf, cfg=None):
         median_val = float(sample_small[col].median())
 
         ax.hist(data, bins=80, color=color, alpha=0.85, edgecolor="none")
-        ax.axvline(mean_val, **mean_kw(f"Ø {mean_val:.0f}s"))
+        ax.axvline(mean_val, **mean_kw(f"Mean {mean_val:.0f}s"))
         ax.axvline(median_val, **median_kw(f"Median {median_val:.0f}s"))
         ax.set_title(title, **TITLE_KW)
         ax.set_xlabel("Seconds", **style["label"])
@@ -311,7 +311,7 @@ def plot_delay_distribution_comparison(lf_all, lf_clean=None, cfg=None):
         ]):
             ax = axes[row_i][col_i]
             ax.hist(data, bins=bins, color=color, alpha=_row_alpha[row_i], edgecolor="none", density=True)
-            ax.axvline(data.mean(), **mean_kw(f"Avg. {data.mean():+.1f}s"))
+            ax.axvline(data.mean(), **mean_kw(f"Mean {data.mean():+.1f}s"))
             ax.axvline(data.median(), **median_kw(f"Median {data.median():+.1f}s"))
             ax.set_title(f"{label} — {suffix}", **{**TITLE_KW, "fontsize": 11})
             ax.set_xlabel("Seconds", **style["label"])
@@ -344,7 +344,7 @@ def plot_log_transform(lf, cfg=None):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 4))
 
     ax1.hist(np.clip(arr, -300, 600), bins=80, color=ARRIVAL_COLOR, alpha=0.85, edgecolor="none")
-    ax1.axvline(np.mean(arr), **mean_kw(f"Avg. {np.mean(arr):.0f}s"))
+    ax1.axvline(np.mean(arr), **mean_kw(f"Mean {np.mean(arr):.0f}s"))
     ax1.axvline(np.median(arr), **median_kw(f"Median {np.median(arr):.0f}s"))
     ax1.set_title("Arrival Delay — Original", **TITLE_KW)
     ax1.set_xlabel("Seconds", **style["label"])
@@ -354,7 +354,7 @@ def plot_log_transform(lf, cfg=None):
     style_ax(ax1)
 
     ax2.hist(arr_log, bins=80, color=ARRIVAL_COLOR, alpha=0.7, edgecolor="none")
-    ax2.axvline(np.mean(arr_log), **mean_kw(f"Avg. {np.mean(arr_log):.2f}"))
+    ax2.axvline(np.mean(arr_log), **mean_kw(f"Mean {np.mean(arr_log):.2f}"))
     ax2.axvline(np.median(arr_log), **median_kw(f"Median {np.median(arr_log):.2f}"))
     ax2.set_title("Arrival Delay — Log-Transformed", **TITLE_KW)
     ax2.set_xlabel("sign(x) · log(|x| + 1)", **style["label"])
@@ -411,7 +411,6 @@ def plot_arrival_vs_departure(lf, cfg=None, ylim=None):
     ax.set_ylabel("Seconds", **style["label"])
     ax.set_title("Distribution — 100k Sample (clipped −300 to +600s)", **TITLE_KW)
     style_ax(ax)
-    ax.legend(**LEGEND_KW_RIGHT)
     if ylim is not None:
         ax.set_ylim(*ylim)
     plt.tight_layout()
@@ -444,7 +443,7 @@ def plot_delay_delta_detail(lf, cfg=None, ylim=None):
 
     fig, ax = plt.subplots(figsize=(12, 4))
     ax.hist(data_delta, bins=120, color=COMPARE_BASE, alpha=0.85, edgecolor="none")
-    ax.axvline(mean_delta, **mean_kw(f"Ø {mean_delta:.0f}s"))
+    ax.axvline(mean_delta, **mean_kw(f"Mean {mean_delta:.0f}s"))
     ax.axvline(median_delta, **median_kw(f"Median {median_delta:.0f}s"))
     ax.set_xlabel("Seconds  (Δ = departure − arrival)", **style["label"])
     ax.set_ylabel("Count", **style["label"])
@@ -458,7 +457,7 @@ def plot_delay_delta_detail(lf, cfg=None, ylim=None):
 
 
 @auto_export("target-start-stop-analysis")
-def plot_start_stop_analysis(lf_delay, cfg=None):
+def plot_start_stop_analysis(lf_delay, cfg=None, ylim_density=None):
     """Starthalte-Verzerrung: stop_sequence==1 vs. Rest — 3 Panels."""
     cfg = _get_cfg(cfg)
     from wgnd.core.theme import mpl_style
@@ -506,7 +505,10 @@ def plot_start_stop_analysis(lf_delay, cfg=None):
     ax.set_xlabel("Delay Delta (s)", **style["label"])
     ax.set_ylabel("Density", **style["label"])
     ax.set_title("Delay Delta Distribution", **TITLE_KW)
-    ax.set_ylim(bottom=-0.0005)
+    if ylim_density is not None:
+        ax.set_ylim(*ylim_density)
+    else:
+        ax.set_ylim(bottom=-0.0005)
     ax.legend(**LEGEND_KW_RIGHT)
     style_ax(ax)
 
@@ -518,8 +520,8 @@ def plot_start_stop_analysis(lf_delay, cfg=None):
     delta_vals = [row_s["avg_delta"], row_ns["avg_delta"]]
     x = np.arange(2)
     w = 0.35
-    b1 = ax2.bar(x - w / 2, arr_vals, w, label="Avg. Arrival Delay", color=ARRIVAL_COLOR, alpha=0.85)
-    b2 = ax2.bar(x + w / 2, delta_vals, w, label="Avg. Delay Delta", color=COMPARE_BASE, alpha=0.85)
+    b1 = ax2.bar(x - w / 2, arr_vals, w, label="Mean Arrival Delay", color=ARRIVAL_COLOR, alpha=0.85)
+    b2 = ax2.bar(x + w / 2, delta_vals, w, label="Mean Delay Delta", color=COMPARE_BASE, alpha=0.85)
     for b, v in zip(list(b1) + list(b2), arr_vals + delta_vals):
         ax2.text(b.get_x() + b.get_width() / 2, v + (0.5 if v >= 0 else -2.5),
                  f"{v:+.1f}s", ha="center", va="bottom", fontsize=9)
@@ -679,7 +681,8 @@ def plot_otp_per_line(lf_all, cfg=None, ylim_otp=(20, 120)):
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax.set_ylabel("OTP Rate (|arrival_delay| ≤ 120s)", **style["label"])
     ax.set_title("On-Time Performance per Line — Monthly", **TITLE_KW)
-    ax.legend(**{**LEGEND_KW_RIGHT, "ncol": 20, "columnspacing": 0.5, "handlelength": 1.0})
+    _ncol = (len(lines_all) + 1) // 2
+    ax.legend(**{**LEGEND_KW_RIGHT, "ncol": _ncol, "columnspacing": 0.5, "handlelength": 1.0})
     style_ax(ax)
     plt.tight_layout()
     plt.show()
@@ -763,7 +766,7 @@ def plot_cancellations_by_line(lf, cfg=None):
     for bar, rate in zip(bars, cancel_by_line["cancel_rate"]):
         ax.text(bar.get_width() + 0.001, bar.get_y() + bar.get_height() / 2,
                 f"{rate:.1%}", va="center", fontsize=8, color="#666666")
-    ax.axvline(avg_rate, **mean_kw(f"Avg. {avg_rate:.1%}"))
+    ax.axvline(avg_rate, **mean_kw(f"Mean {avg_rate:.1%}"))
     ax.invert_yaxis()
     ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.1%}"))
     ax.set_xlabel("Cancellation Rate", **style["label"])
@@ -974,8 +977,8 @@ def plot_delay_per_line_timeline(lf_all, cfg=None,
         ax.set_title(label, **TITLE_KW)
         style_ax(ax)
 
-    _leg_kw = {**LEGEND_KW_RIGHT, "ncol": 20, "columnspacing": 0.8}
-    axes[0].legend(**_leg_kw)
+    _ncol = (len(lines_all) + 1) // 2
+    axes[0].legend(**{**LEGEND_KW_RIGHT, "ncol": _ncol, "columnspacing": 0.8})
     plt.suptitle("Monthly Delay per Line",
                  fontsize=14, color=cfg.CHART_TITLE, x=0.05, ha="left")
     plt.tight_layout()

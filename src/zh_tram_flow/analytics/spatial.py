@@ -10,7 +10,9 @@ import polars as pl
 from zh_tram_flow.plot_styles import (style_ax, LEGEND_KW, LEGEND_KW_RIGHT, LEGEND_KW_LEFT,
                                                mean_kw, median_kw, otp_kw, trend_kw, data_line_kw,
                                                FIG_SINGLE, FIG_2PANEL, FIG_3PANEL, FIG_TIMELINE, FIG_WIDE, FIG_TALL,
-                                               TITLE_KW, fmt_line_axis, fmt_line_legend, plotly_title)
+                                               TITLE_KW, fmt_line_axis, fmt_line_legend, plotly_title,
+                                               HEATMAP_CMAP, HEATMAP_COLORSCALE,
+                                               DELAY_CMAP, DELAY_COLORSCALE)
 from zh_tram_flow.config import (ANNO_MEDIAN, auto_export, ANNO_MEAN, DELAY_COLOR, BAR_NEUTRAL,
                                     OTP_ON_TIME, DISTRICT_COLORS, district_color)
 import pandas as pd
@@ -145,14 +147,16 @@ def plot_top_delay_stops(lf, cfg=None, ylim=None, save_as=None):
     _mean_top = top_stops["avg_delay"].mean()
     colors_top = [DELAY_COLOR if v > _mean_top else BAR_NEUTRAL for v in top_stops["avg_delay"]]
     ax1.barh(top_stops["stop_name"], top_stops["avg_delay"], color=colors_top, alpha=0.85)
-    ax1.axvline(_mean_top, **mean_kw(f"Ø {_mean_top:.0f}s"))
+    ax1.axvline(_mean_top, **mean_kw(f"Mean {_mean_top:.0f}s"))
     ax1.legend(**LEGEND_KW_RIGHT)
     ax1.set_xlabel("Avg. Arrival Delay (s)", **style["label"])
     ax1.set_title("Top 20 Stops — Highest Delay", **TITLE_KW)
-    ax1.invert_yaxis()
     ax1.spines[["top", "right"]].set_visible(False)
 
+    _mean_early = early_stops["avg_delay"].mean()
     ax2.barh(early_stops["stop_name"], early_stops["avg_delay"], color=cfg.COLOR_POSITIVE, alpha=0.85)
+    ax2.axvline(_mean_early, **mean_kw(f"Mean {_mean_early:.0f}s"))
+    ax2.legend(**LEGEND_KW_RIGHT)
     ax2.set_xlabel("Avg. Arrival Delay (s)", **style["label"])
     ax2.set_title("Top 10 Stops — Earliest Arrivals (Terminus)", **TITLE_KW)
     ax2.invert_yaxis()
@@ -231,7 +235,7 @@ def plot_lines_density_vs_delay(lf, cfg=None, ylim=None, save_as=None):
         ax1.annotate(r["stop_name"], (r["n_lines"], r["avg_delay"]),
                      fontsize=7, ha="left", va="bottom",
                      xytext=(4, 3), textcoords="offset points")
-    ax1.axhline(_mean_delay, **mean_kw(f"Ø Delay {_mean_delay:.0f}s"))
+    ax1.axhline(_mean_delay, **mean_kw(f"Mean Delay {_mean_delay:.0f}s"))
     ax1.set_xlabel("Number of Lines at Stop", **style["label"])
     ax1.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
     ax1.set_title("Line Count vs. Delay — all stops", **TITLE_KW)
@@ -436,7 +440,7 @@ def plot_district_analysis(lf, cfg=None, ylim_delay=None, ylim_otp=None, save_as
 
     ax1.bar(districts["district_name"], districts["avg_delay"], color=colors, alpha=0.75,
             edgecolor="#bbbbbb", linewidth=0.5)
-    ax1.axhline(avg, **mean_kw(f"Ø {avg:.1f}s"))
+    ax1.axhline(avg, **mean_kw(f"Mean {avg:.1f}s"))
     ax1.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
     ax1.set_title("Delay by District", **TITLE_KW)
     ax1.tick_params(axis="x", rotation=45)
@@ -464,7 +468,7 @@ def plot_district_analysis(lf, cfg=None, ylim_delay=None, ylim_otp=None, save_as
 
 
 @auto_export("spatial-district-combined")
-def plot_district_combined(lf, cfg=None, ylim=None, save_as=None):
+def plot_district_combined(lf, cfg=None, ylim=None, ylim_otp=None, save_as=None):
     """Verspätung nach Stadtkreis — ein Panel mit OTP als zweite Achse.
 
     Balken: Ø Arrival Delay (s), Zonenfarben, alpha=0.6.
@@ -499,7 +503,7 @@ def plot_district_combined(lf, cfg=None, ylim=None, save_as=None):
     ax.bar(districts["district_name"], districts["avg_delay"],
            color=colors, alpha=0.6, edgecolor="#bbbbbb", linewidth=0.5)
 
-    ax.axhline(avg, **mean_kw("Ø"))
+    ax.axhline(avg, **mean_kw("Mean"))
     _t = blended_transform_factory(ax.transAxes, ax.transData)
     ax.text(0.99, avg, f"Ø {avg:.1f}s ", va="bottom", ha="right",
             fontsize=8, color=ANNO_MEAN, transform=_t)
@@ -507,7 +511,6 @@ def plot_district_combined(lf, cfg=None, ylim=None, save_as=None):
     ax.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
     ax.set_title("Delay by District", **TITLE_KW)
     ax.tick_params(axis="x", rotation=45)
-    style_ax(ax)
 
     ax_r = ax.twinx()
     otp_pct = districts["otp_rate"] * 100
@@ -519,12 +522,16 @@ def plot_district_combined(lf, cfg=None, ylim=None, save_as=None):
     ax_r.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0f}%"))
     ax_r.spines["top"].set_visible(False)
     ax_r.spines["left"].set_visible(False)
+    style_ax(ax)
+    ax_r.spines["right"].set_visible(True)   # shared twinx spine — restore after style_ax
     ax_r.spines["right"].set_color(OTP_ON_TIME)
 
     h, l = ax_r.get_legend_handles_labels()
     ax.legend(h, l, **LEGEND_KW_RIGHT)
     if ylim is not None:
         ax.set_ylim(*ylim)
+    if ylim_otp is not None:
+        ax_r.set_ylim(*ylim_otp)
 
     plt.tight_layout()
     if save_as is not None:
@@ -578,36 +585,34 @@ def plot_line_analysis(lf, cfg=None, ylim_arr=None, ylim_otp=None, ylim_delta=No
         .to_pandas()
     )
     lines["line_name_str"] = lines["line_name"].astype(str)
+    line_labels = [fmt_line_axis(str(ln)) for ln in lines["line_name"]]
     lc = [line_color(str(ln)) for ln in lines["line_name"]]
 
     style = mpl_style()
     fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
     _avg_delay = lines["avg_delay"].mean()
-    axes[0].barh(lines["line_name_str"], lines["avg_delay"], color=lc, alpha=0.85)
-    axes[0].axvline(_avg_delay, **mean_kw(f"Ø {_avg_delay:.0f}s"))
+    axes[0].barh(line_labels, lines["avg_delay"], color=lc, alpha=0.85)
+    axes[0].axvline(_avg_delay, **mean_kw(f"Mean {_avg_delay:.0f}s"))
     axes[0].legend(**LEGEND_KW_RIGHT)
     axes[0].set_xlabel("Avg. Arrival Delay (s)", **style["label"])
     axes[0].set_title("Avg. Arrival Delay by Line", **TITLE_KW)
-    axes[0].invert_yaxis()
     axes[0].spines[["top", "right"]].set_visible(False)
 
     otp_colors = [OTP_ON_TIME if v >= 0.87 else cfg.COLOR_NEGATIVE for v in lines["otp_rate"]]
-    axes[1].barh(lines["line_name_str"], lines["otp_rate"], color=otp_colors, alpha=0.85)
+    axes[1].barh(line_labels, lines["otp_rate"], color=otp_colors, alpha=0.85)
     axes[1].axvline(0.85, **otp_kw())
     axes[1].xaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     axes[1].set_xlabel("OTP Rate", **style["label"])
     axes[1].set_title("OTP by Line", **TITLE_KW)
-    axes[1].invert_yaxis()
     axes[1].set_yticklabels([])
     axes[1].legend(**LEGEND_KW_RIGHT)
     axes[1].spines[["top", "right"]].set_visible(False)
 
     delta_colors = [cfg.COLOR_NEGATIVE if v > 0 else cfg.COLOR_POSITIVE for v in lines["delta_mean"]]
-    axes[2].barh(lines["line_name_str"], lines["delta_mean"], color=delta_colors, alpha=0.85)
+    axes[2].barh(line_labels, lines["delta_mean"], color=delta_colors, alpha=0.85)
     axes[2].set_xlabel("Ø Delay Delta (s)", **style["label"])
     axes[2].set_title("Delay Delta — growing or recovering?", **TITLE_KW)
-    axes[2].invert_yaxis()
     axes[2].set_yticklabels([])
     axes[2].spines[["top", "right"]].set_visible(False)
 
@@ -717,7 +722,7 @@ def plot_dwell_time(lf, cfg=None, ylim_dist=None, ylim_delay=None, ylim_line=Non
     axes[0].bar(dwell_dist["dwell_time"], dwell_dist["n"] / 1e6,
                 color=BAR_NEUTRAL, alpha=0.75, width=1)
     axes[0].axvline(dwell_dist.assign(w=dwell_dist["dwell_time"] * dwell_dist["n"])["w"].sum() / dwell_dist["n"].sum(),
-                    color=ANNO_MEAN, lw=1.0, linestyle=":", label="Ø dwell_time")
+                    color=ANNO_MEAN, lw=1.0, linestyle=":", label="Mean dwell_time")
     axes[0].set_xlabel("Scheduled Dwell Time (s)", **style["label"])
     axes[0].set_ylabel("Stop Events (Mio.)", **style["label"])
     axes[0].set_title("Distribution: dwell_time", **TITLE_KW)
@@ -735,11 +740,13 @@ def plot_dwell_time(lf, cfg=None, ylim_dist=None, ylim_delay=None, ylim_line=Non
     axes[1].set_title("dwell_time vs. Arrival Delay", **TITLE_KW)
     axes[1].spines[["top", "right"]].set_visible(False)
 
-    dbl = dwell_by_line.sort_values("avg_dwell")
+    dbl = dwell_by_line.sort_values("avg_dwell", ascending=False)
     lc_dwell = [line_color(str(ln)) for ln in dbl["line_name"]]
-    axes[2].barh(dbl["line_name"].astype(str), dbl["avg_dwell"], color=lc_dwell, alpha=0.85)
-    for i, (dwell, delay) in enumerate(zip(dbl["avg_dwell"], dbl["avg_delay"])):
-        axes[2].text(dwell + 0.2, i, f"Ø delay {delay:.0f}s", va="center", fontsize=8)
+    dwell_labels = [fmt_line_axis(str(ln)) for ln in dbl["line_name"]]
+    _mean_dwell = dbl["avg_dwell"].mean()
+    axes[2].barh(dwell_labels, dbl["avg_dwell"], color=lc_dwell, alpha=0.85)
+    axes[2].axvline(_mean_dwell, **mean_kw(f"Mean {_mean_dwell:.1f}s"))
+    axes[2].legend(**LEGEND_KW_RIGHT)
     axes[2].set_xlabel("Avg. dwell_time (s)", **style["label"])
     axes[2].set_title("Avg. Dwell Time by Line", **TITLE_KW)
     axes[2].spines[["top", "right"]].set_visible(False)
@@ -839,7 +846,7 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
     vmax = stops["avg_delay"].quantile(0.95)
     bubble_size = (stops["avg_delay"] / stops["avg_delay"].max() * 20).clip(lower=4)
 
-    # District delay values — same YlOrRd scale as stop bubbles
+    # District delay values — same HEATMAP_COLORSCALE scale as stop bubbles
     district_df = (
         lf.filter(pl.col("canceled") == False)
         .group_by("district_nr")
@@ -863,14 +870,14 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
 
     fig = go.Figure()
 
-    # Layer 1: District choropleth — YlOrRd by delay, grouped with K-labels
+    # Layer 1: District choropleth — HEATMAP_COLORSCALE by delay, grouped with K-labels
     # showlegend=False here; the K-label trace (Layer 4) carries the legend entry
     fig.add_trace(go.Choroplethmapbox(
         geojson=geojson,
         locations=kreis_ids,
         z=kreis_delays,
         featureidkey="properties.objid",
-        colorscale="YlOrRd",
+        colorscale=DELAY_COLORSCALE,
         zmin=vmin, zmax=vmax,
         showscale=False,
         legendgroup="Districts",
@@ -899,7 +906,7 @@ def plot_stop_delay_map(lf: pl.LazyFrame, min_n: int = 5000) -> None:
         marker=dict(
             size=bubble_size,
             color=stops["avg_delay"],
-            colorscale="YlOrRd",
+            colorscale=DELAY_COLORSCALE,
             cmin=vmin, cmax=vmax,
             colorbar=dict(title="Avg. Delay (s)", thickness=12, len=0.6),
             opacity=0.85,
@@ -1086,7 +1093,7 @@ def plot_line_hour_heatmap(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) 
     pivot = pivot.loc[line_order]
 
     fig, ax = plt.subplots(figsize=(16, 6))
-    im = ax.imshow(pivot.values, aspect="auto", cmap="YlOrRd", interpolation="nearest")
+    im = ax.imshow(pivot.values, aspect="auto", cmap=DELAY_CMAP, interpolation="nearest")
 
     ax.set_xticks(range(24))
     ax.set_xticklabels([f"{h:02d}:00" for h in range(24)], rotation=45, ha="right", fontsize=8)
@@ -1194,7 +1201,7 @@ def plot_stop_delay_by_direction(lf: pl.LazyFrame, line_name: str, min_n: int = 
             marker=dict(
                 size=bubble,
                 color=sub["avg_delay"],
-                colorscale="YlOrRd",
+                colorscale=DELAY_COLORSCALE,
                 cmin=vmin, cmax=vmax,
                 colorbar=dict(title="Avg. Delay (s)", thickness=10, len=0.5, x=1.01) if col == 2 else None,
                 showscale=(col == 2),
@@ -1533,7 +1540,7 @@ def plot_line_delay_profile_map(
                         args=[{"visible": [True] * (2 * N)}],
                     ),
                 ],
-                x=0.0, y=1.0, xanchor="left", yanchor="bottom",
+                x=1.0, y=1.0, xanchor="right", yanchor="bottom",
                 bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
                 font=dict(size=12),
                 pad=dict(r=4, t=4, b=4, l=4),
@@ -1542,7 +1549,7 @@ def plot_line_delay_profile_map(
                 type="buttons",
                 active=2,
                 buttons=year_buttons,
-                x=0.24, y=1.0, xanchor="left", yanchor="bottom",
+                x=0.72, y=1.0, xanchor="right", yanchor="bottom",
                 bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
                 font=dict(size=12),
                 direction="right",
@@ -1567,7 +1574,7 @@ def plot_line_delay_profile_map(
                 "  ·  Color: VBZ line color"
                 "  ·  Toggle lines via legend</sup>"
             ),
-            x=0, xanchor="left", font=dict(size=11, color="#222222", family="Arial"),
+            x=0, xanchor="left", font=dict(size=18, color="#222222", family="Arial", weight="bold"),
         ),
     )
     fig.show()
@@ -1815,7 +1822,7 @@ def plot_line_dwell_profile_map(
                         args=[{"visible": [True] * (2 * N)}],
                     ),
                 ],
-                x=0.0, y=1.0, xanchor="left", yanchor="bottom",
+                x=1.0, y=1.0, xanchor="right", yanchor="bottom",
                 bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
                 font=dict(size=12),
                 pad=dict(r=4, t=4, b=4, l=4),
@@ -1824,7 +1831,7 @@ def plot_line_dwell_profile_map(
                 type="buttons",
                 active=2,
                 buttons=year_buttons,
-                x=0.24, y=1.0, xanchor="left", yanchor="bottom",
+                x=0.72, y=1.0, xanchor="right", yanchor="bottom",
                 bgcolor="white", bordercolor="#bbbbbb", borderwidth=1,
                 font=dict(size=12),
                 direction="right",
@@ -1847,7 +1854,7 @@ def plot_line_dwell_profile_map(
                 "Dwell Time per Stop — All Tram Lines<br>"
                 "<sup>Color: Red = no buffer (0 s) · Green = good buffer (≥ 30 s)"
                 "  ·  Size: uniform  ·  Toggle lines via legend</sup>"
-            ), font=dict(size=11, color="#222222", family="Arial"),
+            ), font=dict(size=18, color="#222222", family="Arial", weight="bold"),
             x=0, xanchor="left",
         ),
     )
@@ -1950,7 +1957,7 @@ def plot_stop_dwell_map(lf: pl.LazyFrame, line_name: str = "11", min_n: int = 20
                 f"Linie {line_name} — Avg. Arrival Delay per Stop<br>"
                 "<sup>Color: Green = on time · Red = delayed"
                 "  ·  Size: % stops without buffer (pct_dw0)</sup>"
-            ), font=dict(size=11, color="#222222", family="Arial"),
+            ), font=dict(size=18, color="#222222", family="Arial", weight="bold"),
             x=0, xanchor="left",
         ),
     )
@@ -2110,7 +2117,7 @@ def plot_line_route_map(
                 f"Linie {line_name} — Where does the delay start?<br>"
                 "<sup>Color + Size: Avg. Arrival Delay · Top-3 problem stops annotated</sup>"
             ),
-            x=0, xanchor="left", font=dict(size=11, color="#222222", family="Arial"),
+            x=0, xanchor="left", font=dict(size=18, color="#222222", family="Arial", weight="bold"),
         ),
     )
     fig.show()
@@ -2294,14 +2301,14 @@ def plot_line_context_map(
             center=dict(lat=center_lat, lon=center_lon),
             zoom=12,
         ),
-        margin=dict(l=0, r=0, t=70, b=0),
+        margin=dict(l=0, r=0, t=110, b=0),
         height=650,
         title=dict(
             text=(
                 f"Linie {line_name} — Context Comparison<br>"
                 f"<sup>Color: Context ({ctx_labels}) · Size: Avg. Arrival Delay</sup>"
             ),
-            x=0, xanchor="left", font=dict(size=11, color="#222222", family="Arial"),
+            x=0, xanchor="left", font=dict(size=18, color="#222222", family="Arial", weight="bold"),
         ),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
     )
@@ -2399,19 +2406,17 @@ def plot_cascade_effect(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> 
           .to_pandas()
     )
     cascade["line_name"] = cascade["line_name"].astype(str)
+    from zh_tram_flow.config import line_color as _line_color
 
-    def _color(r):
-        if r >= 0.85: return cfg.COLOR_NEGATIVE
-        if r >= 0.70: return cfg.COLOR_SIGNAL
-        return cfg.COLOR_POSITIVE
+    colors  = [_line_color(ln) for ln in cascade["line_name"]]
+    x_pos   = list(range(len(cascade)))
+    x_lbls  = [fmt_line_axis(ln) for ln in cascade["line_name"]]
 
-    colors = [_color(r) for r in cascade["cascade_r"]]
+    mean_r   = cascade["cascade_r"].mean()
+    median_r = cascade["cascade_r"].median()
 
     fig, ax = plt.subplots(figsize=(11, 5))
-    bars = ax.bar(
-        cascade["line_name"], cascade["cascade_r"],
-        color=colors, edgecolor="white", linewidth=0.5,
-    )
+    bars = ax.bar(x_pos, cascade["cascade_r"], color=colors, edgecolor="white", linewidth=0.5)
     for bar, r in zip(bars, cascade["cascade_r"]):
         ax.text(
             bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.005,
@@ -2419,18 +2424,14 @@ def plot_cascade_effect(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> 
             color=cfg.CHART_AXIS_TEXT,
         )
 
-    ax.axhline(0.85, color=cfg.COLOR_NEGATIVE, lw=1.0, ls="--", alpha=0.6,
-               label="Strong (≥ 0.85) — no self-healing")
-    ax.axhline(0.70, color=cfg.COLOR_SIGNAL,   lw=1.0, ls="--", alpha=0.6,
-               label="Medium (≥ 0.70)")
+    ax.axhline(mean_r,   **mean_kw(f"Mean {mean_r:.2f}"))
+    ax.axhline(median_r, **median_kw(f"Median {median_r:.2f}"))
     ax.set_ylim(0, 1.08)
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(x_lbls, fontsize=9)
     ax.set_xlabel("Line", **style["label"])
     ax.set_ylabel("Cascade Coefficient (Pearson r)", **style["label"])
-    ax.set_title(
-        "Cascade Effect — Delay Propagation Stop-to-Stop per Line\n"
-        "r → 1 = delay cascades fully  ·  r → 0 = network recovers",
-        **TITLE_KW,
-    )
+    ax.set_title("Cascade Effect — Delay Propagation Stop-to-Stop per Line", **TITLE_KW)
     ax.legend(**LEGEND_KW_RIGHT)
     style_ax(ax)
     if ylim is not None:

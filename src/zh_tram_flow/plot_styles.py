@@ -20,7 +20,7 @@ LEGENDEN
   → ax.legend(**LEGEND_KW_RIGHT) oder LEGEND_KW_LEFT
 
 REFERENZLINIEN  (axhline / axvline)
-  Mittelwert  : gepunktet (:),    #555555, 1px  →  mean_kw("Ø ...")
+  Mittelwert  : gepunktet (:),    #555555, 1px  →  mean_kw("Mean ...")
   Median      : gestrichelt (--), #555555, 1px  →  median_kw("Median ...")
   OTP-Ziel    : gestrichelt (--), #27ae60, 1px  →  otp_kw()
   Trend       : gestrichelt (--), Datenfarbe, 55% alpha  →  trend_kw(color)
@@ -62,9 +62,29 @@ from zh_tram_flow.config import ANNO_MEAN, ANNO_MEDIAN, OTP_ON_TIME
 TITLE_KW = dict(loc="left", fontsize=11, color="#222222", fontweight="bold", pad=10)
 
 def plotly_title(text: str) -> dict:
-    """Einheitlicher Plotly-Titel: linksbündig, bold, 11pt, schwarz."""
+    """Einheitlicher Plotly-Titel: linksbündig, bold, 13pt, schwarz.
+    Size 13 gleicht den visuellen Unterschied zwischen HTML-Canvas und Matplotlib aus."""
     return dict(text=text, x=0.0, xanchor="left",
-                font=dict(size=11, color="#222222", family="Arial"))
+                font=dict(size=18, color="#222222", family="Arial", weight="bold"))
+
+# ── Heatmap-Farbskala ────────────────────────────────────────────────────────
+# Einheitliche Blau-Skala für alle Delay/Metrik-Intensitäts-Heatmaps.
+# Divergierende Charts (Korrelation, Delta) behalten ihre eigenen Scales.
+#
+# Matplotlib:  cmap=HEATMAP_CMAP
+# Plotly:      colorscale=HEATMAP_COLORSCALE
+import matplotlib.colors as _mcolors
+HEATMAP_CMAP = _mcolors.LinearSegmentedColormap.from_list(
+    "zh_blue", ["#f0f8ff", "#2E86AB"]
+)
+HEATMAP_COLORSCALE = [[0.0, "#f0f8ff"], [1.0, "#2E86AB"]]
+
+# Delay/Target-Intensität — für Charts die direkt arrival_delay zeigen
+# Semantisch: weiss = kein Delay · orange = hoher Delay (Projektfarbe #E67E22)
+DELAY_CMAP = _mcolors.LinearSegmentedColormap.from_list(
+    "zh_delay", ["#fff8f0", "#E67E22"]
+)
+DELAY_COLORSCALE = [[0.0, "#fff8f0"], [1.0, "#E67E22"]]
 
 # ── Linien-Formatierung ───────────────────────────────────────────────────────
 def fmt_line_axis(ln) -> str:
@@ -116,7 +136,7 @@ LEGEND_KW_LEFT  = {**LEGEND_KW, "loc": "upper left"}
 
 # ── Referenzlinien ────────────────────────────────────────────────────────
 
-def mean_kw(label: str = "Ø") -> dict:
+def mean_kw(label: str = "Mean") -> dict:
     """Mittelwert: gepunktet (:), #555555, 1px."""
     return dict(color=ANNO_MEAN, lw=1.0, linestyle=":", label=label)
 

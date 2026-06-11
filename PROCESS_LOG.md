@@ -1033,3 +1033,56 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - Link-Button auf Danke-Slide in `presentation.html` ergänzt
 
 **Nächster Schritt:** /project-case check ausführen — alle Analyse-Notebooks und Portfolio-Items abgeschlossen
+
+---
+
+### 2026-06-11 — Visuelle Korrektur-Session: Charts + Style-System
+
+**Was wurde gemacht:**
+
+**Style-System (`plot_styles.py` · `settings.py`)**
+- `axes.labelsize` 10 → 9 (global kleinere Achsenbeschriftungen)
+- `plotly_title()` size 11 → 18, bold (Plotly-Karten visuell auf Matplotlib-Niveau)
+- `mean_kw()` Default-Label `"Ø"` → `"Mean"` — globale Umbenennung aller Legend-Labels: `"Ø …"` → `"Mean …"`, `"Avg."` → `"Mean"` in allen Analytics- und Visualization-Files
+- Neue Konstanten: `HEATMAP_CMAP/COLORSCALE` (weiss→#2E86AB) für strukturelle Metriken; `DELAY_CMAP/COLORSCALE` (weiss→#E67E22) für Target-Charts (arrival_delay direkt)
+- Logger-Suppression: `kaleido`, `choreographer`, `matplotlib.category` auf WARNING gesetzt
+
+**Legenden / Referenzlinien**
+- `legend_handles`-Bug gefixt in `meteo.py` + `events.py` (`ax.legend(**kw)` → `ax.legend(handles=..., **kw)`)
+- Boxplot-Legende entfernt wo keine Artists vorhanden (UserWarning beseitigt)
+- Mean-Linien in Wetter-Funktionen: hardcoded orange+gestrichelt → `mean_kw()` (grau, gepunktet)
+
+**Vertikale Linien / Flächen**
+- `ymax=0.9` auf alle `axvline`-Calls in Timeline-Charts (`plot_daily_delay_timeline`, `plot_monthly_delay_all_lines`, `plot_daily_delay_weather_timeline`)
+- `ymax=0.9` auf `axvspan` in `_add_schulferien()` — gilt für alle Schulferien-Flächen global
+
+**twinx-Spine-Bug**
+- `style_ax(ax)` blendet shared right spine aus bei twinx — gefixt in: `plot_hour_of_day`, `plot_day_of_week`, `plot_season_heatmap`, `plot_district_combined`
+- `ylim_volume` / `ylim_otp` Parameter in den betroffenen Funktionen ergänzt
+
+**Legende / ncol**
+- `ncol=20` (hardcoded) → `ncol=(len(lines)+1)//2` in `plot_otp_per_line` + `plot_delay_per_line_timeline` — löst Overflow bei 18 Linien
+
+**Farben**
+- Plotly-Karten (`plot_stop_delay_map`, `plot_line_hour_heatmap`, `plot_stop_delay_by_direction`): `YlOrRd` → `DELAY_COLORSCALE` (orange)
+- `WEATHER_COLORS` konsistent in `plot_district_weather_sensitivity`, `plot_stop_weather_ranking`, `plot_line_weather_exposure`
+- Event-District-Charts: Normal = `#E67E22` (orange), Event Day = `#7D3C0E` (dunkelbraun)
+- `plot_snow_structural_interaction`: Pfeil-Annotationen entfernt → +% mittig in Balken, weisse Schrift
+
+**Achsen / Labels**
+- `invert_yaxis()` entfernt in mehreren Bar-Charts (höchster Wert unten, konsistent)
+- `fmt_line_axis()` → `"L 11"` für y-Achsen in `plot_line_analysis`, `plot_dwell_time`, `plot_cascade_effect`, `plot_network_stop_count_by_line`
+- `table_season` KeyError gefixt (`"Season"` Spalte fehlte)
+
+**Umbenennung**
+- `plot_einlaufzeit` / `table_einlaufzeit` → `plot_ramp_up` / `table_ramp_up` (deutsche Funktionsnamen)
+
+**Plotly-Karten Buttons/Layout**
+- `plot_line_delay_profile_map` + `plot_line_dwell_profile_map`: Buttons rechtsbündig (`x=1.0, xanchor="right"`), top margin erhöht
+- `plot_line_context_map`: top margin `t=70` → `t=110` für Legende-Titel-Abstand
+- Alle `font=dict(size=11, ...)` in Plotly-Titeln in `spatial.py` → `size=18, bold`
+
+**Event-Karten**
+- `plot_event_stop_map`: Stop-Bubbles als letzter Trace (oberster Layer), `DELAY_COLORSCALE` statt `RdBu_r`
+
+**Nächster Schritt:** `/project-review` in neuer Session — vollständiger Audit vor Portfolio-Aufbereitung

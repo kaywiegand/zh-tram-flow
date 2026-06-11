@@ -20,7 +20,8 @@ import polars as pl
 from zh_tram_flow.plot_styles import (style_ax, LEGEND_KW, LEGEND_KW_RIGHT, LEGEND_KW_LEFT,
                                                mean_kw, median_kw, otp_kw, trend_kw, data_line_kw,
                                                FIG_SINGLE, FIG_2PANEL, FIG_3PANEL, FIG_TIMELINE, FIG_WIDE, FIG_TALL,
-                                               TITLE_KW, fmt_line_axis, fmt_line_legend, plotly_title)
+                                               TITLE_KW, fmt_line_axis, fmt_line_legend, plotly_title,
+                                               HEATMAP_CMAP, HEATMAP_COLORSCALE)
 from zh_tram_flow.config import ANNO_MEDIAN, auto_export, ANNO_MEAN, BAR_NEUTRAL, OTP_ON_TIME
 import pandas as pd
 import numpy as np
@@ -138,7 +139,7 @@ def plot_weather_overview(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -
         Line2D([0], [0], color="#92c5de", lw=1.0,                  label="Rain"),
         Line2D([0], [0], color=_teal,     lw=1.0, linestyle="--",  label="Δ (%)"),
     ]
-    ax.legend(**LEGEND_KW_RIGHT)
+    ax.legend(handles=legend_handles, **LEGEND_KW_RIGHT)
 
     plt.tight_layout()
     if save_as is not None:
@@ -241,7 +242,7 @@ def plot_temperature_precipitation(lf: pl.LazyFrame, cfg=None, ylim_temp=None, y
         for v in temp_bins["avg_delay"]
     ]
     ax1.bar(range(len(temp_bins)), temp_bins["avg_delay"], color=temp_colors, alpha=0.85)
-    ax1.axhline(mean_delay, **mean_kw("Ø"))
+    ax1.axhline(mean_delay, **mean_kw("Mean"))
     zero_mask = temp_bins[temp_bins["temp_bin_5c"] == 0]
     if len(zero_mask) > 0:
         ax1.axvline(zero_mask.index[0], color=cfg.CHART_AXIS, lw=1, linestyle=":", label="0°C")
@@ -563,15 +564,16 @@ def table_correlation_with_delay(lf: pl.LazyFrame) -> pd.DataFrame:
 def plot_district_weather_sensitivity(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> None:
     """Two sorted bar charts (snow / heavy rain) with average line and above-avg highlight."""
     from wgnd.core.theme import mpl_style
+    from zh_tram_flow.config import WEATHER_COLORS
     cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
     _schema  = lf_delay.collect_schema()
 
     weather_flags = [f for f in ["has_snow", "has_heavy_rain"] if f in _schema]
-    titles  = {"has_snow": "Snow", "has_heavy_rain": "Heavy Rain"}
-    colors  = cfg.palette_n(2)
-    style   = mpl_style()
+    titles      = {"has_snow": "Snow", "has_heavy_rain": "Heavy Rain"}
+    flag_colors = {"has_snow": WEATHER_COLORS["snow"], "has_heavy_rain": WEATHER_COLORS["heavy_rain"]}
+    style       = mpl_style()
 
     def _district_delta(flag):
         district = (
@@ -592,9 +594,10 @@ def plot_district_weather_sensitivity(lf: pl.LazyFrame, cfg=None, ylim=None, sav
     if len(weather_flags) == 1:
         axes = [axes]
 
-    for ax, flag, color in zip(axes, weather_flags, colors):
-        df   = _district_delta(flag)
-        mean = df["delta"].mean()
+    for ax, flag in zip(axes, weather_flags):
+        df    = _district_delta(flag)
+        color = flag_colors[flag]
+        mean  = df["delta"].mean()
         above = df["delta"] >= mean
 
         bar_colors = [color if a else "#bbbbbb" for a in above]
@@ -602,7 +605,7 @@ def plot_district_weather_sensitivity(lf: pl.LazyFrame, cfg=None, ylim=None, sav
         ax.bar_label(bars, labels=[f"+{v:.1f}" if v > 0 else f"{v:.1f}" for v in df["delta"]],
                      padding=2, fontsize=8)
 
-        ax.axhline(mean, color="#e05a2b", lw=1.0, linestyle="--", label=f"Ø {mean:.1f}s")
+        ax.axhline(mean, **mean_kw(f"Mean {mean:.1f}s"))
         ax.set_xticks(range(len(df)))
         ax.set_xticklabels(df["district_name"], rotation=35, ha="right", fontsize=9)
         ax.set_ylabel("Δ Delay vs. Normal Day (s)", **style["label"])
@@ -613,7 +616,7 @@ def plot_district_weather_sensitivity(lf: pl.LazyFrame, cfg=None, ylim=None, sav
             ax.set_ylim(*ylim)
 
     _st = {k: v for k, v in TITLE_KW.items() if k not in ("loc", "pad")}
-    plt.suptitle("District Comparison: Snow vs. Heavy Rain", **_st, y=1.02)
+    plt.suptitle("District Comparison: Snow vs. Heavy Rain", **_st, y=1.02, x=0.05, ha="left")
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -680,21 +683,23 @@ def _weather_delta_df(lf_delay, flag, group_col, min_n=500):
 def plot_stop_weather_ranking(lf: pl.LazyFrame, cfg=None, top_n: int = 20, ylim=None, save_as=None) -> None:
     """Horizontal bar charts: top stops by Δ delay for snow and heavy rain."""
     from wgnd.core.theme import mpl_style
+    from zh_tram_flow.config import WEATHER_COLORS
     cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
     _schema  = lf_delay.collect_schema()
 
     weather_flags = [f for f in ["has_snow", "has_heavy_rain"] if f in _schema]
-    titles  = {"has_snow": "Snow", "has_heavy_rain": "Heavy Rain"}
-    colors  = cfg.palette_n(2)
-    style   = mpl_style()
+    titles      = {"has_snow": "Snow", "has_heavy_rain": "Heavy Rain"}
+    flag_colors = {"has_snow": WEATHER_COLORS["snow"], "has_heavy_rain": WEATHER_COLORS["heavy_rain"]}
+    style       = mpl_style()
 
     fig, axes = plt.subplots(1, len(weather_flags), figsize=(16, 7), sharey=False)
     if len(weather_flags) == 1:
         axes = [axes]
 
-    for ax, flag, color in zip(axes, weather_flags, colors):
+    for ax, flag in zip(axes, weather_flags):
+        color = flag_colors[flag]
         df   = _weather_delta_df(lf_delay, flag, "stop_name")
         df   = df.nlargest(top_n, "delta").sort_values("delta", ascending=True).reset_index(drop=True)
         mean = df["delta"].mean()
@@ -705,7 +710,7 @@ def plot_stop_weather_ranking(lf: pl.LazyFrame, cfg=None, top_n: int = 20, ylim=
         ax.bar_label(bars, labels=[f"+{v:.1f}" if v > 0 else f"{v:.1f}" for v in df["delta"]],
                      padding=3, fontsize=8)
 
-        ax.axvline(mean, color="#e05a2b", lw=1.0, linestyle="--", label=f"Ø {mean:.1f}s")
+        ax.axvline(mean, **mean_kw(f"Mean {mean:.1f}s"))
         ax.set_yticks(range(len(df)))
         ax.set_yticklabels(df["stop_name"], fontsize=8)
         ax.set_xlabel("Δ Delay vs. Normal Day (s)", **style["label"])
@@ -716,7 +721,7 @@ def plot_stop_weather_ranking(lf: pl.LazyFrame, cfg=None, top_n: int = 20, ylim=
             ax.set_ylim(*ylim)
 
     _st = {k: v for k, v in TITLE_KW.items() if k not in ("loc", "pad")}
-    plt.suptitle("Stop Ranking: Snow vs. Heavy Rain", **_st, y=1.02)
+    plt.suptitle("Stop Ranking: Snow vs. Heavy Rain", **_st, y=1.02, x=0.05, ha="left")
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -747,21 +752,23 @@ def table_stop_weather_ranking(lf: pl.LazyFrame, top_n: int = 20) -> pd.DataFram
 def plot_line_weather_exposure(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -> None:
     """Sorted bar charts: Δ delay per line for snow and heavy rain."""
     from wgnd.core.theme import mpl_style
+    from zh_tram_flow.config import WEATHER_COLORS
     cfg = _get_cfg(cfg)
 
     lf_delay = lf.filter(pl.col("canceled") == False)
     _schema  = lf_delay.collect_schema()
 
     weather_flags = [f for f in ["has_snow", "has_heavy_rain"] if f in _schema]
-    titles  = {"has_snow": "Snow", "has_heavy_rain": "Heavy Rain"}
-    colors  = cfg.palette_n(2)
-    style   = mpl_style()
+    titles      = {"has_snow": "Snow", "has_heavy_rain": "Heavy Rain"}
+    flag_colors = {"has_snow": WEATHER_COLORS["snow"], "has_heavy_rain": WEATHER_COLORS["heavy_rain"]}
+    style       = mpl_style()
 
     fig, axes = plt.subplots(1, len(weather_flags), figsize=(14, 5), sharey=False)
     if len(weather_flags) == 1:
         axes = [axes]
 
-    for ax, flag, color in zip(axes, weather_flags, colors):
+    for ax, flag in zip(axes, weather_flags):
+        color = flag_colors[flag]
         df   = _weather_delta_df(lf_delay, flag, "line_name", min_n=1000)
         df   = df.sort_values("delta", ascending=False).reset_index(drop=True)
         mean = df["delta"].mean()
@@ -772,7 +779,7 @@ def plot_line_weather_exposure(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=No
         ax.bar_label(bars, labels=[f"+{v:.1f}" if v > 0 else f"{v:.1f}" for v in df["delta"]],
                      padding=2, fontsize=8)
 
-        ax.axhline(mean, color="#e05a2b", lw=1.0, linestyle="--", label=f"Ø {mean:.1f}s")
+        ax.axhline(mean, **mean_kw(f"Mean {mean:.1f}s"))
         ax.set_xticks(range(len(df)))
         ax.set_xticklabels(df["line_name"], rotation=30, ha="right", fontsize=9)
         ax.set_ylabel("Δ Delay vs. Normal Day (s)", **style["label"])
@@ -783,7 +790,7 @@ def plot_line_weather_exposure(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=No
             ax.set_ylim(*ylim)
 
     _st = {k: v for k, v in TITLE_KW.items() if k not in ("loc", "pad")}
-    plt.suptitle("Which Lines Suffer Most from Weather?", **_st, y=1.02)
+    plt.suptitle("Which Lines Suffer Most from Weather?", **_st, y=1.02, x=0.05, ha="left")
     plt.tight_layout()
     if save_as is not None:
         plt.savefig(save_as, dpi=150, bbox_inches="tight")
@@ -870,16 +877,16 @@ def plot_daily_delay_weather_timeline(lf: pl.LazyFrame, cfg=None, ylim=None, sav
 
         # Delay line + mean
         ax.plot(df_year["operating_date"], df_year["avg_delay"],
-                color="#222222", lw=1.0, alpha=0.85, label="Ø Delay")
+                color="#222222", lw=1.0, alpha=0.85, label="Mean Delay")
         ax.axhline(baseline, color="#888888", lw=1, linestyle="--",
-                   alpha=0.7, label=f"Ø {baseline:.1f}s")
+                   alpha=0.7, label=f"Mean {baseline:.1f}s")
 
         # Weather markers
         for flag, (dates, label, color, alpha, lw) in weather_dates.items():
             shown = False
             for d in dates[dates.dt.year == year]:
                 lbl = label if not shown else None
-                ax.axvline(pd.Timestamp(d), color=color, lw=lw, alpha=alpha, label=lbl)
+                ax.axvline(pd.Timestamp(d), color=color, lw=lw, alpha=alpha, label=lbl, ymax=0.9)
                 shown = True
 
         ax.set_ylabel("Avg. Delay (s)", **style["label"])
@@ -894,7 +901,7 @@ def plot_daily_delay_weather_timeline(lf: pl.LazyFrame, cfg=None, ylim=None, sav
                  color="#f1c40f", lw=1.0, alpha=0.7, label="Temperature")
         temp_mean = df_year["avg_temp"].mean()
         ax2.axhline(temp_mean, color="#f1c40f", lw=0.8, linestyle="--",
-                    alpha=0.5, label=f"Ø {temp_mean:.1f}°C")
+                    alpha=0.5, label=f"Mean {temp_mean:.1f}°C")
         ax2.set_ylabel("Temperature (°C)", color="#f1c40f", fontsize=9)
         ax2.tick_params(axis="y", labelcolor="#f1c40f")
         ax2.spines[["top"]].set_visible(False)
@@ -1110,8 +1117,8 @@ def plot_weather_stop_map_combined(
 
     Legend / navigation items:
       Haltestellen               — all stops, gray background dots
-      HS Verspätung bei Schnee   — bubbles colored by avg_delay during snow (YlOrRd)
-      HS Verspätung bei Starkregen — bubbles colored by avg_delay during heavy rain (YlOrRd)
+      HS Verspätung bei Schnee   — bubbles colored by avg_delay during snow (HEATMAP_COLORSCALE)
+      HS Verspätung bei Starkregen — bubbles colored by avg_delay during heavy rain (HEATMAP_COLORSCALE)
       Stadtkreise Schnee         — choropleth + K-labels (one click toggles both)
       Stadtkreise Starkregen     — choropleth + K-labels (one click toggles both)
     """
@@ -1213,7 +1220,7 @@ def plot_weather_stop_map_combined(
         locations=kreis_ids,
         z=snow_delays,
         featureidkey="properties.objid",
-        colorscale="YlOrRd",
+        colorscale=HEATMAP_COLORSCALE,
         zmin=vmin, zmax=vmax,
         showscale=False,
         legendgroup="Districts Snow",
@@ -1240,7 +1247,7 @@ def plot_weather_stop_map_combined(
         locations=kreis_ids,
         z=rain_delays,
         featureidkey="properties.objid",
-        colorscale="YlOrRd",
+        colorscale=HEATMAP_COLORSCALE,
         zmin=vmin, zmax=vmax,
         showscale=False,
         legendgroup="Districts Heavy Rain",
@@ -1322,7 +1329,7 @@ def plot_weather_stop_map_combined(
         height=620,
         title=plotly_title("Districts and Stops — Delay during Snow and Heavy Rain"),
         coloraxis=dict(
-            colorscale="YlOrRd",
+            colorscale=HEATMAP_COLORSCALE,
             cmin=vmin,
             cmax=vmax,
             colorbar=dict(title="Avg. Delay (s)", thickness=12, len=0.6),
@@ -1431,13 +1438,11 @@ def plot_snow_structural_interaction(lf: pl.LazyFrame, cfg=None, ylim_dd=None, y
         ax1.text(bar.get_x() + bar.get_width() / 2, val + 0.05,
                  f"{val:.2f} s", ha="center", va="bottom",
                  fontsize=11, fontweight="bold")
-    ax1.annotate(
-        f"+{delta_dd_pct:.0f} %",
-        xy=(1, snow_row["mean_dd"]),
-        xytext=(1.38, (dd_vals[0] + dd_vals[1]) / 2),
-        fontsize=13, color="#2166ac", fontweight="bold", va="center",
-        arrowprops=dict(arrowstyle="->", color="#2166ac", lw=1.0),
-    )
+    # +% centered inside snow bar
+    snow_bar1 = bars1[1]
+    ax1.text(snow_bar1.get_x() + snow_bar1.get_width() / 2, dd_vals[1] / 2,
+             f"+{delta_dd_pct:.0f}%", ha="center", va="center",
+             fontsize=13, fontweight="bold", color="white")
     ax1.set_ylabel("Avg. delay_delta (s / Stop)", **style["label"])
     ax1.set_title("Structural Accumulation Rate\n(delay_delta per Stop)",
                   **TITLE_KW)
@@ -1453,13 +1458,11 @@ def plot_snow_structural_interaction(lf: pl.LazyFrame, cfg=None, ylim_dd=None, y
         ax2.text(bar.get_x() + bar.get_width() / 2, val + 0.5,
                  f"{val:.0f} s", ha="center", va="bottom",
                  fontsize=11, fontweight="bold")
-    ax2.annotate(
-        f"+{delta_arr_s:.0f} s",
-        xy=(1, snow_row["mean_arr"]),
-        xytext=(1.38, (arr_vals[0] + arr_vals[1]) / 2),
-        fontsize=13, color="#2166ac", fontweight="bold", va="center",
-        arrowprops=dict(arrowstyle="->", color="#2166ac", lw=1.0),
-    )
+    # +s centered inside snow bar
+    snow_bar2 = bars2[1]
+    ax2.text(snow_bar2.get_x() + snow_bar2.get_width() / 2, arr_vals[1] / 2,
+             f"+{delta_arr_s:.0f}s", ha="center", va="center",
+             fontsize=13, fontweight="bold", color="white")
     ax2.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
     ax2.set_title("Visible Passenger Impact\n(Arrival Delay)", **TITLE_KW)
     ax2.set_ylim(0, max(arr_vals) * 1.4)

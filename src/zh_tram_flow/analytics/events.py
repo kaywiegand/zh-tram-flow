@@ -23,7 +23,8 @@ import matplotlib.pyplot as plt
 from zh_tram_flow.plot_styles import (style_ax, LEGEND_KW, LEGEND_KW_RIGHT, LEGEND_KW_LEFT,
                                                mean_kw, median_kw, otp_kw, trend_kw, data_line_kw,
                                                FIG_SINGLE, FIG_2PANEL, FIG_3PANEL, FIG_TIMELINE, FIG_WIDE, FIG_TALL,
-                                               TITLE_KW, fmt_line_axis, fmt_line_legend, plotly_title)
+                                               TITLE_KW, fmt_line_axis, fmt_line_legend, plotly_title,
+                                               DELAY_COLORSCALE)
 from zh_tram_flow.config import ANNO_MEDIAN, auto_export, ANNO_MEAN, BAR_NEUTRAL
 
 
@@ -134,7 +135,7 @@ def plot_events_overview(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) ->
         Line2D([0], [0], color="#92c5de", lw=1.0,               label="−Delta"),
         Line2D([0], [0], color=_teal,     lw=1.0, linestyle="--", label="Δ (%)"),
     ]
-    ax.legend(**LEGEND_KW_RIGHT)
+    ax.legend(handles=legend_handles, **LEGEND_KW_RIGHT)
 
     plt.tight_layout()
     if save_as is not None:
@@ -229,15 +230,14 @@ def plot_event_type_hourly_profile(lf: pl.LazyFrame, cfg=None, ylim_hourly=None,
     et_colors = [cfg.COLOR_NEGATIVE if v > baseline * 1.15 else BAR_NEUTRAL
                  for v in event_type["avg_delay"]]
     ax1.barh(event_type["event_type"], event_type["avg_delay"], color=et_colors, alpha=0.85)
-    ax1.axvline(baseline, **mean_kw(f"Ø Normal: {baseline:.1f}s"))
+    ax1.axvline(baseline, **mean_kw(f"Mean Normal: {baseline:.1f}s"))
     ax1.set_xlabel("Avg. Arrival Delay (s)", **style["label"])
     ax1.set_title("Delay by Event Type", **TITLE_KW)
-    ax1.invert_yaxis()
     ax1.legend(**LEGEND_KW_RIGHT)
     ax1.spines[["top", "right"]].set_visible(False)
 
     # Stunden-Profil
-    for has_ev, label, color in [(False, "Regular Day", colors[0]), (True, "Event Day", colors[1])]:
+    for has_ev, label, color in [(False, "Normal", "#E67E22"), (True, "Event Day", "#7D3C0E")]:
         df = hourly_event[hourly_event["has_event"] == has_ev].sort_values("hour")
         ax2.plot(df["hour"], df["avg_delay"], color=color, lw=1.0,
                  marker="o", markersize=4, label=label)
@@ -317,13 +317,15 @@ def plot_event_district_effect(lf: pl.LazyFrame, cfg=None, ylim_abs=None, save_a
     ax1.set_title("Event Effect by District", **TITLE_KW)
     ax1.spines[["top", "right"]].set_visible(False)
 
-    # Absolute Delays
+    # Absolute Delays — Normal: project orange · Event Day: darker brown
+    _color_normal = "#E67E22"   # DELAY_COLOR
+    _color_event  = "#7D3C0E"   # darker for event day impact
     x = range(len(pivot_district))
     w = 0.35
     ax2.bar([xi - w / 2 for xi in x], pivot_district["normal"], w,
-            label="Normal", color=colors2[0], alpha=0.85)
+            label="Normal", color=_color_normal, alpha=0.85)
     ax2.bar([xi + w / 2 for xi in x], pivot_district["event"], w,
-            label="Event Day", color=colors2[1], alpha=0.85)
+            label="Event Day", color=_color_event, alpha=0.85)
     ax2.set_xticks(x)
     ax2.set_xticklabels(pivot_district["district_name"], rotation=45, ha="right", fontsize=9)
     ax2.set_ylabel("Avg. Arrival Delay (s)", **style["label"])
@@ -522,15 +524,24 @@ def plot_event_stop_map(lf: pl.LazyFrame) -> None:
     ))
 
     fig.add_trace(go.Scattermapbox(
+        lat=label_lats,
+        lon=label_lons,
+        mode="text",
+        text=label_texts,
+        textfont=dict(size=11, color="#333333"),
+        hoverinfo="skip",
+    ))
+
+    # Bubbles last → rendered on top of choropleth and labels
+    fig.add_trace(go.Scattermapbox(
         lat=stops["stop_lat"],
         lon=stops["stop_lon"],
         mode="markers",
         marker=dict(
             size=stops["abs_delta"].clip(lower=1) * 1.5,
             color=stops["delta"],
-            colorscale="RdBu_r",
-            cmin=-15,
-            cmid=0,
+            colorscale=DELAY_COLORSCALE,
+            cmin=0,
             cmax=15,
             colorbar=dict(title="Δ Delay (s)"),
             opacity=0.8,
@@ -540,15 +551,6 @@ def plot_event_stop_map(lf: pl.LazyFrame) -> None:
             axis=1
         ),
         hoverinfo="text",
-    ))
-
-    fig.add_trace(go.Scattermapbox(
-        lat=label_lats,
-        lon=label_lons,
-        mode="text",
-        text=label_texts,
-        textfont=dict(size=11, color="#333333"),
-        hoverinfo="skip",
     ))
 
     fig.update_layout(
@@ -663,14 +665,14 @@ def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=Non
     baseline = daily["avg_delay"].mean()
     ax.plot(daily["operating_date"], daily["avg_delay"],
             color="#222222", lw=1.0, alpha=0.85)
-    ax.axhline(baseline, **mean_kw(f"Ø {baseline:.1f}s"))
+    ax.axhline(baseline, **mean_kw(f"Mean {baseline:.1f}s"))
 
     _add_schulferien(ax, alpha=0.22, color="#999999")
 
     # Jahresgrenzen
     for year in [2024, 2025]:
         ax.axvline(pd.Timestamp(f"{year}-01-01"), color=cfg.CHART_AXIS,
-                   lw=0.8, linestyle=":", alpha=0.5)
+                   lw=0.8, linestyle=":", alpha=0.5, ymax=0.9)
 
     # Event-Marker
     shown: set = set()
@@ -678,7 +680,7 @@ def plot_daily_delay_timeline(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=Non
         cat = row["category"]
         lbl = cat if cat not in shown else None
         ax.axvline(row["operating_date"], color=category_colors.get(cat, "#aaaaaa"),
-                   lw=1.0, alpha=0.8, label=lbl)
+                   lw=1.0, alpha=0.8, label=lbl, ymax=0.9)
         shown.add(cat)
 
     ax.set_ylabel("Avg. Delay (s)", **style["label"])
@@ -819,20 +821,22 @@ def plot_event_stop_ranking(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None)
     stops = normal.merge(event, on="stop_name").dropna()
     stops = stops[stops["n_event"] > 5000]
     stops["delta"] = (stops["event"] - stops["normal"]).round(1)
-    stops = stops.sort_values("delta", ascending=False).head(15)
+    stops = stops.sort_values("delta", ascending=False).head(15).reset_index(drop=True)
 
     style  = mpl_style()
-    colors = [cfg.COLOR_NEGATIVE if d > 0 else cfg.COLOR_POSITIVE for d in stops["delta"]]
+    colors = [cfg.COLOR_NEGATIVE if i < 3 else BAR_NEUTRAL for i in range(len(stops))]
 
     fig, ax = plt.subplots(figsize=(10, 7))
 
+    _mean = stops["delta"].mean()
     bars = ax.barh(stops["stop_name"], stops["delta"], color=colors, alpha=0.85)
     ax.bar_label(
         bars,
         labels=[f"+{v:.1f}s" if v > 0 else f"{v:.1f}s" for v in stops["delta"]],
         padding=4, fontsize=9,
     )
-    ax.invert_yaxis()
+    ax.axvline(_mean, **mean_kw(f"Mean {_mean:.1f}s"))
+    ax.legend(**LEGEND_KW_RIGHT)
     ax.set_xlabel("Δ Delay (Event − Normal, s)", **style["label"])
     ax.set_title("Top 15 Stops by Event Impact", **TITLE_KW)
     style_ax(ax)
@@ -878,11 +882,10 @@ def plot_event_line_ranking(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None)
 
     lines = normal.merge(event, on="line_name").dropna()
     lines["delta"] = (lines["event"] - lines["normal"]).round(1)
-    lines = lines.sort_values("delta", ascending=False)
+    lines = lines.sort_values("delta", ascending=False).reset_index(drop=True)
 
     style  = mpl_style()
-    colors = [cfg.COLOR_NEGATIVE if d > 2 else BAR_NEUTRAL
-              for d in lines["delta"]]
+    colors = [cfg.COLOR_NEGATIVE if i < 3 else BAR_NEUTRAL for i in range(len(lines))]
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -995,9 +998,9 @@ def plot_holiday_recovery(lf: pl.LazyFrame, cfg=None, ylim=None, save_as=None) -
     )
 
     day_styles = {
-        "Normaler Werktag": {"color": "#aaaaaa",          "lw": 2.0, "ls": "-",  "zorder": 2},
-        "Wochenende":       {"color": cfg.COLOR_SIGNAL,   "lw": 2.0, "ls": "--", "zorder": 3},
-        "Holiday":         {"color": cfg.COLOR_POSITIVE, "lw": 2.5, "ls": "-",  "zorder": 4},
+        "Normaler Werktag": {"color": "#aaaaaa",          "lw": 1.0, "ls": "-",  "zorder": 2},
+        "Wochenende":       {"color": cfg.COLOR_SIGNAL,   "lw": 1.0, "ls": "--", "zorder": 3},
+        "Holiday":         {"color": cfg.COLOR_POSITIVE, "lw": 1.0, "ls": "-",  "zorder": 4},
     }
     order = ["Normaler Werktag", "Wochenende", "Holiday"]
 
