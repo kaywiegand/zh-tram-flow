@@ -326,7 +326,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 
 **Phase 0 (Data Engineering):** ✅ Abgeschlossen — in `sf_data-research`
 **Phase 1 (Setup & Dateneinstieg):** ✅ Abgeschlossen
-**Phase 2 (EDA & Analyse):** ✅ Abgeschlossen — 6 Analyse-Notebooks · 55 Findings
+**Phase 2 (EDA & Analyse):** ✅ Abgeschlossen — 6 Analyse-Notebooks · 63 Findings
 **Phase 3 (Feature Engineering):** ✅ Abgeschlossen — `train_final.parquet` / `test_final.parquet` (55.5M Zeilen)
 **Phase 4 (Modellierung):** ✅ Abgeschlossen — LightGBM v1 + v2 trainiert, XGBoost Robustheits-Check, Evaluation vollständig · Details → `06_prediction_*`
 **Phase 5 (Dashboard):** ⏳ Ausstehend — Tooling-Entscheidung (Streamlit vs. Dash) steht noch aus
@@ -336,7 +336,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 00_introduction.ipynb            ✅ fertig
 01_exploration.ipynb             ✅ fertig
 02_preparation.ipynb             ✅ ausgeführt — train/test + features in data/
-03_analysis_0-overview.ipynb     ✅ fertig (55 Findings · Executive Summary)
+03_analysis_0-overview.ipynb     ✅ fertig (63 Findings · Executive Summary)
 03_analysis_1-target.ipynb       ✅ fertig
 03_analysis_2-network.ipynb      ✅ fertig
 03_analysis_3-temporal.ipynb     ✅ fertig
@@ -350,7 +350,9 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 06_prediction_2-model.ipynb      ✅ ausgeführt — LightGBM v1: Test MAE 45.7s
 06_prediction_3-evaluation.ipynb ✅ ausgeführt — Fehleranalyse, Feature Importance, Residuals
 06_prediction_4-model_v2.ipynb   ✅ ausgeführt — LightGBM v2: Test MAE 18.56s, MBE −0.69s
-06_prediction_5-comparison.ipynb ⏭️  Skeleton — XGBoost-Ergebnis in presentation-v3 dokumentiert
+06_prediction_5-comparison.ipynb ✅ ausgeführt — LightGBM v2 vs. XGBoost: Vergleich dokumentiert
+06_prediction_6-dwell_simulator.ipynb       ✅ ausgeführt — dwell_time binär (0/60s), r=+0.16 Konfundierung
+06_prediction_7-scheduling_recommendations.ipynb ✅ ausgeführt — Risikomatrix Stop×Linie×Kontext, Empfehlungskarte
 ```
 
 ---
@@ -1109,3 +1111,17 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - Key Visual: `spatial-stop-delay-map.png` als Ersatz für `geo-delay-hotspots.png` — zeigt Stop-Level Delays auf Karte, gleiche semantische Aussage
 
 **Nächster Schritt:** `/project-case check` — alle Blocker bereinigt
+
+---
+
+### 2026-06-11 — /project-review Fixes: Findings-Zähler, Notebooks, Comparison ausgeführt
+
+**Was wurde gemacht:**
+
+- **PROCESS_LOG "Aktueller Stand"**: 55 Findings → 63 Findings (Phase 2); Notebook-Übersicht um `06_prediction_5-comparison.ipynb` (✅), `06_prediction_6-dwell_simulator.ipynb` (✅) und `06_prediction_7-scheduling_recommendations.ipynb` (✅) ergänzt
+- **`06_prediction_5-comparison.ipynb`**: ausgeführt — LightGBM v2 vs. XGBoost vollständiger Vergleich dokumentiert
+- **Notebooks angestoßen** — alle Analytics-Notebooks nach der visuellen Korrektur-Session neu ausgeführt
+- **matplotlib in `spatial.py`**: aktiv genutzt (matplotlib-basierte Plot-Funktionen) — kein totes Import, Befund aus Review korrigiert
+- **README Notebooks-Tabelle**: bereits korrekt (06-6 + 06-7 vorhanden) — kein Fix nötig
+
+**Nächster Schritt:** `/project-case check` → `/project-case story` → Portfolio-Aufbereitung
