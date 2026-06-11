@@ -8,6 +8,16 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 ---
 
+## Artefakte — morgen früh komplett erledigen
+
+| # | Beschreibung | Prio |
+| :--- | :--- | :--- |
+| 50 | **`presentation.html` neu generieren** — `/project-case slides` ausführen. Mehr Charts einbetten, vollständige Slide-Struktur (22–25 Slides), alle Sections: Idea · Data Engineering · Data Analysis · Data Science · Empfehlungen. | 1 |
+| 51 | **`index.html` als Übersicht neu generieren** — `/project-case report` ausführen. Scan + Dive + Deep-Dive Ebenen mit eingebetteten Charts. Ziel: 150–300 KB. | 1 |
+| 52 | **Dashboard (`apps/dashboard/app.py`) finalisieren** — Phase 5 Entscheidung: Dash vs. Streamlit; Dashboard portfolio-ready machen. | 1 |
+
+---
+
 ## Präsentation
 
 | # | Beschreibung | Prio |
