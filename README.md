@@ -11,7 +11,7 @@
 
 ## Key Visual
 
-![Delay hotspots in Zürich's tram network](public/img/geo-delay-hotspots.png)
+![Delay hotspots in Zürich's tram network](public/img/spatial-stop-delay-map.png)
 *Average arrival delay per stop (2023–2025). Hotspots concentrate in outer corridors — not at central interchange points.*
 
 ---
@@ -188,7 +188,7 @@ git clone https://github.com/kaywiegand/zh-tram-flow.git
 cd zh-tram-flow
 
 # Install — analysis + ML dependencies
-uv pip install -e ".[dan,dsc]"
+uv sync --extra dan --extra dsc
 
 # Launch notebooks
 jupyter lab
@@ -239,8 +239,6 @@ Interactive Streamlit app — two modes:
 ```bash
 uv run streamlit run apps/dashboard/app.py
 ```
-
----
 
 ---
 

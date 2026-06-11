@@ -50,7 +50,10 @@ from zh_tram_flow.settings import setup_plotting, logger
 - Polars ist die primäre DataFrame-Bibliothek — `pl.scan_parquet()` (lazy) bevorzugen
 - `canceled = True` Zeilen behalten — relevante Extremfälle für das Modell
 - Lernmomente mit Polars explizit kommentieren — dieses Projekt ist auch Lernprojekt
-- Alle Outputs (Charts, Daten) → `reports/` oder `data/processed/`, nie im Notebook-Root
+- Alle Outputs (Charts, Daten) → `public/` oder `data/processed/`, nie im Notebook-Root
+  - `public/img/` ← exportierte Charts (PNG + interaktive HTML)
+  - `public/mds/` ← Portfolio-Docs
+  - Hinweis: Dieses Projekt nutzt `public/` statt `reports/` — GitHub Pages Deployment-Anforderung
 
 ## Style-Gate — automatisch aktiv
 

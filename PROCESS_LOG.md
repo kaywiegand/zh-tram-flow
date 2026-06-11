@@ -1086,3 +1086,26 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - `plot_event_stop_map`: Stop-Bubbles als letzter Trace (oberster Layer), `DELAY_COLORSCALE` statt `RdBu_r`
 
 **Nächster Schritt:** `/project-review` in neuer Session — vollständiger Audit vor Portfolio-Aufbereitung
+
+---
+
+### 2026-06-11 — /project-review Audit + Review-Korrekturen
+
+**Was wurde gemacht:**
+
+**Vollständiger Projekt-Audit** via `/project-review` — 6 Bereiche geprüft.
+
+**Korrekturen umgesetzt:**
+
+- **README.md**: Key Visual von `geo-delay-hotspots.png` (gelöscht) auf `spatial-stop-delay-map.png` (neues Äquivalent) korrigiert. Setup-Befehl von `uv pip install -e ".[dan,dsc]"` auf `uv sync --extra dan --extra dsc` modernisiert. Doppeltes `---` vor Deployment-Sektion entfernt.
+- **CLAUDE.md** (Projekt): `reports/` → `public/` mit expliziter Notiz "GitHub Pages Deployment-Anforderung".
+- **ROADMAP.md**: `reports/index.html` → `public/index.html` (eine Stelle in Phase 4).
+- **`03_analysis_1-target.ipynb`**: Duplizierte Cell-IDs `69`/`70` → neue eindeutige IDs. Staler TODO-Marker zu F-NET-07 auf ✅ gesetzt (Kaskade in LightGBM v2 umgesetzt).
+- **`03_analysis_2-network.ipynb`**: "Offenes TODO: Kaskadenanalyse" → "✅ implementiert in LightGBM v2".
+
+**Entscheidungen:**
+
+- `reports/` bleibt in BACKLOG-Kommentaren (historische Einträge — korrekte Entscheidung, nicht rückwirkend bereinigen)
+- Key Visual: `spatial-stop-delay-map.png` als Ersatz für `geo-delay-hotspots.png` — zeigt Stop-Level Delays auf Karte, gleiche semantische Aussage
+
+**Nächster Schritt:** `/project-case check` — alle Blocker bereinigt

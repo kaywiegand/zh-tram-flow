@@ -132,7 +132,7 @@
 - ✅ Wetter-Karten mit vmax=60 (gleiche Farbskala Schnee/Regen)
 - ✅ Fahrplanwechsel-Narrative korrigiert (Dez 2023 / Dez 2025)
 - ✅ Plotly-Renderer auf `notebook_connected` gesetzt — HTML-Export-kompatibel
-- ✅ HTML-Export: `reports/index.html` (narrativer 3-Ebenen-Report · alle Plotly-Karten sichtbar)
+- ✅ HTML-Export: `public/index.html` (narrativer 3-Ebenen-Report · alle Plotly-Karten sichtbar)
 
 ### Baseline (`06_prediction_1-baseline.ipynb`) ✅
 - ✅ Grand Mean Baseline: 50.6s MAE
