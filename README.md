@@ -6,6 +6,7 @@
 ![Polars](https://img.shields.io/badge/Polars-0.20+-orange)
 ![LightGBM](https://img.shields.io/badge/LightGBM-4.0+-green)
 ![Type](https://img.shields.io/badge/Type-Analysis%20%2B%20Prediction-lightgrey)
+![Status](https://img.shields.io/badge/Status-Phase%204%20complete-brightgreen)
 
 ---
 
@@ -18,6 +19,17 @@
 - **71.3% of all stops have 0s dwell time.** No recovery buffer built in. Delay accumulates and propagates: Pearson r ≥ 0.85 between consecutive stops across all lines.
 - **Snow is the strongest single factor:** +54s average delay, OTP −10.9pp — geographically separable from rain.
 - **LightGBM v2: MAE 18.56s — 63% below the Stop Mean baseline (50.0s).** Adding `prev_trip_delay` (cascade feature, derived from analysis finding F-NET-07) drove the main improvement. The model confirms the analysis: delay is predictable because it's structural.
+
+---
+
+## Where to start
+
+| You are… | Start here |
+| :--- | :--- |
+| New to the project | [`00_introduction`](notebooks/00_introduction.ipynb) — context, data dictionary, network overview |
+| Looking for findings | [`03_analysis_0-overview`](notebooks/03_analysis_0-overview.ipynb) — all 63 findings indexed |
+| Looking for the model | [`06_prediction_0-overview`](notebooks/06_prediction_0-overview.ipynb) — ML approach and results |
+| Want to see it live | [Report](https://kaywiegand.github.io/zh-tram-flow/report.html) · [Dashboard](https://zh-tram-flow.streamlit.app) |
 
 ---
 
@@ -55,8 +67,8 @@ The project covers the full data cycle end-to-end:
 | Phase | Scope | Where |
 | :--- | :--- | :--- |
 | **Data Engineering** | Ingest, join, validate 4 data sources (IST · GTFS · Weather · Events) → master dataset | [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) |
-| **Data Analysis** | 6 analysis dimensions · 63 structured findings | [`03_analysis_0-overview.ipynb`](notebooks/03_analysis_0-overview.ipynb) |
-| **Data Science** | Feature engineering → LightGBM v1 + v2 → evaluation | [`06_prediction_0-overview.ipynb`](notebooks/06_prediction_0-overview.ipynb) |
+| **Data Analysis** | 6 analysis dimensions · 63 structured findings | [`03_analysis_0-overview`](notebooks/03_analysis_0-overview.ipynb) |
+| **Data Science** | Feature engineering → LightGBM v1 + v2 → evaluation | [`06_prediction_0-overview`](notebooks/06_prediction_0-overview.ipynb) |
 | **Data Storytelling** | Report · Presentation · Dashboard · Landing Page | [`public/index.html`](https://kaywiegand.github.io/zh-tram-flow/) |
 
 ---
@@ -102,6 +114,12 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 - **Weather** — [Stadt Zürich OGD](https://data.stadt-zuerich.ch): hourly values from 3 city measurement stations · temperature, precipitation, snow, radiation
 - **Events** — manually curated: 301 entries · 5 categories (Feiertag, Stadtfest, Konzert, Messe, Fussball) · weighted 1–3
 
+**Known issues:**
+
+- `is_windy` is always `NaN` across all years — excluded from all models
+- Nov–Dec 2025 departure delay masked due to a provider infrastructure issue — arrival delay unaffected
+- `canceled` flag definition changed at provider in Jul 2024 — see [DATA_DICTIONARY.md](docs/DATA_DICTIONARY.md)
+
 → Full column descriptions: [docs/DATA_DICTIONARY.md](docs/DATA_DICTIONARY.md)
 
 ---
@@ -118,7 +136,7 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 
 ### Data Analysis
 
-→ [`03_analysis_0-overview.ipynb`](notebooks/03_analysis_0-overview.ipynb) — index of all 63 findings
+→ [`03_analysis_0-overview`](notebooks/03_analysis_0-overview.ipynb) — index of all 63 findings
 
 6 analysis notebooks · **63 structured findings** across 6 dimensions: Target · Network · Temporal · Spatial · Weather · Events
 
@@ -135,7 +153,7 @@ Every finding gets a structured entry (ID · Finding · Impact · Action → Fea
 
 ### Data Science
 
-→ [`06_prediction_0-overview.ipynb`](notebooks/06_prediction_0-overview.ipynb) — ML approach and metrics
+→ [`06_prediction_0-overview`](notebooks/06_prediction_0-overview.ipynb) — ML approach and metrics
 
 | Model | Features | Test MAE | vs. Baseline |
 | :--- | :---: | :---: | :--- |
@@ -148,27 +166,35 @@ Strategy: temporal train/test split — 2023–Jun 2024 train / Jul–Dec 2024 v
 
 ### Data Storytelling
 
-| Artifact | Description |
+| Artifact | What it shows |
 | :--- | :--- |
-| [Report](public/report.html) | Narrative HTML report — Scan · Dive · Deep-Dive reading layers |
-| [Presentation](public/presentation.html) | Slide deck — pipeline, findings, model results |
-| [Landing Page](public/landingpage.html) | Entry point for non-technical audiences |
-| [Dashboard](https://zh-tram-flow.streamlit.app) | Interactive map explorer — Streamlit |
+| [Report](public/report.html) | Full narrative — Scan (30s) · Dive (5min) · Deep-Dive (30min) reading layers |
+| [Presentation](public/presentation.html) | Slide deck for live presentation — pipeline, findings, model, recommendations |
+| [Landing Page](public/landingpage.html) | Non-technical entry point — story without jargon |
+| [Dashboard](https://zh-tram-flow.streamlit.app) | Interactive map explorer — click any stop, line, or district |
 
 ---
 
 ## Results
 
-| Dimension | Finding | Signal |
-| :--- | :--- | :--- |
-| Spatial | Peripheral corridors dominate — K11/K12 high-risk districts | Enzenbühl 93.8s · Balgrist 85.2s |
-| Temporal | Peak at 21h (post-event wave) · Thursday worst weekday | 67.9s at 21h |
-| Weather | Snow strongest factor · geographically separable from rain | Snow +54s · OTP −10.9pp |
-| Events | Impact is evening-only (18–22h) · public holidays best day type | Holidays −9.9s · Messe 66.0s |
-| Network | Dec 2023 VBZ overhaul invisible in delay signal | Net effect +0.5s |
-| Structure | 71.3% of stops: 0s dwell time · Pearson r ≥ 0.85 cascade | No buffer, no recovery |
+### Model
 
 Top features (LightGBM v2 by gain): `stop_name` · `prev_trip_delay` · `hour` · `line_name` · `has_snow`
+
+MAE 18.56s means the model is on average less than 19 seconds off — on a network where the worst stops average 90+ seconds late. Bias (MBE) is −0.69s, effectively zero.
+
+### Recommendations
+
+Four concrete actions that follow directly from the analysis findings:
+
+| # | Recommendation | Evidence |
+| :--- | :--- | :--- |
+| R1 | **Fahrplan-Redesign L11** — add schedule buffer at 3–5 critical coupling points | L11 highest delay accumulation · 0s dwell · cascade r ≥ 0.85 |
+| R2 | **Real-time dispatch** — use cascade model as early warning signal | `prev_trip_delay` explains −31.4s MAE improvement |
+| R3 | **Capacity boost 20–22h** — increase frequency on L11/L8 during event evenings | 21h peak +11.7s · Thursday + large event = worst combination |
+| R4 | **Priority monitoring K11/K12** — automated OTP alerts at stop level | Kreis 11: 68.3s avg · OTP 83% · structurally disadvantaged |
+
+→ Full risk matrix and stop-level recommendations: [`06_prediction_7-scheduling_recommendations`](notebooks/06_prediction_7-scheduling_recommendations.ipynb)
 
 ---
 
@@ -231,9 +257,11 @@ Top features (LightGBM v2 by gain): `stop_name` · `prev_trip_delay` · `hour` �
 ```bash
 git clone https://github.com/kaywiegand/zh-tram-flow.git
 cd zh-tram-flow
-uv sync --extra dan --extra dsc
+uv sync --extra dan --extra dsc  # dan = analysis deps · dsc = ML deps (LightGBM etc.)
 jupyter lab
 ```
+
+> **Note:** Raw data is not included (541 MB Parquet). Download `data/processed/train_final_v2.parquet` and `test_final_v2.parquet` from release assets to run prediction notebooks.
 
 → Full setup, deployment, and retraining instructions: [docs/SETUP.md](docs/SETUP.md)
 
@@ -245,7 +273,4 @@ jupyter lab
 Senior Consultant · Data Scientist · Berlin
 [LinkedIn](https://de.linkedin.com/in/kaywiegand) · [GitHub](https://github.com/kaywiegand)
 
----
-
-*Data engineering in [`sf_data-research`](https://github.com/kaywiegand/sf_data-research).
-Built with [wgnd-toolkit](https://github.com/kaywiegand/wgnd-toolkit) and [wgnd-scaffolding](https://github.com/kaywiegand/wgnd-scaffolding).*
+*Data engineering in [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) · built with [`wgnd-toolkit`](https://github.com/kaywiegand/wgnd-toolkit) and [`wgnd-scaffolding`](https://github.com/kaywiegand/wgnd-scaffolding).*
