@@ -5,13 +5,13 @@
 ![Python](https://img.shields.io/badge/Python-3.10-blue)
 ![Polars](https://img.shields.io/badge/Polars-0.20+-orange)
 ![LightGBM](https://img.shields.io/badge/LightGBM-4.0+-green)
-![Type](https://img.shields.io/badge/Type-DANSC-lightgrey)
+![Type](https://img.shields.io/badge/Type-Analysis%20%2B%20Prediction-lightgrey)
 
 ---
 
 ## TL;DR
 
-**Target:** `arrival_delay` in seconds — regression · **OTP:** a stop is "on time" if arrival delay < 120s
+**Target:** `arrival_delay` — how many seconds late a tram arrives at a stop (regression) · **OTP (On-Time Performance):** a stop is counted as on time if arrival delay < 120s
 
 - **87.0% OTP** across the network — against VBZ's own 90% target for 2028. The gap is structural, not random.
 - **Peripheral corridors dominate.** Friedhof Enzenbühl (93.8s) and Balgrist (85.2s) are the worst stops — while Paradeplatz, where 14–15 lines cross, performs well.
