@@ -54,7 +54,7 @@ The project covers the full data cycle end-to-end:
 
 | Phase | Scope | Where |
 | :--- | :--- | :--- |
-| **Data Engineering** | Ingest, join, validate 3 data sources → master dataset | [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) |
+| **Data Engineering** | Ingest, join, validate 4 data sources (IST · GTFS · Weather · Events) → master dataset | [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) |
 | **Data Analysis** | 6 analysis dimensions · 63 structured findings | `notebooks/03_*` |
 | **Data Science** | Feature engineering → LightGBM v1 + v2 → evaluation | `notebooks/05_*` + `06_*` |
 | **Data Storytelling** | Report · Presentation · Dashboard · Landing Page | `public/` |
