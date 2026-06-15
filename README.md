@@ -124,12 +124,12 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 
 | Dimension | Notebook | Key Finding |
 | :--- | :--- | :--- |
-| **Target** | [03-1](notebooks/03_analysis_1-target.ipynb) | OTP 87% · 71.5% of stops accumulate delay |
-| **Network** | [03-2](notebooks/03_analysis_2-network.ipynb) | Dec 2023 VBZ overhaul invisible in delay signal (+0.5s net) |
-| **Temporal** | [03-3](notebooks/03_analysis_3-temporal.ipynb) | Peak at 21h (event wave) — not morning rush |
-| **Spatial** | [03-4](notebooks/03_analysis_4-spatial.ipynb) | Peripheral corridors dominate · 0 overlap density vs. delay |
-| **Weather** | [03-5](notebooks/03_analysis_5-meteo.ipynb) | Snow +54s · geographically separable from rain |
-| **Events** | [03-6](notebooks/03_analysis_6-events.ipynb) | Public holidays best day type · effect is evening-only (18–22h) |
+| **Target** | [03_analysis_1-target](notebooks/03_analysis_1-target.ipynb) | OTP 87% · 71.5% of stops accumulate delay |
+| **Network** | [03_analysis_2-network](notebooks/03_analysis_2-network.ipynb) | Dec 2023 VBZ overhaul invisible in delay signal (+0.5s net) |
+| **Temporal** | [03_analysis_3-temporal](notebooks/03_analysis_3-temporal.ipynb) | Peak at 21h (event wave) — not morning rush |
+| **Spatial** | [03_analysis_4-spatial](notebooks/03_analysis_4-spatial.ipynb) | Peripheral corridors dominate · 0 overlap density vs. delay |
+| **Weather** | [03_analysis_5-meteo](notebooks/03_analysis_5-meteo.ipynb) | Snow +54s · geographically separable from rain |
+| **Events** | [03_analysis_6-events](notebooks/03_analysis_6-events.ipynb) | Public holidays best day type · effect is evening-only (18–22h) |
 
 Every finding gets a structured entry (ID · Finding · Impact · Action → Feature · Result) — tracked systematically, impact-rated, linked to model decisions. **"Analysis dictates the model"** — no feature was added speculatively.
 
