@@ -13,7 +13,7 @@
 
 **Target:** `arrival_delay` — how many seconds late a tram arrives at a stop · **OTP (On-Time Performance):** a stop is counted as on time if arrival delay < 120s
 
-- **87.0% OTP** across the network — against VBZ's own 90% target for 2028. The gap is structural, not random.
+- **87.0% OTP** across the network — against VBZ's own target of 95%. The gap is structural, not random.
 - **Peripheral corridors dominate.** Friedhof Enzenbühl (93.8s) and Balgrist (85.2s) are the worst stops — while Paradeplatz, where 14–15 lines cross, performs well.
 - **71.3% of all stops have 0s dwell time.** No recovery buffer built in. Delay accumulates and propagates: Pearson r ≥ 0.85 between consecutive stops on all 16 lines.
 - **Snow is the strongest single factor:** +54s average delay, OTP −10.9pp — geographically separable from rain.
@@ -74,8 +74,8 @@ Three questions frame the analysis:
 | Metric | Value |
 | :--- | :--- |
 | Network OTP (2023–2025) | **87.0%** |
-| VBZ own target (by 2028) | **90%** |
-| Gap | **−3pp** |
+| VBZ target | **95%** |
+| Gap | **−8pp** |
 
 87.0% sounds acceptable. It isn't — because 71.5% of all stops *accumulate* delay along the route. The network has no built-in recovery mechanism: 71.3% of stops have 0s planned dwell time. A delay that enters a trip stays in the trip, and spreads to the next.
 
