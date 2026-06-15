@@ -174,28 +174,28 @@ Top features (LightGBM v2 by gain): `stop_name` · `prev_trip_delay` · `hour` �
 
 ## Notebooks
 
-| # | Notebook | What you'll find |
-| :--- | :--- | :--- |
-| 00 | [Introduction](notebooks/00_introduction.ipynb) | Project context · data dictionary · VBZ line colours |
-| 01 | [Exploration](notebooks/01_exploration.ipynb) | EDA: distributions · data quality · correlations · outliers |
-| 02 | [Preparation](notebooks/02_preparation.ipynb) | Cleaning strategy · temporal split · feature prep |
-| 03-0 | [Analysis Overview](notebooks/03_analysis_0-overview.ipynb) | All 63 findings indexed · executive summary |
-| 03-1 | [Target](notebooks/03_analysis_1-target.ipynb) | Delay distribution · OTP 87% · cancellation patterns |
-| 03-2 | [Network](notebooks/03_analysis_2-network.ipynb) | Network changes 2023–2025 · hotspot mapping |
-| 03-3 | [Temporal](notebooks/03_analysis_3-temporal.ipynb) | Hour/weekday/month patterns — peak at 21h |
-| 03-4 | [Spatial](notebooks/03_analysis_4-spatial.ipynb) | Stops · districts · lines — periphery vs. centre |
-| 03-5 | [Weather](notebooks/03_analysis_5-meteo.ipynb) | Snow · rain · wind — geographic separation of effects |
-| 03-6 | [Events](notebooks/03_analysis_6-events.ipynb) | Holidays · concerts · football — impact by size + hour |
-| 04 | [Insights](notebooks/04_insights.ipynb) | Synthesised narrative across all dimensions |
-| 05 | [Feature Engineering](notebooks/05_feature_engineering.ipynb) | Feature construction · encoding decisions · export |
-| 06-0 | [ML Overview](notebooks/06_prediction_0-overview.ipynb) | ML approach · metrics · baseline explanation |
-| 06-1 | [Baseline](notebooks/06_prediction_1-baseline.ipynb) | Stop Mean baseline = 50.0s MAE |
-| 06-2 | [LightGBM v1](notebooks/06_prediction_2-model.ipynb) | First model: 34 features · Test MAE 45.7s |
-| 06-3 | [Evaluation](notebooks/06_prediction_3-evaluation.ipynb) | Residuals · error analysis · feature importance |
-| 06-4 | [LightGBM v2](notebooks/06_prediction_4-model_v2.ipynb) | Cascade feature → Test MAE 18.56s |
-| 06-5 | [Comparison](notebooks/06_prediction_5-comparison.ipynb) | All models compared — final verdict |
-| 06-6 | [Dwell Simulator](notebooks/06_prediction_6-dwell_simulator.ipynb) | Dwell-time confounding · binary distribution · cascade mechanism |
-| 06-7 | [Scheduling Recommendations](notebooks/06_prediction_7-scheduling_recommendations.ipynb) | Risk matrix Stop×Line×Context · scheduling buffer recommendations |
+| Notebook | What you'll find |
+| :--- | :--- |
+| [00_introduction](notebooks/00_introduction.ipynb) | Project context · data dictionary · VBZ line colours |
+| [01_exploration](notebooks/01_exploration.ipynb) | EDA: distributions · data quality · correlations · outliers |
+| [02_preparation](notebooks/02_preparation.ipynb) | Cleaning strategy · temporal split · feature prep |
+| [03_analysis_0-overview](notebooks/03_analysis_0-overview.ipynb) | All 63 findings indexed · executive summary |
+| [03_analysis_1-target](notebooks/03_analysis_1-target.ipynb) | Delay distribution · OTP 87% · cancellation patterns |
+| [03_analysis_2-network](notebooks/03_analysis_2-network.ipynb) | Network changes 2023–2025 · hotspot mapping |
+| [03_analysis_3-temporal](notebooks/03_analysis_3-temporal.ipynb) | Hour/weekday/month patterns — peak at 21h |
+| [03_analysis_4-spatial](notebooks/03_analysis_4-spatial.ipynb) | Stops · districts · lines — periphery vs. centre |
+| [03_analysis_5-meteo](notebooks/03_analysis_5-meteo.ipynb) | Snow · rain · wind — geographic separation of effects |
+| [03_analysis_6-events](notebooks/03_analysis_6-events.ipynb) | Holidays · concerts · football — impact by size + hour |
+| [04_insights](notebooks/04_insights.ipynb) | Synthesised narrative across all dimensions |
+| [05_feature_engineering](notebooks/05_feature_engineering.ipynb) | Feature construction · encoding decisions · export |
+| [06_prediction_0-overview](notebooks/06_prediction_0-overview.ipynb) | ML approach · metrics · baseline explanation |
+| [06_prediction_1-baseline](notebooks/06_prediction_1-baseline.ipynb) | Stop Mean baseline = 50.0s MAE |
+| [06_prediction_2-model](notebooks/06_prediction_2-model.ipynb) | First model: 34 features · Test MAE 45.7s |
+| [06_prediction_3-evaluation](notebooks/06_prediction_3-evaluation.ipynb) | Residuals · error analysis · feature importance |
+| [06_prediction_4-model_v2](notebooks/06_prediction_4-model_v2.ipynb) | Cascade feature → Test MAE 18.56s |
+| [06_prediction_5-comparison](notebooks/06_prediction_5-comparison.ipynb) | All models compared — final verdict |
+| [06_prediction_6-dwell_simulator](notebooks/06_prediction_6-dwell_simulator.ipynb) | Dwell-time confounding · binary distribution · cascade mechanism |
+| [06_prediction_7-scheduling_recommendations](notebooks/06_prediction_7-scheduling_recommendations.ipynb) | Risk matrix Stop×Line×Context · scheduling buffer recommendations |
 
 ---
 
