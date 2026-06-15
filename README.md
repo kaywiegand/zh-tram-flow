@@ -234,6 +234,7 @@ Four concrete actions that follow directly from the analysis findings:
 | Data (small) | Pandas |
 | Visualisation | Plotly (interactive maps + charts) · Matplotlib · Seaborn |
 | ML | LightGBM 4.0+ (native categorical support) |
+| Dashboard | Streamlit |
 | Packaging | uv · pyproject.toml |
 | Toolkit | [wgnd-toolkit](https://github.com/kaywiegand/wgnd-toolkit) — shared analytics helpers |
 | Notebooks | JupyterLab |
