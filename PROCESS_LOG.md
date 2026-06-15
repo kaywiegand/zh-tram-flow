@@ -322,6 +322,32 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 
 ---
 
+---
+
+### 2026-06-15 — Interview-Prep: Dokumentation angereichert
+
+**Kontext:** Vorbereitung auf Bewerbungsgespräche. HR- und Tech-Lead-Perspektive eingenommen,
+Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentation behoben.
+
+**README.md:**
+- Problem Statement neu: Alltagsnähe, Gemeinwohl, Nachhaltigkeit als Motivation — Projektdauer präzisiert (1W DE + 2W Analyse/ML)
+- Data Engineering Sektion: primäres Ziel war Feasibility-Check — trennt Explorationsphase von Analysephase
+- OTP-Benchmark eingefügt: Berlin BVG 87.1% (2023), VBZ-Eigensziel 90% bis 2028, Caveat zu nicht-einheitlichen Definitionen
+- Production Notes Section neu: `prev_trip_delay` Availability-Tabelle (Live / Planung / Fallback), Retraining-Anleitung
+
+**Notebooks — erklärende Markdown-Zellen eingefügt (kein Code geändert):**
+- `01_exploration`: is_windy 100% NaN — Completeness-Lektion
+- `02_preparation`: Temporal Split — Data Leakage konkretes Gegenbeispiel, saisonale Vollständigkeit
+- `03_analysis_0-overview`: Finding-ID-System als Ticket-Analogie, vollständige Kette F-NET-07 → prev_trip_delay → MAE 18.56s
+- `06_prediction_0-overview`: MAE vs. RMSE erweitert, MBE definiert, MAPE-Ausschluss begründet
+- `06_prediction_2-model`: v1 Interpretation — 0.9s über Baseline ist der Plan, nicht Versagen (agile v1→v2)
+- `06_prediction_4-model_v2`: prev_trip_delay Stärke + Live-Availability-Risiko; Isotonic Regression Erklärung (Bias ≠ globaler Offset)
+- `06_prediction_5-comparison`: LightGBM vs. XGBoost technisch (Leaf-wise / Histogram-Splitting), SHAP-Entscheidung begründet
+
+**BACKLOG.md:** Item #34 — Repo-Referenzen (sf_data-research) bei zukünftiger Umbenennung
+
+---
+
 ## Aktueller Stand
 
 **Phase 0 (Data Engineering):** ✅ Abgeschlossen — in `sf_data-research`
@@ -1143,3 +1169,26 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - WeasyPrint für PDF-Export: HTML-basierte Charts (Plotly) werden nicht gerendert, aber Layout und Text sind vollständig — ausreichend für Zielgruppe G/H (Obsidian, AI-Tools)
 
 **Nächster Schritt:** Phase 5 Dashboard fertigstellen, dann `/project-case check`
+
+---
+
+### 2026-06-15 — Dashboard Neukonzept + Umsetzung (Phase 5)
+
+**Was wurde gemacht:**
+
+- **Konzeptentscheidung**: Altes Dashboard (Chart-Browser mit statischen PNGs) verworfen — kein eigenständiger Mehrwert gegenüber Report/Präsentation
+- **Neues Konzept**: Explorer-Dashboard mit 3 interaktiven Tools — Mehrwert liegt ausschliesslich in Interaktivität, nicht in Inhalten die im Report schon stehen
+- **`apps/dashboard/app.py`** neu: 3 Seiten (Streamlit Sidebar-Navigation)
+  - *Linie erkunden* — Plotly Bar-Chart Delay pro Stop, Plotly-Karte der Linie, Top-5-Tabelle, datenbasierte Empfehlung pro Linie
+  - *Linien vergleichen* — KPI-Gegenüberstellung, überlagertes Bar-Chart, Top-5 beider Linien mit Empfehlungen
+  - *Delay vorhersagen* — zwei Szenario-Formulare, LightGBM v1 live, Differenz-Box mit Interpretation
+- **Aufräumen**: alte `app.py` (Chart-Browser) gelöscht, `__pycache__` entfernt, `app_v2.py` → `app.py`
+- **Referenzen**: README (Dashboard-Beschreibung + Local-Run), BACKLOG (#52 geschlossen, #27/#31 Kommentar ergänzt)
+
+**Entscheidungen:**
+
+- Streamlit bleibt richtig: alle 3 Tools brauchen Python-Backend (Parquet filtern, LightGBM aufrufen)
+- Statische HTML-Karten aus `public/img/` gehören *nicht* ins Dashboard — die kennt der User nach der Präsentation schon; Mehrwert liegt in dynamischer Filterung
+- Datenbasierte Empfehlungen: direkt aus `otp_pct` + `dwell_time_median` abgeleitet, kein neues Modell nötig
+
+**Nächster Schritt:** Dashboard deployen (Streamlit Cloud) → Präsentation letzter Slide mit Link/QR-Code ergänzen (separate Session)

@@ -14,7 +14,6 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 | :--- | :--- | :--- |
 | 50 | **`presentation.html` neu generieren** — `/project-case slides` ausführen. Mehr Charts einbetten, vollständige Slide-Struktur (22–25 Slides), alle Sections: Idea · Data Engineering · Data Analysis · Data Science · Empfehlungen. | 1 |
 | 51 | **`index.html` als Übersicht neu generieren** — `/project-case report` ausführen. Scan + Dive + Deep-Dive Ebenen mit eingebetteten Charts. Ziel: 150–300 KB. | 1 |
-| 52 | **Dashboard (`apps/dashboard/app.py`) finalisieren** — Phase 5 Entscheidung: Dash vs. Streamlit; Dashboard portfolio-ready machen. | 1 |
 
 ---
 
@@ -125,7 +124,20 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 <!-- Erledigt 2026-06-02:
   #27 Interaktives Prediction-Tool — apps/dashboard/app.py Vorhersage-Modus: lgbm_v1 live-Inferenz, Stop-Lookup aus test_final.parquet
   #31 Dashboard Spielmodus + Vorhersagemodus — apps/dashboard/app.py: Erkunden (19 PNGs + 3 interaktive HTML-Karten + Scheduling-Map) + Vorhersagen; uv run streamlit run apps/dashboard/app.py
+
+Erledigt 2026-06-15:
+  #52 Dashboard finalisiert — Explorer-Konzept mit 3 Tools: Linie erkunden · Linien vergleichen · Delay vorhersagen.
+      Plotly-Charts auf Basis vorhandener Parquets, datenbasierte Empfehlungen pro Linie, Szenario-Vergleich im Predictor.
+      Alte app.py (Chart-Browser) entfernt, app_v2.py → app.py. README und BACKLOG aktualisiert.
 -->
+
+---
+
+## Docs & Pflege
+
+| # | Beschreibung | Prio | Status |
+| :--- | :--- | :--- | :--- |
+| 34 | **Repo-Referenzen aktualisieren wenn `sf_data-research` umbenannt wird** — README, CLAUDE.md, ROADMAP und alle Notebooks verlinken aktuell auf `sf_data-research`. Bei Umbenennung des Repos zu `zh-tram-data` (oder ähnlich) alle Links und Textstellen ersetzen. Betrifft: README.md (mehrere Stellen), ROADMAP.md Phase 0, 00_introduction.ipynb, 06_prediction_5-comparison.ipynb. | 3 | – |
 
 ---
 
