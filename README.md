@@ -11,7 +11,7 @@
 
 ## TL;DR
 
-**Target:** `arrival_delay` — how many seconds late a tram arrives at a stop (regression) · **OTP (On-Time Performance):** a stop is counted as on time if arrival delay < 120s
+**Target:** `arrival_delay` — how many seconds late a tram arrives at a stop · **OTP (On-Time Performance):** a stop is counted as on time if arrival delay < 120s
 
 - **87.0% OTP** across the network — against VBZ's own 90% target for 2028. The gap is structural, not random.
 - **Peripheral corridors dominate.** Friedhof Enzenbühl (93.8s) and Balgrist (85.2s) are the worst stops — while Paradeplatz, where 14–15 lines cross, performs well.
