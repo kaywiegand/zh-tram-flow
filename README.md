@@ -121,7 +121,7 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 
 → [`03_analysis_0-overview.ipynb`](notebooks/03_analysis_0-overview.ipynb) — index of all 63 findings
 
-6 analysis notebooks · **63 structured findings** across 6 dimensions:
+6 analysis notebooks · **63 structured findings** across 6 dimensions: Target · Network · Temporal · Spatial · Weather · Events
 
 | Dimension | Notebook | Key Finding |
 | :--- | :--- | :--- |
