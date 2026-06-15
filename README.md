@@ -1,6 +1,6 @@
 # Zürich Tram Flow
 
-**Delay analysis and prediction across Zürich's tram network — 94.4M stop events, 3 years, 16 lines.**
+**Delay analysis and prediction across Zürich's tram network — 94.4M stop events, 3 years, 16–18 lines.**
 
 ![Python](https://img.shields.io/badge/Python-3.10-blue)
 ![Polars](https://img.shields.io/badge/Polars-0.20+-orange)
@@ -15,7 +15,7 @@
 
 - **87.0% OTP** across the network — against VBZ's own target of 95%. The gap is structural, not random.
 - **Peripheral corridors dominate.** Friedhof Enzenbühl (93.8s) and Balgrist (85.2s) are the worst stops — while Paradeplatz, where 14–15 lines cross, performs well.
-- **71.3% of all stops have 0s dwell time.** No recovery buffer built in. Delay accumulates and propagates: Pearson r ≥ 0.85 between consecutive stops on all 16 lines.
+- **71.3% of all stops have 0s dwell time.** No recovery buffer built in. Delay accumulates and propagates: Pearson r ≥ 0.85 between consecutive stops across all lines.
 - **Snow is the strongest single factor:** +54s average delay, OTP −10.9pp — geographically separable from rain.
 - **LightGBM v2: MAE 18.56s — 63% below the Stop Mean baseline (50.0s).** Adding `prev_trip_delay` (cascade feature, derived from analysis finding F-NET-07) drove the main improvement. The model confirms the analysis: delay is predictable because it's structural.
 
@@ -93,8 +93,7 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 | Columns | 26 |
 | Period | 2023–2025 |
 | Granularity | Per stop arrival/departure event |
-| Network | VBZ Zürich — 16 tram lines |
-| License | Open Government Data (OGD) |
+| Network | VBZ Zürich — 16–18 lines per year (varies by timetable) |
 
 **Data sources joined:**
 
