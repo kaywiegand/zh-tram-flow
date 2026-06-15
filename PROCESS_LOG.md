@@ -1192,3 +1192,34 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - Datenbasierte Empfehlungen: direkt aus `otp_pct` + `dwell_time_median` abgeleitet, kein neues Modell nötig
 
 **Nächster Schritt:** Dashboard deployen (Streamlit Cloud) → Präsentation letzter Slide mit Link/QR-Code ergänzen (separate Session)
+
+---
+
+### 2026-06-15 — Neue Board-Präsentation presentation-v4.html
+
+**Was wurde gemacht:**
+
+- **`public/presentation-v4.html`** neu erstellt — eigenständige Version, `presentation.html` unverändert
+  - Zielgruppe: Management Board / Vorstand — kein Data-Science-Background
+  - 24 Slides inkl. 6 Section-Divider und 1 Agenda-Slide
+  - Roter Faden: "Vorhersagbar = Steuerbar" durch alle Abschnitte
+  - Nur verifizierte Zahlen aus dem Fakten-Register verwendet
+- **Kapitel-Struktur + Navigation** eingebaut:
+  - Persistente Nav-Bar oben (7 Kapitel, klickbar, aktives Kapitel hervorgehoben)
+  - Slide-Counter rechts (`1 / 24`)
+  - Agenda-Slide (Slide 3) mit 6 klickbaren TOC-Karten
+  - Section-Divider mit Kapitel-Nummer + Fortschritts-Dots (abgeschlossen / aktiv / offen)
+- **Slide 18 — Call-to-Action** hinzugefügt:
+  - "Jetzt sind Sie dran." — Übergabe-Slide nach "Danke"
+  - Button: Live-Dashboard → `localhost:8502`
+  - Button: Vollständiger Report → `index.html`
+  - QR-Code-Platzhalter (URL pending, Deployment ausstehend)
+
+**Entscheidungen:**
+
+- Keine Methodendetails, keine Code-Snippets — Management-tauglich
+- Max. 3–4 Bullets pro Slide, Zahlen immer im Kontext ("87% statt 95% Ziel")
+- Dashboard-URL bleibt `localhost:8502` (in `launch.json` so konfiguriert, kein Default-Port 8501)
+- QR-Code als Platzhalter — wird ausgetauscht sobald Streamlit Cloud Deployment steht
+
+**Nächster Schritt:** Streamlit Cloud deployen → URL + QR-Code in `presentation-v4.html` eintragen (Button-`href` + QR-`src`)
