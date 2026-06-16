@@ -85,6 +85,30 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 | 1 | **README vs. `00_introduction.ipynb`** — Rollentrennung teilweise aufgelöst (Data Dictionary → docs/, Deliverables-Sektion in 00_introduction, Workflow-Tabelle ersetzt Notebook-Liste). Noch offen: explizite Regel dokumentieren wer was liest. | 2 |
 | 53 | **ToC in restlichen Notebooks ergänzen** — 03_analysis_1–6, 05_feature_engineering, 06_prediction_0–6 haben noch keinen ToC. Gleiche Struktur wie 00/01/02/04. | 2 |
 | 54 | **Line Colors Tabelle** — Hex-Codes mit farbigen Swatches ergänzen (`<span style="background:#RRGGBB">`) in `03_analysis_0-overview.ipynb`. Funktioniert in JupyterLab, VSCode, nbviewer. | 3 |
+
+---
+
+## 🗓️ Morgen — Notebooks & Präsentation finalisieren
+
+### Notebooks überarbeiten & finalisieren
+
+| # | Beschreibung | Prio |
+| :--- | :--- | :--- |
+| 55 | **ToC alle restlichen Notebooks** — 03_analysis_1–6, 05_feature_engineering, 06_prediction_0–6. Gleiche Struktur: `## Inhalt` mit Anchor-Links. → BACKLOG #53 | 1 |
+| 56 | **03_analysis_1–6 Inhalte prüfen** — Kernfragen-Bezug: Beantwortet jedes Notebook die zugehörige Frage aus `03_analysis_0-overview`? Section-Header auf Englisch prüfen. | 1 |
+| 57 | **06_prediction_0-overview aktualisieren** — Notebook hat noch Planungssprache ("Fahrplan für die Modellierungsphase"). Analog zu `03_analysis_0`: auf tatsächliche Ergebnisse umschreiben. | 1 |
+| 58 | **`03_analysis_7-findings.ipynb` finalisieren** — Notebook-Inhalte prüfen: Findings-Tabelle vollständig? Header englisch? "Why Structured Finding IDs?"-Abschnitt professionell? | 2 |
+| 59 | **Line Colors mit Swatches** — `03_analysis_0-overview.ipynb`: Hex-Codes visuell ergänzen. → BACKLOG #54 | 3 |
+
+### Präsentation & Artefakte finalisieren
+
+| # | Beschreibung | Prio |
+| :--- | :--- | :--- |
+| 60 | **`presentation-v4.html` QR-Code + Dashboard-URL** — Streamlit Cloud deployen, URL in Button-`href` + QR-`src` eintragen (Slide 18 Call-to-Action). | 1 |
+| 61 | **`presentation.html` (technische Version) reviewen** — Inhalt gegen aktuelle Ergebnisse abgleichen: MAE-Werte, Feature-Importance, Modell-Progression korrekt? | 1 |
+| 62 | **`public/index.html` reviewen** — 3-Ebenen-Report (Scan · Dive · Deep-Dive) gegen aktuelle Notebooks abgleichen. Zahlen, Links und Findings-Referenzen prüfen. | 1 |
+| 63 | **`/project-case check`** — Portfolio-Readiness prüfen bevor weitere Aufbereitung. Gibt Priorisierung für die letzten Schritte. | 1 |
+| 64 | **README finalisieren** — Rollentrennung README vs. `00_introduction` explizit dokumentieren. Deliverables-Liste aktuell? → BACKLOG #1 schliessen. | 2 |
 | 5 | **Pipeline-Skizze dokumentieren** — vollständige Datenpipeline in `00_introduction.ipynb`: wann lazy, wann collect(), wann sink_parquet() und warum. Format: Diagramm + Begründungstabelle. | 2 |
 <!-- Erledigt 2026-06-02:
   #6 Meta-Abgleich — 00_introduction.ipynb (Cell 6: Modellauswahl aktualisiert, Cell 15: 55→63 Findings + 4 neue Notebooks, MAEs korrigiert, Statuses ✅); README (06-6/07 ergänzt); ROADMAP (Phase 4 um Simulation & Empfehlungen erweitert)
