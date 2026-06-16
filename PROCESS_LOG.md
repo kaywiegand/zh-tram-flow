@@ -348,6 +348,23 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 
 ---
 
+### 2026-06-16 — Prediction-Konzepte vertieft · Notebook + Presentation ergänzt
+
+**Kontext:** Onboarding-Session — Prediction-Phase vollständig durchgearbeitet, konzeptionelle Lücken identifiziert und direkt geschlossen.
+
+**`06_prediction_0-overview.ipynb` — 5 neue Markdown-Zellen (kein Code geändert):**
+- One-Hot Encoding: was es ist, warum bei 500 Stops problematisch, LightGBM Native Categoricals als Lösung
+- Early Stopping: Mechanismus erklärt (Val-MAE nach jeder Runde, Stopp nach 50 Runden ohne Verbesserung)
+- Optuna + Hyperparameter-Tuning: was es ist, warum Feature Engineering wichtiger ist (Beweis: v1→v2 gleiche Parameter, −27s MAE)
+- v1 → v2 als Projekterfolg: MBE als Diagnose (nicht Misserfolg), iterative Verbesserung durch Verständnis
+- "Das Signal, nicht der Algorithmus": Kernaussage explizit formuliert + roter Faden Analyse → Feature → Modell
+
+**`public/presentation-v4.html` — Slide 13 (Modell-Progression):**
+- Neue Box: MBE-Story (v1: +8.3s Bias diagnostiziert → v2: −0.69s nach Kalibrierung = iterativer Projekterfolg)
+- Zusatz in grüner Box: "Gleicher Algorithmus · gleiche Einstellungen · nur das richtige Signal aus der Analyse"
+
+---
+
 ## Aktueller Stand
 
 **Phase 0 (Data Engineering):** ✅ Abgeschlossen — in `sf_data-research`
