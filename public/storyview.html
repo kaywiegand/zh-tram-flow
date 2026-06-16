@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zürich Tram Flow — Der gesamte Daten-Lifecycle</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
+
+  <style>
+    .reveal { font-size: 21px; }
+    .reveal h1 { font-size: 2.2em; color: #1a3a5c; text-align: left; }
+    .reveal h2 { font-size: 1.25em; color: #1a3a5c; border-bottom: 2px solid #6c5ce7; padding-bottom: 6px; margin-bottom: 0.8em; text-align: left; }
+    .reveal h3 { font-size: 0.92em; color: #6c5ce7; margin: 0.5em 0 0.2em; text-align: left; }
+    .reveal p, .reveal li { color: #333; line-height: 1.5; text-align: left; }
+    .reveal ul { margin: 0; padding-left: 1.1em; }
+    .reveal li { margin-bottom: 5px; font-size: 0.90em; }
+    .reveal strong { color: #1a3a5c; }
+    .reveal .slide-number { display: none !important; }
+    .reveal img { max-width: 100%; border-radius: 5px; }
+
+    #chapter-nav {
+      position: fixed; top: 0; left: 0; right: 0; height: 36px;
+      background: #2d1b69; display: flex; align-items: center;
+      z-index: 9999; padding: 0 16px; gap: 0;
+    }
+    #chapter-nav .nav-brand { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; padding-right: 18px; border-right: 1px solid rgba(255,255,255,0.15); margin-right: 4px; }
+    #chapter-nav .nav-chapters { display: flex; flex: 1; gap: 2px; }
+    #chapter-nav .nav-ch { flex: 1; text-align: center; font-size: 9px; font-weight: 600; letter-spacing: 0.03em; color: rgba(255,255,255,0.42); padding: 5px 3px; cursor: pointer; border-radius: 3px; transition: color 0.2s, background 0.2s; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #chapter-nav .nav-ch .ch-num { display: block; font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6; margin-bottom: 1px; }
+    #chapter-nav .nav-ch:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.08); }
+    #chapter-nav .nav-ch.active { color: #fff; background: rgba(108,92,231,0.6); }
+    #chapter-nav .nav-ch.done { color: rgba(255,255,255,0.55); }
+    #chapter-nav .nav-counter { font-size: 10px; color: rgba(255,255,255,0.35); white-space: nowrap; padding-left: 14px; border-left: 1px solid rgba(255,255,255,0.12); margin-left: 4px; }
+
+    .reveal .controls { display: none !important; }
+    .reveal .progress { height: 3px !important; background: rgba(108,92,231,0.3) !important; }
+    .reveal .progress span { background: #6c5ce7 !important; }
+
+    .reveal section.title-slide,
+    .reveal section.section-divider { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    .title-slide h1 { color: #fff; font-size: 2.2em; margin-bottom: 0.3em; text-align: center; }
+    .title-slide .sub { color: rgba(255,255,255,0.75); font-size: 0.92em; line-height: 2; text-align: center; }
+    .title-slide .meta { color: rgba(255,255,255,0.4); font-size: 0.7em; margin-top: 1.4em; text-align: center; }
+
+    .section-divider .sec-eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 1em; justify-content: center; }
+    .section-divider .sec-num { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700; color: #fff; }
+    .section-divider .sec-of { font-size: 0.72em; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.45); font-weight: 700; }
+    .section-divider h2 { color: #fff; border-bottom: 2px solid rgba(255,255,255,0.3); font-size: 1.6em; text-align: center; padding-bottom: 10px; margin-bottom: 0.4em; }
+    .section-divider .sec-sub { color: rgba(255,255,255,0.6); font-size: 0.85em; margin-top: 0.4em; text-align: center; }
+    .section-divider .chapter-dots { display: flex; gap: 8px; margin-top: 1.4em; justify-content: center; }
+    .section-divider .chapter-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.25); }
+    .section-divider .chapter-dots .dot.active { background: #fff; border-color: #fff; }
+    .section-divider .chapter-dots .dot.done { background: rgba(108,92,231,0.7); border-color: rgba(108,92,231,0.9); }
+
+    .cols { display: flex; gap: 24px; align-items: flex-start; }
+    .cols > div { flex: 1; }
+    .cols > div.w55 { flex: 1.22; } .cols > div.w45 { flex: 0.82; }
+    .cols > div.w60 { flex: 1.5; }  .cols > div.w40 { flex: 0.67; }
+
+    .box { border-left: 4px solid #6c5ce7; background: #f5f3ff; padding: 8px 12px; border-radius: 0 6px 6px 0; margin: 5px 0; font-size: 0.84em; }
+    .box-blue   { border-left-color: #2E86AB; background: #f0f7fb; }
+    .box-green  { border-left-color: #27ae60; background: #f2faf5; }
+    .box-red    { border-left-color: #c0392b; background: #fdf3f2; }
+    .box-amber  { border-left-color: #e67e22; background: #fdf8f0; }
+
+    .metric-row { display: flex; gap: 8px; margin: 8px 0; }
+    .metric { text-align: center; background: #f5f9fc; border-radius: 8px; padding: 10px; flex: 1; border: 1px solid #d0e8f5; }
+    .metric .val { font-size: 1.65em; font-weight: 700; color: #1a3a5c; line-height: 1.05; }
+    .metric .lbl { font-size: 0.60em; color: #777; margin-top: 3px; }
+    .metric.good .val { color: #27ae60; } .metric.warn .val { color: #e67e22; } .metric.bad .val { color: #c0392b; } .metric.purple .val { color: #6c5ce7; }
+
+    .reveal table { width: 100%; border-collapse: collapse; font-size: 0.82em; margin: 0.3em 0; }
+    .reveal table th { background: #2d1b69; color: #fff; padding: 6px 9px; text-align: left; font-weight: 600; }
+    .reveal table td { padding: 5px 9px; border-bottom: 1px solid #e8e8e8; vertical-align: middle; text-align: left; }
+    .reveal table tr:nth-child(even) td { background: #f9f7ff; }
+    tr.hl-green  td { background: #e5f5ec !important; font-weight: 700; }
+    tr.hl-purple td { background: #f0eeff !important; font-weight: 700; }
+    tr.hl-amber  td { background: #fef9ee !important; }
+
+    .caption { font-size: 0.66em; color: #777; margin-top: 4px; text-align: center; font-style: italic; }
+    code { background: #f0eeff; padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 0.88em; color: #2d1b69; }
+
+    /* Pipeline visualization */
+    .pipeline { display: flex; align-items: center; gap: 0; margin: 14px 0; flex-wrap: wrap; }
+    .pipe-step { background: #f5f3ff; border: 1px solid #c4b5f7; border-radius: 8px; padding: 8px 12px; font-size: 0.78em; font-weight: 600; color: #2d1b69; text-align: center; min-width: 90px; }
+    .pipe-step.done { background: #e5f5ec; border-color: #9be0ba; color: #1a6b3c; }
+    .pipe-step.active { background: #6c5ce7; border-color: #6c5ce7; color: #fff; }
+    .pipe-arrow { color: #c4b5f7; font-size: 1.1em; padding: 0 4px; }
+
+    /* AI workflow cards */
+    .ai-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+    .ai-card { background: #f5f3ff; border: 1px solid #c4b5f7; border-radius: 8px; padding: 12px 14px; }
+    .ai-card .ai-label { font-size: 0.68em; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #6c5ce7; margin-bottom: 4px; }
+    .ai-card strong { display: block; font-size: 0.86em; color: #1a3a5c; margin-bottom: 3px; }
+    .ai-card p { font-size: 0.78em; color: #555; margin: 0; }
+
+    .thesis-label { font-size: 0.65em; letter-spacing: 0.16em; text-transform: uppercase; color: #6c5ce7; font-weight: 700; margin-bottom: 0.8em; }
+    .thesis-main { font-size: 1.3em; color: #1a3a5c; line-height: 1.4; font-weight: 700; max-width: 800px; text-align: center; }
+    .thesis-punch { font-size: 0.95em; color: #6c5ce7; font-weight: 700; margin-top: 1em; border-top: 1px solid #c4b5f7; padding-top: 0.9em; text-align: center; }
+    .closing-thesis { font-size: 1.4em; font-weight: 700; color: #fff; text-align: center; line-height: 1.4; max-width: 680px; }
+    .closing-sub { font-size: 0.85em; color: rgba(255,255,255,0.7); text-align: center; margin-top: 1em; }
+
+    .audience-badge { position: fixed; bottom: 14px; left: 16px; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); background: #2d1b69; padding: 3px 8px; border-radius: 3px; z-index: 9998; }
+  </style>
+</head>
+<body>
+
+<div id="chapter-nav">
+  <div class="nav-brand">ZTF · Story</div>
+  <div class="nav-chapters">
+    <div class="nav-ch" data-chapter="0" data-slide="0"><span class="ch-num">Intro</span>Motivation</div>
+    <div class="nav-ch" data-chapter="1" data-slide="3"><span class="ch-num">01</span>Daten</div>
+    <div class="nav-ch" data-chapter="2" data-slide="6"><span class="ch-num">02</span>Analyse</div>
+    <div class="nav-ch" data-chapter="3" data-slide="11"><span class="ch-num">03</span>Modell</div>
+    <div class="nav-ch" data-chapter="4" data-slide="16"><span class="ch-num">04</span>AI-Workflow</div>
+    <div class="nav-ch" data-chapter="5" data-slide="20"><span class="ch-num">05</span>Empfehlungen</div>
+    <div class="nav-ch" data-chapter="6" data-slide="24"><span class="ch-num">06</span>Reflexion</div>
+  </div>
+  <div class="nav-counter" id="slide-counter">1 / 27</div>
+</div>
+
+<div class="audience-badge">Zielgruppe: Portfolio · Konferenz · Vollständiger Überblick</div>
+
+<div class="reveal">
+<div class="slides">
+
+
+<!-- SLIDE 1 — Titel -->
+<section class="title-slide" data-background="linear-gradient(135deg, #2d1b69 0%, #6c5ce7 100%)" data-chapter="0">
+  <h1>Zürich Tram Flow</h1>
+  <div class="sub">
+    Von der Idee bis zur Empfehlung — ein vollständiger Daten-Lifecycle<br>
+    Motivation · Data Engineering · Analyse · ML · AI-Workflow · Empfehlungen
+  </div>
+  <div class="meta">github.com/kaywiegand/zh-tram-flow · Kay Wiegand</div>
+</section>
+
+
+<!-- SLIDE 2 — Kernthese -->
+<section style="display:flex !important; flex-direction:column; align-items:center; justify-content:center; text-align:center;" data-chapter="0">
+  <div class="thesis-label">Der rote Faden</div>
+  <div class="thesis-main">
+    Daten ohne Verständnis sind Rauschen.<br>
+    Verständnis ohne Daten ist Spekulation.
+  </div>
+  <div class="pipeline" style="margin-top:1.4em; justify-content:center;">
+    <div class="pipe-step done">Idee</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step done">Daten</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step done">Analyse</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step done">Feature</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step done">Modell</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step done">Empfehlung</div>
+  </div>
+  <div class="thesis-punch" style="margin-top:1.2em;">
+    Jeder Schritt informiert den nächsten. Das ist kein Zufall — das ist Methode.
+  </div>
+</section>
+
+
+<!-- SLIDE 3 — Motivation -->
+<section data-chapter="0">
+  <h2>Warum dieses Projekt?</h2>
+  <div class="cols">
+    <div class="w55">
+      <h3>Die Alltagsfrage</h3>
+      <ul>
+        <li>Zürich hat eines der dichtesten Tramnetze Europas</li>
+        <li>Trotzdem: Verspätungen fühlen sich <strong>systema­tisch</strong> an, nicht zufällig</li>
+        <li>Immer dieselben Linien, immer dieselben Tageszeiten, immer dieselben Endstationen</li>
+        <li>VBZ publiziert Open Data — alle Halt-Ereignisse, 3 Jahre, 16 Linien</li>
+      </ul>
+      <div class="box" style="margin-top:10px;">
+        <strong>Hypothese vom ersten Tag:</strong> Die Verspätungen folgen einem Muster,
+        das im Fahrplan-Design steckt — nicht im Wetter, nicht im Zufall.
+      </div>
+    </div>
+    <div class="w45">
+      <h3>Scope-Entscheidungen</h3>
+      <table>
+        <thead><tr><th>Frage</th><th>Entscheidung</th></tr></thead>
+        <tbody>
+          <tr><td>Welche Stadt?</td><td>Zürich — beste Datenlage</td></tr>
+          <tr><td>Tram oder Bus?</td><td>Nur Tram — homogenere Infrastruktur</td></tr>
+          <tr><td>Zeitraum?</td><td>2023–2025 — 3 vollständige Betriebsjahre</td></tr>
+          <tr><td>Zielvariable?</td><td><code>arrival_delay</code> — steuerbar, direkt messbar</td></tr>
+          <tr><td>Externes Ziel?</td><td>OTP 95% — VBZ-Eigenangabe bis 2028</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 01 — Daten -->
+<section class="section-divider" data-background="linear-gradient(135deg, #2d1b69 0%, #1a3a5c 100%)" data-chapter="1">
+  <div class="sec-eyebrow"><div class="sec-num">1</div><div class="sec-of">von 6 Kapiteln</div></div>
+  <h2>Datenbasis</h2>
+  <div class="sec-sub">9 Quellen · Master-Join · 94.4M Zeilen · Cleaning-Entscheidungen</div>
+  <div class="chapter-dots">
+    <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</section>
+
+
+<!-- SLIDE 5 — Data Engineering -->
+<section data-chapter="1">
+  <h2>Data Engineering — 9 Quellen zu einem Master-Datensatz</h2>
+  <div class="cols">
+    <div class="w55">
+      <table>
+        <thead><tr><th>Quelle</th><th>Inhalt</th><th>Format</th></tr></thead>
+        <tbody>
+          <tr><td>VBZ Open Data</td><td>Ist-Halt-Ereignisse 2023–2025</td><td>CSV → Parquet</td></tr>
+          <tr><td>GTFS Zürich</td><td>Haltestellen, Routen, Linien-Shapes</td><td>9 Parquet-Files</td></tr>
+          <tr><td>Open-Meteo API</td><td>Stündliche Meteo-Werte (Temp, Regen, Schnee)</td><td>JSON → Parquet</td></tr>
+          <tr><td>ZH Events</td><td>Events, Messen, Konzerte 2023–2025</td><td>CSV → Parquet</td></tr>
+          <tr class="hl-purple"><td><strong>Master Join</strong></td><td>Alle Quellen auf Halt-Ebene</td><td><strong>94.4M × 26 Spalten</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="w45">
+      <h3>Kritische Entscheidungen</h3>
+      <ul>
+        <li><code>canceled = True</code> behalten — relevante Extremlagen für Modell</li>
+        <li><code>|arrival_delay| > 3600s</code> entfernen — physisch unmöglich</li>
+        <li>Nov 14 – Dez 23 2025: <code>departure_delay</code> maskiert (Fahrplanwechsel-Artefakt)</li>
+        <li>Linie E ausgeschlossen — strukturell nicht vergleichbar (OTP 56%)</li>
+        <li>Meteo-Imputation: Forward/Backward Fill — nach dem Split</li>
+      </ul>
+      <div class="box" style="margin-top:8px;">
+        Cleaning-Pipeline in <code>src/zh_tram_flow/data/cleaning.py</code> —
+        reproduzierbar, versioniert, dokumentiert.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SLIDE 6 — Datenbasis im Überblick -->
+<section data-chapter="1">
+  <h2>Die Datenbasis auf einen Blick</h2>
+  <div class="metric-row">
+    <div class="metric"><div class="val">94.4M</div><div class="lbl">Rohdaten-Zeilen</div></div>
+    <div class="metric"><div class="val">85M</div><div class="lbl">nach Cleaning</div></div>
+    <div class="metric"><div class="val">26</div><div class="lbl">Spalten</div></div>
+    <div class="metric"><div class="val">16</div><div class="lbl">Tramlinien</div></div>
+    <div class="metric"><div class="val">3 J.</div><div class="lbl">2023–2025</div></div>
+  </div>
+  <div class="cols" style="margin-top:12px;">
+    <div>
+      <h3>Bekannte Dateneigenschaft: Kurs-Varianten</h3>
+      <p style="font-size:0.82em;">L2 fährt ~900 Trips auf einer Verlängerung via Museum Rietberg. Diese Stops erscheinen im Datensatz mit &lt;1% Frequenz des Hauptkurses — kein Datenfehler, sondern GTFS-bestätigte Realität. In Karten werden sie per relativem Frequenz-Filter ausgeblendet.</p>
+    </div>
+    <div>
+      <h3>Nov/Dez 2025 Anomalie</h3>
+      <p style="font-size:0.82em;"><code>departure_delay</code> explodiert ab 14. Nov 2025: VBZ begann operativ den neuen Fahrplan j26 vorzubereiten, während der Referenzwert j25 blieb. Kein Modell-Fehler — Messsystem-Artefakt. Lösung: Maskierung statt Ausschluss → +5M Testzeilen gewonnen.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 02 — Analyse -->
+<section class="section-divider" data-background="linear-gradient(135deg, #2d1b69 0%, #1a3a5c 100%)" data-chapter="2">
+  <div class="sec-eyebrow"><div class="sec-num">2</div><div class="sec-of">von 6 Kapiteln</div></div>
+  <h2>Analyse</h2>
+  <div class="sec-sub">55 Findings · 6 Dimensionen · 4-Schritt-Beweiskette</div>
+  <div class="chapter-dots">
+    <div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</section>
+
+
+<!-- SLIDE 8 — Analyse-Architektur -->
+<section data-chapter="2">
+  <h2>Analyse-Architektur — 6 Notebooks, 55 Findings</h2>
+  <div class="cols">
+    <div class="w55">
+      <table>
+        <thead><tr><th>Notebook</th><th>Dimension</th><th>Findings</th></tr></thead>
+        <tbody>
+          <tr><td><code>03_analysis_1</code></td><td>Zielvariable & OTP</td><td>F-TARGET-*</td></tr>
+          <tr><td><code>03_analysis_2</code></td><td>Netz & GTFS-Änderungen</td><td>F-NET-*</td></tr>
+          <tr><td><code>03_analysis_3</code></td><td>Temporal (Stunde, Wochentag, Monat)</td><td>F-TEMP-*</td></tr>
+          <tr><td><code>03_analysis_4</code></td><td>Spatial (Haltestellen, Linien)</td><td>F-SPAT-*</td></tr>
+          <tr><td><code>03_analysis_5</code></td><td>Meteorologie</td><td>F-WEAT-*</td></tr>
+          <tr><td><code>03_analysis_6</code></td><td>Events & Feiertage</td><td>F-EVNT-*</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="w45">
+      <h3>Methodische Entscheidung</h3>
+      <p style="font-size:0.82em; margin-bottom:8px;">EDA-Phase nutzt <code>lf_all = concat(TRAIN, TEST)</code> — alle 3 Jahre, voller Datensatz. Das ist korrekt: Analyse beschreibt die Realität, das Modell sieht nie die Zukunft.</p>
+      <div class="box" style="margin-top:0;">
+        <strong>Finding-ID-System:</strong> F-NET-07, F-TARGET-03 etc. — wie Ticket-IDs. Jedes Finding ist eindeutig referenzierbar und nachvollziehbar. F-NET-07 → <code>prev_trip_delay</code> → MAE 18.56s.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SLIDE 9 — Top Findings -->
+<section data-chapter="2">
+  <h2>Die 6 Findings, die die Geschichte entscheiden</h2>
+  <table>
+    <thead><tr><th>Finding</th><th>Befund</th><th>Bedeutung</th></tr></thead>
+    <tbody>
+      <tr><td>F-TARGET-03</td><td>71.5% aller Halte akkumulieren Delay</td><td>Systemische Schwäche, kein Zufall</td></tr>
+      <tr><td>F-SPAT-08</td><td>71.3% dwell_time = 0s</td><td>Kein Puffer → keine Erholung möglich</td></tr>
+      <tr class="hl-purple"><td><strong>F-NET-07</strong></td><td>Pearson r ≥ 0.85 Halt-zu-Halt</td><td>Kaskadeneffekt → Schlüssel-Feature</td></tr>
+      <tr><td>F-SPAT-03</td><td>Hotspots = Peripherie (0 Overlap mit Zentrum)</td><td>Liniendichte ≠ Delay-Problem</td></tr>
+      <tr><td>F-WEAT-01</td><td>Schnee +54s, OTP −10.9pp</td><td>Stärkster Einzelfaktor — aber nicht steuerbar</td></tr>
+      <tr><td>F-TEMP-02</td><td>Peak 21h (67.9s), nicht 8h (48.9s)</td><td>Nicht Morgenrush — Abreisewelle</td></tr>
+    </tbody>
+  </table>
+  <div class="box box-green" style="margin-top:8px;">
+    F-NET-07 ist der Schlüssel: Ohne dieses Finding kein <code>prev_trip_delay</code>-Feature,
+    ohne dieses Feature kein MAE 18.56s.
+  </div>
+</section>
+
+
+<!-- SLIDE 10 — 4-Schritt-Beweiskette -->
+<section data-chapter="2">
+  <h2>Die 4-Schritt-Beweiskette</h2>
+  <div class="pipeline" style="justify-content:center; margin-bottom:14px;">
+    <div class="pipe-step active">1. Anomalie</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step active">2. Gradient</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step active">3. Mechanismus</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step active">4. Beweis</div>
+  </div>
+  <div class="cols">
+    <div>
+      <div class="box" style="margin-bottom:6px;">
+        <strong>1. Anomalie</strong> — <code>plot_stop_delay_map</code><br>
+        Hotspots an Endhalten, nicht im Zentrum. Wieso?
+      </div>
+      <div class="box" style="margin-bottom:6px;">
+        <strong>2. Gradient</strong> — <code>plot_line_delay_profile_map(L11 vs L6)</code><br>
+        Delay wächst entlang der Strecke. L11 stark, L6 kaum.
+      </div>
+    </div>
+    <div>
+      <div class="box" style="margin-bottom:6px;">
+        <strong>3. Mechanismus</strong> — <code>plot_stop_dwell_map(L11)</code><br>
+        Röteste Bubbles = größte Bubbles. Kein Puffer = keine Erholung.
+      </div>
+      <div class="box">
+        <strong>4. Beweis</strong> — <code>plot_cascade_effect</code><br>
+        Pearson r ≥ 0.85 auf <em>allen</em> 16 Linien. Systemregel, kein Ausreißer.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SLIDE 11 — Überraschende Findings -->
+<section data-chapter="2">
+  <h2>Die unerwarteten Findings</h2>
+  <div class="cols">
+    <div>
+      <h3>Kein Morgenrush</h3>
+      <ul>
+        <li>7h: 48.9s — <strong>unter Netzschnitt</strong></li>
+        <li>21h: 67.9s — <strong>echter Peak</strong></li>
+        <li>Ursache: Abreisewelle nach Events/Arbeit, nicht Berufsverkehr</li>
+      </ul>
+      <h3 style="margin-top:12px;">Winter = beste Jahreszeit</h3>
+      <ul>
+        <li>Winter: 51.7s — besser als Frühling und Sommer</li>
+        <li>Herbst: 61.2s — schlechteste Jahreszeit</li>
+        <li>Kälte = weniger Autos → Tram profitiert</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Berufsmesse schlägt Taylor Swift</h3>
+      <ul>
+        <li>Fachmessen: 66.0s, OTP 84% — schlechteste Event-Kategorie</li>
+        <li>Taylor Swift: 75.4s — schlimm aber einmalig</li>
+        <li>Schlimmster Tag: Berufsmesse 21.11.2024 (192.5s, OTP 54.5%)</li>
+      </ul>
+      <h3 style="margin-top:12px;">Fahrplanwechsel unsichtbar</h3>
+      <ul>
+        <li>Dez 2023: größter Netzumbau (L9/L11/L13 fundamental geändert)</li>
+        <li>Netzweit: +0.5s — statistisch inexistent</li>
+        <li>Infrastruktur ist nicht der Hebel</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 03 — Modell -->
+<section class="section-divider" data-background="linear-gradient(135deg, #2d1b69 0%, #1a3a5c 100%)" data-chapter="3">
+  <div class="sec-eyebrow"><div class="sec-num">3</div><div class="sec-of">von 6 Kapiteln</div></div>
+  <h2>Modell</h2>
+  <div class="sec-sub">Baseline · LightGBM v1 → v2 · Bias-Kalibrierung · XGBoost-Check</div>
+  <div class="chapter-dots">
+    <div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</section>
+
+
+<!-- SLIDE 13 — Modell-Strategie -->
+<section data-chapter="3">
+  <h2>Modell-Strategie — der geplante Ablauf</h2>
+  <div class="pipeline" style="justify-content:center; margin-bottom:14px;">
+    <div class="pipe-step done">Baseline</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step done">v1 (Probe)</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step done">Diagnose</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step done">v2 (Signal)</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step done">Kalibrierung</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step done">Robustheit</div>
+  </div>
+  <div class="cols">
+    <div>
+      <div class="box box-blue">
+        <strong>Baseline zuerst:</strong> Stop Mean = 50.0s MAE. Ohne Baseline ist
+        "45.7s" bedeutungslos — gut oder schlecht? Baseline sagt: gut, aber kaum besser als kein Modell.
+      </div>
+      <div class="box box-blue" style="margin-top:6px;">
+        <strong>v1 als Proof of Concept:</strong> Stacks der Infrastruktur testen,
+        Leakage-Freiheit beweisen, erste MAE messen. Kein Ziel: perfektes Modell.
+        Ziel: lauffähiges Framework.
+      </div>
+    </div>
+    <div>
+      <div class="box box-green">
+        <strong>v2 als Feature-Sprung:</strong> F-NET-07 → <code>prev_trip_delay</code>.
+        Gleicher Algorithmus, gleiche Parameter — nur das Signal fehlt noch.
+        MAE: 45.7s → 18.56s. Beweis: Domain-Wissen schlägt Tuning.
+      </div>
+      <div class="box box-amber" style="margin-top:6px;">
+        <strong>XGBoost als Robustheitsprüfung:</strong> Gleiche Features, anderer Algorithmus.
+        Val MAE ~21.4s — ähnlich. LightGBM-Wahl war empirisch korrekt, nicht nur Annahme.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SLIDE 14 — Modell-Ergebnisse -->
+<section data-chapter="3">
+  <h2>Modell-Progression — die vollständige Tabelle</h2>
+  <table>
+    <thead><tr><th>Stufe</th><th>MAE</th><th>MBE</th><th>Was geändert</th></tr></thead>
+    <tbody>
+      <tr><td>Stop Mean Baseline</td><td>50.0s</td><td>—</td><td>Kein Modell</td></tr>
+      <tr><td>LightGBM v1</td><td>45.7s</td><td>+8.3s (Bias)</td><td>32 Features, Default-Params</td></tr>
+      <tr class="hl-green"><td><strong>LightGBM v2</strong></td><td><strong>18.56s</strong></td><td><strong>−0.69s</strong></td><td>+prev_trip_delay · +stop_sequence_pct · Isotonic Reg.</td></tr>
+      <tr class="hl-amber"><td>XGBoost (Check)</td><td>~21.4s (val)</td><td>—</td><td>Gleiche v2-Features — algorithmischer Vergleich</td></tr>
+    </tbody>
+  </table>
+  <div class="metric-row" style="margin-top:10px;">
+    <div class="metric bad"><div class="val">50.0s</div><div class="lbl">Baseline</div></div>
+    <div class="metric warn"><div class="val">45.7s</div><div class="lbl">v1</div></div>
+    <div class="metric good"><div class="val">18.56s</div><div class="lbl">v2 (−63%)</div></div>
+    <div class="metric purple"><div class="val">−27s</div><div class="lbl">durch 2 Features</div></div>
+  </div>
+</section>
+
+
+<!-- SLIDE 15 — Fehleranalyse -->
+<section data-chapter="3">
+  <h2>Fehleranalyse v2 — wo bleibt der Fehler?</h2>
+  <div class="cols">
+    <div>
+      <h3>Nach Tageszeit</h3>
+      <table>
+        <thead><tr><th>Stunde</th><th>MAE</th></tr></thead>
+        <tbody>
+          <tr class="hl-amber"><td>17h–18h</td><td>höchste MAE (Rush-Hour)</td></tr>
+          <tr class="hl-green"><td>3h–5h</td><td>niedrigste MAE (Nachtverkehr)</td></tr>
+        </tbody>
+      </table>
+      <h3 style="margin-top:10px;">Nach Wetter</h3>
+      <table>
+        <thead><tr><th>Bedingung</th><th>MAE</th></tr></thead>
+        <tbody>
+          <tr class="hl-amber"><td>Schnee (n=39.920)</td><td>~58s</td></tr>
+          <tr><td>Regen</td><td>~50s</td></tr>
+          <tr class="hl-green"><td>Normal</td><td>~45s</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Interpretierbare Schwächen</h3>
+      <ul>
+        <li>Schnee: seltene Extremlage, im Training unterrepräsentiert</li>
+        <li>Rush-Hour: viele unbekannte externe Faktoren (Unfälle, Baustellen)</li>
+        <li><code>stop_name</code> als Native-Cat: 500 Stops grob gebündelt — Target Encoding würde helfen</li>
+      </ul>
+      <div class="box box-green" style="margin-top:10px;">
+        Fehleranalyse zeigt: das Modell versagt nicht chaotisch.
+        Es versagt <strong>dort wo es physisch schwieriger ist</strong> —
+        das ist erwartet und erklärbar.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 04 — AI-Workflow -->
+<section class="section-divider" data-background="linear-gradient(135deg, #2d1b69 0%, #6c5ce7 100%)" data-chapter="4">
+  <div class="sec-eyebrow"><div class="sec-num">4</div><div class="sec-of">von 6 Kapiteln</div></div>
+  <h2>AI-Workflow</h2>
+  <div class="sec-sub">Wie Claude in den Projektalltag integriert wurde — und was das bedeutet</div>
+  <div class="chapter-dots">
+    <div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</section>
+
+
+<!-- SLIDE 17 — AI als Werkzeug -->
+<section data-chapter="4">
+  <h2>AI im Projekt — nicht als Autopilot, sondern als Werkzeug</h2>
+  <div class="cols">
+    <div class="w55">
+      <div class="ai-grid">
+        <div class="ai-card">
+          <div class="ai-label">Beschleunigt</div>
+          <strong>Code-Scaffolding</strong>
+          <p>Plotly-Funktionen, Polars-Pipelines, Cleaning-Schritte — erste lauffähige Version in Minuten statt Stunden.</p>
+        </div>
+        <div class="ai-card">
+          <div class="ai-label">Beschleunigt</div>
+          <strong>Dokumentation</strong>
+          <p>PROCESS_LOG, README, Notebook-Markdown-Zellen — strukturiert und aktuell gehalten während der Arbeit.</p>
+        </div>
+        <div class="ai-card">
+          <div class="ai-label">Beschleunigt</div>
+          <strong>Debugging</strong>
+          <p>Polars-Fehler, Plotly-SRI-Probleme, XGBoost UTF-8-Issue — Diagnose und Fix in einem Schritt.</p>
+        </div>
+        <div class="ai-card">
+          <div class="ai-label">Beschleunigt</div>
+          <strong>Artefakt-Erstellung</strong>
+          <p>HTML-Presentations, Reports, Dashboards — Struktur und Basis, nicht nur der Inhalt.</p>
+        </div>
+      </div>
+    </div>
+    <div class="w45">
+      <div class="box" style="margin-bottom:8px;">
+        <strong>Was AI nicht kann und nicht sollte:</strong>
+        <ul style="margin-top:6px;">
+          <li>Die richtigen Fragen stellen</li>
+          <li>Entscheiden ob ein Finding relevant ist</li>
+          <li>Domain-Wissen über das Tramnetz einbringen</li>
+          <li>Methodische Entscheidungen treffen (Split-Strategie, Leakage-Grenzen)</li>
+          <li>Erkennen dass F-NET-07 das entscheidende Finding ist</li>
+        </ul>
+      </div>
+      <div class="box box-green">
+        <strong>Das Urteilsvermögen bleibt beim Menschen.</strong><br>
+        AI beschleunigt Ausführung — nicht Entscheidung.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SLIDE 18 — Konkrete Zeitersparnis -->
+<section data-chapter="4">
+  <h2>Konkrete Auswirkung auf den Projektverlauf</h2>
+  <table>
+    <thead><tr><th>Phase</th><th>Ohne AI-Workflow</th><th>Mit AI-Workflow</th><th>Zeitgewinn</th></tr></thead>
+    <tbody>
+      <tr><td>Data Engineering</td><td>2–3 Wochen</td><td>~1 Woche</td><td>~50%</td></tr>
+      <tr><td>6 Analyse-Notebooks</td><td>4–6 Wochen</td><td>~2 Wochen</td><td>~60%</td></tr>
+      <tr><td>ML Pipeline v1+v2</td><td>2–3 Wochen</td><td>~1 Woche</td><td>~50%</td></tr>
+      <tr><td>Artefakte (HTML, Reports)</td><td>2 Wochen</td><td>~3 Tage</td><td>~70%</td></tr>
+      <tr class="hl-purple"><td><strong>Gesamt</strong></td><td>~12 Wochen</td><td><strong>~5 Wochen</strong></td><td><strong>~60%</strong></td></tr>
+    </tbody>
+  </table>
+  <div class="box" style="margin-top:10px;">
+    Diese Zahlen sind Schätzungen — aber die Richtung stimmt. Der Hauptgewinn liegt
+    nicht in schnellerem Tippen, sondern in <strong>weniger Kontextwechseln</strong>:
+    Analyse, Code, Dokumentation und Artefakte werden parallel statt sequenziell gepflegt.
+  </div>
+</section>
+
+
+<!-- SLIDE 19 — AI-Workflow als Skill -->
+<section data-chapter="4">
+  <h2>AI-Workflow als Karriere-Kompetenz</h2>
+  <div class="cols">
+    <div class="w55">
+      <h3>Was "AI-Workflow" in der Praxis bedeutet</h3>
+      <ul>
+        <li>Nicht: "AI hat das Projekt gemacht"</li>
+        <li>Nicht: "Ich habe Prompts geschrieben"</li>
+        <li><strong>Sondern:</strong> AI als intelligentes Werkzeug in einen strukturierten Arbeitsablauf integrieren</li>
+        <li>Qualitätssicherung bleibt beim Menschen — Code-Review, Import-Tests, inhaltliche Verifikation</li>
+        <li>Entscheidungen dokumentieren — damit sie auch ohne AI-Kontext nachvollziehbar bleiben</li>
+      </ul>
+    </div>
+    <div class="w45">
+      <div class="box" style="margin-bottom:8px;">
+        <strong>Differenzierender Faktor:</strong> Wer AI effektiv in den DS-Workflow integriert,
+        kann komplexere Projekte in kürzerer Zeit vollständig durchführen —
+        von der Datenquelle bis zum Artefakt.
+      </div>
+      <div class="box box-green">
+        Das ist nicht die Zukunft von Data Science.<br>
+        <strong>Das ist die Gegenwart.</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 05 — Empfehlungen -->
+<section class="section-divider" data-background="linear-gradient(135deg, #2d1b69 0%, #1a3a5c 100%)" data-chapter="5">
+  <div class="sec-eyebrow"><div class="sec-num">5</div><div class="sec-of">von 6 Kapiteln</div></div>
+  <h2>Empfehlungen</h2>
+  <div class="sec-sub">4 Handlungsfelder — direkt aus den Daten, direkt umsetzbar</div>
+  <div class="chapter-dots">
+    <div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div>
+  </div>
+</section>
+
+
+<!-- SLIDE 21 — 4 Empfehlungen -->
+<section data-chapter="5">
+  <h2>4 Handlungsfelder</h2>
+  <table>
+    <thead><tr><th>#</th><th>Massnahme</th><th>Datenbasis</th><th>Erwartete Wirkung</th></tr></thead>
+    <tbody>
+      <tr><td>R1</td><td><strong>Fahrplan-Redesign Linie 11</strong> — gezielter Puffer an Endhalten</td><td>dwell_time = 0s, OTP 83%</td><td>OTP +3–5pp auf L11</td></tr>
+      <tr><td>R2</td><td><strong>Real-Time Dispatch</strong> — Kaskadenmodell als Frühwarnsystem</td><td>MAE 18.56s, Kaskade r ≥ 0.85</td><td>Disposi früher informiert</td></tr>
+      <tr><td>R3</td><td><strong>Kapazität 20–22h</strong> — Taktdichte folgt tatsächlicher Nachfrage</td><td>Peak 21h = 67.9s</td><td>Rush-Peak −5–10s</td></tr>
+      <tr><td>R4</td><td><strong>Priority Monitoring K11/K12</strong> — Frühindikator Netz-OTP</td><td>K11: 68.3s, OTP 83%</td><td>Frühwarnung systemweit</td></tr>
+    </tbody>
+  </table>
+  <div class="box box-green" style="margin-top:10px;">
+    Alle 4 Empfehlungen sind durch konkrete Findings belegt — keine Annahmen,
+    keine Bauchgefühle. Jede Empfehlung zeigt auf eine Notebook-Zelle.
+  </div>
+</section>
+
+
+<!-- SLIDE 22 — Vorhersage als Werkzeug -->
+<section data-chapter="5">
+  <h2>Das Modell als operatives Werkzeug</h2>
+  <div class="cols">
+    <div class="w55">
+      <h3>Scheduling Recommendations (06_prediction_7)</h3>
+      <img src="img/recommendations-map.png" alt="Empfehlungskarte" style="margin-top:4px;">
+      <div class="caption">Risikomatrix Stop × Linie × Kontext — Basis für Fahrplan-Puffer-Empfehlungen</div>
+    </div>
+    <div class="w45">
+      <h3>Live-Szenario</h3>
+      <div class="box box-blue" style="margin-bottom:8px;">
+        <strong>Input:</strong> Linie 11 · Donnerstag 17h · Paradeplatz · leichter Regen<br>
+        <strong>Output:</strong> 48s erwarteter Delay
+      </div>
+      <div class="box box-blue">
+        <strong>Input:</strong> Linie 11 · Samstag 21h · Balgrist · Schnee<br>
+        <strong>Output:</strong> ~120s erwarteter Delay → Frühwarnung
+      </div>
+      <div class="box box-green" style="margin-top:8px;">
+        Das Modell weiß nicht <em>warum</em> die Tram zu spät ist —
+        aber es weiß <em>dass</em> sie zu spät sein wird.
+        Und das 19 Sekunden genau.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SLIDE 23 — Dwell Simulator -->
+<section data-chapter="5">
+  <h2>Grenzen des Modells — was wir gelernt haben</h2>
+  <div class="cols">
+    <div>
+      <h3>Dwell-Time Simulator (06_prediction_6)</h3>
+      <p style="font-size:0.82em; margin-bottom:8px;">Hypothese: Wenn wir <code>dwell_time</code> von 0s auf 60s erhöhen, sinkt der vorhergesagte Delay.</p>
+      <div class="box box-red">
+        <strong>Ergebnis: Gegenteil.</strong> Modell erhöht Vorhersage bei Simulation (+20s).
+        Ursache: Konfundierung — VBZ gibt Puffer an komplexen Stops, die ohnehin mehr Delay haben.
+        <code>r = +0.16</code> zwischen dwell_time und Delay.
+      </div>
+      <div class="box box-amber" style="margin-top:6px;">
+        <strong>Lernen:</strong> Feature Importance ≠ kausaler Hebel.
+        <code>dwell_time</code> ist Proxy, nicht Ursache.
+      </div>
+    </div>
+    <div>
+      <h3>Was das Modell ist — und was nicht</h3>
+      <ul>
+        <li>✅ Präzise Vorhersage auf Basis bekannter Muster</li>
+        <li>✅ Bestätigung der Analyse-Findings</li>
+        <li>✅ Operatives Dispatch-Tool (v2, mit Echtzeit-Feed)</li>
+        <li>❌ Kausales Modell — "wenn wir X ändern, wird Y besser"</li>
+        <li>❌ Erklärung einzelner Verspätungen</li>
+        <li>❌ Generaliserung auf andere Städte ohne Re-Training</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- SECTION 06 — Reflexion -->
+<section class="section-divider" data-background="linear-gradient(135deg, #2d1b69 0%, #6c5ce7 100%)" data-chapter="6">
+  <div class="sec-eyebrow"><div class="sec-num">6</div><div class="sec-of">von 6 Kapiteln</div></div>
+  <h2>Reflexion</h2>
+  <div class="sec-sub">Was gut lief · Was ich anders machen würde · Was als nächstes kommt</div>
+  <div class="chapter-dots">
+    <div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div>
+  </div>
+</section>
+
+
+<!-- SLIDE 25 — Was gut lief -->
+<section data-chapter="6">
+  <h2>Was gut lief — und was ich anders machen würde</h2>
+  <div class="cols">
+    <div>
+      <h3>✅ Gut</h3>
+      <ul>
+        <li><strong>Analyse vor Feature Engineering:</strong> F-NET-07 hätte ich ohne EDA nicht gefunden</li>
+        <li><strong>Temporaler Split von Anfang an:</strong> Kein Leakage-Problem entdeckt nachträglich</li>
+        <li><strong>v1 als Proof of Concept:</strong> MBE +8.3s war wertvolle Diagnose, kein Misserfolg</li>
+        <li><strong>Anomalie maskiert statt ausgeschlossen:</strong> +5M Testzeilen, November-Abdeckung</li>
+        <li><strong>Finding-ID-System:</strong> F-NET-07 → Feature → Modell nachvollziehbar</li>
+      </ul>
+    </div>
+    <div>
+      <h3>🔧 Würde ich ändern</h3>
+      <ul>
+        <li><strong>Target Encoding für stop_name</strong> statt Native-Cat (präzisere Halt-Profile)</li>
+        <li><strong>Optuna nach v2-Feature-Set</strong> (jetzt wäre der Moment)</li>
+        <li><strong>Oversampling Schnee-Tage</strong> (MAE 58.9s bei Schnee ist die Schwäche)</li>
+        <li><strong>SHAP für lokale Erklärbarkeit</strong> (Gain-Importance ist global, nicht lokal)</li>
+        <li><strong>Separate Test-Sets pro Saison</strong> (Winter-Evaluation separat)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- SLIDE 26 — Was als nächstes kommt -->
+<section data-chapter="6">
+  <h2>Was als nächstes kommt</h2>
+  <div class="cols">
+    <div>
+      <h3>Technisch</h3>
+      <ul>
+        <li>Dashboard (Streamlit) produktionsreif machen — Deployment auf Streamlit Cloud</li>
+        <li>Live-API-Anbindung für <code>prev_trip_delay</code> (VBZ Open Data Echtzeit-Feed)</li>
+        <li>Optuna-Tuning nach stabilem Feature-Set</li>
+        <li>Target Encoding für <code>stop_name</code> evaluieren</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Inhaltlich / Portfolio</h3>
+      <ul>
+        <li>Alle drei Präsentations-Views fertig stellen (overview, techview, storyview)</li>
+        <li>Artikel: "Was 94M Tramfahrten über Stadtplanung verraten"</li>
+        <li>Dwell-Time Kausalitätsfrage klären (RCT-Analogie auf den VBZ-Daten)</li>
+        <li>Netz-Vergleich: Basel, Bern, Wien — übertragen sich die Muster?</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- SLIDE 27 — Abschluss -->
+<section style="display:flex !important; flex-direction:column; align-items:center; justify-content:center; text-align:center;" data-background="linear-gradient(135deg, #2d1b69 0%, #6c5ce7 100%)" data-chapter="6">
+  <div class="closing-thesis">
+    Analyse → Feature → Modell.<br>
+    Daten → Verständnis → Handlung.
+  </div>
+  <div class="closing-sub" style="margin-top:1.2em;">
+    94.4M Ereignisse · 55 Findings · MAE 18.56s · 4 Empfehlungen<br>
+    github.com/kaywiegand/zh-tram-flow · Kay Wiegand
+  </div>
+  <div style="margin-top:2em; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+    <a href="overview.html" style="background:rgba(255,255,255,0.15); color:#fff; text-decoration:none; padding:8px 18px; border-radius:6px; font-size:0.82em;">Ergebnisse (HR/Business)</a>
+    <a href="techview.html" style="background:rgba(255,255,255,0.15); color:#fff; text-decoration:none; padding:8px 18px; border-radius:6px; font-size:0.82em;">Tech Deep Dive</a>
+    <a href="index.html" style="background:rgba(255,255,255,0.25); color:#fff; text-decoration:none; padding:8px 18px; border-radius:6px; font-size:0.82em; font-weight:600;">← Alle Artefakte</a>
+  </div>
+</section>
+
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({ hash: true, controls: false, progress: true, transition: 'slide', transitionSpeed: 'fast', margin: 0.07, width: 1280, height: 720 });
+  const CHAPTER_SLIDES = [0, 3, 6, 11, 16, 20, 24];
+  const nav = document.querySelectorAll('.nav-ch');
+  const counter = document.getElementById('slide-counter');
+  const total = document.querySelectorAll('.reveal .slides section').length;
+  function getChapter(idx) { let ch = 0; for (let i = 0; i < CHAPTER_SLIDES.length; i++) { if (idx >= CHAPTER_SLIDES[i]) ch = i; } return ch; }
+  function updateNav() { const idx = Reveal.getState().indexh; counter.textContent = `${idx + 1} / ${total}`; const ch = getChapter(idx); nav.forEach((el, i) => { el.classList.remove('active', 'done'); if (i === ch) el.classList.add('active'); else if (i < ch) el.classList.add('done'); }); }
+  nav.forEach((el) => { el.addEventListener('click', () => { Reveal.slide(parseInt(el.dataset.slide)); }); });
+  Reveal.on('slidechanged', updateNav); updateNav();
+</script>
+</body>
+</html>
