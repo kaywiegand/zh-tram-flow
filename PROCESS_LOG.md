@@ -378,7 +378,7 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 06_prediction_4-model_v2.ipynb   ✅ ausgeführt — LightGBM v2: Test MAE 18.56s, MBE −0.69s
 06_prediction_5-comparison.ipynb ✅ ausgeführt — LightGBM v2 vs. XGBoost: Vergleich dokumentiert
 06_prediction_6-dwell_simulator.ipynb       ✅ ausgeführt — dwell_time binär (0/60s), r=+0.16 Konfundierung
-06_prediction_7-scheduling_recommendations.ipynb ✅ ausgeführt — Risikomatrix Stop×Linie×Kontext, Empfehlungskarte
+06_prediction_7-recommendations.ipynb ✅ ausgeführt — Risikomatrix Stop×Linie×Kontext, Empfehlungskarte
 ```
 
 ---
@@ -1007,7 +1007,7 @@ Ziel: `/portfolio story` auf einem Projekt aufrufen → `reports/portfolio_summa
 - F-SIM-01–04: Feature Importance ≠ kausaler Hebel; dwell_time ist Proxy, kein Hebel
 - Einsicht: VBZ nutzt dwell_time binär (0/60) statt stopspezifisch kalibriert
 
-**`06_prediction_7-scheduling_recommendations.ipynb`** (commit `a97ed0c`):
+**`06_prediction_7-recommendations.ipynb`** (commit `a97ed0c`):
 - Risiko-Matrix: Stop × Linie × Kontext (Normal/Schnee/Event/Rush/Spätnacht)
 - lgbm_v1 (schedule-time Features, kein prev_trip_delay) für Planungsempfehlung
 - Schwellenwert 60s → Buffer-Empfehlung = 1/3 Überschuss, gerundet auf 5s
@@ -1144,7 +1144,7 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 
 **Was wurde gemacht:**
 
-- **PROCESS_LOG "Aktueller Stand"**: 55 Findings → 63 Findings (Phase 2); Notebook-Übersicht um `06_prediction_5-comparison.ipynb` (✅), `06_prediction_6-dwell_simulator.ipynb` (✅) und `06_prediction_7-scheduling_recommendations.ipynb` (✅) ergänzt
+- **PROCESS_LOG "Aktueller Stand"**: 55 Findings → 63 Findings (Phase 2); Notebook-Übersicht um `06_prediction_5-comparison.ipynb` (✅), `06_prediction_6-dwell_simulator.ipynb` (✅) und `06_prediction_7-recommendations.ipynb` (✅) ergänzt
 - **`06_prediction_5-comparison.ipynb`**: ausgeführt — LightGBM v2 vs. XGBoost vollständiger Vergleich dokumentiert
 - **Notebooks angestoßen** — alle Analytics-Notebooks nach der visuellen Korrektur-Session neu ausgeführt
 - **matplotlib in `spatial.py`**: aktiv genutzt (matplotlib-basierte Plot-Funktionen) — kein totes Import, Befund aus Review korrigiert

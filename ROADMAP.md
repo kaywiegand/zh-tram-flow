@@ -169,7 +169,7 @@
 
 ### Simulation & Empfehlungen
 - ✅ `06_prediction_6-dwell_simulator.ipynb` — Dwell-Time binär (0/60s), Konfundierung r=+0.16 dokumentiert, F-SIM-01–04
-- ✅ `06_prediction_7-scheduling_recommendations.ipynb` — Risikomatrix Stop×Linie×Kontext, Empfehlungskarte, F-REC-01–04
+- ✅ `06_prediction_7-recommendations.ipynb` — Risikomatrix Stop×Linie×Kontext, Empfehlungskarte, F-REC-01–04
 
 ### Modellvergleich — XGBoost Robustheits-Check ✅
 - ✅ XGBoost Training — gleiche v2-Features, identischer Split, `enable_categorical=True`

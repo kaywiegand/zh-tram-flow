@@ -194,7 +194,7 @@ Four concrete actions that follow directly from the analysis findings:
 | R3 | **Capacity boost 20–22h** — increase frequency on L11/L8 during event evenings | 21h peak +11.7s · Thursday + large event = worst combination |
 | R4 | **Priority monitoring K11/K12** — automated OTP alerts at stop level | Kreis 11: 68.3s avg · OTP 83% · structurally disadvantaged |
 
-→ Full risk matrix and stop-level recommendations: [`06_prediction_7-scheduling_recommendations`](notebooks/06_prediction_7-scheduling_recommendations.ipynb)
+→ Full risk matrix and stop-level recommendations: [`06_prediction_7-recommendations`](notebooks/06_prediction_7-recommendations.ipynb)
 
 ---
 
@@ -221,7 +221,7 @@ Four concrete actions that follow directly from the analysis findings:
 | [06_prediction_4-model_v2](notebooks/06_prediction_4-model_v2.ipynb) | Cascade feature → Test MAE 18.56s |
 | [06_prediction_5-comparison](notebooks/06_prediction_5-comparison.ipynb) | All models compared — final verdict |
 | [06_prediction_6-dwell_simulator](notebooks/06_prediction_6-dwell_simulator.ipynb) | Dwell-time confounding · binary distribution · cascade mechanism |
-| [06_prediction_7-scheduling_recommendations](notebooks/06_prediction_7-scheduling_recommendations.ipynb) | Risk matrix Stop×Line×Context · scheduling buffer recommendations |
+| [06_prediction_7-recommendations](notebooks/06_prediction_7-recommendations.ipynb) | Risk matrix Stop×Line×Context · scheduling buffer recommendations |
 
 ---
 
