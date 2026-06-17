@@ -98,6 +98,38 @@ Status: [ ] Finalisiert
 
 ---
 
+## Projekt-Prozess als Portfolio-Story
+
+| # | Beschreibung | Prio |
+| :--- | :--- | :--- |
+| 66 | **"Wie ich dieses Projekt gebaut habe" — Prozess-Story als eigenständiges Artefakt** | 1 |
+
+**Idee:** Das Projekt hat nicht nur ein starkes fachliches Ergebnis — es hat auch einen reproduzierbaren, automatisierten Workflow der selbst Portfolio-Wert hat. Das gehört sichtbar gemacht.
+
+**Was gezeigt werden soll:**
+
+| Baustein | Inhalt |
+| :--- | :--- |
+| `wgnd-scaffolding` | Projekt-Struktur in Minuten — Ordner, CLAUDE.md, ROADMAP, BACKLOG, pyproject.toml automatisch |
+| `wgnd-toolkit` | Eigene Python-Bibliothek für Plotting, Exporte, Notebook-Utilities |
+| Skills / Slash-Commands | `/project-review` · `/project-case` · `/project-init` — automatisierter Qualitätscheck vor jedem Release |
+| Hooks | PostToolUse Style-Check läuft automatisch nach jedem Code-Edit — kein manuelles Prüfen |
+| CONVENTIONS.md | Einheitliche Regeln für alle Projekte — einmal definiert, überall gültig |
+| Strukturierte Findings (F-IDs) | Ticket-System für Data-Analyse — Jira-Analogie, vollständige Rückverfolgbarkeit |
+
+**Mögliche Artefakte:**
+
+1. **Slide in `storyview.html`** — 1 Slide "Wie das Projekt gebaut wurde": Prozess-Grafik mit den 6 Bausteinen. Ersetzt den fehlenden AI-Workflow Slide, jetzt mit echtem Inhalt.
+2. **LinkedIn-Artikel** — "Wie ich meinen Data-Science-Workflow automatisiert habe" — konkret, mit Screenshots, reproduzierbar.
+3. **README-Sektion** — Kurzer Absatz "How this was built" mit Links auf wgnd-scaffolding + wgnd-toolkit.
+
+**Offene Frage vor Umsetzung:** Framing klären:
+- Sachlich: *"Automatisierter Entwicklungs-Workflow mit Claude Code"*
+- Differenzierend: *"Ich habe meine eigenen Slash-Commands gebaut"*
+- Story: *"Vom leeren Ordner zum Portfolio-Projekt — mit diesem Workflow"*
+
+---
+
 ## Präsentation
 
 | # | Beschreibung | Prio |
