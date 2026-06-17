@@ -1353,7 +1353,7 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 
 ---
 
-### 2026-06-17 (4) — Public Views konsolidiert: Konsistenz & Inhaltsqualität
+### 2026-06-17 (5) — Public Views konsolidiert: Konsistenz & Inhaltsqualität
 
 **Was passiert ist:**
 - `public/index.html`: KPI-Row aus Header → unter "Worum es geht" verschoben; Drei-Schritt-Projektlogik ergänzt
