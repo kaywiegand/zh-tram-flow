@@ -97,7 +97,7 @@
 <div id="nav">
   <div class="chs">
     <div class="ch" data-chapter="0" data-slide="0"><span class="n">—</span>Start</div>
-    <div class="ch" data-chapter="1" data-slide="2"><span class="n">01</span>Ausgangslage</div>
+    <div class="ch" data-chapter="1" data-slide="2"><span class="n">01</span>Ausgangssituation</div>
     <div class="ch" data-chapter="2" data-slide="3"><span class="n">02</span>Daten</div>
     <div class="ch" data-chapter="3" data-slide="5"><span class="n">03</span>Baseline</div>
     <div class="ch" data-chapter="4" data-slide="6"><span class="n">04</span>Features</div>
@@ -119,14 +119,14 @@
 <section data-chapter="0">
   <h2>Inhalt</h2>
   <span class="subline">Sechs Abschnitte, ein durchgehender ML-Workflow</span>
-  <div class="agenda"><div class="agenda-item"><span class="num">01</span><div><div class="label">Ausgangslage</div><div class="sub">OTP-Lücke · Datenlage · Zieldefinition</div></div></div><div class="agenda-item"><span class="num">02</span><div><div class="label">Datenstrategie</div><div class="sub">Quellen · Cleaning-Entscheidungen</div></div></div><div class="agenda-item"><span class="num">03</span><div><div class="label">Baseline</div><div class="sub">Stop Mean als sinnvollster naiver Benchmark</div></div></div><div class="agenda-item"><span class="num">04</span><div><div class="label">Feature Engineering</div><div class="sub">34 Features v1 · Kaskadenindikator v2</div></div></div><div class="agenda-item"><span class="num">05</span><div><div class="label">Modellauswahl</div><div class="sub">Warum LightGBM · v1 → v2 · Robustheits-Check</div></div></div><div class="agenda-item"><span class="num">06</span><div><div class="label">Evaluation und Ausblick</div><div class="sub">Feature Importance · Produktionsreife · Empfehlungen</div></div></div></div>
+  <div class="agenda"><div class="agenda-item"><span class="num">01</span><div><div class="label">Ausgangssituation</div><div class="sub">OTP-Lücke · Verstehen · Vorhersagen</div></div></div><div class="agenda-item"><span class="num">02</span><div><div class="label">Datenstrategie</div><div class="sub">Quellen · Cleaning-Entscheidungen</div></div></div><div class="agenda-item"><span class="num">03</span><div><div class="label">Baseline</div><div class="sub">Stop Mean als sinnvollster naiver Benchmark</div></div></div><div class="agenda-item"><span class="num">04</span><div><div class="label">Feature Engineering</div><div class="sub">34 Features v1 · Kaskadenindikator v2</div></div></div><div class="agenda-item"><span class="num">05</span><div><div class="label">Modellauswahl</div><div class="sub">Warum LightGBM · v1 → v2 · Robustheits-Check</div></div></div><div class="agenda-item"><span class="num">06</span><div><div class="label">Evaluation und Ausblick</div><div class="sub">Feature Importance · Produktionsreife · Empfehlungen</div></div></div></div>
 </section>
 <section data-chapter="1">
-  <h2>Ausgangslage</h2>
-  <span class="subline">OTP 87% netzweit, Ziel 95% bis 2028, strukturelles Defizit</span>
+  <h2>Ausgangssituation</h2>
+  <span class="subline">OTP 87% netzweit, Ziel 95% bis 2028 — Analyse vor Modellierung</span>
   <div class="mrow"><div class="m red"><div class="v">87.0%</div><div class="l">OTP netzweit<br>2023–2025</div></div><div class="m red"><div class="v">−8 PP</div><div class="l">Lücke zum<br>VBZ-Ziel 95%</div></div><div class="m amber"><div class="v">56.3s</div><div class="l">Ø Ankunfts-<br>verspätung</div></div><div class="m amber"><div class="v">71.5%</div><div class="l">Halte akkumulieren<br>Delay</div></div></div>
-  <div class="box" style="margin-top:14px;"><strong>Ziel:</strong> arrival_delay in Sekunden vorhersagen, direkt kommunizierbar, kein Schwellwert-Bias. Temporaler Split (kein Shuffle): Train 2023–Jun 2024 · Val Jul–Dez 2024 · Test 2025.</div>
-  <div class="box amber" style="margin-top:8px;"><strong>Metrik: MAE</strong> — Mean Absolute Error direkt in Sekunden interpretierbar. RMSE würde Extremwerte übergewichten.</div>
+  <div class="box" style="margin-top:14px;"><strong>Schritt 1 — Analyse der Entstehungsmuster und Einflussfaktoren:</strong> Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition</div>
+  <div class="box green" style="margin-top:8px;"><strong>Schritt 2 — Verspätungen vorhersagen:</strong> arrival_delay in Sekunden — direkt kommunizierbar, kein Schwellwert-Bias. Temporaler Split, kein Shuffle</div>
 </section>
 <section data-chapter="2">
   <h2>Datenstrategie</h2>

@@ -14,18 +14,18 @@
 
     header {
       background: linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%);
-      color: white; padding: 3rem 2rem 2.5rem;
+      color: white; padding: 2.5rem 2rem 2rem;
     }
     .header-inner { max-width: 860px; margin: 0 auto; }
     header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.4rem; }
     header .tagline { font-size: 1.05rem; opacity: 0.82; margin-bottom: 1.6rem; }
-    .kpi-row { display: flex; gap: 16px; flex-wrap: wrap; }
-    .kpi { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
-           border-radius: 8px; padding: 10px 18px; text-align: center; min-width: 120px; }
-    .kpi .v { font-size: 1.6rem; font-weight: 700; color: #fff; }
-    .kpi .l { font-size: 0.68rem; color: rgba(255,255,255,0.6); letter-spacing: 0.04em; margin-top: 2px; }
-    .kpi.green .v { color: #4cd98a; }
-    .kpi.red   .v { color: #ff7070; }
+    .kpi-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 1.2rem; }
+    .kpi { background: #fff; border: 1px solid #dde8f0;
+           border-radius: 8px; padding: 10px 18px; text-align: center; min-width: 110px; }
+    .kpi .v { font-size: 1.5rem; font-weight: 700; color: #1a3a5c; }
+    .kpi .l { font-size: 0.68rem; color: #888; letter-spacing: 0.04em; margin-top: 2px; }
+    .kpi.green .v { color: #1a9e5c; }
+    .kpi.red   .v { color: #c0392b; }
 
     main { max-width: 860px; margin: 0 auto; padding: 3rem 2rem 5rem; }
 
@@ -115,19 +115,31 @@
 
 <header>
   <div class="header-inner">
-    <h1>Zürich Tram Flow</h1>
-    <p class="tagline">Delay-Analyse &amp; Vorhersagemodell · VBZ Zürich · 2023–2025</p>
-    <div class="kpi-row">
-      <div class="kpi"><div class="v">94.4M</div><div class="l">Fahrt-Ereignisse</div></div>
-      <div class="kpi"><div class="v">16</div><div class="l">Tramlinien</div></div>
-      <div class="kpi red"><div class="v">87%</div><div class="l">OTP heute (Ziel: 95%)</div></div>
-      <div class="kpi green"><div class="v">~19s</div><div class="l">Vorhersagegenauigkeit</div></div>
-      <div class="kpi green"><div class="v">−63%</div><div class="l">vs. Baseline (ML)</div></div>
-    </div>
+    <h1>Zurich Tram Flow</h1>
+    <p class="tagline">Verspätungsvorhersage im Zürcher Tramnetz · Datengetriebenes Analyse- und ML-Projekt</p>
   </div>
 </header>
 
 <main>
+
+  <div class="section-label">Das Projekt</div>
+  <h2>Worum es geht</h2>
+  <p class="section-intro">
+    Das Zürcher Tramnetz liegt mit 87 % OTP dauerhaft unter dem selbstgesteckten Ziel von 95 %.
+    Dieses Projekt geht in drei Schritten vor: <strong>Ausgangssituation erfassen</strong> —
+    dann <strong>Analyse der Entstehungsmuster und Einflussfaktoren</strong> (Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition) —
+    und schliesslich die Frage beantworten: <strong>Lassen sie sich vorhersagen?</strong>
+  </p>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="v">94.4M</div><div class="l">Halt-Ereignisse</div></div>
+    <div class="kpi"><div class="v">16</div><div class="l">Tramlinien</div></div>
+    <div class="kpi red"><div class="v">87%</div><div class="l">OTP heute (Ziel: 95%)</div></div>
+    <div class="kpi green"><div class="v">18.6s</div><div class="l">Vorhersage-MAE</div></div>
+    <div class="kpi green"><div class="v">−63%</div><div class="l">vs. naive Baseline</div></div>
+  </div>
+
+  <hr class="divider" style="margin: 1.5rem 0;">
 
   <div class="section-label">Einstieg wählen</div>
   <h2>Was interessiert dich?</h2>
@@ -142,10 +154,10 @@
       <h3>Ergebnisse &amp; Empfehlungen</h3>
       <p class="path-desc">
         Was das Tramnetz hat, warum es so ist, was die Daten zeigen —
-        und was konkret dagegen getan werden kann. Kein Fachvokabular.
+        und was konkret dagegen getan werden kann.
       </p>
       <div class="path-meta">
-        <span class="path-time">⏱ 10 Min · 14 Slides</span>
+        <span class="path-time">14 Slides</span>
         <span class="path-tag">Ergebnisse</span>
         <span class="path-tag">Empfehlungen</span>
       </div>
@@ -160,7 +172,7 @@
         Warum kein Hyperparameter-Tuning? Was hat v1 → v2 wirklich verändert?
       </p>
       <div class="path-meta">
-        <span class="path-time">⏱ 20 Min · 14 Slides</span>
+        <span class="path-time">14 Slides</span>
         <span class="path-tag dark">Modell-Entscheidungen</span>
         <span class="path-tag dark">ML-Workflow</span>
       </div>
@@ -168,14 +180,14 @@
     </a>
 
     <a href="storyview.html" class="path-card story">
-      <div class="path-audience">Portfolio · Konferenz · Vollbild</div>
+      <div class="path-audience">Portfolio · Overview</div>
       <h3>Der gesamte Daten-Lifecycle</h3>
       <p class="path-desc">
         Von der Idee bis zur Empfehlung: Motivation, Data Engineering,
         Analyse, ML, Dashboard — und wie AI-Workflow das Projekt beschleunigt hat.
       </p>
       <div class="path-meta">
-        <span class="path-time">⏱ 35 Min · 18 Slides</span>
+        <span class="path-time">18 Slides</span>
         <span class="path-tag purple">Projektverlauf</span>
         <span class="path-tag purple">AI-Workflow</span>
       </div>
@@ -183,14 +195,14 @@
     </a>
 
     <a href="socialview.html" class="path-card social">
-      <div class="path-audience">Social Media · Schnell-Überblick</div>
+      <div class="path-audience">Social Media · Quickview</div>
       <h3>Auf einen Blick</h3>
       <p class="path-desc">
         3 Kernbefunde, 4 Empfehlungen, wichtigste Zahlen — alles auf einer Seite.
         Shareable Link für LinkedIn, GitHub, Bewerbungsunterlagen.
       </p>
       <div class="path-meta">
-        <span class="path-time">⏱ 3 Min · 1 Seite</span>
+        <span class="path-time">1 Seite</span>
         <span class="path-tag green">Überblick</span>
         <span class="path-tag green">Shareable</span>
       </div>

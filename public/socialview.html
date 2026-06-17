@@ -85,18 +85,17 @@
 
 <div class="container">
 <section>
-  <h2>Die Frage</h2>
-  <span class="subline">Sind Tramverspätungen vorhersagbar? Welche Muster stecken in den Daten?</span>
-  <p>Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87%, Ziel 95% bis 2028. Wenn Verspätungen Mustern folgen, können wir:</p>
+  <h2>Ausgangssituation</h2>
+  <span class="subline">OTP 87%, Ziel 95% — Verstehen, dann Vorhersagen</span>
+  <p>Das Zürcher Tramnetz liegt dauerhaft 8 Prozentpunkte unter dem selbstgesteckten VBZ-Zielwert. Das Projekt geht in zwei Schritten vor:</p>
   <ul style="padding-left: 1.4em; margin: 12px 0;">
-    <li>Sie vorhersagen und proaktiv gegensteuern</li>
-    <li>Root Causes identifizieren und angehen</li>
-    <li>Dispatch-Entscheidungen datengestützt treffen</li>
+    <li><strong>Analyse der Entstehungsmuster und Einflussfaktoren</strong> — Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition</li>
+    <li><strong>Verspätungen vorhersagen</strong> — LightGBM, MAE 18.6s, −63% vs. naive Baseline</li>
   </ul>
 </section>
 
 <section>
-  <h2>Drei Kernfindungen</h2>
+  <h2>Drei Kernbefunde</h2>
   <span class="subline">Was die Daten zeigen</span>
   <div class="findings">
     <div class="finding green">
@@ -105,14 +104,14 @@
       <p><em>Bedeutung:</em> Eine Kettenreaktion. Wenn wir die Kette unterbrechen, stabilisiert sich das Gesamtsystem.</p>
     </div>
     <div class="finding green">
-      <strong>✓ Root Cause: dwell_time = 0 ist der Hebel</strong>
-      <p>Halte ohne geplante Standzeit können Verspätungen nicht aufholen. Diese sind typischerweise Koppelstellen. Linie 11 zeigt den stärksten Effekt.</p>
-      <p><em>Bedeutung:</em> Fahrplan-Design ist die Ursache und der Hebel zugleich.</p>
+      <strong>✓ Das System hat keinen Puffer eingebaut</strong>
+      <p>71.3% aller Halte haben dwell_time = 0s — keine geplante Standzeit, keine Möglichkeit zur Selbstkorrektur. Linie 11 an Koppelstellen am stärksten betroffen.</p>
+      <p><em>Bedeutung:</em> Fahrplan-Design ist die Ursache. Und damit auch der Hebel.</p>
     </div>
     <div class="finding green">
-      <strong>✓ Das Modell ist produktionsreif</strong>
-      <p>LightGBM v2: 18.6s MAE auf ~29M Test-Fahrten (ganzes Jahr 2025). MBE −0.69s, nahezu bias-frei. prev_trip_delay als Live-Signal verfügbar.</p>
-      <p><em>Bedeutung:</em> Echtzeit-Vorhersagen für Leitstelle sind technisch machbar.</p>
+      <strong>✓ Verspätungen entstehen systematisch an der Peripherie — nicht im Zentrum</strong>
+      <p>Hotspots konzentrieren sich auf Kreise 11 & 12 — Schwamendingen, Oerlikon, Altstetten. Central und Paradeplatz performen gut. Die Lücke ist geografisch klar abgegrenzt.</p>
+      <p><em>Bedeutung:</em> Gezielte Eingriffe sind möglich — das Problem ist lokalisierbar.</p>
     </div>
   </div>
 </section>

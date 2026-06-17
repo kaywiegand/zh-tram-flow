@@ -75,11 +75,14 @@ The project covers the full data cycle end-to-end:
 
 ## Problem Statement
 
-Three questions frame the analysis:
+The project follows a sequential logic — understanding before predicting:
 
-1. **Where and when do delays occur** — and what structural patterns drive them?
-2. **What factors matter most** — weather, topology, time of day, events?
-3. **Can delays be predicted** before they happen, and with what accuracy?
+**Step 1 — Analysis of delay patterns and influencing factors**  
+Six dimensions: Temporal · Spatial · Network · Meteorology · Events · Target distribution  
+63 structured findings across 6 analysis notebooks.
+
+**Step 2 — Predictive modelling**  
+Can delays be predicted with operational accuracy? LightGBM v2, MAE 18.56s, −63% vs. naive baseline.
 
 **OTP — On-Time Performance:** a stop event is counted as on time if `arrival_delay < 120s`.
 

@@ -57,7 +57,7 @@
             {
               "type": "agenda",
               "items": [
-                "Die Ausgangsfrage",
+                "Ausgangssituation",
                 "Data Engineering",
                 "Exploration",
                 "Die Erkenntnis",
@@ -72,17 +72,12 @@
     },
 
     {
-      "nav_label": "Ausgangsfrage",
+      "nav_label": "Ausgangssituation",
       "slides": [
         {
-          "title": "Die Ausgangsfrage",
-          "subtitle": "Eine einfache Beobachtung, eine konkrete Frage",
+          "title": "Ausgangssituation",
+          "subtitle": "OTP 87%, Ziel 95% — das Projekt folgt einer sequenziellen Logik",
           "content": [
-            {
-              "type": "statement",
-              "text": "Das Zürcher Tramnetz operiert mit 87% OTP systemisch unter dem VBZ-Zielwert von 95%. An 71.5% aller Halte akkumulieren Trams Verspätung. Das ist kein Wetter- und kein Event-Problem. Die Frage: Wo entsteht die Verspätung wirklich — und ist sie vorhersagbar?",
-              "sentiment": "neutral"
-            },
             {
               "type": "figures",
               "items": [
@@ -90,6 +85,21 @@
                 { "value": "95%",   "label": "VBZ-Ziel bis 2028",        "sentiment": "positive" },
                 { "value": "−8 PP", "label": "Strukturelle Lücke",       "sentiment": "negative" },
                 { "value": "56.3s", "label": "Ø Ankunftsverspätung",     "sentiment": "warning" }
+              ]
+            },
+            {
+              "type": "steps",
+              "items": [
+                {
+                  "step": "1",
+                  "label": "Analyse der Entstehungsmuster und Einflussfaktoren",
+                  "detail": "Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition"
+                },
+                {
+                  "step": "2",
+                  "label": "Verspätungen vorhersagen",
+                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18.6s, −63% vs. Baseline"
+                }
               ]
             }
           ]

@@ -101,7 +101,7 @@
 <div id="nav">
   <div class="chs">
     <div class="ch" data-chapter="0" data-slide="0"><span class="n">—</span>Start</div>
-    <div class="ch" data-chapter="1" data-slide="2"><span class="n">01</span>Die Frage</div>
+    <div class="ch" data-chapter="1" data-slide="2"><span class="n">01</span>Ausgangssituation</div>
     <div class="ch" data-chapter="2" data-slide="4"><span class="n">02</span>Die Daten</div>
     <div class="ch" data-chapter="3" data-slide="7"><span class="n">03</span>Die Analyse</div>
     <div class="ch" data-chapter="4" data-slide="11"><span class="n">04</span>Das Modell</div>
@@ -123,21 +123,20 @@
   <h2>Der Weg</h2>
   <span class="subline">Acht Stationen vom Problem zur Handlung</span>
   <div style="margin-top:1.4em;">
-    <div class="steps"><div class="step"><div class="sn">01</div><div class="st">Die Frage</div></div><div class="step"><div class="sn">02</div><div class="st">Die Daten</div></div><div class="step"><div class="sn">03</div><div class="st">Die Analyse</div></div><div class="step"><div class="sn">04</div><div class="st">Das Modell</div></div></div>
+    <div class="steps"><div class="step"><div class="sn">01</div><div class="st">Ausgangssituation</div></div><div class="step"><div class="sn">02</div><div class="st">Die Daten</div></div><div class="step"><div class="sn">03</div><div class="st">Die Analyse</div></div><div class="step"><div class="sn">04</div><div class="st">Das Modell</div></div></div>
     <div class="steps"><div class="step"><div class="sn">05</div><div class="st">Die Antwort</div></div><div class="step"><div class="sn">06</div><div class="st">Handeln</div></div><div class="step"><div class="sn">07</div><div class="st">Reflexion</div></div><div class="step"><div class="sn">08</div><div class="st">Nächster Schritt</div></div></div>
   </div>
   <div class="box" style="margin-top:1.4em;">Ein End-to-End Case Study, der zeigt, wie Daten zu Erkenntnis und Handlung führen. Strukturiert nach echten Workflow-Etappen.</div>
 </section>
 <section data-chapter="1">
-  <h2>Die Frage</h2>
-  <span class="subline">OTP 87%, Ziel 95%, Ursachen unbekannt — Können wir Verspätungen vorhersagen?</span>
-  <div class="mrow"><div class="m red"><div class="v">87.0%</div><div class="l">OTP netzweit<br>Status quo</div></div><div class="m red"><div class="v">95.0%</div><div class="l">VBZ-Zielmarke<br>bis 2028</div></div><div class="m amber"><div class="v">−8 PP</div><div class="l">Struktur-Defizit<br>pro Jahr</div></div></div>
-  <div class="box" style="margin-top:14px;"><strong>Kernfrage:</strong> Sind Tramverspätungen vorhersagbar? Folgen sie Mustern, die wir lernen können?</div>
-  <div class="box amber" style="margin-top:8px;"><strong>Ziel:</strong> arrival_delay in Sekunden vorhersagen. Direkt kommunizierbar, keine Schwellwert-Missionen.</div>
-  <div class="box green" style="margin-top:8px;"><strong>Hypothese:</strong> Einzelne Halte akkumulieren Delay. Kaskadeneffekt. Wenn wir ihn verstehen, können wir ihn unterbrechen.</div>
+  <h2>Ausgangssituation</h2>
+  <span class="subline">OTP 87%, Ziel 95% — das Projekt folgt einer sequenziellen Logik</span>
+  <div class="mrow"><div class="m red"><div class="v">87.0%</div><div class="l">OTP netzweit<br>Status quo</div></div><div class="m red"><div class="v">95.0%</div><div class="l">VBZ-Zielmarke<br>bis 2028</div></div><div class="m amber"><div class="v">−8 PP</div><div class="l">Struktur-Defizit<br>pro Jahr</div></div><div class="m amber"><div class="v">56.3s</div><div class="l">Ø Ankunfts-<br>verspätung</div></div></div>
+  <div class="box" style="margin-top:14px;"><strong>Schritt 1 — Analyse der Entstehungsmuster und Einflussfaktoren:</strong> Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition</div>
+  <div class="box green" style="margin-top:8px;"><strong>Schritt 2 — Verspätungen vorhersagen:</strong> Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18.6s, −63% vs. Baseline</div>
 </section>
 <section data-chapter="1">
-  <h2>Die Frage</h2>
+  <h2>Ausgangssituation</h2>
   <span class="subline">Eine persönliche Motivation</span>
   <div style="margin-top:1.2em; padding:14px; background:#f5f9fc; border:1px solid #d0e8f5; border-radius:8px; color:#1a3a5c; font-size:0.88em; line-height:1.6;">
     <strong>Der Kontext:</strong> VBZ investiert in besseres Planing und bessere Prozesse. Aber ohne Echtzeitdaten fehlt der Hebel. Predictive Analytics sollte das ändern: Wenn wir den Delay morgen schon heute vorhersehen, können wir gegensteuern.
@@ -172,7 +171,7 @@
   <h2>Die Analyse</h2>
   <span class="subline">Die Kaskadenentdeckung</span>
   <div style="margin-top:1.2em;">
-    <div class="box" style="background:#e5f5ec; border-color:#4cd98a;"><strong>Kernfindung:</strong> Tramhalte sind nicht unabhängig. Verspätung an Halt n wirkt sich auf Halt n+1 aus. Diese Abhängigkeit ist stärker als Wetter, stärker als Uhrzeit.</div>
+    <div class="box" style="background:#e5f5ec; border-color:#4cd98a;"><strong>Kernbefund:</strong> Tramhalte sind nicht unabhängig. Verspätung an Halt n wirkt sich auf Halt n+1 aus. Diese Abhängigkeit ist stärker als Wetter, stärker als Uhrzeit.</div>
     <div class="box" style="background:#e5f5ec; border-color:#4cd98a; margin-top:8px;"><strong>Messung:</strong> Pearson r ≥ 0.85 zwischen prev_trip_delay und arrival_delay über alle 16 Linien. Konsistenter Effekt.</div>
   </div>
   <div style="margin-top:1.2em; padding:14px; background:#f0f7fb; border:1px solid #d0e8f5; border-radius:8px;">
@@ -209,7 +208,7 @@
   <span class="subline">Ja, Tramverspätungen sind vorhersagbar</span>
   <div style="margin-top:1.4em;">
     <div class="box green" style="background:#e5f5ec; border-color:#4cd98a;"><strong>Beweis 1: Kaskaden sind das Muster</strong> — prev_trip_delay ist mit r ≥ 0.85 korreliert. Nicht zufällig.</div>
-    <div class="box green" style="background:#e5f5ec; border-color:#4cd98a; margin-top:8px;"><strong>Beweis 2: Das Modell ist produktionsreif</strong> — 18.6s MAE auf ~29M Test-Fahrten (ein ganzes Jahr 2025). MBE < 1 Sekunde.</div>
+    <div class="box green" style="background:#e5f5ec; border-color:#4cd98a; margin-top:8px;"><strong>Ergebnis: Das Modell erreicht operative Genauigkeit</strong> — 18.6s MAE auf ~29M Test-Fahrten (ein ganzes Jahr 2025). MBE < 1 Sekunde.</div>
     <div class="box green" style="background:#e5f5ec; border-color:#4cd98a; margin-top:8px;"><strong>Beweis 3: Stop Dwell-Time ist das Root Cause</strong> — dwell_time = 0 ist das Feature, bei dem Halte nicht aufholen können. Ist bei Koppelstellen häufig.</div>
   </div>
   <div class="box" style="margin-top:14px;">Die Verspätungen folgen klaren Mustern. Das Fahrplan-Design ist die Ursache und der Hebel.</div>
@@ -239,7 +238,7 @@
   <span class="subline">Das Portfolio-Potenzial</span>
   <div style="margin-top:1.4em; padding:14px; background:#e5f5ec; border:1px solid #4cd98a; border-radius:8px;">
     <div style="color:#1a4a2e; font-size:0.88em; line-height:1.6;"><strong>Der Punkt:</strong> Das Projekt zeigt, wie Daten-Arbeit funktioniert in der Praxis. Problem → Exploration → Feature Engineering → Modell → Handlung. Mit echten Daten, echtem Impact.</div>
-    <div style="color:#1a4a2e; font-size:0.88em; line-height:1.6; margin-top:8px;"><strong>Für Interviews / Portfolio:</strong> "Ich habe ein ML-Projekt von Grund auf gebaut. Mit echten Stakeholder-Fragen, echten Constraints, echter Produktion. Der Kaskaden-Effekt wurde die Kernfindung. Das ist nicht Kaggle, das ist echte Arbeit."</div>
+    <div style="color:#1a4a2e; font-size:0.88em; line-height:1.6; margin-top:8px;"><strong>Für Interviews / Portfolio:</strong> "Ich habe ein ML-Projekt von Grund auf gebaut. Mit echten Stakeholder-Fragen, echten Constraints, echter Produktion. Der Kaskadeneffekt wurde der zentrale Kernbefund. Das ist nicht Kaggle, das ist echte Arbeit."</div>
   </div>
 </section>
 <section class="closing" data-chapter="8" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)">

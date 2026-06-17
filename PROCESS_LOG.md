@@ -1333,3 +1333,23 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - Nebeneffekt entdeckt + behoben: `source` in einigen Zellen war als Zeichenliste statt Zeilenliste gespeichert (Normalisierung via `splitlines(keepends=True)`)
 
 **Nächster Schritt:** `/project-case check` → Portfolio-Readiness Score
+
+---
+
+### 2026-06-17 (4) — Public Views konsolidiert: Konsistenz & Inhaltsqualität
+
+**Was passiert ist:**
+- `public/index.html`: KPI-Row aus Header → unter "Worum es geht" verschoben; Drei-Schritt-Projektlogik ergänzt
+- Alle 4 Views (`overview`, `techview`, `storyview`, `socialview`) + 4 Storyline-JSONs + `socialview.md` + `README.md`:
+  - Kapitelbezeichnung vereinheitlicht: überall `Ausgangssituation`
+  - Projektlogik konsolidiert: "Analyse der Entstehungsmuster und Einflussfaktoren · Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition"
+  - Drei Kernbefunde bereinigt (vorher: "Kernfindungen", dritter war Modell-Ergebnis statt Befund):
+    1. Kaskadeneffekt: Verspätungen breiten sich aus
+    2. Das System hat keinen Puffer eingebaut
+    3. Verspätungen entstehen systematisch an der Peripherie — nicht im Zentrum
+- Architektur-Entscheidung: Storyline-JSONs in `public/json/` sind Single Source of Truth für Präsentations-Content — kein Build-Script, Drift-Check läuft künftig via `/project-review` Schritt 3.7
+
+**Skill-Update:**
+- `wgnd-workspace/skills/project-review/project-review.md`: Schritt 3.7 "Cross-Artefakt-Konsistenzcheck" ergänzt (Kapitelbezeichnungen · Kernbefunde · Projektlogik · KPI-Drift). Committed + gepusht → `wgnd-workspace` main.
+
+**Nächster Schritt:** Inhaltlicher Review der Views durch Kay · Styling-Runde · `/project-case check`

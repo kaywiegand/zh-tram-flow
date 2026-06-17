@@ -59,18 +59,12 @@
       "nav_label": "Ausgangssituation",
       "slides": [
         {
-          "title": "Die Ausgangssituation",
-          "subtitle": "8 Prozentpunkte unter dem selbstgesteckten Ziel des VBZ",
+          "title": "Ausgangssituation",
+          "subtitle": "OTP liegt dauerhaft unter dem VBZ-Ziel — das Projekt folgt drei Schritten",
           "content": [
             {
               "type": "figures_with_context",
               "items": [
-                {
-                  "value": "95%",
-                  "label": "VBZ-Ziel\nbis 2028",
-                  "sentiment": "positive",
-                  "context": "VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)"
-                },
                 {
                   "value": "87.0%",
                   "label": "OTP 2023–2025\n(netzweit)",
@@ -78,23 +72,49 @@
                   "context": "Ist-Zustand 2023–2025: 87.0 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend."
                 },
                 {
+                  "value": "95%",
+                  "label": "VBZ-Ziel\nbis 2028",
+                  "sentiment": "positive",
+                  "context": "VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)"
+                },
+                {
+                  "value": "−8 PP",
+                  "label": "Strukturelle\nLücke",
+                  "sentiment": "negative",
+                  "context": "Der Rückstand ist systemisch, nicht episodisch — er taucht in jedem Jahr, auf jeder Linie auf."
+                },
+                {
                   "value": "56.3s",
                   "label": "Ø Ankunfts-\nverspätung",
                   "sentiment": "warning",
-                  "context": "Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Der Wert ist über alle drei Betriebsjahre stabil, 2023, 2024 und 2025 ohne erkennbaren Aufwärtstrend."
+                  "context": "Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre."
+                }
+              ]
+            },
+            {
+              "type": "steps",
+              "items": [
+                {
+                  "step": "1",
+                  "label": "Analyse der Entstehungsmuster und Einflussfaktoren",
+                  "detail": "Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition"
                 },
                 {
-                  "value": "16",
-                  "label": "Tramlinien\nanalysiert",
-                  "sentiment": "neutral",
-                  "context": "Der Rückstand ist systemisch, nicht episodisch. Er taucht in jedem Jahr, auf jeder Linie auf."
+                  "step": "2",
+                  "label": "Verspätungen vorhersagen",
+                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18.6s, −63% vs. Baseline"
+                },
+                {
+                  "step": "3",
+                  "label": "Handlungsempfehlungen",
+                  "detail": "Was folgt daraus konkret? — 4 Empfehlungen, jede direkt durch Befunde gedeckt"
                 }
               ]
             }
           ]
         },
         {
-          "title": "Die Ausgangssituation",
+          "title": "Ausgangssituation",
           "subtitle": "OTP-Lücke in der Breite: alle 16 Linien, drei Jahre",
           "content": [
             {

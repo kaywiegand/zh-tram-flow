@@ -38,23 +38,23 @@ Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87%, Zie
 
 ---
 
-### Drei Kernfindungen
+### Drei Kernbefunde
 
-## Drei Kernfindungen
+## Drei Kernbefunde
 *Was die Daten zeigen*
 
 * **✓ Kaskadeneffekt: Verspätungen breiten sich aus**
   - Halt n+1 verzögert sich proportional zu Halt n
   - Pearson r ≥ 0.85 über alle 16 Linien — nicht Zufall
   - Bedeutung: Wenn wir die Kette unterbrechen, stabilisiert sich das Gesamtsystem
-* **✓ Root Cause: dwell_time = 0 ist der Hebel**
-  - Halte ohne geplante Standzeit können Verspätungen nicht aufholen
-  - Typischerweise Koppelstellen — Linie 11 zeigt stärksten Effekt
-  - Bedeutung: Fahrplan-Design ist die Ursache und der Hebel zugleich
-* **✓ Das Modell ist produktionsreif**
-  - LightGBM v2: 18.6s MAE auf ~29M Test-Fahrten (ganzes Jahr 2025)
-  - MBE −0.69s, nahezu bias-frei. prev_trip_delay als Live-Signal verfügbar
-  - Bedeutung: Echtzeit-Vorhersagen für Leitstelle sind technisch machbar
+* **✓ Das System hat keinen Puffer eingebaut**
+  - 71.3% aller Halte haben dwell_time = 0s — keine Möglichkeit zur Selbstkorrektur
+  - Linie 11 an Koppelstellen am stärksten betroffen
+  - Bedeutung: Fahrplan-Design ist die Ursache — und damit der Hebel
+* **✓ Verspätungen entstehen systematisch an der Peripherie — nicht im Zentrum**
+  - Hotspots konzentrieren sich auf Kreise 11 & 12 — Schwamendingen, Oerlikon, Altstetten
+  - Central und Paradeplatz performen gut — die Lücke ist geografisch klar abgegrenzt
+  - Bedeutung: Gezielte Eingriffe sind möglich — das Problem ist lokalisierbar
 
 
 ---

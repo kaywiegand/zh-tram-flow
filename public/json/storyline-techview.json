@@ -78,7 +78,7 @@
       "slides": [
         {
           "title": "Ausgangssituation",
-          "subtitle": "OTP 87% netzweit, Ziel 95% bis 2028, strukturelles Defizit",
+          "subtitle": "OTP 87% netzweit, Ziel 95% bis 2028 — Analyse vor Modellierung",
           "content": [
             {
               "type": "figures",
@@ -90,9 +90,19 @@
               ]
             },
             {
-              "type": "statement",
-              "text": "Ziel: arrival_delay in Sekunden vorhersagen — direkt kommunizierbar, kein Schwellwert-Bias. Split: temporal (kein Shuffle). Train 2023–Jun 2024 / Val Jul–Dez 2024 / Test 2025.",
-              "sentiment": "neutral"
+              "type": "steps",
+              "items": [
+                {
+                  "step": "1",
+                  "label": "Analyse der Entstehungsmuster und Einflussfaktoren",
+                  "detail": "Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition"
+                },
+                {
+                  "step": "2",
+                  "label": "Verspätungen vorhersagen",
+                  "detail": "arrival_delay in Sekunden — direkt kommunizierbar, kein Schwellwert-Bias. Temporaler Split, kein Shuffle"
+                }
+              ]
             }
           ]
         }
