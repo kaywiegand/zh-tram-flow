@@ -1276,3 +1276,23 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - UPPERCASE Subtitle: konsequent für alle Notebooks, schafft visuelle Hierarchie
 
 **Nächster Schritt:** Streamlit Cloud deployen → `/project-case check`
+
+---
+
+### 2026-06-17 — ToC alle Notebooks + public/ konsolidiert
+
+**Was passiert ist:**
+
+- **ToC in 14 restlichen Notebooks** eingefügt — alle 21 Notebooks haben jetzt `## Inhalt` nach Titelzelle
+  - Betrifft: 03_analysis_1–6, 05_feature_engineering, 06_prediction_0–6
+  - BACKLOG #53/#55 geschlossen
+- **`public/` konsolidiert** (andere Session) — `_archive/` gelöscht, `pdfs/` → `pdf/`, neue `json/` + `md/` Verzeichnisse mit 4 Storyline-Varianten (overview/social/story/tech), neue PDF-Exports (techview, recommendations)
+- Alles gepusht — main ist aktuell
+
+**Notebook-Status jetzt:**
+- Header-Format (`# / **BOLD** / ---`): alle 21 ✅
+- ToC (`## Inhalt`): alle 21 ✅ (00_introduction hat `## Content`)
+- Inhaltlich reviewed: 00, 01, 02, 03_analysis_0, 03_analysis_7, 04 ✅
+- Noch offen: 03_analysis_1–6 (deutsche Header, Kernfragen-Bezug), 06_prediction_0-overview (Planungssprache → Ergebnisse), 05_feature_engineering, 06_prediction_1–6
+
+**Nächster Schritt:** 06_prediction_0-overview überarbeiten (Planungssprache → Ergebnisse) → dann 03_analysis_1–6 Inhalte prüfen

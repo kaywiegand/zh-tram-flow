@@ -83,7 +83,7 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
        save_fig() Helper implementiert in src/zh_tram_flow/notebook.py ✅
 -->
 | 1 | **README vs. `00_introduction.ipynb`** — Rollentrennung teilweise aufgelöst (Data Dictionary → docs/, Deliverables-Sektion in 00_introduction, Workflow-Tabelle ersetzt Notebook-Liste). Noch offen: explizite Regel dokumentieren wer was liest. | 2 |
-| 53 | **ToC in restlichen Notebooks ergänzen** — 03_analysis_1–6, 05_feature_engineering, 06_prediction_0–6 haben noch keinen ToC. Gleiche Struktur wie 00/01/02/04. | 2 |
+<!-- Erledigt 2026-06-17: #53/#55 — ToC in 14 restlichen Notebooks eingefügt, alle 21 Notebooks haben jetzt ## Inhalt -->
 | 54 | **Line Colors Tabelle** — Hex-Codes mit farbigen Swatches ergänzen (`<span style="background:#RRGGBB">`) in `03_analysis_0-overview.ipynb`. Funktioniert in JupyterLab, VSCode, nbviewer. | 3 |
 
 ---
@@ -94,7 +94,7 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 55 | **ToC alle restlichen Notebooks** — 03_analysis_1–6, 05_feature_engineering, 06_prediction_0–6. Gleiche Struktur: `## Inhalt` mit Anchor-Links. → BACKLOG #53 | 1 |
+<!-- Erledigt 2026-06-17: #55 → siehe #53 -->
 | 56 | **03_analysis_1–6 Inhalte prüfen** — Kernfragen-Bezug: Beantwortet jedes Notebook die zugehörige Frage aus `03_analysis_0-overview`? Section-Header auf Englisch prüfen. | 1 |
 | 57 | **06_prediction_0-overview aktualisieren** — Notebook hat noch Planungssprache ("Fahrplan für die Modellierungsphase"). Analog zu `03_analysis_0`: auf tatsächliche Ergebnisse umschreiben. | 1 |
 | 58 | **`03_analysis_7-findings.ipynb` finalisieren** — Notebook-Inhalte prüfen: Findings-Tabelle vollständig? Header englisch? "Why Structured Finding IDs?"-Abschnitt professionell? | 2 |
