@@ -3,661 +3,196 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zürich Tram Flow — Technischer Deep Dive</title>
-
+  <title>Zurich Tram Flow — Technischer Deep Dive</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
-
   <style>
     .reveal { font-size: 21px; }
-    .reveal h1 { font-size: 2.2em; color: #1a3a5c; text-align: left; }
-    .reveal h2 { font-size: 1.25em; color: #1a3a5c; border-bottom: 2px solid #2E86AB; padding-bottom: 6px; margin-bottom: 0.8em; text-align: left; }
-    .reveal h3 { font-size: 0.92em; color: #2E86AB; margin: 0.5em 0 0.2em; text-align: left; }
-    .reveal p, .reveal li { color: #333; line-height: 1.5; text-align: left; }
+    .reveal h1 { font-size: 2.6em; color: #fff; text-align: center; letter-spacing: -0.01em; margin-bottom: 0.2em; }
+    .reveal h2 { font-size: 1.65em; color: #1a3a5c; border-bottom: 2px solid #2E86AB; padding-bottom: 6px; margin-bottom: 0.3em; text-align: left; line-height: 1.2; font-weight: 700; }
+    .reveal .subline { font-size: 0.8em; color: #2E86AB; font-weight: 600; letter-spacing: 0.02em; margin-bottom: 0.9em; text-align: left; display: block; }
+    .reveal p, .reveal li { color: #333; line-height: 1.58; text-align: left; }
     .reveal ul { margin: 0; padding-left: 1.1em; }
-    .reveal li { margin-bottom: 5px; font-size: 0.90em; }
+    .reveal li { margin-bottom: 5px; font-size: 0.86em; }
     .reveal strong { color: #1a3a5c; }
+    .reveal em { color: #2E86AB; font-style: normal; font-weight: 600; }
     .reveal .slide-number { display: none !important; }
-    .reveal img { max-width: 100%; border-radius: 5px; }
-    .slide-sub { font-size: 0.52em; color: #888; font-weight: 400; }
-
-    #chapter-nav {
-      position: fixed; top: 0; left: 0; right: 0; height: 36px;
-      background: #1a3a5c; display: flex; align-items: center;
-      z-index: 9999; padding: 0 16px; gap: 0;
-    }
-    #chapter-nav .nav-brand { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; padding-right: 18px; border-right: 1px solid rgba(255,255,255,0.15); margin-right: 4px; }
-    #chapter-nav .nav-chapters { display: flex; flex: 1; gap: 2px; }
-    #chapter-nav .nav-ch { flex: 1; text-align: center; font-size: 9.5px; font-weight: 600; letter-spacing: 0.03em; color: rgba(255,255,255,0.42); padding: 5px 3px; cursor: pointer; border-radius: 3px; transition: color 0.2s, background 0.2s; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    #chapter-nav .nav-ch .ch-num { display: block; font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.6; margin-bottom: 1px; }
-    #chapter-nav .nav-ch:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.08); }
-    #chapter-nav .nav-ch.active { color: #fff; background: rgba(46,134,171,0.55); }
-    #chapter-nav .nav-ch.done { color: rgba(255,255,255,0.55); }
-    #chapter-nav .nav-counter { font-size: 10px; color: rgba(255,255,255,0.35); white-space: nowrap; padding-left: 14px; border-left: 1px solid rgba(255,255,255,0.12); margin-left: 4px; }
-
-    .reveal .controls { display: none !important; }
-    .reveal .progress { height: 3px !important; }
-
-    .reveal section.title-slide,
-    .reveal section.section-divider { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-    .title-slide h1 { color: #fff; font-size: 2.2em; margin-bottom: 0.3em; text-align: center; }
-    .title-slide .sub { color: #b8d8ea; font-size: 0.92em; line-height: 2; text-align: center; }
-    .title-slide .meta { color: rgba(255,255,255,0.4); font-size: 0.7em; margin-top: 1.4em; text-align: center; }
-
-    .section-divider .sec-eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 1em; justify-content: center; }
-    .section-divider .sec-num { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 700; color: #fff; }
-    .section-divider .sec-of { font-size: 0.72em; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.45); font-weight: 700; }
-    .section-divider h2 { color: #fff; border-bottom: 2px solid rgba(255,255,255,0.3); font-size: 1.6em; text-align: center; padding-bottom: 10px; margin-bottom: 0.4em; }
-    .section-divider .sec-sub { color: rgba(255,255,255,0.6); font-size: 0.85em; margin-top: 0.4em; text-align: center; }
-    .section-divider .chapter-dots { display: flex; gap: 8px; margin-top: 1.4em; justify-content: center; }
-    .section-divider .chapter-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.25); }
-    .section-divider .chapter-dots .dot.active { background: #fff; border-color: #fff; }
-    .section-divider .chapter-dots .dot.done { background: rgba(46,134,171,0.7); border-color: rgba(46,134,171,0.9); }
-
-    .cols { display: flex; gap: 24px; align-items: flex-start; }
-    .cols > div { flex: 1; }
-    .cols > div.w55 { flex: 1.22; } .cols > div.w45 { flex: 0.82; }
-    .cols > div.w60 { flex: 1.5; }  .cols > div.w40 { flex: 0.67; }
-
-    .box { border-left: 4px solid #2E86AB; background: #f0f7fb; padding: 8px 12px; border-radius: 0 6px 6px 0; margin: 5px 0; font-size: 0.84em; }
-    .box-green { border-left-color: #27ae60; background: #f2faf5; }
-    .box-red   { border-left-color: #c0392b; background: #fdf3f2; }
-    .box-amber { border-left-color: #e67e22; background: #fdf8f0; }
-    .box-purple { border-left-color: #6c5ce7; background: #f5f3ff; }
-
-    .metric-row { display: flex; gap: 8px; margin: 8px 0; }
-    .metric { text-align: center; background: #f5f9fc; border-radius: 8px; padding: 10px; flex: 1; border: 1px solid #d0e8f5; }
-    .metric .val { font-size: 1.7em; font-weight: 700; color: #1a3a5c; line-height: 1.05; }
-    .metric .lbl { font-size: 0.60em; color: #777; margin-top: 3px; }
-    .metric.good .val { color: #27ae60; } .metric.warn .val { color: #e67e22; } .metric.bad .val { color: #c0392b; }
-
-    .reveal table { width: 100%; border-collapse: collapse; font-size: 0.82em; margin: 0.3em 0; }
-    .reveal table th { background: #1a3a5c; color: #fff; padding: 6px 9px; text-align: left; font-weight: 600; }
-    .reveal table td { padding: 5px 9px; border-bottom: 1px solid #e8e8e8; vertical-align: middle; text-align: left; }
+    .reveal img { max-width: 100%; border-radius: 4px; }
+    .reveal table { width: 100%; border-collapse: collapse; font-size: 0.82em; margin: 0.4em 0; }
+    .reveal table th { background: #1a3a5c; color: #fff; padding: 7px 10px; text-align: left; font-weight: 600; }
+    .reveal table td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
     .reveal table tr:nth-child(even) td { background: #f7fafb; }
-    tr.hl-green td { background: #e5f5ec !important; font-weight: 700; }
-    tr.hl-amber td { background: #fef9ee !important; }
-    tr.hl-red   td { background: #fdf3f2 !important; }
-
-    .caption { font-size: 0.66em; color: #777; margin-top: 4px; text-align: center; font-style: italic; }
-    code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 0.88em; color: #1a3a5c; }
-
-    .decision-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
-    .decision-card { background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 8px; padding: 11px 13px; }
-    .decision-card .d-label { font-size: 0.68em; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #2E86AB; margin-bottom: 4px; }
-    .decision-card strong { display: block; font-size: 0.86em; color: #1a3a5c; margin-bottom: 3px; }
-    .decision-card p { font-size: 0.78em; color: #555; margin: 0; }
-
-    .thesis-label { font-size: 0.65em; letter-spacing: 0.16em; text-transform: uppercase; color: #2E86AB; font-weight: 700; margin-bottom: 0.8em; }
-    .thesis-main { font-size: 1.3em; color: #1a3a5c; line-height: 1.4; font-weight: 700; max-width: 800px; text-align: center; }
-    .thesis-punch { font-size: 0.95em; color: #2E86AB; font-weight: 700; margin-top: 1em; border-top: 1px solid #d0e8f5; padding-top: 0.9em; text-align: center; }
-    .closing-thesis { font-size: 1.5em; font-weight: 700; color: #fff; text-align: center; line-height: 1.4; max-width: 680px; }
-    .closing-sub { font-size: 0.88em; color: rgba(255,255,255,0.7); text-align: center; margin-top: 1em; }
-
-    .audience-badge { position: fixed; bottom: 14px; left: 16px; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); background: #1a3a5c; padding: 3px 8px; border-radius: 3px; z-index: 9998; }
+    tr.hl td { background: #e5f5ec !important; font-weight: 600; }
+    .caption { font-size: 0.63em; color: #888; margin-top: 4px; text-align: center; font-style: italic; }
+    #nav { position: fixed; top: 0; left: 0; right: 0; height: 34px; background: #1a3a5c; display: flex; align-items: center; z-index: 9999; padding: 0 14px; }
+    #nav .chs { display: flex; flex: 1; gap: 2px; }
+    #nav .ch { flex: 1; text-align: center; font-size: 10px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-weight: 600; color: rgba(255,255,255,0.4); padding: 5px 3px; cursor: pointer; border-radius: 3px; transition: all 0.18s; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #nav .ch .n { display: block; font-size: 7px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.55; margin-bottom: 1px; }
+    #nav .ch:hover { color: rgba(255,255,255,0.78); background: rgba(255,255,255,0.08); }
+    #nav .ch.active { color: #fff; background: rgba(46,134,171,0.5); }
+    #nav .ch.done { color: rgba(255,255,255,0.52); }
+    .reveal .controls { display: none !important; }
+    .reveal .progress { display: none !important; }
+    #slideticks { position: fixed; bottom: 20px; left: 0; right: 0; height: 42px; display: flex; align-items: flex-start; justify-content: space-between; padding: 0 28px; z-index: 9998; pointer-events: none; }
+    .stk-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0; width: 22px; }
+    .stk { width: 1px; height: 28px; background: rgba(26,58,92,0.2); border-radius: 1px; transition: background 0.18s, width 0.12s, height 0.12s; }
+    .stk-num { font-size: 10px; line-height: 1; color: rgba(26,58,92,0.3); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; transition: color 0.18s; }
+    .stk-wrap.stk-past .stk { background: rgba(26,58,92,0.5); }
+    .stk-wrap.stk-past .stk-num { color: rgba(26,58,92,0.5); }
+    .stk-wrap.stk-current .stk { background: #1a3a5c; width: 2px; height: 32px; }
+    .stk-wrap.stk-current .stk-num { color: #1a3a5c; font-weight: 700; }
+    #progress-track { position: fixed; bottom: 0; left: 28px; right: 28px; height: 10px; background: rgba(26,58,92,0.1); z-index: 9997; }
+    #progress-fill { height: 100%; background: #1a3a5c; width: 0%; transition: width 0.25s ease; }
+    .title-slide { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    .title-slide .sub { color: rgba(255,255,255,0.78); font-size: 0.98em; line-height: 2.2; margin-top: 0.5em; }
+    .title-slide .kpi-row { display: flex; gap: 14px; margin-top: 1.8em; justify-content: center; }
+    .title-slide .kpi { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 12px 20px; text-align: center; }
+    .title-slide .kpi .v { font-size: 1.8em; font-weight: 700; color: #fff; }
+    .title-slide .kpi .l { font-size: 0.62em; color: rgba(255,255,255,0.6); margin-top: 4px; line-height: 1.4; }
+    .title-slide .kpi.red .v { color: #ff7a7a; }
+    .title-slide .kpi.green .v { color: #4cd98a; }
+    .title-slide .meta { color: rgba(255,255,255,0.32); font-size: 0.68em; margin-top: 2em; }
+    .closing { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    .cols { display: flex; gap: 26px; align-items: flex-start; }
+    .cols > div { flex: 1; }
+    .w55 { flex: 1.22 !important; } .w45 { flex: 0.82 !important; }
+    .w50 { flex: 1 !important; } .w60 { flex: 1.5 !important; } .w40 { flex: 0.67 !important; }
+    .box { border-left: 4px solid #2E86AB; background: #f0f7fb; padding: 9px 13px; border-radius: 0 6px 6px 0; margin: 7px 0; font-size: 0.85em; line-height: 1.6; }
+    .box.red { border-left-color: #c0392b; background: #fdf3f2; }
+    .box.green { border-left-color: #27ae60; background: #f2faf5; }
+    .box.amber { border-left-color: #e67e22; background: #fdf8f0; }
+    .mrow { display: flex; gap: 8px; margin: 8px 0; }
+    .m { flex: 1; background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 8px; padding: 10px 8px; text-align: center; }
+    .m .v { font-size: 1.75em; font-weight: 700; color: #1a3a5c; line-height: 1.05; }
+    .m .l { font-size: 0.59em; color: #777; margin-top: 4px; line-height: 1.4; }
+    .m.red .v { color: #c0392b; }
+    .m.green .v { color: #27ae60; }
+    .m.amber .v { color: #e67e22; }
+    .agenda { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1em; }
+    .agenda-item { display: flex; align-items: flex-start; gap: 12px; background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 8px; padding: 10px 14px; }
+    .agenda-item .num { font-size: 1.1em; font-weight: 700; color: #2E86AB; min-width: 26px; padding-top: 1px; }
+    .agenda-item .label { font-size: 0.88em; color: #1a3a5c; font-weight: 600; }
+    .agenda-item .sub { font-size: 0.72em; color: #888; margin-top: 3px; }
+    .pf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 0.7em; }
+    .pf-card { background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 8px; padding: 13px 15px; }
+    .pf-card .pf-title { font-size: 0.7em; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #2E86AB; margin-bottom: 7px; }
+    .pf-card ul { padding-left: 1em; margin: 0; }
+    .pf-card li { font-size: 0.81em; color: #444; margin-bottom: 4px; line-height: 1.45; }
+    .myth-rows { display: flex; flex-direction: column; gap: 11px; margin-top: 0.6em; }
+    .myth-row-pair { display: flex; gap: 10px; align-items: stretch; }
+    .myth-assume { flex: 1; background: #fdf3f2; border: 1px solid #f0c8c8; border-radius: 7px; padding: 10px 12px; font-size: 0.79em; color: #6a1414; line-height: 1.45; }
+    .myth-assume::before { content: "✗  "; font-weight: 700; }
+    .myth-finding { flex: 1; background: #f2faf5; border: 1px solid #b8e8cf; border-radius: 7px; padding: 10px 12px; font-size: 0.79em; color: #1a4a2e; line-height: 1.45; }
+    .myth-finding::before { content: "✓  "; font-weight: 700; }
+    .myth-arrow { display: flex; align-items: center; color: #2E86AB; font-size: 1.3em; flex-shrink: 0; padding: 0 2px; }
+    .reco-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+    .reco { background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 9px; padding: 13px 15px; border-left: 4px solid #2E86AB; }
+    .reco .rn { font-size: 0.67em; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #2E86AB; margin-bottom: 5px; }
+    .reco strong { display: block; font-size: 0.88em; color: #1a3a5c; margin-bottom: 7px; line-height: 1.35; }
+    .reco ul { padding-left: 1em; margin: 0; }
+    .reco li { font-size: 0.78em; color: #444; margin-bottom: 4px; }
   </style>
 </head>
 <body>
-
-<div id="chapter-nav">
-  <div class="nav-brand">ZTF · Tech</div>
-  <div class="nav-chapters">
-    <div class="nav-ch" data-chapter="0" data-slide="0"><span class="ch-num">Intro</span>Überblick</div>
-    <div class="nav-ch" data-chapter="1" data-slide="2"><span class="ch-num">01</span>Daten & Split</div>
-    <div class="nav-ch" data-chapter="2" data-slide="5"><span class="ch-num">02</span>Baseline</div>
-    <div class="nav-ch" data-chapter="3" data-slide="7"><span class="ch-num">03</span>Modell-Wahl</div>
-    <div class="nav-ch" data-chapter="4" data-slide="11"><span class="ch-num">04</span>v1 → v2</div>
-    <div class="nav-ch" data-chapter="5" data-slide="16"><span class="ch-num">05</span>Validierung</div>
-    <div class="nav-ch" data-chapter="6" data-slide="19"><span class="ch-num">06</span>Produktion & Reflexion</div>
+<div id="nav">
+  <div class="chs">
+    <div class="ch" data-chapter="0" data-slide="0"><span class="n">—</span>Start</div>
+    <div class="ch" data-chapter="1" data-slide="2"><span class="n">01</span>Ausgangslage</div>
+    <div class="ch" data-chapter="2" data-slide="3"><span class="n">02</span>Daten</div>
+    <div class="ch" data-chapter="3" data-slide="5"><span class="n">03</span>Baseline</div>
+    <div class="ch" data-chapter="4" data-slide="6"><span class="n">04</span>Features</div>
+    <div class="ch" data-chapter="5" data-slide="7"><span class="n">05</span>Modell</div>
+    <div class="ch" data-chapter="6" data-slide="10"><span class="n">06</span>Evaluation</div>
+    <div class="ch" data-chapter="7" data-slide="12"><span class="n">07</span>Empfehlungen</div>
+    <div class="ch" data-chapter="8" data-slide="13"><span class="n">—</span>Ende</div>
   </div>
-  <div class="nav-counter" id="slide-counter">1 / 23</div>
 </div>
-
-<div class="audience-badge">Zielgruppe: Data Scientists · Tech Leads · Interviewer</div>
-
-<div class="reveal">
-<div class="slides">
-
-
-<!-- SLIDE 1 — Titel -->
+<div id="slideticks"></div>
+<div id="progress-track"><div id="progress-fill"></div></div>
+<div class="reveal"><div class="slides">
 <section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)" data-chapter="0">
-  <h1>Zürich Tram Flow</h1>
-  <div class="sub">
-    Technischer Deep Dive — Entscheidungen, Trade-offs, Learnings<br>
-    LightGBM · Feature Engineering · Bias-Kalibrierung · 55M Trainingszeilen
-  </div>
-  <div class="meta">github.com/kaywiegand/zh-tram-flow</div>
+  <h1>Zurich Tram Flow</h1>
+  <div class="sub">Das Projekt als End-to-End ML Case<br><span style="opacity:0.3;">·</span><br>Data Engineering · EDA · Feature Engineering · LightGBM</div>
+  <div class="kpi-row"><div class="kpi"><div class="v">94.4M</div><div class="l">Halt-Ereignisse<br>4 Datenquellen</div></div><div class="kpi"><div class="v">50.0s</div><div class="l">Baseline MAE<br>(Stop Mean)</div></div><div class="kpi green"><div class="v">18.6s</div><div class="l">LightGBM v2 MAE<br>Test 2025</div></div><div class="kpi green"><div class="v">−63%</div><div class="l">Verbesserung<br>vs. Baseline</div></div></div>
+  <div class="meta">Kay Wiegand · github.com/kaywiegand/zh-tram-flow</div>
 </section>
-
-
-<!-- SLIDE 2 — Kernthese (tech) -->
-<section style="display:flex !important; flex-direction:column; align-items:center; justify-content:center; text-align:center;" data-chapter="0">
-  <div class="thesis-label">Kernthese</div>
-  <div class="thesis-main">
-    Der Algorithmus war nicht der Durchbruch.<br>
-    Das Signal in den Daten war es.
-  </div>
-  <div class="metric-row" style="margin-top:1.2em; max-width:700px;">
-    <div class="metric"><div class="val">55M</div><div class="lbl">Trainingszeilen</div></div>
-    <div class="metric bad"><div class="val">45.7s</div><div class="lbl">MAE v1 (gleicher Algorithmus)</div></div>
-    <div class="metric good"><div class="val">18.6s</div><div class="lbl">MAE v2 (+2 Features)</div></div>
-    <div class="metric warn"><div class="val">−0.69s</div><div class="lbl">MBE v2 (kalibriert)</div></div>
-  </div>
-  <div class="thesis-punch">Analyse → Feature → Modell. In dieser Reihenfolge.</div>
+<section data-chapter="0">
+  <h2>Inhalt</h2>
+  <span class="subline">Sechs Abschnitte, ein durchgehender ML-Workflow</span>
+  <div class="agenda"><div class="agenda-item"><span class="num">01</span><div><div class="label">Ausgangslage</div><div class="sub">OTP-Lücke · Datenlage · Zieldefinition</div></div></div><div class="agenda-item"><span class="num">02</span><div><div class="label">Datenstrategie</div><div class="sub">Quellen · Cleaning-Entscheidungen</div></div></div><div class="agenda-item"><span class="num">03</span><div><div class="label">Baseline</div><div class="sub">Stop Mean als sinnvollster naiver Benchmark</div></div></div><div class="agenda-item"><span class="num">04</span><div><div class="label">Feature Engineering</div><div class="sub">34 Features v1 · Kaskadenindikator v2</div></div></div><div class="agenda-item"><span class="num">05</span><div><div class="label">Modellauswahl</div><div class="sub">Warum LightGBM · v1 → v2 · Robustheits-Check</div></div></div><div class="agenda-item"><span class="num">06</span><div><div class="label">Evaluation und Ausblick</div><div class="sub">Feature Importance · Produktionsreife · Empfehlungen</div></div></div></div>
 </section>
-
-
-<!-- SECTION 01 — Daten & Split -->
-<section class="section-divider" data-background="linear-gradient(135deg, #1a3a5c 0%, #163060 100%)" data-chapter="1">
-  <div class="sec-eyebrow"><div class="sec-num">1</div><div class="sec-of">von 6 Kapiteln</div></div>
-  <h2>Daten & Split-Strategie</h2>
-  <div class="sec-sub">Temporal Split · Data Leakage · Feature Ausschlüsse</div>
-  <div class="chapter-dots">
-    <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-  </div>
-</section>
-
-
-<!-- SLIDE 4 — Temporal Split -->
 <section data-chapter="1">
-  <h2>Warum temporaler Split — und nicht random?</h2>
-  <div class="cols">
-    <div class="w55">
-      <table>
-        <thead><tr><th>Split</th><th>Zeilen</th><th>Zeitraum</th><th>Rolle</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Train</strong></td><td>41.2M</td><td>Jan 2023 – Jun 2024</td><td>Modell lernt</td></tr>
-          <tr><td><strong>Validation</strong></td><td>14.3M</td><td>Jul – Dez 2024</td><td>Early Stopping</td></tr>
-          <tr class="hl-green"><td><strong>Test</strong></td><td>~29M</td><td>2025 (komplett)</td><td>Finale Evaluation</td></tr>
-        </tbody>
-      </table>
-      <div class="box box-red" style="margin-top:10px;">
-        <strong>Random Split wäre Data Leakage:</strong> Ein Datenpunkt vom 01.01.2025 im Training,
-        einer vom 31.12.2024 im Test — das Modell lernt faktisch aus der Zukunft.
-        In der Praxis sieht kein Modell die Zukunft.
-      </div>
-    </div>
-    <div class="w45">
-      <ul>
-        <li>Zeitreihen brauchen <strong>temporale Trennung</strong></li>
-        <li>Saisonale Muster (Winter 2025) nur im Test — bewusst so</li>
-        <li>Nov/Dez 2025: <code>departure_delay</code> anomal → maskiert, nicht ausgeschlossen (+5M Zeilen gewonnen)</li>
-        <li>Validation-Set: letztes Halbjahr Training — nie im echten Test gesehen</li>
-      </ul>
-      <div class="box" style="margin-top:10px;">
-        <strong>Ergebnis:</strong> Test-Set ist ein realistisches Produktionsszenario —
-        unbekannte Betriebsbedingungen, neues Jahr, neue Events.
-      </div>
-    </div>
-  </div>
+  <h2>Ausgangslage</h2>
+  <span class="subline">OTP 87% netzweit, Ziel 95% bis 2028, strukturelles Defizit</span>
+  <div class="mrow"><div class="m red"><div class="v">87.0%</div><div class="l">OTP netzweit<br>2023–2025</div></div><div class="m red"><div class="v">−8 PP</div><div class="l">Lücke zum<br>VBZ-Ziel 95%</div></div><div class="m amber"><div class="v">56.3s</div><div class="l">Ø Ankunfts-<br>verspätung</div></div><div class="m amber"><div class="v">71.5%</div><div class="l">Halte akkumulieren<br>Delay</div></div></div>
+  <div class="box" style="margin-top:14px;"><strong>Ziel:</strong> arrival_delay in Sekunden vorhersagen, direkt kommunizierbar, kein Schwellwert-Bias. Temporaler Split (kein Shuffle): Train 2023–Jun 2024 · Val Jul–Dez 2024 · Test 2025.</div>
+  <div class="box amber" style="margin-top:8px;"><strong>Metrik: MAE</strong> — Mean Absolute Error direkt in Sekunden interpretierbar. RMSE würde Extremwerte übergewichten.</div>
 </section>
-
-
-<!-- SLIDE 5 — Feature Ausschlüsse -->
-<section data-chapter="1">
-  <h2>Was das Modell bekommt — und was nicht</h2>
-  <div class="cols">
-    <div>
-      <h3>✅ Feature-Set (32 Features)</h3>
-      <table>
-        <thead><tr><th>Gruppe</th><th>Features</th></tr></thead>
-        <tbody>
-          <tr><td>Zeit</td><td><code>hour</code> · <code>weekday</code> · <code>month</code> · <code>season</code> · <code>is_holiday</code></td></tr>
-          <tr><td>Netz</td><td><code>line_name</code> · <code>stop_name</code> · <code>district_nr</code> · <code>n_lines_at_stop</code></td></tr>
-          <tr><td>Position</td><td><code>is_start_stop</code> · <code>is_end_stop</code> · <code>n_stops_line</code></td></tr>
-          <tr><td>Wetter</td><td><code>temperature</code> · <code>precipitation</code> · <code>has_snow</code> · <code>has_rain</code></td></tr>
-          <tr><td>Events</td><td><code>event_weight</code> · <code>event_type</code></td></tr>
-          <tr><td>Netz-Meta</td><td><code>gtfs_year</code> · <code>dwell_time_median</code></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div>
-      <h3>❌ Ausgeschlossen (Leakage)</h3>
-      <table>
-        <thead><tr><th>Feature</th><th>Warum raus</th></tr></thead>
-        <tbody>
-          <tr class="hl-red"><td><code>departure_delay</code></td><td>Erst bekannt nach Abfahrt — zu spät für Vorhersage</td></tr>
-          <tr class="hl-red"><td><code>delay_delta</code></td><td>Abgeleitet aus arrival + departure — beides leaky</td></tr>
-          <tr><td><code>trip_id</code></td><td>ID-Spalte, kein generalisierbares Signal</td></tr>
-          <tr><td><code>operating_date</code></td><td>Durch month/weekday/season abgedeckt</td></tr>
-          <tr><td>Koordinaten</td><td>Durch stop_name + district_nr abgedeckt</td></tr>
-        </tbody>
-      </table>
-      <div class="box box-amber" style="margin-top:8px;">
-        Leakage ist das häufigste stille Problem in ML-Projekten.
-        Ein Modell mit <code>departure_delay</code> im Training sieht in der Praxis nie.
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- SECTION 02 — Baseline -->
-<section class="section-divider" data-background="linear-gradient(135deg, #1a3a5c 0%, #163060 100%)" data-chapter="2">
-  <div class="sec-eyebrow"><div class="sec-num">2</div><div class="sec-of">von 6 Kapiteln</div></div>
-  <h2>Baseline zuerst</h2>
-  <div class="sec-sub">Ohne Baseline ist jede Modellzahl bedeutungslos</div>
-  <div class="chapter-dots">
-    <div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-  </div>
-</section>
-
-
-<!-- SLIDE 7 — Baseline -->
 <section data-chapter="2">
-  <h2>4 Baselines — die härteste gewinnt</h2>
-  <table>
-    <thead><tr><th>#</th><th>Baseline</th><th>Logik</th><th>MAE Test</th></tr></thead>
-    <tbody>
-      <tr><td>1</td><td>Grand Mean</td><td>Immer Netzschnitt vorhersagen</td><td>~58s</td></tr>
-      <tr><td>2</td><td>Stunden-Mittelwert</td><td>Je nach Tageszeit (7h → 49s, 21h → 68s)</td><td>~46s</td></tr>
-      <tr><td>3</td><td>Linien-Mittelwert</td><td>L11 → 69s, L6 → 38s</td><td>~44s</td></tr>
-      <tr class="hl-green"><td>4</td><td><strong>Stop Mean</strong></td><td>Historischer Ø pro Haltestelle</td><td><strong>50.0s</strong></td></tr>
-    </tbody>
-  </table>
-  <div class="box" style="margin-top:10px;">
-    <strong>Warum Stop Mean als Benchmark?</strong> Jeder Halt hat ein stabiles Profil — Enzenbühl ist
-    historisch immer schlechter als Paradeplatz. Dieses Wissen codiert die Baseline bereits.
-    Das Modell muss <em>mehr</em> können als den historischen Halt-Durchschnitt kennen.
-  </div>
-  <div class="box box-red" style="margin-top:6px;">
-    Ein Modell das Stop Mean nicht schlägt, hat nichts Neues gelernt.
-  </div>
+  <h2>Datenstrategie</h2>
+  <span class="subline">Vier Quellen, ein temporaler Join, 94.4 Millionen Zeilen</span>
+  <div class="pf-grid"><div class="pf-card"><div class="pf-title">VBZ IST-Daten</div><ul><li>Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025</li><li>Granularität: jede Fahrt × jede Haltestelle × Timestamp</li><li>canceled = True Fahrten bewusst behalten — relevante Extremfälle</li></ul></div><div class="pf-card"><div class="pf-title">GTFS (Fahrplandaten)</div><ul><li>Geplante Zeiten, dwell_time, stop_sequence, Liniengeometrien</li><li>Ermöglicht: arrival_delay = IST − SOLL</li><li>Join-Key: trip_id × stop_id × service_date</li></ul></div><div class="pf-card"><div class="pf-title">Meteo Schweiz</div><ul><li>Stündliche Messwerte: Temperatur, Niederschlag, Windgeschwindigkeit</li><li>Abgeleitete Flags: has_rain, has_snow, has_heavy_rain, is_hot</li><li>Join über Zeitstempel auf Stundenbasis</li></ul></div><div class="pf-card"><div class="pf-title">Event-Kalender + Ergebnis</div><ul><li>Grossveranstaltungen 2023–2025: Konzerte, Messen, Sport, Feiertage</li><li>Kategorisierung: event_type, event_size, event_weight</li><li><strong>94.4 Mio. Zeilen · 26 Features · 541 MB Parquet</strong></li></ul></div></div>
 </section>
-
-
-<!-- SECTION 03 — Modell-Wahl -->
-<section class="section-divider" data-background="linear-gradient(135deg, #1a3a5c 0%, #163060 100%)" data-chapter="3">
-  <div class="sec-eyebrow"><div class="sec-num">3</div><div class="sec-of">von 6 Kapiteln</div></div>
-  <h2>Modell-Entscheidung</h2>
-  <div class="sec-sub">LightGBM · Native Categoricals · Early Stopping · kein Optuna</div>
-  <div class="chapter-dots">
-    <div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
-  </div>
+<section data-chapter="2">
+  <h2>Datenstrategie</h2>
+  <span class="subline">Cleaning als Forschungsentscheidung, nicht als Routine</span>
+  <div class="myth-rows"><div class="myth-row-pair"><div class="myth-assume">Canceled-Fahrten entfernen</div><div class="myth-arrow">→</div><div class="myth-finding">Behalten: canceled = True sind Extremfälle, die das Modell kennen muss. Entfernen würde die Realität verfälschen.</div></div><div class="myth-row-pair"><div class="myth-assume">Shuffle-Split für mehr Trainingsdaten</div><div class="myth-arrow">→</div><div class="myth-finding">Temporal Split: Zukunft darf Vergangenheit nicht kennen. Shuffle erzeugt Data Leakage.</div></div><div class="myth-row-pair"><div class="myth-assume">One-Hot Encoding für Kategorien</div><div class="myth-arrow">→</div><div class="myth-finding">LightGBM native Categoricals: stop_name, line_name direkt als Kategorie. Weniger Speicher, schnelleres Training.</div></div><div class="myth-row-pair"><div class="myth-assume">arrival_delay winsorisieren</div><div class="myth-arrow">→</div><div class="myth-finding">Kein Capping: MAE bestraft Extremwerte proportional. Winsorisierung würde Systemfehler verbergen.</div></div></div>
 </section>
-
-
-<!-- SLIDE 9 — Warum LightGBM -->
 <section data-chapter="3">
-  <h2>Warum LightGBM — die drei entscheidenden Kriterien</h2>
-  <table>
-    <thead><tr><th>Modell</th><th>Nicht-linear</th><th>55M Zeilen</th><th>Native Cats</th><th>Urteil</th></tr></thead>
-    <tbody>
-      <tr><td>Lineare Regression</td><td>❌</td><td>✅</td><td>❌</td><td>Zu schwach — EDA zeigt Schwellenwerteffekte</td></tr>
-      <tr><td>Random Forest</td><td>✅</td><td>❌</td><td>❌</td><td>Zu langsam, kein Early Stopping</td></tr>
-      <tr><td>XGBoost</td><td>✅</td><td>🟡</td><td>❌</td><td>Gut, aber 5× langsamer auf 85M Zeilen</td></tr>
-      <tr class="hl-green"><td><strong>LightGBM</strong></td><td>✅</td><td>✅</td><td>✅</td><td><strong>Primärmodell</strong></td></tr>
-    </tbody>
-  </table>
-  <div class="cols" style="margin-top:10px;">
-    <div>
-      <div class="box">
-        <strong>Native Categoricals:</strong> LightGBM verarbeitet <code>stop_name</code> (500+ unique),
-        <code>line_name</code>, <code>event_type</code> direkt — kein One-Hot Encoding.
-        Bei 500 Stops = 500 neue Spalten → mehr RAM, langsamer, Overfitting-Risiko.
-      </div>
-    </div>
-    <div>
-      <div class="box">
-        <strong>Histogramm-Splitting:</strong> LightGBM binned Features in Histogramme
-        statt alle Datenpunkte einzeln zu prüfen → 5–10× schneller als XGBoost
-        auf großen Datensätzen. Training: ~18 Min auf 41M Zeilen (lokale CPU).
-      </div>
-    </div>
-  </div>
+  <h2>Baseline</h2>
+  <span class="subline">Stop Mean als sinnvollster naiver Benchmark</span>
+  <table><thead><tr><th>Ansatz</th><th>Logik</th><th>MAE (Test)</th></tr></thead><tbody><tr><td>Grand Mean</td><td>Immer Netz-Ø vorhersagen (56.3s)</td><td>50.6s</td></tr><tr><td>Hour Mean</td><td>Ø nach Tagesstunde</td><td>50.5s</td></tr><tr><td>Line Mean</td><td>Ø nach Linie</td><td>50.4s</td></tr><tr class="hl"><td><strong>Stop Mean</strong></td><td><strong>Ø nach Haltestelle — stärkste naive Baseline</strong></td><td><strong>50.0s</strong></td></tr></tbody></table>
+  <div class="box" style="margin-top:14px;">Stop Mean gewinnt, weil Haltestellen strukturell unterschiedliche Delay-Level haben. Jedes Modell muss 50.0s schlagen.</div>
 </section>
-
-
-<!-- SLIDE 10 — Early Stopping & Optuna -->
-<section data-chapter="3">
-  <h2>Early Stopping — und warum wir kein Optuna verwendet haben</h2>
-  <div class="cols">
-    <div>
-      <h3>Early Stopping</h3>
-      <ul>
-        <li>Modell trainiert bis zu 1000 Runden</li>
-        <li>Nach jeder Runde: Val-MAE messen</li>
-        <li>50 Runden ohne Verbesserung → <strong>Stopp</strong></li>
-        <li>v1: beste Runde = <strong>481</strong></li>
-        <li>Verhindert Overfitting automatisch — ohne manuelle Kontrolle</li>
-      </ul>
-      <div class="box" style="margin-top:8px;">
-        Ohne Early Stopping: ab Runde 481 lernt das Modell Trainingsdaten-Spezifisches,
-        das in 2025 nicht mehr gilt.
-      </div>
-    </div>
-    <div>
-      <h3>Warum kein Optuna?</h3>
-      <p style="font-size:0.84em; margin-bottom:8px;">Optuna sucht automatisch optimale Hyperparameter (Lernrate, Baumtiefe, etc.) — besser als manuelles Ausprobieren.</p>
-      <div class="box box-green">
-        <strong>Unser Beweis dagegen:</strong><br>
-        v1 → v2: <strong>gleiche Hyperparameter</strong>, nur 2 neue Features<br>
-        MAE: 45.7s → 18.6s (−27s)<br><br>
-        Optuna hätte v1 vielleicht auf ~43s gebracht.
-        Das richtige Feature brachte uns auf 18.6s.<br><br>
-        <strong>Priorität: Feature Engineering vor Tuning.</strong>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- SLIDE 11 — Metriken-Entscheidung -->
-<section data-chapter="3">
-  <h2>Metriken — warum MAE, was macht MBE, warum nicht RMSE?</h2>
-  <table>
-    <thead><tr><th>Metrik</th><th>Was sie misst</th><th>Stärke</th><th>Schwäche</th><th>Wir</th></tr></thead>
-    <tbody>
-      <tr class="hl-green"><td><strong>MAE</strong></td><td>Ø |Fehler| in Sekunden</td><td>Direkt kommunizierbar: "19s daneben"</td><td>Behandelt alle Fehler gleich</td><td>✅ Primär</td></tr>
-      <tr><td>RMSE</td><td>√(Ø Fehler²)</td><td>Bestraft Ausreißer stärker</td><td>Dominiert von Extremlagen (Schnee, Unfälle)</td><td>✅ Sekundär</td></tr>
-      <tr><td><strong>MBE</strong></td><td>Ø (Pred − Ist) mit Vorzeichen</td><td>Zeigt systematischen Bias</td><td>Kein Genauigkeitsmaß</td><td>✅ Diagnose</td></tr>
-      <tr><td>MAPE</td><td>% Abweichung</td><td>Prozentual verständlich</td><td>Explodiert bei delay ≈ 0s</td><td>❌</td></tr>
-    </tbody>
-  </table>
-  <div class="box box-amber" style="margin-top:8px;">
-    <strong>Warum RMSE nicht primär:</strong> Verspätungsdaten haben strukturelle Ausreißer —
-    Schneenächte, Totalausfälle. RMSE würde das Modell auf diese Extremfälle optimieren,
-    die operativ nicht durch Fahrplandesign steuerbar sind. Der Alltag leidet.
-  </div>
-</section>
-
-
-<!-- SECTION 04 — v1 → v2 -->
-<section class="section-divider" data-background="linear-gradient(135deg, #1a3a5c 0%, #163060 100%)" data-chapter="4">
-  <div class="sec-eyebrow"><div class="sec-num">4</div><div class="sec-of">von 6 Kapiteln</div></div>
-  <h2>v1 → v2: Diagnose und Signal</h2>
-  <div class="sec-sub">MBE als Diagnose · prev_trip_delay als Durchbruch · Isotonic Regression</div>
-  <div class="chapter-dots">
-    <div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div>
-  </div>
-</section>
-
-
-<!-- SLIDE 13 — v1 Ergebnisse & Diagnose -->
 <section data-chapter="4">
-  <h2>v1 — Ergebnis und Diagnose</h2>
-  <div class="cols">
-    <div class="w55">
-      <table>
-        <thead><tr><th>Metrik</th><th>Baseline</th><th>v1</th><th>Delta</th></tr></thead>
-        <tbody>
-          <tr><td>MAE Test</td><td>50.0s</td><td>45.7s</td><td>−4.3s</td></tr>
-          <tr><td>RMSE Test</td><td>86.2s</td><td>~85s</td><td>−1.2s</td></tr>
-          <tr><td>OTP ±60s</td><td>73.1%</td><td>77.5%</td><td>+4.4pp</td></tr>
-          <tr class="hl-amber"><td><strong>MBE</strong></td><td>—</td><td><strong>+8.3s</strong></td><td>systematisch optimistisch</td></tr>
-        </tbody>
-      </table>
-      <div class="box box-amber" style="margin-top:8px;">
-        <strong>MBE +8.3s ist keine Katastrophe — es ist eine Diagnose.</strong><br>
-        Das Modell sagt im Schnitt 8.3s zu wenig. Nicht chaotisch — systematisch.
-        Und systematisch heißt: korrigierbar.
-      </div>
-    </div>
-    <div class="w45">
-      <h3>Warum MBE entsteht</h3>
-      <p style="font-size:0.82em; margin-bottom:8px;">MAE-Optimierung lernt den <em>Median</em> der Verteilung. Bei rechtsschiefen Delay-Verteilungen (viele kurze, wenige extreme Delays) liegt der Median unter dem Mittelwert → Modell sagt systematisch zu wenig.</p>
-      <h3>Was v1 zeigt</h3>
-      <ul>
-        <li>Modell hat gelernt, was der <strong>Halt-Durchschnitt</strong> bereits weiß</li>
-        <li>Ohne Information über den <strong>aktuellen Netzstatus</strong> gibt es eine Decke</li>
-        <li>Nächster Schritt klar: Kaskadeneffekt als Feature</li>
-      </ul>
-    </div>
-  </div>
+  <h2>Feature Engineering</h2>
+  <span class="subline">34 Features in v1, 36 in v2 — zwei neue Features erklären −63% MAE</span>
+  <div class="pf-grid"><div class="pf-card"><div class="pf-title">Temporale Features (v1)</div><ul><li>hour, weekday, month, season, year</li><li>is_weekend, is_november, is_holiday</li><li>is_late_night_weekend (Kombi-Feature)</li></ul></div><div class="pf-card"><div class="pf-title">Netz-Features (v1)</div><ul><li>line_name, stop_name (native categoricals)</li><li>district_nr, n_lines_at_stop, n_stops_line</li><li>is_start_stop, is_end_stop, dwell_time</li></ul></div><div class="pf-card"><div class="pf-title">Externe Features (v1)</div><ul><li>temperature, precipitation, wind_speed</li><li>has_rain, has_heavy_rain, has_snow, is_hot</li><li>has_event, event_type, event_size, event_weight</li></ul></div><div class="pf-card"><div class="pf-title">Kaskaden-Features (neu in v2)</div><ul><li><strong>prev_trip_delay:</strong> Verspätung des Vorgänger-Trips, echtzeit-verfügbar</li><li><strong>stop_sequence_pct:</strong> normierter Streckenfortschritt (0–1), linienübergreifend lernbar</li><li>Ergebnis: MAE 45.7s → 18.6s (−31.4s)</li></ul></div></div>
 </section>
-
-
-<!-- SLIDE 14 — Von Analyse zu Feature -->
-<section data-chapter="4">
-  <h2>Von Analyse-Finding zu Feature — der Weg zu v2</h2>
-  <div class="cols">
-    <div class="w55">
-      <div class="box" style="margin-bottom:8px;">
-        <strong>F-NET-07 (Spatial-Analyse):</strong><br>
-        Pearson r ≥ 0.85 zwischen Delay an Halt N und Halt N+1 — netzweit, auf allen 16 Linien.
-        Verspätung kaskadiert mechanisch. Ohne Puffer (71.3% dwell_time = 0s) keine Erholung.
-      </div>
-      <div style="margin: 10px 0; font-size:0.84em; text-align:center; color:#888;">↓</div>
-      <div class="box box-green">
-        <strong>Feature Engineering:</strong><br>
-        <code>prev_trip_delay</code> = Delay am Vorgänger-Halt desselben Trips.<br>
-        <code>stop_sequence_pct</code> = Position auf der Strecke (0 = Start, 1 = Ende).
-      </div>
-      <div style="margin: 10px 0; font-size:0.84em; text-align:center; color:#888;">↓</div>
-      <div class="box box-green">
-        <strong>v2 Ergebnis:</strong> MAE 18.56s — Kaskadenfeature als #2 in Feature Importance.
-        Das Modell hat die Kaskade tatsächlich gelernt.
-      </div>
-    </div>
-    <div class="w45">
-      <h3>Join-Strategie für prev_trip_delay</h3>
-      <ul>
-        <li>Key: <code>(trip_id, operating_date, stop_name)</code></li>
-        <li><code>stop_sequence</code> aus <code>train_features.parquet</code> joinen</li>
-        <li>Sortieren nach <code>stop_sequence</code> → <code>shift(1).over([trip_id, date])</code></li>
-        <li>Polars LazyFrame + Streaming für 55M Zeilen</li>
-      </ul>
-      <div class="box box-amber" style="margin-top:8px;">
-        <strong>Risiko live:</strong> <code>prev_trip_delay</code> braucht
-        Echtzeitdaten aus dem laufenden Betrieb. Für Pre-Trip-Planung: Fallback
-        auf Haltestellen-Median. Details → Production-Slide.
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- SLIDE 15 — v1 vs v2 Vergleich -->
-<section data-chapter="4">
-  <h2>v1 vs. v2 — was sich geändert hat</h2>
-  <table>
-    <thead><tr><th>Aspekt</th><th>v1</th><th>v2</th></tr></thead>
-    <tbody>
-      <tr><td>Algorithmus</td><td>LightGBM</td><td>LightGBM (gleich)</td></tr>
-      <tr><td>Hyperparameter</td><td>Default-Set</td><td>Default-Set (gleich)</td></tr>
-      <tr><td>Features</td><td>32 Features</td><td>34 Features (+2)</td></tr>
-      <tr class="hl-green"><td>Neue Features</td><td>—</td><td><code>prev_trip_delay</code> · <code>stop_sequence_pct</code></td></tr>
-      <tr class="hl-green"><td>MAE Test</td><td>45.7s</td><td><strong>18.56s</strong> (−59%)</td></tr>
-      <tr class="hl-amber"><td>MBE Test</td><td>+8.3s (Bias)</td><td><strong>−0.69s</strong> (kalibriert)</td></tr>
-      <tr><td>Kalibrierung</td><td>—</td><td>Isotonic Regression (Post-hoc)</td></tr>
-    </tbody>
-  </table>
-  <div class="box box-green" style="margin-top:10px;">
-    Gleicher Algorithmus · gleiche Einstellungen · +2 Features aus der Analyse → −27s MAE.<br>
-    <strong>Das Signal in den Daten, nicht der Algorithmus, hat den Unterschied gemacht.</strong>
-  </div>
-</section>
-
-
-<!-- SLIDE 16 — Isotonic Regression -->
-<section data-chapter="4">
-  <h2>Bias-Kalibrierung — Isotonic Regression</h2>
-  <div class="cols">
-    <div class="w55">
-      <table>
-        <thead><tr><th></th><th>v1 (unkalibriert)</th><th>v2 (kalibriert)</th></tr></thead>
-        <tbody>
-          <tr><td>MAE Test</td><td>45.7s</td><td>18.56s</td></tr>
-          <tr class="hl-green"><td>MBE Test</td><td>+8.3s</td><td><strong>−0.69s</strong></td></tr>
-        </tbody>
-      </table>
-      <div class="box" style="margin-top:10px;">
-        <strong>Was Isotonic Regression tut:</strong><br>
-        Lernt die Beziehung zwischen Vorhersage und tatsächlichem Wert auf dem Val-Set.
-        "Wenn LightGBM 20s sagt, ist der echte Wert im Schnitt 28s." — passt sich dem
-        Wertebereich an statt einen globalen Offset zu addieren.
-      </div>
-    </div>
-    <div class="w45">
-      <h3>Warum nicht einfach −8.3s abziehen?</h3>
-      <ul>
-        <li>Globaler Offset korrigiert den Durchschnitt, nicht die Verteilung</li>
-        <li>Bei kleinen Delays: zu viel korrigiert → zu pessimistisch</li>
-        <li>Bei großen Delays: zu wenig korrigiert → immer noch zu optimistisch</li>
-        <li>Isotonic: <strong>nicht-parametrisch, monoton</strong> — kein Overfitting auf Kalibrierung</li>
-      </ul>
-      <div class="box box-amber" style="margin-top:8px;">
-        MBE −0.69s ist nicht "perfekt" — es ist "nahezu unverzerrt".
-        Für operative Nutzung ausreichend.
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- SECTION 05 — Validierung -->
-<section class="section-divider" data-background="linear-gradient(135deg, #1a3a5c 0%, #163060 100%)" data-chapter="5">
-  <div class="sec-eyebrow"><div class="sec-num">5</div><div class="sec-of">von 6 Kapiteln</div></div>
-  <h2>Validierung & Robustheit</h2>
-  <div class="sec-sub">Feature Importance · XGBoost-Check · Fehlerprofile</div>
-  <div class="chapter-dots">
-    <div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div>
-  </div>
-</section>
-
-
-<!-- SLIDE 18 — Feature Importance -->
 <section data-chapter="5">
-  <h2>Feature Importance — schließt den Kreis zur Analyse</h2>
-  <div class="cols">
-    <div class="w55">
-      <img src="img/spatial-cascade-effect.png" alt="Kaskadeneffekt">
-      <div class="caption">Kaskadeneffekt netzweit — Delay wächst entlang der Strecke (Basis für prev_trip_delay)</div>
-    </div>
-    <div class="w45">
-      <ul>
-        <li><strong>#1 stop_name</strong> — Halt-spezifisches Profil ist stärkstes statisches Signal</li>
-        <li><strong>#2 prev_trip_delay</strong> — Kaskadenindikator, stärkstes neues Feature</li>
-        <li><strong>#3 hour</strong> — Tageszeit-Muster (21h-Peak aus EDA)</li>
-        <li><strong>#4 line_name</strong> — L11 vs. L6 fundamental unterschiedlich</li>
-        <li><strong>#5 has_snow</strong> — Schnee-Effekt (+54s aus Analyse)</li>
-      </ul>
-      <div class="box box-green" style="margin-top:8px;">
-        Das Modell hat <strong>exakt die gleichen Muster gelernt</strong> wie
-        die 55 Analyse-Findings. Kein Zufall — das Modell bestätigt die Analyse.
-      </div>
-    </div>
-  </div>
+  <h2>Modellauswahl und -Anpassung</h2>
+  <span class="subline">Warum LightGBM, warum kein Hyperparameter-Tuning</span>
+  <div class="myth-rows"><div class="myth-row-pair"><div class="myth-assume">XGBoost als Standard-Benchmark</div><div class="myth-arrow">→</div><div class="myth-finding">XGBoost: val MAE ~21.4s bei 150 Runden, über 90 Minuten Trainingszeit. LightGBM: 18 Minuten für vergleichbare Qualität.</div></div><div class="myth-row-pair"><div class="myth-assume">One-Hot Encoding für Kategorien</div><div class="myth-arrow">→</div><div class="myth-finding">LightGBM native Categoricals. Weniger Speicher, schnelleres Training, keine Sparsität.</div></div><div class="myth-row-pair"><div class="myth-assume">Hyperparameter-Tuning vor Feature Engineering</div><div class="myth-arrow">→</div><div class="myth-finding">Bewusst zurückgestellt: Feature Engineering bringt mehr als Tuning. prev_trip_delay liefert allein −27s MAE.</div></div><div class="myth-row-pair"><div class="myth-assume">Feste Anzahl Runden wählen</div><div class="myth-arrow">→</div><div class="myth-finding">Early Stopping mit Validation-Set steuert Komplexität automatisch. Verhindert Overfitting ohne manuelle Suche.</div></div></div>
 </section>
-
-
-<!-- SLIDE 19 — XGBoost Robustness Check -->
 <section data-chapter="5">
-  <h2>XGBoost als algorithmischer Robustheits-Check</h2>
-  <div class="cols">
-    <div class="w55">
-      <table>
-        <thead><tr><th></th><th>LightGBM v2</th><th>XGBoost</th></tr></thead>
-        <tbody>
-          <tr><td>Features</td><td>34 (v2-Set)</td><td>34 (v2-Set, identisch)</td></tr>
-          <tr><td>Val MAE</td><td>~20s</td><td>~21.4s (nach 150 Runden)</td></tr>
-          <tr><td>Training (41M)</td><td>~18 Min</td><td>>90 Min (abgebrochen)</td></tr>
-          <tr class="hl-green"><td>Fazit</td><td>Primärmodell</td><td>Robustheits-Bestätigung</td></tr>
-        </tbody>
-      </table>
-      <div class="box" style="margin-top:8px;">
-        XGBoost auf denselben Features → ähnliche Performance. Das beweist:
-        das Signal ist robust, nicht algorithmus-spezifisch.
-      </div>
-    </div>
-    <div class="w45">
-      <h3>Warum XGBoost langsamer?</h3>
-      <ul>
-        <li>XGBoost: Level-wise Tree Growth — alle Knoten einer Ebene gleichzeitig</li>
-        <li>LightGBM: Leaf-wise Growth — nur der vielversprechendste Ast wächst</li>
-        <li>Auf 55M Zeilen: LightGBM-Vorteil ist dramatisch</li>
-        <li>XGBoost hat kein nativer UTF-8-Support für Kategoricals (Zürich-Problem: ä, ö, ü)</li>
-      </ul>
-      <div class="box box-amber" style="margin-top:8px;">
-        LightGBM war nicht nur Annahme — sondern <strong>empirisch bestätigte Wahl</strong>.
-      </div>
-    </div>
-  </div>
+  <h2>Modellauswahl und -Anpassung</h2>
+  <span class="subline">v1 zu v2, der Sprung kam aus der Analyse, nicht aus dem Algorithmus</span>
+  <table><thead><tr><th>Version</th><th>Features</th><th>MAE (Test)</th><th>MBE (Test)</th><th>Verbesserung</th></tr></thead><tbody><tr><td>Baseline (Stop Mean)</td><td>—</td><td>50.0s</td><td>—</td><td>Ausgangspunkt</td></tr><tr><td>LightGBM v1<br><span style="font-size:0.82em;color:#888;font-weight:400;">Zeit · Wetter · Netz · kein Live-Signal</span></td><td>34</td><td>45.7s</td><td>+8.3s</td><td>−4.3s</td></tr><tr class="hl"><td><strong>LightGBM v2</strong><br><span style="font-size:0.82em;color:#1a6e3a;font-weight:400;">+prev_trip_delay · +stop_sequence_pct · Isotonic-Kalibrierung</span></td><td><strong>36</strong></td><td><strong>18.6s</strong></td><td><strong>−0.69s</strong></td><td><strong>−31.4s (−63%)</strong></td></tr></tbody></table>
+  <div class="box green" style="margin-top:12px;">v1 war systematisch zu optimistisch (MBE +8.3s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0.69s, nahezu bias-frei. Der MAE-Sprung erklärt sich vollständig durch prev_trip_delay.</div>
 </section>
-
-
-<!-- SECTION 06 — Produktion & Reflexion -->
-<section class="section-divider" data-background="linear-gradient(135deg, #1a3a5c 0%, #163060 100%)" data-chapter="6">
-  <div class="sec-eyebrow"><div class="sec-num">6</div><div class="sec-of">von 6 Kapiteln</div></div>
-  <h2>Produktion & Reflexion</h2>
-  <div class="sec-sub">Live-Verfügbarkeit · Limitierungen · Was ich anders machen würde</div>
-  <div class="chapter-dots">
-    <div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div>
-  </div>
+<section data-chapter="5">
+  <h2>Modellauswahl und -Anpassung</h2>
+  <span class="subline">XGBoost-Vergleich und Stabilitätsprüfung</span>
+  <div class="mrow"><div class="m red"><div class="v">~21.4s</div><div class="l">XGBoost val MAE<br>150 Runden</div></div><div class="m red"><div class="v">90+ Min</div><div class="l">XGBoost Trainingszeit<br>auf 85M Zeilen</div></div><div class="m green"><div class="v">18 Min</div><div class="l">LightGBM v2<br>Trainingszeit</div></div><div class="m green"><div class="v">18.6s</div><div class="l">LightGBM v2<br>Test MAE (2025)</div></div></div>
+  <div class="box" style="margin-top:14px;">XGBoost erreicht vergleichbare Qualität, braucht aber 5× mehr Zeit. Für iteratives Feature Engineering ist LightGBM die klar überlegene Wahl — Workflow-Entscheidung, keine Qualitätskompromittierung.</div>
 </section>
-
-
-<!-- SLIDE 21 — prev_trip_delay live -->
 <section data-chapter="6">
-  <h2>Produktions-Realität: Wann ist prev_trip_delay verfügbar?</h2>
-  <table>
-    <thead><tr><th>Use Case</th><th>prev_trip_delay verfügbar?</th><th>Modell</th></tr></thead>
-    <tbody>
-      <tr class="hl-green"><td><strong>Live-Dispatch</strong></td><td>✅ Echtzeit-Feed (VBZ API)</td><td>v2 — volle Genauigkeit</td></tr>
-      <tr class="hl-amber"><td><strong>Near-Realtime (5–15 Min)</strong></td><td>🟡 Letzter bekannter Status</td><td>v2 mit leichtem Verlust</td></tr>
-      <tr><td><strong>Pre-Trip (Stunden voraus)</strong></td><td>❌ Nicht bekannt</td><td>v1 — Fallback auf Stop-Median</td></tr>
-      <tr><td><strong>Dashboard / Nutzer-App</strong></td><td>❌ Planungskontext</td><td>v1 — "welche Tageszeit, welche Linie"</td></tr>
-    </tbody>
-  </table>
-  <div class="box" style="margin-top:8px;">
-    v2 ist ein <strong>Real-Time Dispatch Tool</strong> — nicht ein Fahrplan-Vorhersage-Tool.
-    Beide Kontexte brauchen unterschiedliche Modell-Varianten. Das ist kein Fehler — das ist Design.
-  </div>
+  <h2>Feature Importance</h2>
+  <span class="subline">prev_trip_delay dominiert, die Analyse hat recht behalten</span>
+  <div class="cols"><div class="w55"><div style="background:#e8ecf0; border-radius:8px; height:320px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#999;"><span style="font-size:1.6em;">📊</span><span style="font-size:0.7em; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;">Feature Importance LightGBM v2</span><span style="font-size:0.65em;">Export ausstehend</span></div><div class="caption">Feature Importance (Gain). prev_trip_delay und stop_sequence_pct dominieren.</div></div><div class="w45"><div class="box green"><strong>Top-Features bestätigen die EDA:</strong> prev_trip_delay ist stärkstes Feature. stop_sequence_pct an zweiter Stelle.</div><div class="box" style="margin-top:8px;">Temporale Features (hour, weekday, month) zeigen konsistente, aber deutlich schwächere Beiträge. Wetter-Features stabil vorhanden.</div><div class="box amber" style="margin-top:8px;">Das Signal steckte in den Daten, nicht im Algorithmus. Die Kaskadenanalyse (r ≥ 0.85) hat die Feature-Wichtigkeit korrekt antizipiert.</div></div></div>
 </section>
-
-
-<!-- SLIDE 22 — Was ich anders machen würde -->
 <section data-chapter="6">
-  <h2>Was ich anders machen würde — ehrliche Reflexion</h2>
-  <div class="decision-row">
-    <div class="decision-card">
-      <div class="d-label">Feature Engineering</div>
-      <strong>Target Encoding für stop_name</strong>
-      <p>Native Categorical mit 500+ Stops lernt Halt-Profile grob. Target Encoding (Ø Delay pro Halt im Training) wäre präziser — mit n-Threshold ≥ 1000 gegen Overfitting.</p>
-    </div>
-    <div class="decision-card">
-      <div class="d-label">Hyperparameter</div>
-      <strong>Optuna nach v2-Feature-Set</strong>
-      <p>Erst wenn das Feature-Set stabil ist, lohnt sich systematisches Tuning. Jetzt ist der Zeitpunkt. Erwarteter Gewinn: weitere 2–4s MAE.</p>
-    </div>
-    <div class="decision-card">
-      <div class="d-label">Training-Daten</div>
-      <strong>Oversampling Schnee-Tage</strong>
-      <p>MAE bei Schnee: 58.9s (vs. 45.4s normal). Seltene Extremlagen sind unterrepräsentiert. Oversampling oder separate Snow-Komponente würde das adressieren.</p>
-    </div>
-    <div class="decision-card">
-      <div class="d-label">Evaluation</div>
-      <strong>SHAP für lokale Erklärbarkeit</strong>
-      <p>Gain-Importance misst globale Nutzung — SHAP erklärt einzelne Vorhersagen. "Warum ist diese Tram jetzt 73s verspätet?" — das braucht SHAP.</p>
-    </div>
-  </div>
+  <h2>Produktionsreife und Reflexion</h2>
+  <span class="subline">Was produktionsreif ist, was offen bleibt</span>
+  <div class="myth-rows"><div class="myth-row-pair"><div class="myth-assume" style="background:#f2faf5;border-color:#b8e8cf;color:#1a4a2e;">Produktionsreif</div><div class="myth-arrow">→</div><div class="myth-finding">LightGBM v2: MAE 18.6s, MBE −0.69s, trainiert auf 41M Fahrten, getestet auf vollständigem Jahr 2025 (~29M). Streamlit-Dashboard lauffähig.</div></div><div class="myth-row-pair"><div class="myth-assume">Offen: Hyperparameter-Tuning</div><div class="myth-arrow">→</div><div class="myth-finding">Bewusst zurückgestellt. Nächster Schritt. Potenziell weitere −2 bis −4s MAE erreichbar.</div></div><div class="myth-row-pair"><div class="myth-assume">Offen: v2 im Streamlit-Predictor</div><div class="myth-arrow">→</div><div class="myth-finding">Dashboard nutzt aktuell v1. v2 erfordert Live-Signal aus VBZ-Betriebssystem.</div></div><div class="myth-row-pair"><div class="myth-assume">Offen: Ensemble / Stacking</div><div class="myth-arrow">→</div><div class="myth-finding">Nicht evaluiert. LightGBM v2 liefert bereits −63% vs. Baseline. Nächste Iteration nach Tuning.</div></div></div>
 </section>
-
-
-<!-- SLIDE 23 — Abschluss -->
-<section style="display:flex !important; flex-direction:column; align-items:center; justify-content:center; text-align:center;" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)" data-chapter="6">
-  <div class="closing-thesis">Analyse → Feature → Modell.<br>In dieser Reihenfolge.</div>
-  <div class="closing-sub" style="margin-top:1.2em;">
-    LightGBM v2 · MAE 18.56s · MBE −0.69s<br>
-    github.com/kaywiegand/zh-tram-flow · Kay Wiegand
-  </div>
+<section data-chapter="7">
+  <h2>Handlungsempfehlungen</h2>
+  <span class="subline">Vier Empfehlungen, jede direkt durch Modell oder Analyse gedeckt</span>
+  <div class="reco-grid"><div class="reco"><div class="rn">R1 · Fahrplan-Design <span style="background:#1a3a5c;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:6px;">Priorität 1</span></div><strong>Standzeit-Puffer L11 an Koppelstellen</strong><ul><li>dwell_time = 0s ist das Root-Cause-Feature</li><li>L11 zeigt stärksten Kaskadeneffekt</li><li>+10s Puffer unterbricht den Feedback-Loop</li></ul></div><div class="reco"><div class="rn">R2 · Real-Time Dispatch <span style="background:#1a3a5c;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:6px;">Priorität 1</span></div><strong>prev_trip_delay als Echtzeit-Signal</strong><ul><li>Stärkstes Feature und echtzeit-verfügbar</li><li>LightGBM v2 Inferenz: Millisekunden pro Vorhersage</li><li>MAE 18.6s nachgewiesen produktionsreif</li></ul></div><div class="reco"><div class="rn">R3 · Kapazitätsplanung <span style="background:#2E86AB;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:6px;">Priorität 2</span></div><strong>Taktanpassung 20–22h</strong><ul><li>hour = 21 ist stärkstes Temporal-Feature</li><li>has_event interagiert signifikant</li><li>L11 und L8 zeigen erhöhtes Delay</li></ul></div><div class="reco"><div class="rn">R4 · Monitoring <span style="background:#2E86AB;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:6px;">Priorität 2</span></div><strong>OTP-Monitoring Kreise 11 und 12</strong><ul><li>district_nr gehört zu Top-Features</li><li>Höchste Delay-Level, niedrigste OTP</li><li>Kombination mit Modell ermöglicht proaktive Steuerung</li></ul></div></div>
 </section>
-
-
-</div>
-</div>
-
+<section class="closing" data-chapter="8" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)">
+  <div style="font-size:1.3em; font-weight:700; color:#fff; letter-spacing:-0.01em; margin-bottom:0.15em;">Zurich Tram Flow</div>
+  <div style="font-size:0.72em; color:rgba(255,255,255,0.4); margin-bottom:1.4em;">Kay Wiegand · 2023–2025</div>
+  <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:1.6em;"><div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:9px 16px; text-align:center;"><div style="font-size:1.4em; font-weight:700; color:#fff; line-height:1;">94.4M</div><div style="font-size:0.58em; color:rgba(255,255,255,0.5); margin-top:3px;">Halt-Ereignisse</div></div><div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:9px 16px; text-align:center;"><div style="font-size:1.4em; font-weight:700; color:#fff; line-height:1;">41.2M</div><div style="font-size:0.58em; color:rgba(255,255,255,0.5); margin-top:3px;">Trainings-Fahrten</div></div><div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:9px 16px; text-align:center;"><div style="font-size:1.4em; font-weight:700; color:#fff; line-height:1;">36</div><div style="font-size:0.58em; color:rgba(255,255,255,0.5); margin-top:3px;">Features (v2)</div></div><div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:9px 16px; text-align:center;"><div style="font-size:1.4em; font-weight:700; color:#4cd98a; line-height:1;">18.6s</div><div style="font-size:0.58em; color:rgba(255,255,255,0.5); margin-top:3px;">MAE · LightGBM v2</div></div><div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:9px 16px; text-align:center;"><div style="font-size:1.4em; font-weight:700; color:#4cd98a; line-height:1;">−63%</div><div style="font-size:0.58em; color:rgba(255,255,255,0.5); margin-top:3px;">vs. Baseline</div></div></div>
+  <a href="https://github.com/kaywiegand/zh-tram-flow" style="display:inline-flex; align-items:center; gap:9px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); color:#fff; text-decoration:none; border-radius:8px; padding:10px 22px; font-size:0.8em; font-weight:600; margin-bottom:1.2em;"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>github.com/kaywiegand/zh-tram-flow</a>
+  <div style="display:flex; gap:18px; justify-content:center; font-size:0.72em;"><a href="overview.html" style="color:rgba(255,255,255,0.5); text-decoration:none;">Ergebnisübersicht →</a><a href="storyview.html" style="color:rgba(255,255,255,0.5); text-decoration:none;">Projektverlauf →</a><a href="https://zh-tram-flow.streamlit.app" style="color:rgba(255,255,255,0.5); text-decoration:none;">Live-App →</a></div>
+</section>
+</div></div>
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
 <script>
-  Reveal.initialize({ hash: true, controls: false, progress: true, transition: 'slide', transitionSpeed: 'fast', margin: 0.07, width: 1280, height: 720 });
-  const CHAPTER_SLIDES = [0, 2, 5, 7, 11, 16, 19];
-  const nav = document.querySelectorAll('.nav-ch');
-  const counter = document.getElementById('slide-counter');
-  const total = document.querySelectorAll('.reveal .slides section').length;
-  function getChapter(idx) { let ch = 0; for (let i = 0; i < CHAPTER_SLIDES.length; i++) { if (idx >= CHAPTER_SLIDES[i]) ch = i; } return ch; }
-  function updateNav() { const idx = Reveal.getState().indexh; counter.textContent = `${idx + 1} / ${total}`; const ch = getChapter(idx); nav.forEach((el, i) => { el.classList.remove('active', 'done'); if (i === ch) el.classList.add('active'); else if (i < ch) el.classList.add('done'); }); }
-  nav.forEach((el) => { el.addEventListener('click', () => { Reveal.slide(parseInt(el.dataset.slide)); }); });
-  Reveal.on('slidechanged', updateNav); updateNav();
+Reveal.initialize({hash:true,controls:false,progress:false,transition:'slide',transitionSpeed:'fast',margin:0.07,width:1280,height:720});
+const CHAPTER_SLIDES=[0,2,3,5,6,7,10,12,13];const navItems=document.querySelectorAll('.ch');const total=document.querySelectorAll('.reveal .slides>section').length;const progressFill=document.getElementById('progress-fill');const tickContainer=document.getElementById('slideticks');for(let i=0;i<total;i++){const wrap=document.createElement('div');wrap.className='stk-wrap';const line=document.createElement('span');line.className='stk';const num=document.createElement('span');num.className='stk-num';num.textContent=i+1;wrap.appendChild(line);wrap.appendChild(num);tickContainer.appendChild(wrap);}const ticks=tickContainer.querySelectorAll('.stk-wrap');function getChapter(idx){let ch=0;for(let i=0;i<CHAPTER_SLIDES.length;i++){if(idx>=CHAPTER_SLIDES[i])ch=i;}return ch;}function update(){const idx=Reveal.getState().indexh;const ch=getChapter(idx);navItems.forEach((el,i)=>{el.classList.remove('active','done');if(i===ch)el.classList.add('active');else if(i<ch)el.classList.add('done');});ticks.forEach((t,i)=>{t.classList.remove('stk-past','stk-current');if(i===idx)t.classList.add('stk-current');else if(i<idx)t.classList.add('stk-past');});requestAnimationFrame(()=>{const track=document.getElementById('progress-track');const stkLine=ticks[idx].querySelector('.stk');const trackRect=track.getBoundingClientRect();const stkRect=stkLine.getBoundingClientRect();const centerX=stkRect.left+stkRect.width/2;const pct=trackRect.width>0?Math.max(0,Math.min(100,(centerX-trackRect.left)/trackRect.width*100)):0;progressFill.style.width=pct+'%';});}navItems.forEach(el=>el.addEventListener('click',()=>Reveal.slide(parseInt(el.dataset.slide))));Reveal.on('slidechanged',update);update();
 </script>
 </body>
 </html>

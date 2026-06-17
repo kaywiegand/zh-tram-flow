@@ -3,462 +3,261 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zürich Tram Flow — Verspätungsanalyse · Data Science Portfolio</title>
+  <meta property="og:title" content="Zurich Tram Flow — Predictive Analytics für VBZ">
+  <meta property="og:description" content="94.4M Halt-Ereignisse. −63% MAE. Vier Handlungsfelder aus den Daten.">
+  <meta property="og:type" content="website">
+  <title>Zurich Tram Flow — One-Pager</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      color: #2d3748;
-      line-height: 1.6;
-    }
-
-    /* ─── Hero Section ─────────────────────────────────────────────────── */
-    .hero {
-      min-height: 100vh;
-      background: linear-gradient(135deg, #1a3a5c 0%, #234d7c 100%);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 3rem 2rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background:
-        radial-gradient(circle at 20% 50%, rgba(46, 134, 171, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(46, 134, 171, 0.08) 0%, transparent 50%);
-      pointer-events: none;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      max-width: 720px;
-    }
-
-    .badge {
-      display: inline-block;
-      background: rgba(255, 255, 255, 0.15);
-      color: rgba(255, 255, 255, 0.85);
-      padding: 0.5rem 1.2rem;
-      border-radius: 50px;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-    }
-
-    .hero h1 {
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 1.2rem;
-      line-height: 1.15;
-    }
-
-    .hero .subtitle {
-      font-size: 1.15rem;
-      opacity: 0.9;
-      margin-bottom: 2.5rem;
-      line-height: 1.7;
-      max-width: 600px;
-    }
-
-    .cta-group {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 4rem;
-    }
-
-    .cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 1rem 2rem;
-      background: white;
-      color: #1a3a5c;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    }
-
-    .cta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-    }
-
-    .cta.secondary {
-      background: transparent;
-      color: white;
-      border: 2px solid white;
-    }
-
-    .cta.secondary:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .scroll-indicator {
-      position: absolute;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      animation: bounce 2s infinite;
-      opacity: 0.7;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(8px); }
-    }
-
-    /* ─── KPI Section ──────────────────────────────────────────────────── */
-    .kpi-section {
-      background: #f8fafc;
-      padding: 4rem 2rem;
-    }
-
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .kpi-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 10px;
-      border-left: 4px solid #2E86AB;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .kpi-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    }
-
-    .kpi-value {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: #1a3a5c;
-      line-height: 1;
-      margin-bottom: 0.5rem;
-    }
-
-    .kpi-label {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #2d3748;
-      margin-bottom: 0.4rem;
-    }
-
-    .kpi-sub {
-      font-size: 0.8rem;
-      color: #718096;
-    }
-
-    /* ─── Findings Section ─────────────────────────────────────────────── */
-    .findings-section {
-      padding: 5rem 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .findings-section h2 {
-      font-size: 2rem;
-      text-align: center;
-      margin-bottom: 3rem;
-      color: #1a3a5c;
-    }
-
-    .finding {
-      display: grid;
-      grid-template-columns: 1fr 1.5fr;
-      gap: 3rem;
-      align-items: center;
-      margin-bottom: 4rem;
-    }
-
-    .finding:nth-child(even) {
-      grid-template-columns: 1.5fr 1fr;
-    }
-
-    .finding:nth-child(even) .finding-icon {
-      order: 2;
-    }
-
-    .finding:nth-child(even) .finding-text {
-      order: 1;
-    }
-
-    .finding-icon {
-      font-size: 5rem;
-      text-align: center;
-      line-height: 1;
-    }
-
-    .finding-text h3 {
-      font-size: 1.4rem;
-      color: #1a3a5c;
-      margin-bottom: 0.8rem;
-      font-weight: 700;
-    }
-
-    .finding-text p {
-      font-size: 1rem;
-      color: #4a5568;
-      line-height: 1.7;
-    }
-
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", sans-serif; color: #333; line-height: 1.6; background: #fff; }
+    .hero { background: linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%); color: #fff; padding: 60px 40px; text-align: center; }
+    .hero h1 { font-size: 2.8em; margin-bottom: 10px; letter-spacing: -0.02em; }
+    .hero .sub { font-size: 1.1em; color: rgba(255,255,255,0.75); margin-bottom: 30px; }
+    .kpi-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+    .kpi { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; padding: 20px 24px; text-align: center; min-width: 160px; }
+    .kpi .v { font-size: 2.2em; font-weight: 700; line-height: 1.1; }
+    .kpi .l { font-size: 0.75em; color: rgba(255,255,255,0.65); margin-top: 8px; }
+    .kpi.green .v { color: #4cd98a; }
+    .kpi.red .v { color: #ff7a7a; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 60px 40px; }
+    section { margin-bottom: 60px; }
+    h2 { font-size: 1.8em; color: #1a3a5c; margin-bottom: 8px; border-bottom: 2px solid #2E86AB; padding-bottom: 10px; }
+    .subline { font-size: 0.95em; color: #2E86AB; font-weight: 600; margin-bottom: 20px; display: block; }
+    p { font-size: 1em; margin-bottom: 12px; }
+    strong { color: #1a3a5c; font-weight: 600; }
+    em { color: #2E86AB; font-style: normal; }
+    .findings { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    .finding { background: #f0f7fb; border-left: 4px solid #2E86AB; padding: 18px 20px; border-radius: 0 6px 6px 0; }
+    .finding strong { display: block; font-size: 1.08em; margin-bottom: 10px; }
+    .finding p { margin-bottom: 8px; font-size: 0.95em; }
+    .finding.green { background: #f2faf5; border-left-color: #27ae60; }
+    .finding.red { background: #fdf3f2; border-left-color: #c0392b; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .metric { background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 8px; padding: 16px 12px; text-align: center; }
+    .metric .v { font-size: 2em; font-weight: 700; color: #1a3a5c; }
+    .metric .l { font-size: 0.8em; color: #777; margin-top: 6px; }
+    .metric.green .v { color: #27ae60; }
+    .metric.red .v { color: #c0392b; }
+    .reco-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+    .reco { background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 8px; padding: 18px 20px; border-left: 4px solid #2E86AB; }
+    .reco-title { font-size: 0.7em; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #2E86AB; margin-bottom: 8px; }
+    .reco strong { display: block; font-size: 1em; margin-bottom: 10px; }
+    .reco ul { padding-left: 1.2em; margin: 0; }
+    .reco li { font-size: 0.92em; color: #444; margin-bottom: 6px; }
+    .priority { display: inline-block; background: #1a3a5c; color: #fff; font-size: 0.68em; font-weight: 700; padding: 2px 8px; border-radius: 3px; margin-left: 6px; }
+    .priority.p2 { background: #2E86AB; }
+    .data-section { background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 8px; padding: 20px; margin: 20px 0; }
+    .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+    .data-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px; }
+    .data-item strong { display: block; font-size: 0.85em; color: #2E86AB; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .data-item p { margin: 0; font-size: 0.92em; }
+    .cta-row { display: flex; gap: 14px; margin-top: 24px; flex-wrap: wrap; }
+    a.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: #1a3a5c; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.95em; transition: background 0.2s; border: 1px solid #1a3a5c; }
+    a.btn:hover { background: #0f2642; }
+    a.btn.outline { background: transparent; color: #1a3a5c; border: 1px solid #1a3a5c; }
+    a.btn.outline:hover { background: #f5f9fc; }
+    footer { background: #1a3a5c; color: #fff; text-align: center; padding: 40px; font-size: 0.9em; }
+    footer a { color: rgba(255,255,255,0.7); text-decoration: none; margin: 0 8px; }
+    footer a:hover { color: #fff; }
     @media (max-width: 768px) {
-      .finding {
-        grid-template-columns: 1fr !important;
-      }
-      .finding:nth-child(even) .finding-icon { order: unset; }
-      .finding:nth-child(even) .finding-text { order: unset; }
-      .finding-icon { font-size: 3rem; }
-      .finding-text h3 { font-size: 1.2rem; }
-    }
-
-    /* ─── Artifact Cards ───────────────────────────────────────────────── */
-    .artifacts-section {
-      background: #f8fafc;
-      padding: 5rem 2rem;
-    }
-
-    .artifacts-section h2 {
-      font-size: 2rem;
-      text-align: center;
-      margin-bottom: 3rem;
-      color: #1a3a5c;
-    }
-
-    .artifact-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .artifact-card {
-      background: white;
-      border-radius: 10px;
-      padding: 2rem;
-      border-left: 4px solid #2E86AB;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      transition: all 0.3s ease;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .artifact-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 24px rgba(46, 134, 171, 0.15);
-      border-left-color: #e67e22;
-    }
-
-    .artifact-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      line-height: 1;
-    }
-
-    .artifact-card h3 {
-      font-size: 1.2rem;
-      color: #1a3a5c;
-      margin-bottom: 0.6rem;
-      font-weight: 700;
-    }
-
-    .artifact-card p {
-      font-size: 0.95rem;
-      color: #4a5568;
-      margin-bottom: 1.5rem;
-      flex-grow: 1;
-      line-height: 1.6;
-    }
-
-    .artifact-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      color: #2E86AB;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.95rem;
-      transition: gap 0.2s;
-    }
-
-    .artifact-link:hover {
-      gap: 0.6rem;
-    }
-
-    /* ─── Footer ───────────────────────────────────────────────────────── */
-    .footer {
-      background: #1a3a5c;
-      color: white;
-      padding: 3rem 2rem;
-      text-align: center;
-    }
-
-    .footer-author {
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      font-weight: 500;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .footer-links a {
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .footer-links a:hover {
-      color: white;
-    }
-
-    .footer-meta {
-      font-size: 0.8rem;
-      opacity: 0.6;
+      .hero h1 { font-size: 2em; }
+      .hero .sub { font-size: 1em; }
+      .kpi-row { flex-direction: column; align-items: center; }
+      .kpi { min-width: 100%; }
+      .metrics { grid-template-columns: 1fr; }
+      .reco-grid { grid-template-columns: 1fr; }
+      .data-grid { grid-template-columns: 1fr; }
+      .container { padding: 40px 24px; }
     }
   </style>
 </head>
 <body>
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-content">
-      <div class="badge">Portfolio-Projekt · Data Science · 2026</div>
-      <h1>Zürich Tram Flow</h1>
-      <p class="subtitle">Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplandesign verankert sind, nicht im zufälligen Betrieb.</p>
-      <div class="cta-group">
-        <a href="https://zh-tram-flow.streamlit.app" class="cta">Dashboard öffnen →</a>
-        <a href="https://github.com/kaywiegand/zh-tram-flow" class="cta secondary">GitHub ansehen →</a>
-      </div>
+<div class="hero">
+  <h1>Zurich Tram Flow</h1>
+  <div class="sub">Predictive Analytics für das Zürcher Tramnetz</div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="v">94.4M</div><div class="l">Halt-Ereignisse<br>2023–2025</div></div>
+    <div class="kpi red"><div class="v">87%</div><div class="l">OTP Status Quo<br>vs. 95% Ziel</div></div>
+    <div class="kpi green"><div class="v">18.6s</div><div class="l">LightGBM MAE<br>Vorhersagegenauigkeit</div></div>
+    <div class="kpi green"><div class="v">−63%</div><div class="l">Verbesserung<br>vs. Baseline</div></div>
+  </div>
+</div>
+
+<div class="container">
+<section>
+  <h2>Die Frage</h2>
+  <span class="subline">Sind Tramverspätungen vorhersagbar? Welche Muster stecken in den Daten?</span>
+  <p>Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87%, Ziel 95% bis 2028. Wenn Verspätungen Mustern folgen, können wir:</p>
+  <ul style="padding-left: 1.4em; margin: 12px 0;">
+    <li>Sie vorhersagen und proaktiv gegensteuern</li>
+    <li>Root Causes identifizieren und angehen</li>
+    <li>Dispatch-Entscheidungen datengestützt treffen</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Drei Kernfindungen</h2>
+  <span class="subline">Was die Daten zeigen</span>
+  <div class="findings">
+    <div class="finding green">
+      <strong>✓ Kaskadeneffekt: Verspätungen breiten sich aus</strong>
+      <p>Halt n+1 verzögert sich proportional zu Halt n. Pearson r ≥ 0.85 über alle 16 Linien. Nicht Zufall — systematisches Muster.</p>
+      <p><em>Bedeutung:</em> Eine Kettenreaktion. Wenn wir die Kette unterbrechen, stabilisiert sich das Gesamtsystem.</p>
     </div>
-    <div class="scroll-indicator">↓</div>
-  </section>
-
-  <!-- KPI SECTION -->
-  <section class="kpi-section">
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-value">94,4 Mio.</div>
-        <div class="kpi-label">Datenpunkte</div>
-        <div class="kpi-sub">2023–2025 · VBZ Zürich</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-value">87,0%</div>
-        <div class="kpi-label">On-Time Performance</div>
-        <div class="kpi-sub">Ziel: 95% · Lücke: −8pp</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-value">18,56s</div>
-        <div class="kpi-label">Modell MAE</div>
-        <div class="kpi-sub">LightGBM · 63% unter Baseline</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-value">63</div>
-        <div class="kpi-label">Analyse-Findings</div>
-        <div class="kpi-sub">aus 12 Jupyter Notebooks</div>
-      </div>
+    <div class="finding green">
+      <strong>✓ Root Cause: dwell_time = 0 ist der Hebel</strong>
+      <p>Halte ohne geplante Standzeit können Verspätungen nicht aufholen. Diese sind typischerweise Koppelstellen. Linie 11 zeigt den stärksten Effekt.</p>
+      <p><em>Bedeutung:</em> Fahrplan-Design ist die Ursache und der Hebel zugleich.</p>
     </div>
-  </section>
+    <div class="finding green">
+      <strong>✓ Das Modell ist produktionsreif</strong>
+      <p>LightGBM v2: 18.6s MAE auf ~29M Test-Fahrten (ganzes Jahr 2025). MBE −0.69s, nahezu bias-frei. prev_trip_delay als Live-Signal verfügbar.</p>
+      <p><em>Bedeutung:</em> Echtzeit-Vorhersagen für Leitstelle sind technisch machbar.</p>
+    </div>
+  </div>
+</section>
 
-  <!-- FINDINGS SECTION -->
-  <section class="findings-section">
-    <h2>Drei zentrale Befunde</h2>
+<section>
+  <h2>Die Datenbasis</h2>
+  <span class="subline">94.4 Millionen Halt-Ereignisse, vier Datenquellen, ein konsistentes Dataset</span>
+  <div class="data-section">
+    <div class="data-grid">
+      <div class="data-item"><strong>VBZ IST-Daten</strong><p>Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025. Trip × Stop × Zeitstempel Granularität.</p></div>
+      <div class="data-item"><strong>GTFS Fahrplan</strong><p>Geplante Zeiten, dwell_time, stop_sequence. Ermöglicht arrival_delay = IST − SOLL Berechnung.</p></div>
+      <div class="data-item"><strong>Meteo Schweiz</strong><p>Stündliche Messwerte: Temperatur, Niederschlag, Wind. Flags: has_rain, has_heavy_rain, is_hot.</p></div>
+      <div class="data-item"><strong>Event-Kalender</strong><p>Großveranstaltungen, Feiertage, Messen 2023–2025. Kategorisiert nach Typ und Größe.</p></div>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="v">94.4M</div><div class="l">Halt-Ereignisse</div></div>
+    <div class="metric"><div class="v">36</div><div class="l">Features (LightGBM v2)</div></div>
+    <div class="metric"><div class="v">541 MB</div><div class="l">Parquet (komprimiert)</div></div>
+  </div>
+</section>
 
+<section>
+  <h2>Vier Empfehlungen</h2>
+  <span class="subline">Direkt durch Analyse und Modell begründet</span>
+  <div class="reco-grid">
+    <div class="reco">
+      <div class="reco-title">R1 · Fahrplan-Design <span class="priority">Priorität 1</span></div>
+      <strong>Standzeit-Puffer L11 an Koppelstellen</strong>
+      <ul>
+        <li>dwell_time = 0s ist Root Cause</li>
+        <li>L11 zeigt stärksten Kaskadeneffekt</li>
+        <li>+10s Puffer unterbricht Feedback-Loop</li>
+      </ul>
+    </div>
+    <div class="reco">
+      <div class="reco-title">R2 · Real-Time Dispatch <span class="priority">Priorität 1</span></div>
+      <strong>prev_trip_delay als Echtzeit-Signal</strong>
+      <ul>
+        <li>Stärkstes Feature, echtzeit-verfügbar</li>
+        <li>LightGBM v2 Inferenz: Millisekunden</li>
+        <li>MAE 18.6s nachgewiesen</li>
+      </ul>
+    </div>
+    <div class="reco">
+      <div class="reco-title">R3 · Kapazitätsplanung <span class="priority p2">Priorität 2</span></div>
+      <strong>Taktanpassung 20–22 Uhr</strong>
+      <ul>
+        <li>hour = 21 stärkstes Temporal-Feature</li>
+        <li>Spätschicht kritisch</li>
+        <li>L11 & L8 zeigen erhöhtes Delay</li>
+      </ul>
+    </div>
+    <div class="reco">
+      <div class="reco-title">R4 · Monitoring <span class="priority p2">Priorität 2</span></div>
+      <strong>OTP-Fokus Kreise 11 & 12</strong>
+      <ul>
+        <li>Höchste Delay-Level, niedrigste OTP</li>
+        <li>district_nr gehört zu Top-Features</li>
+        <li>Kombination mit Modell für Prognose</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Technologie und Robustheit</h2>
+  <span class="subline">Keine Black-Box — interpretierbar, reproduzierbar, produktionsreif</span>
+  <div class="finding">
+    <strong>Algorithmus:</strong> LightGBM Gradient Boosting. Warum? 5× schneller als XGBoost, native Kategoricals, Feature Importance direkt interpretierbar. Nein zu Neural Networks: hier braucht es Transparenz.
+  </div>
+  <div class="finding" style="margin-top: 12px;">
+    <strong>Aufteilung:</strong> Temporal Split (kein Shuffle). Train 2023–Jun 2024 · Val Jul–Dez 2024 · Test 2025. Zukunft darf Vergangenheit nicht kennen. Verhindert Data Leakage.
+  </div>
+  <div class="finding" style="margin-top: 12px;">
+    <strong>Validierung:</strong> 18.6s MAE auf ~29M Test-Fahrten (ein ganzes Jahr). XGBoost-Vergleich bestätigt Robustheit. Isotonic Regression Kalibrierung senkt MBE von +8.3s auf −0.69s.
+  </div>
+</section>
+
+<section>
+  <h2>Nächste Schritte</h2>
+  <span class="subline">Roadmap und Portfolio-Nutzen</span>
+  <div class="findings">
     <div class="finding">
-      <div class="finding-icon">🗺</div>
-      <div class="finding-text">
-        <h3>Die Peripherie leidet — nicht das Zentrum</h3>
-        <p>Friedhof Enzenbühl hat 93,8 Sekunden mittleren Delay — Paradeplatz mit 14 kreuzenden Linien nur 14 Sekunden. Das widerlegt die Intuition: Überlastung im Zentrum ist nicht das Problem.</p>
-      </div>
+      <strong>Phase 1 (Woche 1–2):</strong> Dashboard v1 deployment. Stop Mean Baseline in Streamlit verfügbar machen. Intern Test mit Dispatch-Team.
     </div>
-
     <div class="finding">
-      <div class="finding-icon">❄️</div>
-      <div class="finding-text">
-        <h3>Schnee kostet 54 Sekunden — Regen kaum</h3>
-        <p>Schnee senkt die Pünktlichkeit um −10,9 Prozentpunkte und erhöht den mittleren Delay um ~54 Sekunden. Regen zeigt dagegen keinen messbaren Effekt auf das Netz.</p>
-      </div>
+      <strong>Phase 2 (Monat 1–2):</strong> LightGBM v2 ins Streamlit integieren. prev_trip_delay als Live-Signal verfügbar. Echtzeit-Vorhersage für Leitstelle.
     </div>
-
     <div class="finding">
-      <div class="finding-icon">🔗</div>
-      <div class="finding-text">
-        <h3>Der Delay kaskadiert — r ≥ 0,85 netzweit</h3>
-        <p>Alle 16 Tramlinien zeigen eine Korrelation von r ≥ 0,85 zwischen aufeinanderfolgenden Halten. Ein verspätetes Tram macht das nächste automatisch verspätet.</p>
-      </div>
+      <strong>Phase 3 (Quartal 1):</strong> Fahrplan-Review Linie 11 Koppelstellen. Standzeit-Test. Ergebnisse messen gegen OTP-Baseline.
     </div>
-  </section>
+    <div class="finding">
+      <strong>Phase 4 (Quartal 2+):</strong> Ensemble-Modelle evaluieren. Hyperparameter-Tuning. Feedback-Loop mit VBZ. Portfolio-Dokumentation.
+    </div>
+  </div>
+</section>
 
-  <!-- ARTIFACTS SECTION -->
-  <section class="artifacts-section">
-    <h2>Artefakte</h2>
-    <div class="artifact-grid">
-      <div class="artifact-card">
-        <div class="artifact-icon">🎛</div>
-        <h3>Dashboard</h3>
-        <p>Interaktiv erkunden. Live Delay vorhersagen. Vier Seiten mit Analyse, Findings und Vorhersage-Tool.</p>
-        <a href="https://zh-tram-flow.streamlit.app" class="artifact-link">Öffnen →</a>
-      </div>
-      <div class="artifact-card">
-        <div class="artifact-icon">📊</div>
-        <h3>Presentation</h3>
-        <p>Die Story in 22 Slides. Vollständige Methodik, alle Findings, Modellvergleich, Empfehlungen.</p>
-        <a href="presentation.html" class="artifact-link">Ansehen →</a>
-      </div>
-      <div class="artifact-card">
-        <div class="artifact-icon">📄</div>
-        <h3>Full Report</h3>
-        <p>Alle 63 Findings, vollständige Analyse und Methodik. Narrative HTML-Seite mit allen Details.</p>
-        <a href="report.html" class="artifact-link">Lesen →</a>
-      </div>
-      <div class="artifact-card">
-        <div class="artifact-icon">💻</div>
-        <h3>GitHub</h3>
-        <p>Code, Notebooks, Datenpipeline. Vollständig reproduzierbar. Fork oder clone das Repo.</p>
-        <a href="https://github.com/kaywiegand/zh-tram-flow" class="artifact-link">Ansehen →</a>
-      </div>
-    </div>
-  </section>
+<section>
+  <h2>Portfolio-Wert</h2>
+  <span class="subline">Warum dieses Projekt zählt</span>
+  <p>Das ist nicht Kaggle. Nicht eine akademische Übung. Das ist ein echtes ML-Projekt mit:</p>
+  <ul style="padding-left: 1.4em; margin: 12px 0;">
+    <li><strong>Echtem Problem:</strong> Verspätungen im öffentlichen Verkehr, strukturelles Defizit, klarer Business Case</li>
+    <li><strong>Echten Daten:</strong> 94.4M Zeilen, vier Quellen, temporale Struktur, keine Toy-Datasets</li>
+    <li><strong>Echtem Impact:</strong> Vier Handlungsfelder direkt aus der Analyse. Nicht spekulative Features, sondern gedeckte Empfehlungen</li>
+    <li><strong>Echtem Workflow:</strong> Exploration → Hypothesen → Feature Engineering → Modellierung → Validierung → Handlung</li>
+  </ul>
+  <p style="margin-top: 16px;"><em>"Ich habe ein ML-Projekt von Grund auf gebaut. Mit echten Stakeholder-Fragen, echter Datenqualitäts-Arbeit, echter Produktion. Die Kaskadenentdeckung war das, was alles transformiert hat. Das ist nicht der Algorithmus — das ist die Arbeit davor."</em></p>
+</section>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-author">Kay Alexander Wiegand · Senior Consultant · Data Scientist · Berlin</div>
-    <div class="footer-links">
-      <a href="https://linkedin.com/in/kaywiegand">LinkedIn</a>
-      <a href="https://github.com/kaywiegand">GitHub</a>
-    </div>
-    <div class="footer-meta">Daten: VBZ Zürich (Open Data) · Zeitraum 2023–2025 · 12 Notebooks · Python · Polars · LightGBM</div>
-  </footer>
+<div class="cta-row" style="margin-top: 40px; margin-bottom: 40px;">
+  <a href="https://github.com/kaywiegand/zh-tram-flow" class="btn">
+    <span>→</span> GitHub Repository
+  </a>
+  <a href="overview.html" class="btn outline">
+    Ergebnisübersicht
+  </a>
+  <a href="techview.html" class="btn outline">
+    Technischer Deep Dive
+  </a>
+  <a href="storyview.html" class="btn outline">
+    Kompletter Workflow
+  </a>
+  <a href="https://zh-tram-flow.streamlit.app" class="btn outline">
+    Live-App (Streamlit)
+  </a>
+</div>
+
+</div>
+
+<footer>
+  <div style="margin-bottom: 16px;">
+    <strong>Zurich Tram Flow</strong><br>
+    Kay Wiegand · Data Scientist & ML Engineer
+  </div>
+  <div>
+    <a href="https://github.com/kaywiegand/zh-tram-flow">GitHub</a> ·
+    <a href="https://zh-tram-flow.streamlit.app">App</a> ·
+    <a href="overview.html">Presentations</a>
+  </div>
+  <div style="margin-top: 20px; font-size: 0.85em; color: rgba(255,255,255,0.6);">
+    2023–2025 · Data Engineering · EDA · Feature Engineering · LightGBM<br>
+    Temporal Split Validation · 18.6s MAE · −63% vs. Baseline
+  </div>
+</footer>
 </body>
 </html>
