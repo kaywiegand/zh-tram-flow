@@ -445,7 +445,7 @@ Built with [wgnd-toolkit](https://github.com/kaywiegand/wgnd-toolkit) and [wgnd-
 | ~~`is_windy`~~ | NaN — nie befüllt (F-WEAT-03) |
 
 - ✅ Encoding-Entscheidung: LightGBM native Categorical für `stop_name`, `line_name`, `event_type`, `season`
-- ✅ `train_features.parquet` + `test_features.parquet` exportiert (55.5M / ~30M Zeilen, inkl. Nov/Dez 2025)
+- ✅ `train_features.parquet` + `test_features.parquet` exportiert (55.5M / ~30 M Zeilen, inkl. Nov/Dez 2025)
 - ✅ `train_final.parquet` + `test_final.parquet` exportiert (ML-ready · leaky Spalten entfernt)
 
 ---
@@ -587,8 +587,8 @@ PROCESS_LOG Session-Notes verwenden ab dieser Sektion Pointer auf Notebooks — 
 | Fakt | Wert | Primärquelle (Notebook) | Sekundär erlaubt in |
 | :--- | :--- | :--- | :--- |
 | Master-Datensatz Zeilen | 94.4M | `00_introduction.ipynb` — Dateicheck-Zelle | README · portfolio.md |
-| lf_clean Zeilen | ~85M | `02_preparation.ipynb` | portfolio.md |
-| Train / Val / Test Zeilen | 41.2M / 14.3M / ~29M | `05_feature_engineering.ipynb` | portfolio.md |
+| lf_clean Zeilen | ~85 M | `02_preparation.ipynb` | portfolio.md |
+| Train / Val / Test Zeilen | 41.2M / 14.3M / ~29 M | `05_feature_engineering.ipynb` | portfolio.md |
 | Findings gesamt | 55 | `03_analysis_0-overview.ipynb` | README · ROADMAP · portfolio.md |
 | OTP netzweit | 87 % | `03_analysis_1-target.ipynb` | README · ROADMAP · portfolio.md |
 | Delay-Akkumulation | 71.5% | `03_analysis_1-target.ipynb` | README · portfolio.md |
@@ -977,7 +977,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 | Daten laden + Pandas-Konvertierung | 55.5M | ~20s |
 | LightGBM Training (41M Train-Rows) | 41M | ~18 Min |
 | Validation Prediction (14M Rows) | 14M | ~8 Min |
-| Test Prediction + Export (~30M Rows) | ~30M | ~3.5 Min |
+| Test Prediction + Export (~30 M Rows) | ~30 M | ~3.5 Min |
 | **Gesamt Notebook-Laufzeit** | — | **~30 Min** |
 
 ### Modell-Ergebnisse
@@ -1033,7 +1033,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 
 Statt Nov/Dez 2025 komplett zu filtern, werden `departure_delay` und `delay_delta` für Nov 14–Dez 23 2025 auf NaN gesetzt. `arrival_delay` (Zielvariable) bleibt unberührt. Neues `is_anomal`-Flag für Transparenz.
 
-Begründung: `departure_delay` / `delay_delta` sind keine Modell-Features. Durch Maskierung statt Ausschluss gewinnen wir **+~5M Testzeilen (+~20%)** und vollständige November-Abdeckung (~58s Ø arrival_delay — schlechtester Monat, bisher komplett aus der Evaluation ausgeschlossen).
+Begründung: `departure_delay` / `delay_delta` sind keine Modell-Features. Durch Maskierung statt Ausschluss gewinnen wir **+~5 M Testzeilen (+~20%)** und vollständige November-Abdeckung (~58s Ø arrival_delay — schlechtester Monat, bisher komplett aus der Evaluation ausgeschlossen).
 
 **Technische Umsetzung (2026-05-20):**
 
@@ -1050,7 +1050,7 @@ Begründung: `departure_delay` / `delay_delta` sind keine Modell-Features. Durch
 | `05_feature_engineering.ipynb` | `is_test`-Parameter aus `apply_lf_clean`-Aufrufen entfernt |
 
 **Offene Schritte nach diesem Refactoring:**
-1. `05_feature_engineering.ipynb` neu ausführen → `test_features.parquet` mit Nov/Dez 2025 (~30M Zeilen)
+1. `05_feature_engineering.ipynb` neu ausführen → `test_features.parquet` mit Nov/Dez 2025 (~30 M Zeilen)
 2. `06_prediction_1-baseline.ipynb` neu ausführen → aktualisierte Benchmark-Zahlen
 3. Analysis-Notebooks neu ausführen → Plots zeigen dann Nov/Dez 2025 (optional)
 
@@ -1705,7 +1705,7 @@ stage:      Phase 4 abgeschlossen — LightGBM v2 trainiert, Evaluation + Vergle
 target:     arrival_delay (Sekunden)
 stack:      Python · Polars · Pandas · LightGBM · Plotly · Jupyter · uv
 period:     2023–2025
-rows:       ~85M (lf_clean) · 94.4M total
+rows:       ~85 M (lf_clean) · 94.4M total
 notebooks:  12
 findings:   63
 ```
@@ -1825,7 +1825,7 @@ metric:         MAE (Mean Absolute Error — direkt in Sekunden kommunizierbar)
 split_strategy: temporal — 2023–Jun 2024 Train / Jul–Dez 2024 Val / 2025 Test (kein Shuffle)
 train_rows:     41.2M
 val_rows:       14.3M
-test_rows:      ~29M (inkl. Nov/Dez 2025 — vorher ausgeschlossen, nach Maskierung drin)
+test_rows:      ~29 M (inkl. Nov/Dez 2025 — vorher ausgeschlossen, nach Maskierung drin)
 ```
 
 ### Baseline Benchmark

@@ -299,7 +299,7 @@
 
     <div class="kv-row">
       <div class="kv-fact amber">
-        <div class="fv">56.3s</div>
+        <div class="fv">56,3 s</div>
         <div class="fl">Ø Ankunfts-<br>verspätung</div>
       </div>
       <div class="kv-text">
@@ -371,13 +371,13 @@
     <div class="myth-row-pair">
       <div class="myth-assume">Die Innenstadt ist der Verspätungs-Hotspot</div>
       <div class="myth-arrow">→</div>
-      <div class="myth-finding">Central (48.3s) und Paradeplatz (48.2s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93.8s, Balgrist 85.2s</div>
+      <div class="myth-finding">Central (48,3 s) und Paradeplatz (48,2 s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93,8 s, Balgrist 85,2 s</div>
     </div>
 
     <div class="myth-row-pair">
       <div class="myth-assume">Der Morgenrush ist das grösste Zeitproblem</div>
       <div class="myth-arrow">→</div>
-      <div class="myth-finding">7h liegt mit 48.9s unter Netzschnitt. Echter Peak: 21h (67.9s) durch Abreisewellen nach Veranstaltungen</div>
+      <div class="myth-finding">7h liegt mit 48,9 s unter Netzschnitt. Echter Peak: 21h (67,9 s) durch Abreisewellen nach Veranstaltungen</div>
     </div>
 
     <div class="myth-row-pair">
@@ -425,7 +425,7 @@
   <span class="subline">Kein Puffer im Fahrplan, die Verspätung kaskadiert</span>
   <div class="mrow" style="margin-bottom:16px;">
     <div class="m amber"><div class="v">71.5%</div><div class="l">Halte die<br>Delay akkumulieren</div></div>
-    <div class="m"><div class="v">L11</div><div class="l">68.7s · OTP 82%<br>stärkste Akkumulation</div></div>
+    <div class="m"><div class="v">L11</div><div class="l">68,7 s · OTP 82%<br>stärkste Akkumulation</div></div>
     <div class="m amber"><div class="v">71.3%</div><div class="l">Haltestellen<br>ohne Standzeit</div></div>
     <div class="m red"><div class="v">r ≥ 0.85</div><div class="l">Kaskadenkorrelation<br>alle 16 Linien</div></div>
   </div>
@@ -485,20 +485,20 @@
       <tr>
         <td>Baseline (Stop Mean)</td>
         <td>—</td>
-        <td>50.0s</td>
+        <td>50,0 s</td>
         <td>Ausgangspunkt</td>
       </tr>
       <tr>
         <td>LightGBM v1<br><span style="font-size:0.82em;color:#888;font-weight:400;">Zeit · Wetter · Netz-Features · kein Live-Signal · MBE +8.3s (systematisch zu optimistisch)</span></td>
         <td>34</td>
-        <td>45.7s</td>
-        <td>−4.3s</td>
+        <td>45,7 s</td>
+        <td>−4,3 s</td>
       </tr>
       <tr class="hl">
         <td><strong>LightGBM v2</strong><br><span style="font-size:0.82em;color:#1a6e3a;font-weight:400;">+prev_trip_delay (Kaskadenindikator) · +stop_sequence_pct · Isotonic-Kalibrierung · MBE −0.69s</span></td>
         <td><strong>36</strong></td>
         <td><strong>18,56 s</strong></td>
-        <td><strong>−31.4s (−63%)</strong></td>
+        <td><strong>−31,4 s (−63%)</strong></td>
       </tr>
     </tbody>
   </table>
@@ -581,7 +581,7 @@
       <div class="rn">R1 · Fahrplan-Design <span style="background:#1a3a5c;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:6px;">Priorität 1</span></div>
       <strong>Gezielte Standzeit-Puffer auf Linie 11</strong>
       <ul>
-        <li>L11: OTP 82%, Ø 68.7s, kein einziger Puffer auf der gesamten Strecke</li>
+        <li>L11: OTP 82%, Ø 68,7 s, kein einziger Puffer auf der gesamten Strecke</li>
         <li>Bereits 10 Sekunden an 3 bis 5 kritischen Koppelstellen unterbrechen die Kaskade</li>
         <li>Nachgewiesener Hebel Nr. 1, direkt auf Fahrplandaten gestützt</li>
       </ul>
@@ -599,8 +599,8 @@
       <div class="rn">R3 · Kapazitätsplanung <span style="background:#2E86AB;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:6px;">Priorität 2</span></div>
       <strong>Takterhöhung 20 bis 22h auf L11 und L8</strong>
       <ul>
-        <li>Peak 21h: 67.9s, nicht der Morgen (7h: 48.9s unter Netzschnitt)</li>
-        <li>Fachmessen schlechteste Event-Kategorie (66.0s)</li>
+        <li>Peak 21h: 67,9 s, nicht der Morgen (7h: 48,9 s unter Netzschnitt)</li>
+        <li>Fachmessen schlechteste Event-Kategorie (66,0 s)</li>
         <li>Spitzenlastmomente sind kalendarisch bekannt und im Voraus planbar</li>
       </ul>
     </div>
@@ -608,7 +608,7 @@
       <div class="rn">R4 · Monitoring <span style="background:#2E86AB;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:6px;">Priorität 2</span></div>
       <strong>Stadtkreise 11 und 12 als strukturelle Prioritätszonen</strong>
       <ul>
-        <li>Stadtkreis 11: OTP 83%, Ø 68.3s, strukturell benachteiligt</li>
+        <li>Stadtkreis 11: OTP 83%, Ø 68,3 s, strukturell benachteiligt</li>
         <li>Separates OTP-Tracking auf Haltestellenebene ermöglicht Frühindikation</li>
         <li>Kombination mit Vorhersagemodell: proaktive Steuerung statt reaktive Entstörung</li>
       </ul>

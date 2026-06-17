@@ -125,9 +125,9 @@ Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87 %, Zi
   - Train 2023–Jun 2024 · Val Jul–Dez 2024 · Test 2025
   - Zukunft darf Vergangenheit nicht kennen — verhindert Data Leakage
 * **Validierung**
-  - 18,56 s MAE auf ~29M Test-Fahrten (ein ganzes Jahr)
+  - 18,56 s MAE auf ~29 M Test-Fahrten (ein ganzes Jahr)
   - XGBoost-Vergleich bestätigt Robustheit
-  - Isotonic Regression Kalibrierung senkt MBE von +8.3s auf −0.69s
+  - Isotonic Regression Kalibrierung senkt MBE von +8,3 s auf −0,69 s
 
 
 ---

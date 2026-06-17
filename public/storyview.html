@@ -131,7 +131,7 @@
 <section data-chapter="1">
   <h2>Ausgangssituation</h2>
   <span class="subline">OTP 87 %, Ziel 95% — das Projekt folgt einer sequenziellen Logik</span>
-  <div class="mrow"><div class="m red"><div class="v">87</div><div class="l">OTP netzweit<br>Status quo</div></div><div class="m red"><div class="v">95.0%</div><div class="l">VBZ-Zielmarke<br>bis 2028</div></div><div class="m amber"><div class="v">−8 PP</div><div class="l">Struktur-Defizit<br>pro Jahr</div></div><div class="m amber"><div class="v">56.3s</div><div class="l">Ø Ankunfts-<br>verspätung</div></div></div>
+  <div class="mrow"><div class="m red"><div class="v">87</div><div class="l">OTP netzweit<br>Status quo</div></div><div class="m red"><div class="v">95.0%</div><div class="l">VBZ-Zielmarke<br>bis 2028</div></div><div class="m amber"><div class="v">−8 PP</div><div class="l">Struktur-Defizit<br>pro Jahr</div></div><div class="m amber"><div class="v">56,3 s</div><div class="l">Ø Ankunfts-<br>verspätung</div></div></div>
   <div class="box" style="margin-top:14px;"><strong>Schritt 1 — Analyse der Entstehungsmuster und Einflussfaktoren:</strong> Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition</div>
   <div class="box green" style="margin-top:8px;"><strong>Schritt 2 — Verspätungen vorhersagen:</strong> Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s, −63% vs. Baseline</div>
 </section>
@@ -183,13 +183,13 @@
   <h2>Das Modell</h2>
   <span class="subline">Baseline, Iterationen, dann der Sprung</span>
   <table><thead><tr><th>Version</th><th>Features</th><th>MAE (Test)</th><th>Logic</th></tr></thead><tbody><tr><td>Baseline<br><span style="font-size:0.82em;color:#888;">Stop Mean</span></td><td>—</td><td>50.0s</td><td>Ø pro Haltestelle</td></tr><tr><td>v1 (LightGBM)<br><span style="font-size:0.82em;color:#888;">Keine Live-Signale</span></td><td>34</td><td>45.7s</td><td>Zeit + Wetter + Netz</td></tr><tr class="hl"><td><strong>v2 (LightGBM)</strong><br><span style="font-size:0.82em;color:#1a6e3a;font-weight:600;">Mit Kaskaden-Features</span></td><td><strong>36</strong></td><td><strong>18,56 s</strong></td><td>prev_trip_delay + stop_seq_pct</td></tr></tbody></table>
-  <div class="box green" style="margin-top:14px;"><strong>Verbesserung:</strong> −31.4s (−63% vs. Baseline). Der Sprung erklärt sich vollständig durch die Kaskaden-Feature.</div>
+  <div class="box green" style="margin-top:14px;"><strong>Verbesserung:</strong> −31,4 s (−63% vs. Baseline). Der Sprung erklärt sich vollständig durch die Kaskaden-Feature.</div>
 </section>
 <section data-chapter="4">
   <h2>Das Modell</h2>
   <span class="subline">Warum LightGBM?</span>
   <div style="margin-top:1.4em;">
-    <div class="box"><strong>vs. XGBoost:</strong> 5× schneller auf 85M Zeilen. val MAE vergleichbar (~21.4s). Für Iteration unerlässlich.</div>
+    <div class="box"><strong>vs. XGBoost:</strong> 5× schneller auf 85M Zeilen. val MAE vergleichbar (~21,4 s). Für Iteration unerlässlich.</div>
     <div class="box"><strong>vs. Simple Linear Regression:</strong> Kaskadeneffekt ist nichtlinear. prev_trip_delay × is_critical_line − Interaktionen möglich.</div>
     <div class="box"><strong>vs. Neural Networks:</strong> Weniger Black-Box. Feature Importance ist direkt interpretierbar. Reproduzierbarkeit höher.</div>
     <div class="box green"><strong>Native Kategoricals:</strong> stop_name, line_name direkt als Kategorie. Keine One-Hot-Explosion. 541 MB Parquet statt GBs.</div>
@@ -199,16 +199,16 @@
   <h2>Das Modell</h2>
   <span class="subline">Der Bias in v1: +8.3 Sekunden zu optimistisch</span>
   <div style="margin-top:1.2em;">
-    <div class="mrow"><div class="m red"><div class="v">45.7s</div><div class="l">MAE v1 (Test)</div></div><div class="m red"><div class="v">+8.3s</div><div class="l">MBE v1<br>systematisch zu optimistisch</div></div><div class="m green"><div class="v">18,56 s</div><div class="l">MAE v2 (Test)</div></div><div class="m green"><div class="v">−0.69s</div><div class="l">MBE v2<br>nahezu bias-frei</div></div></div>
+    <div class="mrow"><div class="m red"><div class="v">45,7 s</div><div class="l">MAE v1 (Test)</div></div><div class="m red"><div class="v">+8,3 s</div><div class="l">MBE v1<br>systematisch zu optimistisch</div></div><div class="m green"><div class="v">18,56 s</div><div class="l">MAE v2 (Test)</div></div><div class="m green"><div class="v">−0,69 s</div><div class="l">MBE v2<br>nahezu bias-frei</div></div></div>
   </div>
-  <div class="box" style="margin-top:14px;"><strong>Kalibrierung in v2:</strong> Isotonic Regression auf Validationset. MBE sinkt von +8.3s auf −0.69s. Vorhersagen sind nicht nur genauer, sondern auch unbiased.</div>
+  <div class="box" style="margin-top:14px;"><strong>Kalibrierung in v2:</strong> Isotonic Regression auf Validationset. MBE sinkt von +8,3 s auf −0,69 s. Vorhersagen sind nicht nur genauer, sondern auch unbiased.</div>
 </section>
 <section data-chapter="5">
   <h2>Die Antwort</h2>
   <span class="subline">Ja, Tramverspätungen sind vorhersagbar</span>
   <div style="margin-top:1.4em;">
     <div class="box green" style="background:#e5f5ec; border-color:#4cd98a;"><strong>Beweis 1: Kaskaden sind das Muster</strong> — prev_trip_delay ist mit r ≥ 0.85 korreliert. Nicht zufällig.</div>
-    <div class="box green" style="background:#e5f5ec; border-color:#4cd98a; margin-top:8px;"><strong>Ergebnis: Das Modell erreicht operative Genauigkeit</strong> — 18,56 s MAE auf ~29M Test-Fahrten (ein ganzes Jahr 2025). MBE < 1 Sekunde.</div>
+    <div class="box green" style="background:#e5f5ec; border-color:#4cd98a; margin-top:8px;"><strong>Ergebnis: Das Modell erreicht operative Genauigkeit</strong> — 18,56 s MAE auf ~29 M Test-Fahrten (ein ganzes Jahr 2025). MBE < 1 Sekunde.</div>
     <div class="box green" style="background:#e5f5ec; border-color:#4cd98a; margin-top:8px;"><strong>Beweis 3: Stop Dwell-Time ist das Root Cause</strong> — dwell_time = 0 ist das Feature, bei dem Halte nicht aufholen können. Ist bei Koppelstellen häufig.</div>
   </div>
   <div class="box" style="margin-top:14px;">Die Verspätungen folgen klaren Mustern. Das Fahrplan-Design ist die Ursache und der Hebel.</div>

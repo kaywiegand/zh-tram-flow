@@ -115,7 +115,7 @@
 | ~~`is_windy`~~ | NaN — nie befüllt (F-WEAT-03) |
 
 - ✅ Encoding-Entscheidung: LightGBM native Categorical für `stop_name`, `line_name`, `event_type`, `season`
-- ✅ `train_features.parquet` + `test_features.parquet` exportiert (55.5M / ~30M Zeilen, inkl. Nov/Dez 2025)
+- ✅ `train_features.parquet` + `test_features.parquet` exportiert (55.5M / ~30 M Zeilen, inkl. Nov/Dez 2025)
 - ✅ `train_final.parquet` + `test_final.parquet` exportiert (ML-ready · leaky Spalten entfernt)
 
 ---

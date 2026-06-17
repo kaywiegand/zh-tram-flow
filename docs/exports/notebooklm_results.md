@@ -16,7 +16,7 @@ stage:      Phase 4 abgeschlossen — LightGBM v2 trainiert, Evaluation + Vergle
 target:     arrival_delay (Sekunden)
 stack:      Python · Polars · Pandas · LightGBM · Plotly · Jupyter · uv
 period:     2023–2025
-rows:       ~85M (lf_clean) · 94.4M total
+rows:       ~85 M (lf_clean) · 94.4M total
 notebooks:  12
 findings:   63
 ```
@@ -136,7 +136,7 @@ metric:         MAE (Mean Absolute Error — direkt in Sekunden kommunizierbar)
 split_strategy: temporal — 2023–Jun 2024 Train / Jul–Dez 2024 Val / 2025 Test (kein Shuffle)
 train_rows:     41.2M
 val_rows:       14.3M
-test_rows:      ~29M (inkl. Nov/Dez 2025 — vorher ausgeschlossen, nach Maskierung drin)
+test_rows:      ~29 M (inkl. Nov/Dez 2025 — vorher ausgeschlossen, nach Maskierung drin)
 ```
 
 ### Baseline Benchmark

@@ -29,7 +29,7 @@
 *Ein Satz, der das gesamte Projekt trägt*
 
 > Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.
-> Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45.7s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.
+> Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.
 
 ## Inhalt
 *Sieben Kapitel, ein durchgehender Datenpfad*
@@ -54,7 +54,7 @@
 * *87 %* — OTP netzweit 2023–2025
 * **95%** — VBZ-Ziel bis 2028
 * **−8 PP** — Strukturelle Lücke
-* **56.3s** — Ø Ankunftsverspätung
+* **56,3 s** — Ø Ankunftsverspätung
 
 
 ---
@@ -99,10 +99,10 @@
 *Wetter: Schnee und Regen treffen unterschiedliche Stadtteile*
 
 * **+54s** — Schnee-Effekt netzweit
-* **+23.3s** — Regen-Effekt netzweit
-* **−9.9s** — Feiertage vs. Normal
-* **66.0s** — Fachmessen (schlechteste Event-Kategorie)
-> Feiertage sind der beste Tagestyp: −9.9s vs. Normal. Der MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied.
+* **+23,3 s** — Regen-Effekt netzweit
+* **−9,9 s** — Feiertage vs. Normal
+* **66,0 s** — Fachmessen (schlechteste Event-Kategorie)
+> Feiertage sind der beste Tagestyp: −9,9 s vs. Normal. Der MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied.
 
 
 ---
@@ -113,7 +113,7 @@
 *Kein Puffer im Fahrplan, die Verspätung kaskadiert — in vier Schritten bewiesen*
 
 * **71.5%** — Halte akkumulieren Delay
-* **L11** — 68.7s · OTP 82%, stärkste Akkumulation
+* **L11** — 68,7 s · OTP 82%, stärkste Akkumulation
 * **71.3%** — Haltestellen ohne Standzeit (0s)
 * **r ≥ 0.85** — Kaskadenkorrelation alle 16 Linien
 
@@ -132,8 +132,8 @@
 
 * **41 Mio.** — Trainings-Fahrten 2023–Jun 2024
 * **~29 Mio.** — Test-Fahrten vollständiges Jahr 2025
-* **−0.69s** — MBE nach Isotonic-Regression-Kalibrierung
-> prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45.7s auf 18,56 s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt.
+* **−0,69 s** — MBE nach Isotonic-Regression-Kalibrierung
+> prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45,7 s auf 18,56 s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt.
 
 ## Machine Learning
 *Feature Importance bestätigt die Kaskadenthese*

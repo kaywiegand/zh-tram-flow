@@ -50,7 +50,7 @@ bis 2028
 * *87 %* — OTP 2023–2025
 (netzweit)
   - Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.
-* **56.3s** — Ø Ankunfts-
+* **56,3 s** — Ø Ankunfts-
 verspätung
   - Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Der Wert ist über alle drei Betriebsjahre stabil, 2023, 2024 und 2025 ohne erkennbaren Aufwärtstrend.
 * **16** — Tramlinien
@@ -83,7 +83,7 @@ analysiert
 *Kein Puffer im Fahrplan, die Verspätung kaskadiert*
 
 * **71.5%** — Halte die Delay akkumulieren
-* **L11** — 68.7s · OTP 82% — stärkste Akkumulation
+* **L11** — 68,7 s · OTP 82% — stärkste Akkumulation
 * **71.3%** — Haltestellen ohne Standzeit
 * **r ≥ 0.85** — Kaskadenkorrelation alle 16 Linien
 > Das ist kein Betriebsversagen. Es ist ein Fahrplan-Design-Thema. Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden.
