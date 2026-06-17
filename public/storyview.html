@@ -224,16 +224,6 @@
   <span class="subline">Vier konkrete Empfehlungen aus der Analyse</span>
   <div class="reco-grid"><div class="reco"><div class="rn">R1 · Fahrplan-Design <span style="background:#1a3a5c;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:4px;">Priorität 1</span></div><strong>Standzeit-Puffer L11 Koppelstellen</strong><ul><li>dwell_time = 0s ist Root Cause</li><li>L11 zeigt stärksten Kaskadeneffekt</li><li>+10s Puffer bricht Feedback-Loop</li></ul></div><div class="reco"><div class="reco"><div class="rn">R2 · Real-Time Dispatch <span style="background:#1a3a5c;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:4px;">Priorität 1</span></div><strong>prev_trip_delay als Live-Signal</strong><ul><li>Stärkstes Feature, echtzeit-verfügbar</li><li>Inferenz in Millisekunden</li><li>MAE 18.6s produktionsreif</li></ul></div></div><div class="reco"><div class="rn">R3 · Kapazitätsplanung <span style="background:#2E86AB;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:4px;">Priorität 2</span></div><strong>Takt-Anpassung 20–22 Uhr</strong><ul><li>hour = 21 stärkstes Temporal-Feature</li><li>Spätschicht kritisch</li><li>L11 & L8 erhöht</li></ul></div><div class="reco"><div class="rn">R4 · Monitoring <span style="background:#2E86AB;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:4px;">Priorität 2</span></div><strong>OTP-Fokus Kreise 11 & 12</strong><ul><li>Höchste Delay-Level</li><li>Niedrigste OTP</li><li>Kombination mit Modell für proaktive Steuerung</li></ul></div></div>
 </section>
-<section data-chapter="6">
-  <h2>Handeln</h2>
-  <span class="subline">Roadmap Umsetzung</span>
-  <div style="margin-top:1.4em;">
-    <div class="box" style="background:#f2faf5; border-color:#4cd98a;"><strong>Immediately (Woche 1–2):</strong> Dashboard v1 deployment. Stop Mean Baseline in Streamlit verfügbar machen. Intern Test mit Dispatch-Team.</div>
-    <div class="box" style="margin-top:8px;"><strong>Phase 2 (Monat 1–2):</strong> LightGBM v2 ins Streamlit integieren. prev_trip_delay als Live-Signal verfügbar. Echtzeit-Vorhersage für Leitstelle.</div>
-    <div class="box amber" style="margin-top:8px;"><strong>Phase 3 (Quartal 1):</strong> Fahrplan-Review Linie 11 Koppelstellen. Standzeit-Test. Ergebnisse messen.</div>
-    <div class="box" style="margin-top:8px;"><strong>Phase 4 (Quartal 2+):</strong> Portfolio-View. Ensemble-Modelle evaluieren. Hyperparameter-Tuning. Feedback-Loop mit VBZ.</div>
-  </div>
-</section>
 <section data-chapter="7">
   <h2>Reflexion</h2>
   <span class="subline">Was funktioniert hat, was offen bleibt</span>
