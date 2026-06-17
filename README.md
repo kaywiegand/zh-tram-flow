@@ -161,8 +161,8 @@ Every finding gets a structured entry (ID · Finding · Impact · Action → Fea
 | Model | Features | Test MAE | vs. Baseline |
 | :--- | :---: | :---: | :--- |
 | Stop Mean Baseline | — | 50.0s | — |
-| LightGBM v1 | 34 | 45.7s | −4.3s |
-| **LightGBM v2** | **36** | **18.56s** | **−31.4s (−63%)** |
+| LightGBM v1 | 32 | 45.7s | −4.3s |
+| **LightGBM v2** | **34** | **18.56s** | **−31.4s (−63%)** |
 
 Strategy: temporal train/test split — 2023–Jun 2024 train / Jul–Dec 2024 val / 2025 hold-out test.
 `prev_trip_delay` (cascade feature from F-NET-07) drives the main improvement. The signal was in the data — not in the algorithm.
@@ -219,7 +219,7 @@ Four concrete actions that follow directly from the analysis findings:
 | [05_feature_engineering](notebooks/05_feature_engineering.ipynb) | Feature construction · encoding decisions · export |
 | [06_prediction_0-overview](notebooks/06_prediction_0-overview.ipynb) | ML approach · metrics · baseline explanation |
 | [06_prediction_1-baseline](notebooks/06_prediction_1-baseline.ipynb) | Stop Mean baseline = 50.0s MAE |
-| [06_prediction_2-model](notebooks/06_prediction_2-model.ipynb) | First model: 34 features · Test MAE 45.7s |
+| [06_prediction_2-model](notebooks/06_prediction_2-model.ipynb) | First model: 32 features · Test MAE 45.7s |
 | [06_prediction_3-evaluation](notebooks/06_prediction_3-evaluation.ipynb) | Residuals · error analysis · feature importance |
 | [06_prediction_4-model_v2](notebooks/06_prediction_4-model_v2.ipynb) | Cascade feature → Test MAE 18.56s |
 | [06_prediction_5-comparison](notebooks/06_prediction_5-comparison.ipynb) | All models compared — final verdict |
