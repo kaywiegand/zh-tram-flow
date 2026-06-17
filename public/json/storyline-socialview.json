@@ -1,0 +1,300 @@
+{
+  "meta": {
+    "storyline": "D",
+    "presentation_title": "One-Pager für Social/LinkedIn",
+    "audience": "LinkedIn · Twitter · Social Media",
+    "duration_minutes": 5,
+    "author": "Kay Wiegand",
+    "github": "kaywiegand/zh-tram-flow",
+    "project": "Zürich Tram Flow",
+    "period": "2023–2025"
+  },
+
+  "chapters": [
+
+    {
+      "nav_label": "Headline",
+      "slides": [
+        {
+          "role": "title",
+          "title": "Zurich Tram Flow",
+          "subtitle": [
+            "Predictive Analytics für das Zürcher Tramnetz",
+            "94.4M Halt-Ereignisse · −63% MAE · Vier Handlungsfelder"
+          ],
+          "content": [
+            {
+              "type": "figures",
+              "items": [
+                { "value": "94.4M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
+                { "value": "87%", "label": "OTP Status Quo vs. 95% Ziel", "sentiment": "negative" },
+                { "value": "18.6s", "label": "LightGBM MAE Vorhersagegenauigkeit", "sentiment": "positive" },
+                { "value": "−63%", "label": "Verbesserung vs. Baseline", "sentiment": "positive" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Die Frage",
+      "slides": [
+        {
+          "title": "Die Frage",
+          "subtitle": "Sind Tramverspätungen vorhersagbar? Welche Muster stecken in den Daten?",
+          "content": [
+            {
+              "type": "text",
+              "text": "Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87%, Ziel 95% bis 2028. Wenn Verspätungen Mustern folgen, können wir:"
+            },
+            {
+              "type": "sections",
+              "items": [
+                {
+                  "label": "",
+                  "points": [
+                    "Sie vorhersagen und proaktiv gegensteuern",
+                    "Root Causes identifizieren und angehen",
+                    "Dispatch-Entscheidungen datengestützt treffen"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Drei Kernfindungen",
+      "slides": [
+        {
+          "title": "Drei Kernfindungen",
+          "subtitle": "Was die Daten zeigen",
+          "content": [
+            {
+              "type": "sections",
+              "items": [
+                {
+                  "label": "✓ Kaskadeneffekt: Verspätungen breiten sich aus",
+                  "points": [
+                    "Halt n+1 verzögert sich proportional zu Halt n",
+                    "Pearson r ≥ 0.85 über alle 16 Linien — nicht Zufall",
+                    "Bedeutung: Wenn wir die Kette unterbrechen, stabilisiert sich das Gesamtsystem"
+                  ]
+                },
+                {
+                  "label": "✓ Root Cause: dwell_time = 0 ist der Hebel",
+                  "points": [
+                    "Halte ohne geplante Standzeit können Verspätungen nicht aufholen",
+                    "Typischerweise Koppelstellen — Linie 11 zeigt stärksten Effekt",
+                    "Bedeutung: Fahrplan-Design ist die Ursache und der Hebel zugleich"
+                  ]
+                },
+                {
+                  "label": "✓ Das Modell ist produktionsreif",
+                  "points": [
+                    "LightGBM v2: 18.6s MAE auf ~29M Test-Fahrten (ganzes Jahr 2025)",
+                    "MBE −0.69s, nahezu bias-frei. prev_trip_delay als Live-Signal verfügbar",
+                    "Bedeutung: Echtzeit-Vorhersagen für Leitstelle sind technisch machbar"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Die Datenbasis",
+      "slides": [
+        {
+          "title": "Die Datenbasis",
+          "subtitle": "94.4 Millionen Halt-Ereignisse, vier Datenquellen, ein konsistentes Dataset",
+          "content": [
+            {
+              "type": "sections",
+              "items": [
+                {
+                  "label": "VBZ IST-Daten",
+                  "points": [
+                    "Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025",
+                    "Trip × Stop × Zeitstempel Granularität"
+                  ]
+                },
+                {
+                  "label": "GTFS Fahrplan",
+                  "points": [
+                    "Geplante Zeiten, dwell_time, stop_sequence",
+                    "Ermöglicht arrival_delay = IST − SOLL Berechnung"
+                  ]
+                },
+                {
+                  "label": "Meteo Schweiz",
+                  "points": [
+                    "Stündliche Messwerte: Temperatur, Niederschlag, Wind",
+                    "Flags: has_rain, has_heavy_rain, is_hot"
+                  ]
+                },
+                {
+                  "label": "Event-Kalender",
+                  "points": [
+                    "Großveranstaltungen, Feiertage, Messen 2023–2025",
+                    "Kategorisiert nach Typ und Größe"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Dataset-Metriken",
+          "subtitle": "",
+          "content": [
+            {
+              "type": "figures",
+              "items": [
+                { "value": "94.4M", "label": "Halt-Ereignisse", "sentiment": "neutral" },
+                { "value": "36", "label": "Features (LightGBM v2)", "sentiment": "neutral" },
+                { "value": "541 MB", "label": "Parquet (komprimiert)", "sentiment": "neutral" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Vier Empfehlungen",
+      "slides": [
+        {
+          "title": "Vier Empfehlungen",
+          "subtitle": "Direkt durch Analyse und Modell begründet",
+          "content": [
+            {
+              "type": "sections",
+              "items": [
+                {
+                  "label": "R1 · Fahrplan-Design [Priorität 1]",
+                  "points": [
+                    "Standzeit-Puffer L11 an Koppelstellen",
+                    "dwell_time = 0s ist Root Cause",
+                    "+10s Puffer unterbricht Feedback-Loop"
+                  ]
+                },
+                {
+                  "label": "R2 · Real-Time Dispatch [Priorität 1]",
+                  "points": [
+                    "prev_trip_delay als Echtzeit-Signal nutzen",
+                    "LightGBM v2 Inferenz: Millisekunden",
+                    "MAE 18.6s nachgewiesen"
+                  ]
+                },
+                {
+                  "label": "R3 · Kapazitätsplanung [Priorität 2]",
+                  "points": [
+                    "Taktanpassung 20–22 Uhr",
+                    "hour = 21 stärkstes Temporal-Feature",
+                    "L11 & L8 zeigen erhöhtes Delay"
+                  ]
+                },
+                {
+                  "label": "R4 · Monitoring [Priorität 2]",
+                  "points": [
+                    "OTP-Fokus Kreise 11 & 12",
+                    "Höchste Delay-Level, niedrigste OTP",
+                    "Kombination mit Modell für Prognose"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Technologie & Robustheit",
+      "slides": [
+        {
+          "title": "Technologie & Robustheit",
+          "subtitle": "Keine Black-Box — interpretierbar, reproduzierbar, produktionsreif",
+          "content": [
+            {
+              "type": "sections",
+              "items": [
+                {
+                  "label": "Algorithmus",
+                  "points": [
+                    "LightGBM Gradient Boosting",
+                    "5× schneller als XGBoost, native Kategoricals",
+                    "Feature Importance direkt interpretierbar"
+                  ]
+                },
+                {
+                  "label": "Aufteilung",
+                  "points": [
+                    "Temporal Split (kein Shuffle)",
+                    "Train 2023–Jun 2024 · Val Jul–Dez 2024 · Test 2025",
+                    "Zukunft darf Vergangenheit nicht kennen — verhindert Data Leakage"
+                  ]
+                },
+                {
+                  "label": "Validierung",
+                  "points": [
+                    "18.6s MAE auf ~29M Test-Fahrten (ein ganzes Jahr)",
+                    "XGBoost-Vergleich bestätigt Robustheit",
+                    "Isotonic Regression Kalibrierung senkt MBE von +8.3s auf −0.69s"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Portfolio-Wert",
+      "slides": [
+        {
+          "title": "Portfolio-Wert",
+          "subtitle": "Warum dieses Projekt zählt",
+          "content": [
+            {
+              "type": "text",
+              "text": "Das ist nicht Kaggle. Nicht eine akademische Übung. Das ist ein echtes ML-Projekt mit:"
+            },
+            {
+              "type": "sections",
+              "items": [
+                {
+                  "label": "",
+                  "points": [
+                    "Echtem Problem: Verspätungen im öffentlichen Verkehr, strukturelles Defizit, klarer Business Case",
+                    "Echten Daten: 94.4M Zeilen, vier Quellen, temporale Struktur",
+                    "Echtem Impact: Vier Handlungsfelder direkt aus der Analyse",
+                    "Echtem Workflow: Exploration → Hypothesen → Feature Engineering → Modellierung → Validierung → Handlung"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Das Fazit",
+          "subtitle": "",
+          "content": [
+            {
+              "type": "statement",
+              "text": "Ich habe ein ML-Projekt von Grund auf gebaut — mit echten Stakeholder-Fragen, echter Datenqualitäts-Arbeit, echter Produktion. Die Kaskadenentdeckung war das, was alles transformiert hat. Das ist nicht der Algorithmus — das ist die Arbeit davor."
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+}

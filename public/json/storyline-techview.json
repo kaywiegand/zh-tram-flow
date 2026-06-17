@@ -1,0 +1,462 @@
+{
+  "meta": {
+    "storyline": "B",
+    "presentation_title": "Technischer Deep Dive",
+    "audience": "Data Scientists · Tech Leads · Interviewer",
+    "duration_minutes": 20,
+    "author": "Kay Wiegand",
+    "github": "kaywiegand/zh-tram-flow",
+    "project": "Zürich Tram Flow",
+    "period": "2023–2025"
+  },
+
+  "chapters": [
+
+    {
+      "nav_label": "Einstieg",
+      "slides": [
+        {
+          "role": "title",
+          "title": "Zürich Tram Flow",
+          "subtitle": [
+            "Das Projekt als End-to-End ML Case",
+            "Data Engineering · EDA · Feature Engineering · LightGBM"
+          ],
+          "content": [
+            {
+              "type": "figures",
+              "items": [
+                { "value": "94.4M", "label": "Halt-Ereignisse, 4 Datenquellen", "sentiment": "neutral" },
+                { "value": "50.0s", "label": "Baseline MAE (Stop Mean)",         "sentiment": "neutral" },
+                { "value": "18.6s", "label": "LightGBM v2 MAE (Test 2025)",     "sentiment": "positive" },
+                { "value": "−63%",  "label": "Verbesserung vs. Baseline",        "sentiment": "positive" }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Inhalt",
+          "subtitle": "Sechs Abschnitte, ein durchgehender ML-Workflow",
+          "content": [
+            {
+              "type": "agenda",
+              "grouped": true,
+              "items": [
+                {
+                  "section": "Ausgangssituation",
+                  "slides": ["OTP-Lücke und Datenlage"]
+                },
+                {
+                  "section": "Datenstrategie",
+                  "slides": ["Datenquellen und Integration", "Cleaning-Entscheidungen"]
+                },
+                {
+                  "section": "Baseline",
+                  "slides": ["Stop Mean als Benchmark"]
+                },
+                {
+                  "section": "Feature Engineering",
+                  "slides": ["34 Features v1 · Kaskadenindikator v2"]
+                },
+                {
+                  "section": "Modellauswahl",
+                  "slides": ["Warum LightGBM", "v1 · v2 · Robustheits-Check"]
+                },
+                {
+                  "section": "Evaluation & Ausblick",
+                  "slides": ["Feature Importance", "Produktionsreife & Reflexion", "Handlungsempfehlungen"]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Ausgangssituation",
+      "slides": [
+        {
+          "title": "Ausgangssituation",
+          "subtitle": "OTP 87% netzweit, Ziel 95% bis 2028, strukturelles Defizit",
+          "content": [
+            {
+              "type": "figures",
+              "items": [
+                { "value": "87.0%",   "label": "OTP netzweit 2023–2025",       "sentiment": "negative" },
+                { "value": "−8 PP",   "label": "Lücke zum VBZ-Ziel 95%",       "sentiment": "negative" },
+                { "value": "56.3s",   "label": "Ø Ankunftsverspätung",          "sentiment": "warning" },
+                { "value": "71.5%",   "label": "Halte akkumulieren Delay",      "sentiment": "warning" }
+              ]
+            },
+            {
+              "type": "statement",
+              "text": "Ziel: arrival_delay in Sekunden vorhersagen — direkt kommunizierbar, kein Schwellwert-Bias. Split: temporal (kein Shuffle). Train 2023–Jun 2024 / Val Jul–Dez 2024 / Test 2025.",
+              "sentiment": "neutral"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Datenstrategie",
+      "slides": [
+        {
+          "title": "Datenstrategie",
+          "subtitle": "Vier Quellen, ein temporaler Join, 94.4 Millionen Zeilen",
+          "content": [
+            {
+              "type": "sections",
+              "items": [
+                {
+                  "label": "VBZ IST-Daten (Primärquelle)",
+                  "points": [
+                    "Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025",
+                    "Granularität: Fahrt × Haltestelle × Timestamp",
+                    "Enthält canceled = True Fahrten — bewusst behalten (relevante Extremfälle)"
+                  ]
+                },
+                {
+                  "label": "GTFS (Fahrplandaten)",
+                  "points": [
+                    "Geplante Ankunfts-/Abfahrtszeiten, dwell_time, stop_sequence",
+                    "Liniengeometrien und Haltestellen-Koordinaten (lat/lon)",
+                    "Join-Key: trip_id × stop_id × service_date"
+                  ]
+                },
+                {
+                  "label": "Meteo Schweiz",
+                  "points": [
+                    "Stündliche Messwerte: Temperatur, Niederschlag, Windgeschwindigkeit",
+                    "Join über Zeitstempel (hour-level) auf IST-Daten",
+                    "Abgeleitete Flags: has_rain, has_snow, has_heavy_rain, is_hot"
+                  ]
+                },
+                {
+                  "label": "Event-Kalender",
+                  "points": [
+                    "Grossveranstaltungen Zürich 2023–2025: Konzerte, Messen, Sport",
+                    "Kategorisierung: event_type, event_size, event_weight",
+                    "Ergebnis: 94.4 Mio. Zeilen · 26 Features · 541 MB Parquet"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Datenstrategie",
+          "subtitle": "Cleaning-Entscheidungen und ihre Begründungen",
+          "content": [
+            {
+              "type": "contrasts",
+              "items": [
+                {
+                  "assumption": "Canceled-Fahrten entfernen",
+                  "finding": "Behalten: canceled = True Zeilen sind relevante Extremfälle — Modell soll auch Ausfälle antizipieren können"
+                },
+                {
+                  "assumption": "Shuffle-Split für mehr Trainingsdaten",
+                  "finding": "Temporal Split: Zukunft darf Vergangenheit nicht kennen. Shuffle würde Data Leakage erzeugen"
+                },
+                {
+                  "assumption": "arrival_delay winsorisieren (Extremwerte kappen)",
+                  "finding": "Kein Capping: MAE belohnt Präzision auch bei Extremwerten. Winsorisierung würde Systemfehler verbergen"
+                },
+                {
+                  "assumption": "Alle Haltestellen gleich behandeln",
+                  "finding": "stop_sequence_pct als normierter Streckenfortschritt — erlaubt linienübergreifendes Lernen ohne One-Hot-Explosion"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Baseline",
+      "slides": [
+        {
+          "title": "Baseline",
+          "subtitle": "Stop Mean als sinnvollster naiver Benchmark",
+          "content": [
+            {
+              "type": "comparison_table",
+              "columns": ["Ansatz", "Logik", "MAE (Test)"],
+              "rows": [
+                { "cells": ["Grand Mean",  "Immer Netz-Ø vorhersagen (56.3s)",    "50.6s"], "highlight": false },
+                { "cells": ["Hour Mean",   "Ø nach Tagesstunde",                   "50.5s"], "highlight": false },
+                { "cells": ["Line Mean",   "Ø nach Linie",                         "50.4s"], "highlight": false },
+                { "cells": ["Stop Mean",   "Ø nach Haltestelle (stärkste naive Baseline)", "50.0s"], "highlight": true }
+              ]
+            },
+            {
+              "type": "statement",
+              "text": "Stop Mean gewinnt, weil Haltestellen strukturell unterschiedliche Delay-Level haben. Jedes Modell muss diesen Benchmark schlagen. Grand Mean, Hour Mean und Line Mean liegen alle < 1s voneinander entfernt — reine Mittelwert-Strategien bringen keinen Vorteil.",
+              "sentiment": "neutral"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Feature Engineering",
+      "slides": [
+        {
+          "title": "Feature Engineering",
+          "subtitle": "34 Features v1, 36 Features v2 — der entscheidende Unterschied",
+          "content": [
+            {
+              "type": "sections",
+              "items": [
+                {
+                  "label": "Temporale Features (v1)",
+                  "points": [
+                    "hour, weekday, month, season, year",
+                    "is_weekend, is_november, is_holiday",
+                    "is_late_night_weekend (Kombinations-Feature)"
+                  ]
+                },
+                {
+                  "label": "Netz-Features (v1)",
+                  "points": [
+                    "line_name, stop_name (native categoricals — kein One-Hot)",
+                    "district_nr, n_lines_at_stop, n_stops_line",
+                    "is_start_stop, is_end_stop, dwell_time"
+                  ]
+                },
+                {
+                  "label": "Externe Features (v1)",
+                  "points": [
+                    "temperature, precipitation, wind_speed",
+                    "has_rain, has_heavy_rain, has_snow, has_flood, is_hot",
+                    "has_event, event_type, event_size, event_weight, event_weight_x_hour"
+                  ]
+                },
+                {
+                  "label": "Kaskaden-Features (neu in v2)",
+                  "points": [
+                    "prev_trip_delay: Verspätung des Vorgänger-Trips an diesem Halt — echtzeit-verfügbar",
+                    "stop_sequence_pct: normierter Streckenfortschritt (0–1) — linienübergreifend lernbar",
+                    "Ergebnis: MAE 45.7s → 18.6s, −63%"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Modellauswahl",
+      "slides": [
+        {
+          "title": "Modellauswahl und -Anpassung",
+          "subtitle": "Warum LightGBM, warum kein Hyperparameter-Tuning",
+          "content": [
+            {
+              "type": "contrasts",
+              "items": [
+                {
+                  "assumption": "XGBoost als Standard-Benchmark",
+                  "finding": "XGBoost: val MAE ~21.4s bei 150 Runden auf 85M Zeilen — über 90 Minuten Trainingszeit. LightGBM: vergleichbare Qualität in ca. 18 Minuten. Klare Wahl für iteratives Arbeiten."
+                },
+                {
+                  "assumption": "Native Categoricals über One-Hot Encoding",
+                  "finding": "LightGBM verarbeitet Kategorien nativ — kein One-Hot für line_name, stop_name, event_type. Weniger Speicher, schnelleres Training, keine künstliche Sparsität."
+                },
+                {
+                  "assumption": "Hyperparameter-Tuning vor Feature Engineering",
+                  "finding": "Bewusste Entscheidung dagegen: Feature Engineering bringt mehr als Tuning auf schwachen Features. prev_trip_delay allein liefert −27s MAE. Tuning käme danach."
+                },
+                {
+                  "assumption": "Early Stopping als Tuning-Ersatz",
+                  "finding": "Early Stopping mit Validation-Set steuert Modellkomplexität automatisch. Verhindert Overfitting ohne manuelle Suche nach n_estimators."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Modellauswahl und -Anpassung",
+          "subtitle": "v1 zu v2: der Sprung kam aus der Analyse, nicht aus dem Algorithmus",
+          "content": [
+            {
+              "type": "comparison_table",
+              "columns": ["Version", "Neue Features", "MAE (Test)", "MBE (Test)", "OTP-Verbesserung"],
+              "rows": [
+                { "cells": ["Baseline (Stop Mean)", "—",                                        "50.0s", "—",      "—"],        "highlight": false },
+                { "cells": ["LightGBM v1",          "34 Features (Zeit · Wetter · Netz)",       "45.7s", "+8.3s",  "71.9% → 77.5%"], "highlight": false },
+                { "cells": ["LightGBM v2",          "+prev_trip_delay, +stop_sequence_pct",     "18.6s", "−0.69s", "→ kalibriert"], "highlight": true }
+              ]
+            },
+            {
+              "type": "statement",
+              "text": "v1 war systematisch zu optimistisch (MBE +8.3s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0.69s. Der MAE-Sprung von 45.7s auf 18.6s entspricht −63% und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.",
+              "sentiment": "positive"
+            }
+          ]
+        },
+        {
+          "title": "Robustheits-Check",
+          "subtitle": "XGBoost-Vergleich und Stabilitätsprüfung",
+          "content": [
+            {
+              "type": "figures",
+              "items": [
+                { "value": "~21.4s", "label": "XGBoost val MAE (150 Runden)", "sentiment": "warning" },
+                { "value": "90+ Min", "label": "XGBoost Trainingszeit auf 85M Zeilen", "sentiment": "negative" },
+                { "value": "18 Min",  "label": "LightGBM v2 Trainingszeit", "sentiment": "positive" },
+                { "value": "18.6s",  "label": "LightGBM v2 Test MAE (2025)", "sentiment": "positive" }
+              ]
+            },
+            {
+              "type": "statement",
+              "text": "XGBoost erreicht auf dem Validation-Set vergleichbare Qualität, braucht aber 5× mehr Zeit. Für iteratives Feature Engineering über mehrere Wochen ist LightGBM die klar überlegene Wahl. Das ist eine Workflow-Entscheidung, keine Qualitätskompromittierung.",
+              "sentiment": "neutral"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Evaluation",
+      "slides": [
+        {
+          "title": "Feature Importance",
+          "subtitle": "prev_trip_delay dominiert — die Analyse hat recht behalten",
+          "content": [
+            {
+              "type": "chart_refs",
+              "items": [
+                {
+                  "label": "Feature Importance LightGBM v2",
+                  "source": "model-feature-importance",
+                  "caption": "Feature Importance (Gain). prev_trip_delay und stop_sequence_pct dominieren. Temporale und Wetter-Features zeigen konsistente, aber deutlich schwächere Beiträge."
+                }
+              ]
+            },
+            {
+              "type": "statement",
+              "text": "Die Kaskadenanalyse (r ≥ 0.85 netzweit) hat die Feature-Wichtigkeit korrekt antizipiert. Das Modell bestätigt: Das Signal steckt in den Daten, nicht im Algorithmus.",
+              "sentiment": "positive"
+            }
+          ]
+        },
+        {
+          "title": "Produktionsreife und Reflexion",
+          "subtitle": "Was produktionsreif ist, was offen bleibt",
+          "content": [
+            {
+              "type": "contrasts",
+              "items": [
+                {
+                  "assumption": "Produktionsreif",
+                  "finding": "LightGBM v2: MAE 18.6s, MBE −0.69s, trainiert auf 41M Fahrten, getestet auf vollständigem Jahr 2025 (~29M). Streamlit-Dashboard mit Live-Predictor lauffähig. Code vollständig reproduzierbar."
+                },
+                {
+                  "assumption": "Offen: Hyperparameter-Tuning",
+                  "finding": "Wurde bewusst zurückgestellt. Nächster Schritt nach Feature Engineering. Potenziell weitere −2 bis −4s MAE erreichbar."
+                },
+                {
+                  "assumption": "Offen: v2 im Streamlit-Predictor",
+                  "finding": "Dashboard nutzt aktuell v1 (Pre-Trip-Use-Case ohne prev_trip_delay). v2 erfordert Live-Signal aus VBZ-Betriebssystem — setzt Daten-Integration voraus."
+                },
+                {
+                  "assumption": "Offen: Ensemble / Stacking",
+                  "finding": "Nicht evaluiert. LightGBM v2 allein liefert bereits −63% vs. Baseline. Ensemble-Ansätze wären nächste Iteration."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Empfehlungen",
+      "slides": [
+        {
+          "title": "Handlungsempfehlungen",
+          "subtitle": "Vier Empfehlungen, jede direkt durch Modell oder Analyse gedeckt",
+          "content": [
+            {
+              "type": "recommendations",
+              "items": [
+                {
+                  "category": "R1 · Fahrplan-Design",
+                  "title": "Standzeit-Puffer L11 an Koppelstellen",
+                  "points": [
+                    "dwell_time = 0s an 71.3% aller Haltestellen ist das Root-Cause-Feature",
+                    "L11 zeigt stärksten Kaskadeneffekt: prev_trip_delay ist dominantes Feature",
+                    "+10s Puffer an 3–5 Koppelstellen unterbricht den Feedback-Loop"
+                  ]
+                },
+                {
+                  "category": "R2 · Real-Time Dispatch",
+                  "title": "prev_trip_delay als Echtzeit-Signal im Dispatching",
+                  "points": [
+                    "prev_trip_delay ist das stärkste Feature — und in Echtzeit aus VBZ-System verfügbar",
+                    "LightGBM v2 Inferenz: Millisekunden pro Vorhersage, keine Latenz-Probleme",
+                    "MAE 18.6s auf Test 2025: Produktionsreife bereits nachgewiesen"
+                  ]
+                },
+                {
+                  "category": "R3 · Kapazitätsplanung",
+                  "title": "Taktanpassung 20–22h auf kritischen Linien",
+                  "points": [
+                    "hour = 21 ist stärkstes Temporal-Feature nach dem Kaskadenindikator",
+                    "has_event interagiert signifikant mit hour — kalendarisch planbar",
+                    "L11 und L8 zeigen persistentes erhöhtes Delay in diesem Zeitfenster"
+                  ]
+                },
+                {
+                  "category": "R4 · Monitoring",
+                  "title": "OTP-Monitoring district_nr 11 und 12 als Prioritätszonen",
+                  "points": [
+                    "district_nr gehört zu Top-Features — räumliche Struktur ist lernbar und persistent",
+                    "Kreise 11 und 12: höchste Delay-Level, niedrigste OTP, kein Dwell-Puffer",
+                    "Kombination mit Prediction-Modell ermöglicht proaktives Alert-System"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "role": "abbinder",
+          "title": "Zürich Tram Flow",
+          "subtitle": "Kay Wiegand · 2023–2025",
+          "content": [
+            {
+              "type": "figures",
+              "items": [
+                { "value": "94.4M",  "label": "Halt-Ereignisse",    "sentiment": "neutral" },
+                { "value": "41.2M",  "label": "Trainings-Fahrten",  "sentiment": "neutral" },
+                { "value": "~29M",   "label": "Test-Fahrten (2025)", "sentiment": "neutral" },
+                { "value": "36",     "label": "Features (v2)",       "sentiment": "neutral" },
+                { "value": "18.6s",  "label": "MAE · LightGBM v2",  "sentiment": "positive" },
+                { "value": "−63%",   "label": "vs. Baseline",        "sentiment": "positive" }
+              ]
+            },
+            {
+              "type": "links",
+              "primary": "https://github.com/kaywiegand/zh-tram-flow",
+              "items": [
+                { "label": "Ergebnisübersicht (HR/Business)", "href": "overview.html" },
+                { "label": "Projektverlauf (Portfolio)",       "href": "storyview.html" },
+                { "label": "Live-App",                         "href": "https://zh-tram-flow.streamlit.app" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+}

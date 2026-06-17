@@ -1,0 +1,539 @@
+{
+  "meta": {
+    "storyline": "C",
+    "presentation_title": "Der gesamte Daten-Lifecycle",
+    "audience": "Portfolio · Konferenz · Vollbild",
+    "duration_minutes": 35,
+    "author": "Kay Wiegand",
+    "github": "kaywiegand/zh-tram-flow",
+    "project": "Zürich Tram Flow",
+    "period": "2023–2025"
+  },
+
+  "chapters": [
+
+    {
+      "nav_label": "Einstieg",
+      "slides": [
+        {
+          "role": "title",
+          "title": "Zürich Tram Flow",
+          "subtitle": [
+            "Von der Frage bis zur Empfehlung",
+            "Data Engineering · EDA · Machine Learning · Dashboard"
+          ],
+          "content": [
+            {
+              "type": "figures",
+              "items": [
+                { "value": "94.4M", "label": "Halt-Ereignisse",            "sentiment": "neutral" },
+                { "value": "87%",   "label": "OTP heute · Ziel: 95%",      "sentiment": "negative" },
+                { "value": "18.6s", "label": "MAE LightGBM v2",            "sentiment": "positive" },
+                { "value": "−63%",  "label": "vs. Baseline",               "sentiment": "positive" }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Die These",
+          "subtitle": "Ein Satz, der das gesamte Projekt trägt",
+          "content": [
+            {
+              "type": "statement",
+              "text": "Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.",
+              "sentiment": "neutral"
+            },
+            {
+              "type": "statement",
+              "text": "Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45.7s auf 18.6s. Fahrplan-Redesign an L11 ist der Hebel.",
+              "sentiment": "positive"
+            }
+          ]
+        },
+        {
+          "title": "Inhalt",
+          "subtitle": "Sieben Kapitel, ein durchgehender Datenpfad",
+          "content": [
+            {
+              "type": "agenda",
+              "items": [
+                "Die Ausgangsfrage",
+                "Data Engineering",
+                "Exploration",
+                "Die Erkenntnis",
+                "Machine Learning",
+                "Die Handlungsempfehlungen",
+                "Projektrahmen und Workflow"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Ausgangsfrage",
+      "slides": [
+        {
+          "title": "Die Ausgangsfrage",
+          "subtitle": "Eine einfache Beobachtung, eine konkrete Frage",
+          "content": [
+            {
+              "type": "statement",
+              "text": "Das Zürcher Tramnetz operiert mit 87% OTP systemisch unter dem VBZ-Zielwert von 95%. An 71.5% aller Halte akkumulieren Trams Verspätung. Das ist kein Wetter- und kein Event-Problem. Die Frage: Wo entsteht die Verspätung wirklich — und ist sie vorhersagbar?",
+              "sentiment": "neutral"
+            },
+            {
+              "type": "figures",
+              "items": [
+                { "value": "87.0%", "label": "OTP netzweit 2023–2025",  "sentiment": "negative" },
+                { "value": "95%",   "label": "VBZ-Ziel bis 2028",        "sentiment": "positive" },
+                { "value": "−8 PP", "label": "Strukturelle Lücke",       "sentiment": "negative" },
+                { "value": "56.3s", "label": "Ø Ankunftsverspätung",     "sentiment": "warning" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Data Engineering",
+      "slides": [
+        {
+          "title": "Data Engineering",
+          "subtitle": "Vier Quellen, ein reproduzierbarer Pipeline",
+          "content": [
+            {
+              "type": "sections",
+              "items": [
+                {
+                  "label": "Primärquelle: VBZ IST-Daten",
+                  "points": [
+                    "Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025",
+                    "Granularität: jede Fahrt, jede Haltestelle, jeder Zeitstempel",
+                    "94.4 Mio. Zeilen — verarbeitet mit Polars (lazy evaluation)"
+                  ]
+                },
+                {
+                  "label": "Fahrplandaten: GTFS",
+                  "points": [
+                    "Geplante Zeiten, dwell_time, stop_sequence, Liniengeometrien",
+                    "Ermöglicht Berechnung von arrival_delay = IST − SOLL"
+                  ]
+                },
+                {
+                  "label": "Wetterdaten: Meteo Schweiz",
+                  "points": [
+                    "Stündliche Messwerte: Temperatur, Niederschlag, Windgeschwindigkeit",
+                    "Flags: has_rain, has_snow, is_hot — für Modell und EDA"
+                  ]
+                },
+                {
+                  "label": "Event-Kalender",
+                  "points": [
+                    "Grossveranstaltungen Zürich 2023–2025: Konzerte, Messen, Sport, Feiertage",
+                    "Ergebnis: 94.4 Mio. Zeilen · 26 Features · 541 MB Parquet"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Data Engineering",
+          "subtitle": "Cleaning als Forschungsentscheidung, nicht als Routine",
+          "content": [
+            {
+              "type": "contrasts",
+              "items": [
+                {
+                  "assumption": "Canceled-Fahrten entfernen",
+                  "finding": "Bewusst behalten: canceled = True Fahrten sind Extremfälle, die das Modell kennen muss. Entfernen würde die Realität des Netzes verfälschen."
+                },
+                {
+                  "assumption": "Shuffle-Split für mehr Trainingsdaten",
+                  "finding": "Temporal Split (kein Shuffle): Train 2023–Jun 2024 / Val Jul–Dez 2024 / Test 2025. Data Leakage wäre sonst unvermeidbar."
+                },
+                {
+                  "assumption": "Haltestellen über One-Hot Encoding",
+                  "finding": "Native Categoricals in LightGBM: stop_name, line_name, event_type direkt als Kategorie. Kein Dimensionsproblem, schnelleres Training."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Exploration",
+      "slides": [
+        {
+          "title": "Exploration",
+          "subtitle": "Drei Überraschungen und ein Muster",
+          "content": [
+            {
+              "type": "contrasts",
+              "items": [
+                {
+                  "assumption": "Die Innenstadt ist der Hotspot",
+                  "finding": "Central (48.3s) und Paradeplatz (48.2s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93.8s, Balgrist 85.2s — periphere Aussenkorridore"
+                },
+                {
+                  "assumption": "Der Morgenrush ist das Problem",
+                  "finding": "7h: 48.9s unter Netzschnitt. Echter Peak: 21h (67.9s) durch Abreisewellen nach Veranstaltungen. Donnerstag ist der schlechteste Wochentag."
+                },
+                {
+                  "assumption": "Wetter ist die Hauptursache",
+                  "finding": "Schnee: +54s, Regen: +23.3s. Geografisch trennbar: Schnee trifft Höhenlagen (K10/K12), Regen Flusstäler (K5). Grundrauschen bleibt wetterunabhängig."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Exploration",
+          "subtitle": "Hotspots an der Peripherie, Peak am Abend",
+          "content": [
+            {
+              "type": "chart_refs",
+              "items": [
+                {
+                  "label": "Verspätungshotspots nach Haltestelle",
+                  "source": "spatial-stop-delay-map",
+                  "caption": "Ø Ankunftsverspätung pro Haltestelle. Hotspots ausschliesslich in peripheren Stadtkreisen 7, 11 und 12. Null Überschneidung mit höchster Liniendichte."
+                },
+                {
+                  "label": "Delay nach Tageszeit",
+                  "source": "temporal-hour-of-day",
+                  "caption": "Ø Delay nach Tageszeit (0–23h). Peak 21h, nicht 7h. Abend-Effekt durch Veranstaltungs-Abreisewellen."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Exploration",
+          "subtitle": "Wetter: Schnee und Regen treffen unterschiedliche Stadtteile",
+          "content": [
+            {
+              "type": "figures",
+              "items": [
+                { "value": "+54s",   "label": "Schnee-Effekt netzweit",    "sentiment": "negative" },
+                { "value": "+23.3s", "label": "Regen-Effekt netzweit",     "sentiment": "warning" },
+                { "value": "−9.9s",  "label": "Feiertage vs. Normal",      "sentiment": "positive" },
+                { "value": "66.0s",  "label": "Fachmessen (schlechteste Event-Kategorie)", "sentiment": "negative" }
+              ]
+            },
+            {
+              "type": "statement",
+              "text": "Feiertage sind der beste Tagestyp: −9.9s vs. Normal. Der MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied.",
+              "sentiment": "neutral"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Erkenntnis",
+      "slides": [
+        {
+          "title": "Die Erkenntnis",
+          "subtitle": "Kein Puffer im Fahrplan, die Verspätung kaskadiert — in vier Schritten bewiesen",
+          "content": [
+            {
+              "type": "figures",
+              "items": [
+                { "value": "71.5%",    "label": "Halte akkumulieren Delay",          "sentiment": "warning" },
+                { "value": "L11",      "label": "68.7s · OTP 82%, stärkste Akkumulation", "sentiment": "negative" },
+                { "value": "71.3%",    "label": "Haltestellen ohne Standzeit (0s)", "sentiment": "warning" },
+                { "value": "r ≥ 0.85", "label": "Kaskadenkorrelation alle 16 Linien", "sentiment": "negative" }
+              ]
+            },
+            {
+              "type": "sequence",
+              "items": [
+                {
+                  "label": "Anomalie",
+                  "text": "Hotspots an Endstationen, nicht an Knotenpunkten. Null Überschneidung mit dichtest bedienten Haltestellen."
+                },
+                {
+                  "label": "Gradient",
+                  "text": "Delay wächst entlang der Strecke. L11: Verspätung am Streckenende doppelt so hoch wie am Anfang."
+                },
+                {
+                  "label": "Mechanismus",
+                  "text": "71.3% aller Haltestellen: 0s dwell_time. Kein Puffer eingebaut, keine Möglichkeit zur Erholung."
+                },
+                {
+                  "label": "Kaskade",
+                  "text": "Pearson r ≥ 0.85 zwischen aufeinanderfolgenden Halts — auf allen 16 Linien. Systematisch, kein Einzelfall."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Machine Learning",
+      "slides": [
+        {
+          "title": "Machine Learning",
+          "subtitle": "Ziel: arrival_delay in Sekunden — direkt kommunizierbar, kein Schwellwert-Bias",
+          "content": [
+            {
+              "type": "statement",
+              "text": "Warum ML? Weil die Struktur der Daten nichtlinear ist: Linie × Haltestelle × Tageszeit × Wetter × Event interagieren auf eine Weise, die kein handcodiertes Modell erfassen kann. Und weil prev_trip_delay ein Echtzeit-Signal ist, das einen Feedback-Loop im Modell ermöglicht.",
+              "sentiment": "neutral"
+            },
+            {
+              "type": "comparison_table",
+              "columns": ["Ansatz", "Features", "MAE (Test)", "Verbesserung"],
+              "rows": [
+                { "cells": ["Baseline (Stop Mean)", "—",   "50.0s", "Ausgangspunkt"],       "highlight": false },
+                { "cells": ["LightGBM v1",          "34",  "45.7s", "−4.3s"],               "highlight": false },
+                { "cells": ["LightGBM v2",          "36",  "18.6s", "−31.4s (−63%)"],       "highlight": true }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Machine Learning",
+          "subtitle": "Der Kaskadenindikator erklärt den Sprung von v1 auf v2",
+          "content": [
+            {
+              "type": "figures",
+              "hero": { "value": "18.6 Sekunden", "label": "MAE · LightGBM v2 · Test 2025 (~29M Fahrten)", "sentiment": "positive" },
+              "items": [
+                { "value": "41 Mio.", "label": "Trainings-Fahrten 2023–Jun 2024",      "sentiment": "neutral" },
+                { "value": "~29 Mio.", "label": "Test-Fahrten vollständiges Jahr 2025", "sentiment": "neutral" },
+                { "value": "−0.69s",  "label": "MBE nach Isotonic-Regression-Kalibrierung", "sentiment": "positive" }
+              ]
+            },
+            {
+              "type": "statement",
+              "text": "prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45.7s auf 18.6s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt.",
+              "sentiment": "positive"
+            }
+          ]
+        },
+        {
+          "title": "Machine Learning",
+          "subtitle": "Feature Importance bestätigt die Kaskadenthese",
+          "content": [
+            {
+              "type": "chart_refs",
+              "items": [
+                {
+                  "label": "Feature Importance LightGBM v2",
+                  "source": "model-feature-importance",
+                  "caption": "Feature Importance (Gain). prev_trip_delay dominiert deutlich. stop_sequence_pct als zweites neues Feature zeigt starken Beitrag. Temporale und Wetter-Features konsistent, aber schwächer."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Machine Learning",
+          "subtitle": "Das Modell in konkreten Szenarien",
+          "content": [
+            {
+              "type": "statement",
+              "text": "Das Modell kombiniert 36 Features zu einer konkreten Sekundenvorhersage. Drei Beispiele aus echten Betriebssituationen:",
+              "sentiment": "neutral"
+            },
+            {
+              "type": "scenarios",
+              "items": [
+                {
+                  "conditions": "Donnerstag · 21h · Linie 11 · Schnee",
+                  "prediction_seconds": 74,
+                  "interpretation": "Frühwarnung aktiv, bevor die Kaskade einsetzt",
+                  "sentiment": "warning"
+                },
+                {
+                  "conditions": "Dienstag · 17h · Paradeplatz · leichter Regen",
+                  "prediction_seconds": 48,
+                  "interpretation": null,
+                  "sentiment": "neutral"
+                },
+                {
+                  "conditions": "Sonntag · 10h · Linie 6 · trocken",
+                  "prediction_seconds": 22,
+                  "interpretation": "Normalbetrieb, kein Handlungsbedarf",
+                  "sentiment": "positive"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Empfehlungen",
+      "slides": [
+        {
+          "title": "Die Handlungsempfehlungen",
+          "subtitle": "Vier Empfehlungen, direkt durch Befunde gedeckt",
+          "content": [
+            {
+              "type": "recommendations",
+              "items": [
+                {
+                  "category": "R1 · Fahrplan-Design",
+                  "title": "Standzeit-Puffer L11 an Koppelstellen",
+                  "points": [
+                    "71.3% aller Haltestellen: dwell_time = 0s — Root Cause identifiziert",
+                    "+10s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt",
+                    "L11: OTP 82%, Ø 68.7s — Hebel Nr. 1 aus Analyse und Modell"
+                  ]
+                },
+                {
+                  "category": "R2 · Real-Time Dispatch",
+                  "title": "Kaskadenmodell operativ als Frühwarnsystem",
+                  "points": [
+                    "LightGBM v2: MAE 18.6s, produktionsreif auf Consumer-Hardware",
+                    "prev_trip_delay ist in Echtzeit aus VBZ-Betriebssystem verfügbar",
+                    "Frühwarnung bevor der Kaskadeneffekt einsetzt, nicht reaktiv danach"
+                  ]
+                },
+                {
+                  "category": "R3 · Kapazitätsplanung",
+                  "title": "Takterhöhung 20–22h auf L11 und L8",
+                  "points": [
+                    "Peak 21h: 67.9s — nicht der Morgen (7h: 48.9s unter Netzschnitt)",
+                    "Donnerstag + Grossevent: kritischste Kombination im Netz",
+                    "Spitzenlastmomente sind kalendarisch planbar"
+                  ]
+                },
+                {
+                  "category": "R4 · Monitoring",
+                  "title": "Stadtkreise 11 und 12 als strukturelle Prioritätszonen",
+                  "points": [
+                    "Kreis 11: OTP 83%, Ø 68.3s — strukturell benachteiligt, nicht situativ",
+                    "OTP-Tracking auf Haltestellenebene ermöglicht Frühindikation",
+                    "Kombination mit Prediction-Modell: proaktive Steuerung statt reaktive Entstörung"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "nav_label": "Projektrahmen",
+      "slides": [
+        {
+          "title": "Der Projektrahmen",
+          "subtitle": "Open Data, AI-Workflow, vollständig reproduzierbar",
+          "content": [
+            {
+              "type": "sections",
+              "items": [
+                {
+                  "label": "Datenbasis und Umfang",
+                  "points": [
+                    "VBZ IST-Daten · GTFS · Meteo Schweiz · Event-Kalender",
+                    "94.4 Mio. Zeilen · 26 Features · 541 MB Parquet",
+                    "3 vollständige Betriebsjahre · 16 Linien · ca. 190 Haltestellen",
+                    "63 dokumentierte Befunde in 12 Jupyter-Notebooks"
+                  ]
+                },
+                {
+                  "label": "Technologie-Stack",
+                  "points": [
+                    "Python · Polars (85 Mio. Zeilen, lazy evaluation) · Jupyter · uv",
+                    "LightGBM (Modellierung) · Plotly (Visualisierung) · Streamlit (Dashboard)",
+                    "Trainingszeit LightGBM v2: ca. 18 Minuten auf Consumer-Hardware"
+                  ]
+                },
+                {
+                  "label": "AI-Workflow als Differenziator",
+                  "points": [
+                    "Claude Code für iterative Analyse, Code-Refactoring, Dokumentation",
+                    "Promptbasiertes Scaffolding: von der Idee zur Notebook-Struktur in Minuten",
+                    "Menschliche Entscheidungsverantwortung bleibt bei allen Finding-Interpretationen"
+                  ]
+                },
+                {
+                  "label": "Reproduzierbarkeit",
+                  "points": [
+                    "Vollständiger Code auf GitHub, alle Datenquellen öffentlich",
+                    "Data Engineering vollständig reproduzierbar via Polars-Pipeline",
+                    "Alle Befunde rückverfolgbar auf Finding-IDs in den Notebooks"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "role": "closing",
+          "title": "Was vorhersagbar ist, ist steuerbar.",
+          "subtitle": "Ein Projekt, das zeigt: Datengetriebene Analyse ist kein akademisches Artefakt — sie liefert operative Entscheidungsgrundlagen.",
+          "content": [
+            {
+              "type": "tools",
+              "items": [
+                {
+                  "label": "Linie erkunden",
+                  "description": "Delay-Profil · Map · Hotspots\nEmpfehlungsbox pro Linie"
+                },
+                {
+                  "label": "Linien vergleichen",
+                  "description": "KPIs · Delay-Verteilung\nPriorisierungsentscheidung"
+                },
+                {
+                  "label": "Delay vorhersagen",
+                  "description": "Szenario A vs. B live\nWas-wäre-wenn-Analyse"
+                }
+              ]
+            },
+            {
+              "type": "figures",
+              "items": [
+                { "value": "87%", "label": "OTP heute", "sentiment": "negative" },
+                { "value": "95%", "label": "VBZ-Ziel 2028", "sentiment": "positive" }
+              ]
+            }
+          ]
+        },
+        {
+          "role": "abbinder",
+          "title": "Zürich Tram Flow",
+          "subtitle": "Kay Wiegand · 2023–2025",
+          "content": [
+            {
+              "type": "figures",
+              "items": [
+                { "value": "94.4M", "label": "Halt-Ereignisse",    "sentiment": "neutral" },
+                { "value": "16",    "label": "Tramlinien",          "sentiment": "neutral" },
+                { "value": "63",    "label": "Befunde",             "sentiment": "neutral" },
+                { "value": "12",    "label": "Notebooks",           "sentiment": "neutral" },
+                { "value": "18.6s", "label": "MAE · LightGBM v2",  "sentiment": "positive" },
+                { "value": "−63%",  "label": "vs. Baseline",        "sentiment": "positive" }
+              ]
+            },
+            {
+              "type": "links",
+              "primary": "https://github.com/kaywiegand/zh-tram-flow",
+              "items": [
+                { "label": "Ergebnisübersicht (HR/Business)", "href": "overview.html" },
+                { "label": "Technischer Deep Dive",           "href": "techview.html" },
+                { "label": "Live-App",                         "href": "https://zh-tram-flow.streamlit.app" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+}
