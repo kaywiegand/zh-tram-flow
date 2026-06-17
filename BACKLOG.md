@@ -8,6 +8,86 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 ---
 
+## Visual Selection & Integration
+
+| # | Beschreibung | Prio |
+| :--- | :--- | :--- |
+| 52 | **README Key Visual Selection** — Wähle 1 Grafik für die Scan-Ebene (nach Badges, vor TL;DR). Kandidaten: `network-hotspots.png` · `spatial-stop-delay-map.png` · `target-otp.png`. Entscheidung: Was erzählt die stärkste Story in 1 Bild? | 2 |
+| 53 | **View-HTML Visuals Inventory** — Für jede View (overview/techview/storyview/socialview) die Top 3–5 Chart-Kandidaten identifizieren. Pro View eine Zeile in dieser Tabelle (unten). | 1 |
+| 54 | **Visuals einpflegen** — Nach #52/#53 entschieden, die ausgewählten PNGs/interaktiven HTMLs in die View-HTMLs embedden. | 2 |
+
+---
+
+## Visual Asset Planning
+
+**README** (nach Badges-Zeile)
+```
+Slot: 1 Key Visual
+Größe: ~600px Breite
+Format: PNG oder interaktive Plotly-HTML
+Kandidaten:
+  - network-hotspots.png (geografisch, zeigt Problem)
+  - spatial-stop-delay-map.png (Detail-Haltestellen)
+  - target-otp.png (Problem-Statement: 87 % vs. 95 %)
+  - temporal-hour-of-day.png (Temporal Pattern)
+Status: [ ] Ausgewählt
+```
+
+**public/overview.html** (Scan-Ebene, Hiring Manager)
+```
+Slots: 3–5 Charts (max 150–200 KB)
+Fokus: KPIs + Überblick Dimensionen
+Kandidaten:
+  - [ ] target-otp.png (OTP Overview)
+  - [ ] spatial-district-analysis.png (Geo-Muster)
+  - [ ] temporal-hour-of-day.png (Temporal-Muster)
+  - [ ] meteo-weather-overview.png (Wetter-Impact)
+  - [ ] spatial-cascade-effect.png (Cascade-Effekt visualisiert)
+Status: [ ] Finalisiert
+```
+
+**public/techview.html** (Tech Deep-Dive)
+```
+Slots: 5–7 Charts (Max 250 KB)
+Fokus: Data Engineering + Model Evaluation
+Kandidaten:
+  - [ ] network-einlaufzeit.png (Feature: Laufzeit)
+  - [ ] spatial-line-hour-heatmap.png (Feature Interaction)
+  - [ ] target-delay-distribution-comparison.png (Target-Distribution)
+  - [ ] meteo-multicollinearity-matrix.png (Feature Correlation)
+  - [ ] spatial-stop-delay-map.html (interaktive Karte)
+  - [ ] target-trip-level-validation.png (Data Quality)
+Status: [ ] Finalisiert
+```
+
+**public/storyview.html** (Narrative Story)
+```
+Slots: 6–8 Charts (Max 300 KB)
+Fokus: Beweiskette (Anomalie → Gradient → Mechanismus → Kaskade)
+Kandidaten:
+  - [ ] spatial-stop-delay-map.html (Anomalie: Peripherie)
+  - [ ] spatial-line-delay-profile-map.html (Gradient entlang Strecke)
+  - [ ] spatial-dwell-time.png (Mechanismus: 0s dwell)
+  - [ ] spatial-cascade-effect.png (Cascade visualisiert)
+  - [ ] meteo-snow-structural-interaction.png (Wetter-Feedback)
+  - [ ] target-delay-per-line-timeline.png (Temporal Trend)
+  - [ ] events-daily-delay-timeline.png (Events & Kaskade)
+Status: [ ] Finalisiert
+```
+
+**public/socialview.html** (1-Pager, Social/LinkedIn)
+```
+Slots: 2–3 Charts (Max 100 KB)
+Fokus: Impact-Story, compact
+Kandidaten:
+  - [ ] spatial-stop-delay-map.png (Problem visualisiert)
+  - [ ] spatial-cascade-effect.png (Root Cause)
+  - [ ] target-otp.png (Performance Gap)
+Status: [ ] Finalisiert
+```
+
+---
+
 ## Portfolio-Aufbereitung — nächste Sessions
 
 | # | Beschreibung | Prio |

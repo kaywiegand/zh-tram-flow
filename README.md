@@ -8,8 +8,6 @@
 ![Type](https://img.shields.io/badge/Type-Analysis%20%2B%20Prediction-lightgrey)
 ![Status](https://img.shields.io/badge/Status-Phase%204%20complete-brightgreen)
 
-![Zurich Tram Delay Hotspots](public/img/spatial-stop-delay-map.png)
-
 ---
 
 ## TL;DR
