@@ -54,7 +54,7 @@
 - ✅ Wann? → Peak 21h (Events), Donnerstag, November — kein Morgenrush
 - ✅ Wetter → Schnee +54s stärkster Effekt; geografisch trennbar von Regen
 - ✅ Events → Grosse Events +10.5s (primär Abend 18–22h); Feiertage −9.9s (bester Tag-Typ)
-- ✅ Extremfälle → OTP 87; 71.5% aller Halte akkumulieren Delay; Linie E separat
+- ✅ Extremfälle → OTP 87 %; 71.5% aller Halte akkumulieren Delay; Linie E separat
 
 ### Visualisierungen — erstellt
 - ✅ Heatmap Verspätungen nach Tageszeit und Wochentag (L11 / alle Linien)

@@ -48,8 +48,8 @@ PROCESS_LOG Session-Notes verwenden ab dieser Sektion Pointer auf Notebooks — 
 | Fakt | Wert | Primärquelle (Notebook) | Sekundär erlaubt in |
 | :--- | :--- | :--- | :--- |
 | Master-Datensatz Zeilen | 94.4M | `00_introduction.ipynb` — Dateicheck-Zelle | README · portfolio.md |
-| lf_clean Zeilen | ~85M | `02_preparation.ipynb` | portfolio.md |
-| Train / Val / Test Zeilen | 41.2M / 14.3M / ~29M | `05_feature_engineering.ipynb` | portfolio.md |
+| lf_clean Zeilen | ~85 M | `02_preparation.ipynb` | portfolio.md |
+| Train / Val / Test Zeilen | 41,2 M / 14,3 M / ~29 M | `05_feature_engineering.ipynb` | portfolio.md |
 | Findings gesamt | 55 | `03_analysis_0-overview.ipynb` | README · ROADMAP · portfolio.md |
 | OTP netzweit | 87 % | `03_analysis_1-target.ipynb` | README · ROADMAP · portfolio.md |
 | Delay-Akkumulation | 71.5% | `03_analysis_1-target.ipynb` | README · portfolio.md |
@@ -370,7 +370,7 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 **Phase 0 (Data Engineering):** ✅ Abgeschlossen — in `sf_data-research`
 **Phase 1 (Setup & Dateneinstieg):** ✅ Abgeschlossen
 **Phase 2 (EDA & Analyse):** ✅ Abgeschlossen — 6 Analyse-Notebooks · 66 Findings
-**Phase 3 (Feature Engineering):** ✅ Abgeschlossen — `train_final.parquet` / `test_final.parquet` (55.5M Zeilen)
+**Phase 3 (Feature Engineering):** ✅ Abgeschlossen — `train_final.parquet` / `test_final.parquet` (55,5 M Zeilen)
 **Phase 4 (Modellierung):** ✅ Abgeschlossen — LightGBM v1 + v2 trainiert, XGBoost Robustheits-Check, Evaluation vollständig · Details → `06_prediction_*`
 **Phase 5 (Dashboard):** ⏳ Ausstehend — Tooling-Entscheidung (Streamlit vs. Dash) steht noch aus
 
@@ -478,10 +478,10 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 ### Performance — Laufzeiten
 | Schritt | Zeilen | Dauer |
 |:---|:---|:---|
-| Daten laden + Pandas-Konvertierung | 55.5M | ~20s |
+| Daten laden + Pandas-Konvertierung | 55,5 M | ~20s |
 | LightGBM Training (41M Train-Rows) | 41M | ~18 Min |
 | Validation Prediction (14M Rows) | 14M | ~8 Min |
-| Test Prediction + Export (~30M Rows) | ~30M | ~3.5 Min |
+| Test Prediction + Export (~30 M Rows) | ~30 M | ~3.5 Min |
 | **Gesamt Notebook-Laufzeit** | — | **~30 Min** |
 
 ### Modell-Ergebnisse
@@ -537,7 +537,7 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 
 Statt Nov/Dez 2025 komplett zu filtern, werden `departure_delay` und `delay_delta` für Nov 14–Dez 23 2025 auf NaN gesetzt. `arrival_delay` (Zielvariable) bleibt unberührt. Neues `is_anomal`-Flag für Transparenz.
 
-Begründung: `departure_delay` / `delay_delta` sind keine Modell-Features. Durch Maskierung statt Ausschluss gewinnen wir **+~5M Testzeilen (+~20%)** und vollständige November-Abdeckung (~58s Ø arrival_delay — schlechtester Monat, bisher komplett aus der Evaluation ausgeschlossen).
+Begründung: `departure_delay` / `delay_delta` sind keine Modell-Features. Durch Maskierung statt Ausschluss gewinnen wir **+~5 M Testzeilen (+~20%)** und vollständige November-Abdeckung (~58s Ø arrival_delay — schlechtester Monat, bisher komplett aus der Evaluation ausgeschlossen).
 
 **Technische Umsetzung (2026-05-20):**
 
@@ -554,7 +554,7 @@ Begründung: `departure_delay` / `delay_delta` sind keine Modell-Features. Durch
 | `05_feature_engineering.ipynb` | `is_test`-Parameter aus `apply_lf_clean`-Aufrufen entfernt |
 
 **Offene Schritte nach diesem Refactoring:**
-1. `05_feature_engineering.ipynb` neu ausführen → `test_features.parquet` mit Nov/Dez 2025 (~30M Zeilen)
+1. `05_feature_engineering.ipynb` neu ausführen → `test_features.parquet` mit Nov/Dez 2025 (~30 M Zeilen)
 2. `06_prediction_1-baseline.ipynb` neu ausführen → aktualisierte Benchmark-Zahlen
 3. Analysis-Notebooks neu ausführen → Plots zeigen dann Nov/Dez 2025 (optional)
 
@@ -945,7 +945,7 @@ XGBoost-Zelle im Vergleichs-Notebook läuft noch — Ergebnis wird in Slide 13 a
 
 **XGBoost-Abschluss (Option C):**
 
-Training nach 150 Runden (val MAE 21.37s) abgebrochen — 85M Zeilen machen CPU-Training nicht zumutbar (>90 Min, hohe Last). Entscheidung: XGBoost-Zeile aus Slide 17 entfernt, stattdessen orange Robustheits-Box in Slide 18: *"XGBoost auf gleichem Feature-Set → val MAE ~21.4s (150 Runden) — 5× langsamere Trainingszeit auf 85M Zeilen."* Das ist selbst ein Befund: LightGBM nicht nur ähnlich gut, sondern drastisch schneller.
+Training nach 150 Runden (val MAE 21.37s) abgebrochen — 85 M Zeilen machen CPU-Training nicht zumutbar (>90 Min, hohe Last). Entscheidung: XGBoost-Zeile aus Slide 17 entfernt, stattdessen orange Robustheits-Box in Slide 18: *"XGBoost auf gleichem Feature-Set → val MAE ~21.4s (150 Runden) — 5× langsamere Trainingszeit auf 85 M Zeilen."* Das ist selbst ein Befund: LightGBM nicht nur ähnlich gut, sondern drastisch schneller.
 
 `cmp00021` in `06_prediction_5-comparison.ipynb` angepasst: `n_estimators` 1000 → 300 (Kurve war bei Round 150 konvergiert), Load-if-exists Pattern (Kernel-Crash-Schutz), Save-after-fit direkt nach Training.
 
