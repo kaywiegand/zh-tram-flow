@@ -140,7 +140,7 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
   #18 prev_trip_delay geprüft und implementiert — F-NET-07 done; stärkstes Feature in LightGBM v2 (MAE 45.7s → 18,56 s, −63%)
 -->
 <!-- Erledigt 2026-05-28:
-  #32 LightGBM v2 trainiert: 2 neue Features (prev_trip_delay, stop_sequence_pct) → Test MAE 18,56 s, MBE -0.69s — kein Optuna, Feature-Engineering war entscheidend
+  #32 LightGBM v2 trainiert: 2 neue Features (prev_trip_delay, stop_sequence_pct) → Test MAE 18,56 s, MBE -0,69 s — kein Optuna, Feature-Engineering war entscheidend
   #33 XGBoost als Robustheits-Check: val MAE ~21.4s bei Round 150, Training auf 85M Zeilen >90 Min — LightGBM klar überlegen; Ergebnis in presentation-v3 Slide 18
 -->
 

@@ -54,7 +54,7 @@
 - ✅ Wann? → Peak 21h (Events), Donnerstag, November — kein Morgenrush
 - ✅ Wetter → Schnee +54s stärkster Effekt; geografisch trennbar von Regen
 - ✅ Events → Grosse Events +10.5s (primär Abend 18–22h); Feiertage −9.9s (bester Tag-Typ)
-- ✅ Extremfälle → OTP 87 %; 71.5% aller Halte akkumulieren Delay; Linie E separat
+- ✅ Extremfälle → OTP 87 %; 71,5 % aller Halte akkumulieren Delay; Linie E separat
 
 ### Visualisierungen — erstellt
 - ✅ Heatmap Verspätungen nach Tageszeit und Wochentag (L11 / alle Linien)
@@ -150,7 +150,7 @@
 
 ### Evaluation (`06_prediction_3-evaluation.ipynb`) ✅
 - ✅ Metriken: Test MAE 45.7s · RMSE · OTP — Modell vs. Baseline-Tabelle
-- ✅ Residuals-Verteilung — MBE +8.3s (Modell unterschätzt systematisch)
+- ✅ Residuals-Verteilung — MBE +8,3 s (Modell unterschätzt systematisch)
 - ✅ Live-Szenario: Di 17h · Paradeplatz · L11 · Regen → **52s**
 - ✅ Abschluss-Tabelle: Modell vs. alle Baselines
 - ✅ Fehleranalyse: MAE nach Stunde / Linie / Wetter / Monat
@@ -161,9 +161,9 @@
 - ✅ Feature Engineering: `prev_trip_delay` (Kaskadenindikator) + `stop_sequence_pct` — 2 neue Features
 - ✅ Export: `train_final_v2.parquet` + `test_final_v2.parquet` (inkl. Nov/Dez 2025)
 - ✅ Training: LightGBM v2 — identische Hyperparameter, erweitertes Feature-Set
-- ✅ **Test MAE: 18,56 s · MBE −0.69s** — −63% vs. Stop Mean Baseline (50.0s)
+- ✅ **Test MAE: 18,56 s · MBE −0,69 s** — −63% vs. Stop Mean Baseline (50.0s)
 - ✅ Feature Importance — `prev_trip_delay` in Top-2 (nach `stop_name`) — schließt Kreis zur Analyse
-- ✅ Bias-Kalibrierung: Isotonic Regression → MBE von +8.3s (v1) auf −0.69s (v2)
+- ✅ Bias-Kalibrierung: Isotonic Regression → MBE von +8,3 s (v1) auf −0,69 s (v2)
 - ✅ Export: `lgbm_v2.txt` + `lgbm_v2_meta.json` + `test_predictions_v2.parquet`
 - ⏭️ SHAP-Werte — nicht ausgeführt (Aufwand/Nutzen abgewogen, kein Optuna)
 

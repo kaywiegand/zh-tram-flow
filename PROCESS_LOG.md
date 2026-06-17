@@ -52,10 +52,10 @@ PROCESS_LOG Session-Notes verwenden ab dieser Sektion Pointer auf Notebooks — 
 | Train / Val / Test Zeilen | 41,2 M / 14,3 M / ~29 M | `05_feature_engineering.ipynb` | portfolio.md |
 | Findings gesamt | 55 | `03_analysis_0-overview.ipynb` | README · ROADMAP · portfolio.md |
 | OTP netzweit | 87 % | `03_analysis_1-target.ipynb` | README · ROADMAP · portfolio.md |
-| Delay-Akkumulation | 71.5% | `03_analysis_1-target.ipynb` | README · portfolio.md |
+| Delay-Akkumulation | 71,5 % | `03_analysis_1-target.ipynb` | README · portfolio.md |
 | Stop Mean Baseline MAE | 50.0s | `06_prediction_1-baseline.ipynb` | README · ROADMAP · portfolio.md |
-| LightGBM v1 Test MAE / MBE | 45.7s / +8.3s | `06_prediction_2-model.ipynb` | README · ROADMAP · portfolio.md |
-| LightGBM v2 Test MAE / MBE | 18,56 s / −0.69s | `06_prediction_4-model_v2.ipynb` | README · ROADMAP · portfolio.md |
+| LightGBM v1 Test MAE / MBE | 45.7s / +8,3 s | `06_prediction_2-model.ipynb` | README · ROADMAP · portfolio.md |
+| LightGBM v2 Test MAE / MBE | 18,56 s / −0,69 s | `06_prediction_4-model_v2.ipynb` | README · ROADMAP · portfolio.md |
 | XGBoost val MAE (Robustheits-Check) | ~21.4s | `06_prediction_5-comparison.ipynb` | portfolio.md |
 
 **Konvention — welche Files dürfen Zahlen enthalten:**
@@ -177,8 +177,8 @@ echten Daten gelaufen — Cleaning-Zahlen sind Prognosen aus der EDA.
 - Hotspots sind periphere Aussenkorridore, NICHT zentrale Knotenpunkte (0 Overlap)
 - Schnee stärkster Wettereffekt (+54.0s); Kälte überraschend BESSER als Wärme
 - Fachmessen schlechteste Event-Kategorie (66.0s); Feiertage bester Tag-Typ (−9.9s)
-- Winter beste Jahreszeit (51.7s, OTP 88.9%); Herbst schlechteste
-- 71.3% aller dwell_time = 0s — kein nutzbares kontinuierliches Feature
+- Winter beste Jahreszeit (51.7s, OTP 88,9 %); Herbst schlechteste
+- 71,3 % aller dwell_time = 0s — kein nutzbares kontinuierliches Feature
 
 ---
 
@@ -302,23 +302,23 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 
 **Top-Insights für den Report (Präsentationswert-Ranking)**
 
-**1. Strukturelle Pufferschwäche** — 71.5% aller Halte akkumulieren Delay; 71.3% aller `dwell_time` = 0s. Kein Wetter-, kein Event-Problem — ein Fahrplan-Design-Problem. Visualisierung: Anteil akkumulierend vs. reduzierend + `dwell_time`-Histogramm (fast alles bei 0s).
+**1. Strukturelle Pufferschwäche** — 71,5 % aller Halte akkumulieren Delay; 71,3 % aller `dwell_time` = 0s. Kein Wetter-, kein Event-Problem — ein Fahrplan-Design-Problem. Visualisierung: Anteil akkumulierend vs. reduzierend + `dwell_time`-Histogramm (fast alles bei 0s).
 
 **2. Kein Morgenrush** — 7h liegt bei 48.9s (unter Netzschnitt). Peak 21h (67.9s) durch Abreisewellen. Donnerstag schlechtester Wochentag (60.4s, P95=194s), nicht Freitag. Visualisierung: Linienchart nach Stunde + Bar-Chart Wochentage.
 
-**3. Hotspots an der Peripherie, nicht im Zentrum** — Central (48.3s, 15 Linien) und Paradeplatz (48.2s, 14 Linien) liegen unter Netzschnitt. Enzenbühl (93.8s) und Balgrist (85.2s) führen die echte Liste an. 0 Überschneidung zwischen Top-Dichte- und Top-Delay-Stops. Visualisierung: Karte mit Delay-Blasen oder Scatter Liniendichte vs. Delay.
+**3. Hotspots an der Peripherie, nicht im Zentrum** — Central (48,3 s, 15 Linien) und Paradeplatz (48.2s, 14 Linien) liegen unter Netzschnitt. Enzenbühl (93.8s) und Balgrist (85.2s) führen die echte Liste an. 0 Überschneidung zwischen Top-Dichte- und Top-Delay-Stops. Visualisierung: Karte mit Delay-Blasen oder Scatter Liniendichte vs. Delay.
 
 **4. Schnee stärkster Einzelfaktor — geografisch trennbar von Regen** — Schnee +54s, OTP −10.9pp. Schnee trifft Höhenlagen (K10/K4/K12), Regen trifft Flusstäler (K5). L17 leidet stark unter Regen (+41.2s), kaum unter Schnee; L9 umgekehrt (+75.9s Schnee). Visualisierung: zwei Choropleth-Karten "Schnee-Effekt" / "Regen-Effekt" nebeneinander.
 
-**5. Feiertage beste Tage** — 46.3s vs. 56.2s normal (−9.9s). OTP 90.6% vs. 87. Rückgang des Berufsverkehrs übertrifft Event-Effekt. Direkte Implikation: ÖPNV funktioniert besser wenn weniger Autos unterwegs sind. Visualisierung: Vergleichs-Bar "Feiertag / Normal / Großevent".
+**5. Feiertage beste Tage** — 46.3s vs. 56.2s normal (−9.9s). OTP 90,6 % vs. 87. Rückgang des Berufsverkehrs übertrifft Event-Effekt. Direkte Implikation: ÖPNV funktioniert besser wenn weniger Autos unterwegs sind. Visualisierung: Vergleichs-Bar "Feiertag / Normal / Großevent".
 
 **6. Größter Fahrplanwechsel VBZ-Geschichte unsichtbar** — Dez 2023 (L9/L11/L13 fundamental umgebaut): netzweit +0.5s. Geänderte Linien (L11 +5.3s) und unveränderte Linien (L15 +5.2s) bewegen sich identisch. Visualisierung: Zeitreihe 2023–2025 mit vertikaler Linie Dez 2023, veränderte vs. stabile Linien.
 
-**7. Netzausbau am falschen Ort** — Erweiterungen nach K3 (55.7s) und K8 (63.7s). K11 (68.3s, OTP 83%) und K12 (66.3s) bekamen nichts. 0 Überschneidung Investitionsort / Problemort. Visualisierung: Choropleth "Neue Haltestellen 2024" überlagert mit "Ø Delay pro Stadtkreis".
+**7. Netzausbau am falschen Ort** — Erweiterungen nach K3 (55.7s) und K8 (63.7s). K11 (68,3 s, OTP 83 %) und K12 (66.3s) bekamen nichts. 0 Überschneidung Investitionsort / Problemort. Visualisierung: Choropleth "Neue Haltestellen 2024" überlagert mit "Ø Delay pro Stadtkreis".
 
-**8. Berufsmesse schlägt Taylor Swift** — Trade Fairs schlechteste Event-Kategorie (66.0s, OTP 84%). Schlechtester Tag im Datensatz: Berufsmesse 21.11.2024 (192.5s, OTP 54.5%). Taylor Swift: 75.4s — weniger als halb so viel. Visualisierung: Bar-Chart Event-Kategorien + Timeline der schlimmsten Einzeltage mit annotierten Labels.
+**8. Berufsmesse schlägt Taylor Swift** — Trade Fairs schlechteste Event-Kategorie (66.0s, OTP 84%). Schlechtester Tag im Datensatz: Berufsmesse 21.11.2024 (192.5s, OTP 54,5 %). Taylor Swift: 75.4s — weniger als halb so viel. Visualisierung: Bar-Chart Event-Kategorien + Timeline der schlimmsten Einzeltage mit annotierten Labels.
 
-**9. Winter beste Jahreszeit** (Bonus) — Winter 51.7s (OTP 88.9%) besser als Frühling und Sommer. Herbst schlechteste Jahreszeit (61.2s). Kfz-Rückgang im Winter übertrifft Schnee-Effekt.
+**9. Winter beste Jahreszeit** (Bonus) — Winter 51.7s (OTP 88,9 %) besser als Frühling und Sommer. Herbst schlechteste Jahreszeit (61.2s). Kfz-Rückgang im Winter übertrifft Schnee-Effekt.
 
 ---
 
@@ -360,7 +360,7 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 - "Das Signal, nicht der Algorithmus": Kernaussage explizit formuliert + roter Faden Analyse → Feature → Modell
 
 **`public/presentation-v4.html` — Slide 13 (Modell-Progression):**
-- Neue Box: MBE-Story (v1: +8.3s Bias diagnostiziert → v2: −0.69s nach Kalibrierung = iterativer Projekterfolg)
+- Neue Box: MBE-Story (v1: +8,3 s Bias diagnostiziert → v2: −0,69 s nach Kalibrierung = iterativer Projekterfolg)
 - Zusatz in grüner Box: "Gleicher Algorithmus · gleiche Einstellungen · nur das richtige Signal aus der Analyse"
 
 ---
@@ -392,7 +392,7 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 06_prediction_1-baseline.ipynb   ✅ ausgeführt — Stop Mean 50.0s als Benchmark
 06_prediction_2-model.ipynb      ✅ ausgeführt — LightGBM v1: Test MAE 45.7s
 06_prediction_3-evaluation.ipynb ✅ ausgeführt — Fehleranalyse, Feature Importance, Residuals
-06_prediction_4-model_v2.ipynb   ✅ ausgeführt — LightGBM v2: Test MAE 18,56 s, MBE −0.69s
+06_prediction_4-model_v2.ipynb   ✅ ausgeführt — LightGBM v2: Test MAE 18,56 s, MBE −0,69 s
 06_prediction_5-comparison.ipynb ✅ ausgeführt — LightGBM v2 vs. XGBoost: Vergleich dokumentiert
 06_prediction_6-dwell_simulator.ipynb       ✅ ausgeführt — dwell_time binär (0/60s), r=+0.16 Konfundierung
 06_prediction_7-recommendations.ipynb ✅ ausgeführt — Risikomatrix Stop×Linie×Kontext, Empfehlungskarte
@@ -490,7 +490,7 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 | MAE (Test) | 50.0s | **45.7s** | −4.3s |
 | RMSE (Test) | 77.4s | 75.6s | −1.8s |
 | OTP ±60s | 71.9% | 77.5% | +5.6pp |
-| MBE | — | +8.3s | — (zu optimistisch) |
+| MBE | — | +8,3 s | — (zu optimistisch) |
 
 ### Fehleranalyse
 - **Schwerste Stunden:** 17h (54.5s) · 16h (53.3s) · 18h (52.8s) — Rush-Hour
@@ -505,7 +505,7 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 
 ### Bekannte Limitierungen (für Portfolio-Reflexion)
 - `stop_name` als native Categorical statt Target Encoding — Verbesserungspotenzial v2
-- MBE +8.3s — Modell systematisch zu optimistisch
+- MBE +8,3 s — Modell systematisch zu optimistisch
 - `prev_trip_delay` (Kaskadeneffekt) nicht implementiert — trip_id Kontinuität ungeprüft
 
 ---
@@ -601,7 +601,7 @@ Begründung: `departure_delay` / `delay_delta` sind keine Modell-Features. Durch
 - **Kernthese verankert** (Backlog #36 + #37, erledigt):
   - `03_analysis_0-overview.ipynb`: Synthese-Block nach Executive Summary — drei Findings als eine Aussage
   - `04_insights.ipynb`: neue Sektion "Kernthese" als Einstieg vor "Netzstruktur"
-  - `03_analysis_1-target.ipynb`: Root-Cause-Sektion direkt nach OTP-Befund — verbindet F-TARGET-03 (71.5% akkumulieren) mit F-SPAT-08 (71.3% dwell_time = 0s)
+  - `03_analysis_1-target.ipynb`: Root-Cause-Sektion direkt nach OTP-Befund — verbindet F-TARGET-03 (71,5 % akkumulieren) mit F-SPAT-08 (71,3 % dwell_time = 0s)
 
 **Methodische Entscheidung:**
 Kernthese definiert: dwell_time = 0s (Fahrplan-Design) + Peripherie-Hotspots (Geografie) + Netzausbau am falschen Ort (Investment) = drei Befunde, eine Aussage. Verankert in allen relevanten Notebooks — nicht mehr als Einzel-Findings versteckt.
@@ -671,7 +671,7 @@ Strukturfaktor (kumulierter Trip-Aufbau) und externe Faktoren (Δ Arrival Delay 
 
 - **`06_prediction_3-evaluation.ipynb`** — zwei neue Zellblöcke:
   - **Feature Importance (Gain):** lädt `lgbm_v1.txt`, normalisiert Gain auf %, Horizontal-Barplot mit Farb-Kodierung (Amber >10%, Teal >2%, Grau Rest) + Tabelle Top-15. Beantwortet: hat das Modell dieselben Muster gelernt wie die 55 Findings?
-  - **Predicted vs. Actual (Hexbin):** 100k Stichprobe, Hexbin-Dichte, y=x Referenzlinie, Bias-Linie (MBE +8.3s) rot eingezeichnet. Macht den Optimismus-Bias visuell greifbar.
+  - **Predicted vs. Actual (Hexbin):** 100k Stichprobe, Hexbin-Dichte, y=x Referenzlinie, Bias-Linie (MBE +8,3 s) rot eingezeichnet. Macht den Optimismus-Bias visuell greifbar.
 - **ROADMAP:** Evaluation auf ✅ gesetzt, Phase 4 vollständig abgeschlossen
 
 **Nächster Schritt:** Portfolio-Aufbereitung — BACKLOG #41 (Key Visual ins README) als erster konkreter Schritt
@@ -851,7 +851,7 @@ Zwei neue Notebooks angelegt, die den bisherigen Modellierungsstand erweitern:
 - Export: `train_final_v2.parquet` + `test_final_v2.parquet`
 - Gleiche Hyperparameter wie v1 — isolierter Feature-Effekt messbar
 - SHAP-Werte (try/except — benötigt `uv pip install -e ".[dsc]"`)
-- Isotonic Regression als Post-hoc-Bias-Kalibrierung (MBE v1: +8.3s)
+- Isotonic Regression als Post-hoc-Bias-Kalibrierung (MBE v1: +8,3 s)
 - Export: `lgbm_v2.txt` + `lgbm_v2_calibrator.joblib` + `lgbm_v2_meta.json` + `test_predictions_v2.parquet`
 
 **`06_prediction_5-comparison.ipynb`** — Modellvergleich: Baseline → LightGBM v1 → v2 → XGBoost

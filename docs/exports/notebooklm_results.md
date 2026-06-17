@@ -158,13 +158,13 @@ test_rows:      ~29 M (inkl. Nov/Dez 2025 — vorher ausgeschlossen, nach Maskie
 
 ```
 best_model:     LightGBM v2
-best_metric:    18,56 s MAE (Test) · MBE −0.69s (nahezu bias-frei)
+best_metric:    18,56 s MAE (Test) · MBE −0,69 s (nahezu bias-frei)
 key_insight:    prev_trip_delay ist das stärkste neue Feature — bestätigt die
                 Kaskadenanalyse: Das Signal steckt in den Daten, nicht im Algorithmus.
                 XGBoost Robustheits-Check: val MAE ~21.4s (150 Runden, >90 Min auf 85M Zeilen)
                 → LightGBM klar überlegen bei Trainingszeit.
-mbe_v1:         +8.3s (Modell war systematisch zu optimistisch)
-mbe_v2:         −0.69s (Isotonic-Regression-Kalibrierung wirksam)
+mbe_v1:         +8,3 s (Modell war systematisch zu optimistisch)
+mbe_v2:         −0,69 s (Isotonic-Regression-Kalibrierung wirksam)
 otp_v1:         77.5% (vs. Stop-Mean-Baseline 71.9%)
 ```
 
@@ -237,7 +237,7 @@ r3:
 
 r4:
   title:  OTP-Monitoring nach Stadtkreis — K11/K12 als Priority Zones
-  detail: Kreis 11 (68.3s, OTP 83%) und Kreis 12 (66.3s) sind strukturell benachteiligt.
+  detail: Kreis 11 (68,3 s, OTP 83%) und Kreis 12 (66.3s) sind strukturell benachteiligt.
           Automatisiertes Alert-System auf Haltestellenebene — kombiniert mit dem
           Prediction-Modell als Frühwarnsignal — ermöglicht proaktive Steuerung
           statt reaktiver Entstörung.
@@ -366,8 +366,8 @@ This mirrors professional data team workflows (think Jira for analysis): finding
 | Model | Test MAE | MBE | Notes |
 | :--- | :---: | :---: | :--- |
 | Stop Mean Baseline | 50.0s | — | Predicts historic average per stop |
-| LightGBM v1 | 45.7s | +8.3s | 32 features · 481 trees · temporal split |
-| **LightGBM v2** | **18,56 s** | **−0.69s** | +`prev_trip_delay` + `stop_sequence_pct` · −63% vs. baseline |
+| LightGBM v1 | 45.7s | +8,3 s | 32 features · 481 trees · temporal split |
+| **LightGBM v2** | **18,56 s** | **−0,69 s** | +`prev_trip_delay` + `stop_sequence_pct` · −63% vs. baseline |
 
 Top features (LightGBM v2 by gain): `stop_name` · `prev_trip_delay` · `hour` · `line_name` · `has_snow`
 

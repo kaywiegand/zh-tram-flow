@@ -106,7 +106,7 @@ analysiert
 * **41 Mio.** — Trainings-Fahrten 2023 bis Mitte 2024
 * **~29 Mio.** — Test-Fahrten, vollständiges Jahr 2025
 * **−63%** — Verbesserung vs. Baseline (Stop Mean)
-> Kalibrierter Bias: −0.69 Sekunden, nahezu verzerrungsfrei. Trainiert auf Consumer-Hardware in ca. 18 Minuten.
+> Kalibrierter Bias: −0,69 Sekunden, nahezu verzerrungsfrei. Trainiert auf Consumer-Hardware in ca. 18 Minuten.
 
 ## Das Modell
 *Konkrete Vorhersagen für reale Betriebssituationen*

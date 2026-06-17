@@ -184,7 +184,7 @@ Strategy: temporal train/test split — 2023–Jun 2024 train / Jul–Dec 2024 v
 
 Top features (LightGBM v2 by gain): `stop_name` · `prev_trip_delay` · `hour` · `line_name` · `has_snow`
 
-MAE 18.56s means the model is on average less than 19 seconds off — on a network where the worst stops average 90+ seconds late. Bias (MBE) is −0.69s, effectively zero.
+MAE 18.56s means the model is on average less than 19 seconds off — on a network where the worst stops average 90+ seconds late. Bias (MBE) is −0,69 s, effectively zero.
 
 ### Recommendations
 
@@ -195,7 +195,7 @@ Four concrete actions that follow directly from the analysis findings:
 | R1 | **Fahrplan-Redesign L11** — add schedule buffer at 3–5 critical coupling points | L11 highest delay accumulation · 0s dwell · cascade r ≥ 0.85 |
 | R2 | **Real-time dispatch** — use cascade model as early warning signal | `prev_trip_delay` explains −31.4s MAE improvement |
 | R3 | **Capacity boost 20–22h** — increase frequency on L11/L8 during event evenings | 21h peak +11.7s · Thursday + large event = worst combination |
-| R4 | **Priority monitoring K11/K12** — automated OTP alerts at stop level | Kreis 11: 68.3s avg · OTP 83% · structurally disadvantaged |
+| R4 | **Priority monitoring K11/K12** — automated OTP alerts at stop level | Kreis 11: 68,3 s avg · OTP 83% · structurally disadvantaged |
 
 → Full risk matrix and stop-level recommendations: [`06_prediction_7-recommendations`](notebooks/06_prediction_7-recommendations.ipynb)
 

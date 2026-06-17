@@ -104,8 +104,8 @@ This mirrors professional data team workflows (think Jira for analysis): finding
 | Model | Test MAE | MBE | Notes |
 | :--- | :---: | :---: | :--- |
 | Stop Mean Baseline | 50.0s | — | Predicts historic average per stop |
-| LightGBM v1 | 45.7s | +8.3s | 32 features · 481 trees · temporal split |
-| **LightGBM v2** | **18,56 s** | **−0.69s** | +`prev_trip_delay` + `stop_sequence_pct` · −63% vs. baseline |
+| LightGBM v1 | 45.7s | +8,3 s | 32 features · 481 trees · temporal split |
+| **LightGBM v2** | **18,56 s** | **−0,69 s** | +`prev_trip_delay` + `stop_sequence_pct` · −63% vs. baseline |
 
 Top features (LightGBM v2 by gain): `stop_name` · `prev_trip_delay` · `hour` · `line_name` · `has_snow`
 
@@ -480,7 +480,7 @@ Built with [wgnd-toolkit](https://github.com/kaywiegand/wgnd-toolkit) and [wgnd-
 
 ### Evaluation (`06_prediction_3-evaluation.ipynb`) ✅
 - ✅ Metriken: Test MAE 45.7s · RMSE · OTP — Modell vs. Baseline-Tabelle
-- ✅ Residuals-Verteilung — MBE +8.3s (Modell unterschätzt systematisch)
+- ✅ Residuals-Verteilung — MBE +8,3 s (Modell unterschätzt systematisch)
 - ✅ Live-Szenario: Di 17h · Paradeplatz · L11 · Regen → **52s**
 - ✅ Abschluss-Tabelle: Modell vs. alle Baselines
 - ✅ Fehleranalyse: MAE nach Stunde / Linie / Wetter / Monat
@@ -491,9 +491,9 @@ Built with [wgnd-toolkit](https://github.com/kaywiegand/wgnd-toolkit) and [wgnd-
 - ✅ Feature Engineering: `prev_trip_delay` (Kaskadenindikator) + `stop_sequence_pct` — 2 neue Features
 - ✅ Export: `train_final_v2.parquet` + `test_final_v2.parquet` (inkl. Nov/Dez 2025)
 - ✅ Training: LightGBM v2 — identische Hyperparameter, erweitertes Feature-Set
-- ✅ **Test MAE: 18,56 s · MBE −0.69s** — −63% vs. Stop Mean Baseline (50.0s)
+- ✅ **Test MAE: 18,56 s · MBE −0,69 s** — −63% vs. Stop Mean Baseline (50.0s)
 - ✅ Feature Importance — `prev_trip_delay` in Top-2 (nach `stop_name`) — schließt Kreis zur Analyse
-- ✅ Bias-Kalibrierung: Isotonic Regression → MBE von +8.3s (v1) auf −0.69s (v2)
+- ✅ Bias-Kalibrierung: Isotonic Regression → MBE von +8,3 s (v1) auf −0,69 s (v2)
 - ✅ Export: `lgbm_v2.txt` + `lgbm_v2_meta.json` + `test_predictions_v2.parquet`
 - ⏭️ SHAP-Werte — nicht ausgeführt (Aufwand/Nutzen abgewogen, kein Optuna)
 
@@ -593,8 +593,8 @@ PROCESS_LOG Session-Notes verwenden ab dieser Sektion Pointer auf Notebooks — 
 | OTP netzweit | 87 % | `03_analysis_1-target.ipynb` | README · ROADMAP · portfolio.md |
 | Delay-Akkumulation | 71.5% | `03_analysis_1-target.ipynb` | README · portfolio.md |
 | Stop Mean Baseline MAE | 50.0s | `06_prediction_1-baseline.ipynb` | README · ROADMAP · portfolio.md |
-| LightGBM v1 Test MAE / MBE | 45.7s / +8.3s | `06_prediction_2-model.ipynb` | README · ROADMAP · portfolio.md |
-| LightGBM v2 Test MAE / MBE | 18,56 s / −0.69s | `06_prediction_4-model_v2.ipynb` | README · ROADMAP · portfolio.md |
+| LightGBM v1 Test MAE / MBE | 45.7s / +8,3 s | `06_prediction_2-model.ipynb` | README · ROADMAP · portfolio.md |
+| LightGBM v2 Test MAE / MBE | 18,56 s / −0,69 s | `06_prediction_4-model_v2.ipynb` | README · ROADMAP · portfolio.md |
 | XGBoost val MAE (Robustheits-Check) | ~21.4s | `06_prediction_5-comparison.ipynb` | portfolio.md |
 
 **Konvention — welche Files dürfen Zahlen enthalten:**
@@ -845,7 +845,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 
 **2. Kein Morgenrush** — 7h liegt bei 48.9s (unter Netzschnitt). Peak 21h (67.9s) durch Abreisewellen. Donnerstag schlechtester Wochentag (60.4s, P95=194s), nicht Freitag. Visualisierung: Linienchart nach Stunde + Bar-Chart Wochentage.
 
-**3. Hotspots an der Peripherie, nicht im Zentrum** — Central (48.3s, 15 Linien) und Paradeplatz (48.2s, 14 Linien) liegen unter Netzschnitt. Enzenbühl (93.8s) und Balgrist (85.2s) führen die echte Liste an. 0 Überschneidung zwischen Top-Dichte- und Top-Delay-Stops. Visualisierung: Karte mit Delay-Blasen oder Scatter Liniendichte vs. Delay.
+**3. Hotspots an der Peripherie, nicht im Zentrum** — Central (48,3 s, 15 Linien) und Paradeplatz (48.2s, 14 Linien) liegen unter Netzschnitt. Enzenbühl (93.8s) und Balgrist (85.2s) führen die echte Liste an. 0 Überschneidung zwischen Top-Dichte- und Top-Delay-Stops. Visualisierung: Karte mit Delay-Blasen oder Scatter Liniendichte vs. Delay.
 
 **4. Schnee stärkster Einzelfaktor — geografisch trennbar von Regen** — Schnee +54s, OTP −10.9pp. Schnee trifft Höhenlagen (K10/K4/K12), Regen trifft Flusstäler (K5). L17 leidet stark unter Regen (+41.2s), kaum unter Schnee; L9 umgekehrt (+75.9s Schnee). Visualisierung: zwei Choropleth-Karten "Schnee-Effekt" / "Regen-Effekt" nebeneinander.
 
@@ -853,7 +853,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 
 **6. Größter Fahrplanwechsel VBZ-Geschichte unsichtbar** — Dez 2023 (L9/L11/L13 fundamental umgebaut): netzweit +0.5s. Geänderte Linien (L11 +5.3s) und unveränderte Linien (L15 +5.2s) bewegen sich identisch. Visualisierung: Zeitreihe 2023–2025 mit vertikaler Linie Dez 2023, veränderte vs. stabile Linien.
 
-**7. Netzausbau am falschen Ort** — Erweiterungen nach K3 (55.7s) und K8 (63.7s). K11 (68.3s, OTP 83%) und K12 (66.3s) bekamen nichts. 0 Überschneidung Investitionsort / Problemort. Visualisierung: Choropleth "Neue Haltestellen 2024" überlagert mit "Ø Delay pro Stadtkreis".
+**7. Netzausbau am falschen Ort** — Erweiterungen nach K3 (55.7s) und K8 (63.7s). K11 (68,3 s, OTP 83%) und K12 (66.3s) bekamen nichts. 0 Überschneidung Investitionsort / Problemort. Visualisierung: Choropleth "Neue Haltestellen 2024" überlagert mit "Ø Delay pro Stadtkreis".
 
 **8. Berufsmesse schlägt Taylor Swift** — Trade Fairs schlechteste Event-Kategorie (66.0s, OTP 84%). Schlechtester Tag im Datensatz: Berufsmesse 21.11.2024 (192.5s, OTP 54.5%). Taylor Swift: 75.4s — weniger als halb so viel. Visualisierung: Bar-Chart Event-Kategorien + Timeline der schlimmsten Einzeltage mit annotierten Labels.
 
@@ -888,7 +888,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 06_prediction_1-baseline.ipynb   ✅ ausgeführt — Stop Mean 50.0s als Benchmark
 06_prediction_2-model.ipynb      ✅ ausgeführt — LightGBM v1: Test MAE 45.7s
 06_prediction_3-evaluation.ipynb ✅ ausgeführt — Fehleranalyse, Feature Importance, Residuals
-06_prediction_4-model_v2.ipynb   ✅ ausgeführt — LightGBM v2: Test MAE 18,56 s, MBE −0.69s
+06_prediction_4-model_v2.ipynb   ✅ ausgeführt — LightGBM v2: Test MAE 18,56 s, MBE −0,69 s
 06_prediction_5-comparison.ipynb ✅ ausgeführt — LightGBM v2 vs. XGBoost: Vergleich dokumentiert
 06_prediction_6-dwell_simulator.ipynb       ✅ ausgeführt — dwell_time binär (0/60s), r=+0.16 Konfundierung
 06_prediction_7-scheduling_recommendations.ipynb ✅ ausgeführt — Risikomatrix Stop×Linie×Kontext, Empfehlungskarte
@@ -986,7 +986,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 | MAE (Test) | 50.0s | **45.7s** | −4.3s |
 | RMSE (Test) | 77.4s | 75.6s | −1.8s |
 | OTP ±60s | 71.9% | 77.5% | +5.6pp |
-| MBE | — | +8.3s | — (zu optimistisch) |
+| MBE | — | +8,3 s | — (zu optimistisch) |
 
 ### Fehleranalyse
 - **Schwerste Stunden:** 17h (54.5s) · 16h (53.3s) · 18h (52.8s) — Rush-Hour
@@ -1001,7 +1001,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 
 ### Bekannte Limitierungen (für Portfolio-Reflexion)
 - `stop_name` als native Categorical statt Target Encoding — Verbesserungspotenzial v2
-- MBE +8.3s — Modell systematisch zu optimistisch
+- MBE +8,3 s — Modell systematisch zu optimistisch
 - `prev_trip_delay` (Kaskadeneffekt) nicht implementiert — trip_id Kontinuität ungeprüft
 
 ---
@@ -1167,7 +1167,7 @@ Strukturfaktor (kumulierter Trip-Aufbau) und externe Faktoren (Δ Arrival Delay 
 
 - **`06_prediction_3-evaluation.ipynb`** — zwei neue Zellblöcke:
   - **Feature Importance (Gain):** lädt `lgbm_v1.txt`, normalisiert Gain auf %, Horizontal-Barplot mit Farb-Kodierung (Amber >10%, Teal >2%, Grau Rest) + Tabelle Top-15. Beantwortet: hat das Modell dieselben Muster gelernt wie die 55 Findings?
-  - **Predicted vs. Actual (Hexbin):** 100k Stichprobe, Hexbin-Dichte, y=x Referenzlinie, Bias-Linie (MBE +8.3s) rot eingezeichnet. Macht den Optimismus-Bias visuell greifbar.
+  - **Predicted vs. Actual (Hexbin):** 100k Stichprobe, Hexbin-Dichte, y=x Referenzlinie, Bias-Linie (MBE +8,3 s) rot eingezeichnet. Macht den Optimismus-Bias visuell greifbar.
 - **ROADMAP:** Evaluation auf ✅ gesetzt, Phase 4 vollständig abgeschlossen
 
 **Nächster Schritt:** Portfolio-Aufbereitung — BACKLOG #41 (Key Visual ins README) als erster konkreter Schritt
@@ -1347,7 +1347,7 @@ Zwei neue Notebooks angelegt, die den bisherigen Modellierungsstand erweitern:
 - Export: `train_final_v2.parquet` + `test_final_v2.parquet`
 - Gleiche Hyperparameter wie v1 — isolierter Feature-Effekt messbar
 - SHAP-Werte (try/except — benötigt `uv pip install -e ".[dsc]"`)
-- Isotonic Regression als Post-hoc-Bias-Kalibrierung (MBE v1: +8.3s)
+- Isotonic Regression als Post-hoc-Bias-Kalibrierung (MBE v1: +8,3 s)
 - Export: `lgbm_v2.txt` + `lgbm_v2_calibrator.joblib` + `lgbm_v2_meta.json` + `test_predictions_v2.parquet`
 
 **`06_prediction_5-comparison.ipynb`** — Modellvergleich: Baseline → LightGBM v1 → v2 → XGBoost
@@ -1847,13 +1847,13 @@ test_rows:      ~29 M (inkl. Nov/Dez 2025 — vorher ausgeschlossen, nach Maskie
 
 ```
 best_model:     LightGBM v2
-best_metric:    18,56 s MAE (Test) · MBE −0.69s (nahezu bias-frei)
+best_metric:    18,56 s MAE (Test) · MBE −0,69 s (nahezu bias-frei)
 key_insight:    prev_trip_delay ist das stärkste neue Feature — bestätigt die
                 Kaskadenanalyse: Das Signal steckt in den Daten, nicht im Algorithmus.
                 XGBoost Robustheits-Check: val MAE ~21.4s (150 Runden, >90 Min auf 85M Zeilen)
                 → LightGBM klar überlegen bei Trainingszeit.
-mbe_v1:         +8.3s (Modell war systematisch zu optimistisch)
-mbe_v2:         −0.69s (Isotonic-Regression-Kalibrierung wirksam)
+mbe_v1:         +8,3 s (Modell war systematisch zu optimistisch)
+mbe_v2:         −0,69 s (Isotonic-Regression-Kalibrierung wirksam)
 otp_v1:         77.5% (vs. Stop-Mean-Baseline 71.9%)
 ```
 
@@ -1926,7 +1926,7 @@ r3:
 
 r4:
   title:  OTP-Monitoring nach Stadtkreis — K11/K12 als Priority Zones
-  detail: Kreis 11 (68.3s, OTP 83%) und Kreis 12 (66.3s) sind strukturell benachteiligt.
+  detail: Kreis 11 (68,3 s, OTP 83%) und Kreis 12 (66.3s) sind strukturell benachteiligt.
           Automatisiertes Alert-System auf Haltestellenebene — kombiniert mit dem
           Prediction-Modell als Frühwarnsignal — ermöglicht proaktive Steuerung
           statt reaktiver Entstörung.
