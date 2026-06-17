@@ -182,7 +182,7 @@
 <section data-chapter="4">
   <h2>Das Modell</h2>
   <span class="subline">Baseline, Iterationen, dann der Sprung</span>
-  <table><thead><tr><th>Version</th><th>Features</th><th>MAE (Test)</th><th>Logic</th></tr></thead><tbody><tr><td>Baseline<br><span style="font-size:0.82em;color:#888;">Stop Mean</span></td><td>—</td><td>50.0s</td><td>Ø pro Haltestelle</td></tr><tr><td>v1 (LightGBM)<br><span style="font-size:0.82em;color:#888;">Keine Live-Signale</span></td><td>34</td><td>45.7s</td><td>Zeit + Wetter + Netz</td></tr><tr class="hl"><td><strong>v2 (LightGBM)</strong><br><span style="font-size:0.82em;color:#1a6e3a;font-weight:600;">Mit Kaskaden-Features</span></td><td><strong>36</strong></td><td><strong>18,56 s</strong></td><td>prev_trip_delay + stop_seq_pct</td></tr></tbody></table>
+  <table><thead><tr><th>Version</th><th>Features</th><th>MAE (Test)</th><th>Logic</th></tr></thead><tbody><tr><td>Baseline<br><span style="font-size:0.82em;color:#888;">Stop Mean</span></td><td>—</td><td>50,0 s</td><td>Ø pro Haltestelle</td></tr><tr><td>v1 (LightGBM)<br><span style="font-size:0.82em;color:#888;">Keine Live-Signale</span></td><td>34</td><td>45,7 s</td><td>Zeit + Wetter + Netz</td></tr><tr class="hl"><td><strong>v2 (LightGBM)</strong><br><span style="font-size:0.82em;color:#1a6e3a;font-weight:600;">Mit Kaskaden-Features</span></td><td><strong>36</strong></td><td><strong>18,56 s</strong></td><td>prev_trip_delay + stop_seq_pct</td></tr></tbody></table>
   <div class="box green" style="margin-top:14px;"><strong>Verbesserung:</strong> −31,4 s (−63% vs. Baseline). Der Sprung erklärt sich vollständig durch die Kaskaden-Feature.</div>
 </section>
 <section data-chapter="4">
@@ -197,7 +197,7 @@
 </section>
 <section data-chapter="4">
   <h2>Das Modell</h2>
-  <span class="subline">Der Bias in v1: +8.3 Sekunden zu optimistisch</span>
+  <span class="subline">Der Bias in v1: +8,3 Sekunden zu optimistisch</span>
   <div style="margin-top:1.2em;">
     <div class="mrow"><div class="m red"><div class="v">45,7 s</div><div class="l">MAE v1 (Test)</div></div><div class="m red"><div class="v">+8,3 s</div><div class="l">MBE v1<br>systematisch zu optimistisch</div></div><div class="m green"><div class="v">18,56 s</div><div class="l">MAE v2 (Test)</div></div><div class="m green"><div class="v">−0,69 s</div><div class="l">MBE v2<br>nahezu bias-frei</div></div></div>
   </div>

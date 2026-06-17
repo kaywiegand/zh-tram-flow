@@ -253,7 +253,7 @@
                   "points": [
                     "18,56 s MAE auf ~29M Test-Fahrten (ein ganzes Jahr)",
                     "XGBoost-Vergleich bestätigt Robustheit",
-                    "Isotonic Regression Kalibrierung senkt MBE von +8.3s auf −0.69s"
+                    "Isotonic Regression Kalibrierung senkt MBE von +8,3 s auf −0,69 s"
                   ]
                 }
               ]

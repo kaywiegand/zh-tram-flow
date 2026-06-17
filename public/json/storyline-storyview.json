@@ -45,7 +45,7 @@
             },
             {
               "type": "statement",
-              "text": "Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45.7s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.",
+              "text": "Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.",
               "sentiment": "positive"
             }
           ]
@@ -84,7 +84,7 @@
                 { "value": "87 %", "label": "OTP netzweit 2023–2025",  "sentiment": "negative" },
                 { "value": "95%",   "label": "VBZ-Ziel bis 2028",        "sentiment": "positive" },
                 { "value": "−8 PP", "label": "Strukturelle Lücke",       "sentiment": "negative" },
-                { "value": "56.3s", "label": "Ø Ankunftsverspätung",     "sentiment": "warning" }
+                { "value": "56,3 s", "label": "Ø Ankunftsverspätung",     "sentiment": "warning" }
               ]
             },
             {
@@ -188,15 +188,15 @@
               "items": [
                 {
                   "assumption": "Die Innenstadt ist der Hotspot",
-                  "finding": "Central (48.3s) und Paradeplatz (48.2s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93.8s, Balgrist 85.2s — periphere Aussenkorridore"
+                  "finding": "Central (48,3 s) und Paradeplatz (48,2 s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93,8 s, Balgrist 85,2 s — periphere Aussenkorridore"
                 },
                 {
                   "assumption": "Der Morgenrush ist das Problem",
-                  "finding": "7h: 48.9s unter Netzschnitt. Echter Peak: 21h (67.9s) durch Abreisewellen nach Veranstaltungen. Donnerstag ist der schlechteste Wochentag."
+                  "finding": "7h: 48,9 s unter Netzschnitt. Echter Peak: 21h (67,9 s) durch Abreisewellen nach Veranstaltungen. Donnerstag ist der schlechteste Wochentag."
                 },
                 {
                   "assumption": "Wetter ist die Hauptursache",
-                  "finding": "Schnee: +54s, Regen: +23.3s. Geografisch trennbar: Schnee trifft Höhenlagen (K10/K12), Regen Flusstäler (K5). Grundrauschen bleibt wetterunabhängig."
+                  "finding": "Schnee: +54s, Regen: +23,3 s. Geografisch trennbar: Schnee trifft Höhenlagen (K10/K12), Regen Flusstäler (K5). Grundrauschen bleibt wetterunabhängig."
                 }
               ]
             }
@@ -231,14 +231,14 @@
               "type": "figures",
               "items": [
                 { "value": "+54s",   "label": "Schnee-Effekt netzweit",    "sentiment": "negative" },
-                { "value": "+23.3s", "label": "Regen-Effekt netzweit",     "sentiment": "warning" },
-                { "value": "−9.9s",  "label": "Feiertage vs. Normal",      "sentiment": "positive" },
-                { "value": "66.0s",  "label": "Fachmessen (schlechteste Event-Kategorie)", "sentiment": "negative" }
+                { "value": "+23,3 s", "label": "Regen-Effekt netzweit",     "sentiment": "warning" },
+                { "value": "−9,9 s",  "label": "Feiertage vs. Normal",      "sentiment": "positive" },
+                { "value": "66,0 s",  "label": "Fachmessen (schlechteste Event-Kategorie)", "sentiment": "negative" }
               ]
             },
             {
               "type": "statement",
-              "text": "Feiertage sind der beste Tagestyp: −9.9s vs. Normal. Der MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied.",
+              "text": "Feiertage sind der beste Tagestyp: −9,9 s vs. Normal. Der MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied.",
               "sentiment": "neutral"
             }
           ]
@@ -257,7 +257,7 @@
               "type": "figures",
               "items": [
                 { "value": "71.5%",    "label": "Halte akkumulieren Delay",          "sentiment": "warning" },
-                { "value": "L11",      "label": "68.7s · OTP 82%, stärkste Akkumulation", "sentiment": "negative" },
+                { "value": "L11",      "label": "68,7 s · OTP 82%, stärkste Akkumulation", "sentiment": "negative" },
                 { "value": "71.3%",    "label": "Haltestellen ohne Standzeit (0s)", "sentiment": "warning" },
                 { "value": "r ≥ 0.85", "label": "Kaskadenkorrelation alle 16 Linien", "sentiment": "negative" }
               ]
@@ -304,9 +304,9 @@
               "type": "comparison_table",
               "columns": ["Ansatz", "Features", "MAE (Test)", "Verbesserung"],
               "rows": [
-                { "cells": ["Baseline (Stop Mean)", "—",   "50.0s", "Ausgangspunkt"],       "highlight": false },
-                { "cells": ["LightGBM v1",          "34",  "45.7s", "−4.3s"],               "highlight": false },
-                { "cells": ["LightGBM v2",          "36",  "18,56 s", "−31.4s (−63%)"],       "highlight": true }
+                { "cells": ["Baseline (Stop Mean)", "—",   "50,0 s", "Ausgangspunkt"],       "highlight": false },
+                { "cells": ["LightGBM v1",          "34",  "45,7 s", "−4,3 s"],               "highlight": false },
+                { "cells": ["LightGBM v2",          "36",  "18,56 s", "−31,4 s (−63%)"],       "highlight": true }
               ]
             }
           ]
@@ -321,12 +321,12 @@
               "items": [
                 { "value": "41 Mio.", "label": "Trainings-Fahrten 2023–Jun 2024",      "sentiment": "neutral" },
                 { "value": "~29 Mio.", "label": "Test-Fahrten vollständiges Jahr 2025", "sentiment": "neutral" },
-                { "value": "−0.69s",  "label": "MBE nach Isotonic-Regression-Kalibrierung", "sentiment": "positive" }
+                { "value": "−0,69 s",  "label": "MBE nach Isotonic-Regression-Kalibrierung", "sentiment": "positive" }
               ]
             },
             {
               "type": "statement",
-              "text": "prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45.7s auf 18,56 s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt.",
+              "text": "prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45,7 s auf 18,56 s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt.",
               "sentiment": "positive"
             }
           ]
@@ -400,7 +400,7 @@
                   "points": [
                     "71.3% aller Haltestellen: dwell_time = 0s — Root Cause identifiziert",
                     "+10s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt",
-                    "L11: OTP 82%, Ø 68.7s — Hebel Nr. 1 aus Analyse und Modell"
+                    "L11: OTP 82%, Ø 68,7 s — Hebel Nr. 1 aus Analyse und Modell"
                   ]
                 },
                 {
@@ -416,7 +416,7 @@
                   "category": "R3 · Kapazitätsplanung",
                   "title": "Takterhöhung 20–22h auf L11 und L8",
                   "points": [
-                    "Peak 21h: 67.9s — nicht der Morgen (7h: 48.9s unter Netzschnitt)",
+                    "Peak 21h: 67,9 s — nicht der Morgen (7h: 48,9 s unter Netzschnitt)",
                     "Donnerstag + Grossevent: kritischste Kombination im Netz",
                     "Spitzenlastmomente sind kalendarisch planbar"
                   ]
@@ -425,7 +425,7 @@
                   "category": "R4 · Monitoring",
                   "title": "Stadtkreise 11 und 12 als strukturelle Prioritätszonen",
                   "points": [
-                    "Kreis 11: OTP 83%, Ø 68.3s — strukturell benachteiligt, nicht situativ",
+                    "Kreis 11: OTP 83%, Ø 68,3 s — strukturell benachteiligt, nicht situativ",
                     "OTP-Tracking auf Haltestellenebene ermöglicht Frühindikation",
                     "Kombination mit Prediction-Modell: proaktive Steuerung statt reaktive Entstörung"
                   ]

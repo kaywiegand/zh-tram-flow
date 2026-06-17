@@ -27,7 +27,7 @@
               "type": "figures",
               "items": [
                 { "value": "94,4 M", "label": "Halt-Ereignisse, 4 Datenquellen", "sentiment": "neutral" },
-                { "value": "50.0s", "label": "Baseline MAE (Stop Mean)",         "sentiment": "neutral" },
+                { "value": "50,0 s", "label": "Baseline MAE (Stop Mean)",         "sentiment": "neutral" },
                 { "value": "18,56 s", "label": "LightGBM v2 MAE (Test 2025)",     "sentiment": "positive" },
                 { "value": "−63%",  "label": "Verbesserung vs. Baseline",        "sentiment": "positive" }
               ]
@@ -85,7 +85,7 @@
               "items": [
                 { "value": "87 %",   "label": "OTP netzweit 2023–2025",       "sentiment": "negative" },
                 { "value": "−8 PP",   "label": "Lücke zum VBZ-Ziel 95%",       "sentiment": "negative" },
-                { "value": "56.3s",   "label": "Ø Ankunftsverspätung",          "sentiment": "warning" },
+                { "value": "56,3 s",   "label": "Ø Ankunftsverspätung",          "sentiment": "warning" },
                 { "value": "71.5%",   "label": "Halte akkumulieren Delay",      "sentiment": "warning" }
               ]
             },
@@ -196,10 +196,10 @@
               "type": "comparison_table",
               "columns": ["Ansatz", "Logik", "MAE (Test)"],
               "rows": [
-                { "cells": ["Grand Mean",  "Immer Netz-Ø vorhersagen (56.3s)",    "50.6s"], "highlight": false },
-                { "cells": ["Hour Mean",   "Ø nach Tagesstunde",                   "50.5s"], "highlight": false },
-                { "cells": ["Line Mean",   "Ø nach Linie",                         "50.4s"], "highlight": false },
-                { "cells": ["Stop Mean",   "Ø nach Haltestelle (stärkste naive Baseline)", "50.0s"], "highlight": true }
+                { "cells": ["Grand Mean",  "Immer Netz-Ø vorhersagen (56,3 s)",    "50,6 s"], "highlight": false },
+                { "cells": ["Hour Mean",   "Ø nach Tagesstunde",                   "50,5 s"], "highlight": false },
+                { "cells": ["Line Mean",   "Ø nach Linie",                         "50,4 s"], "highlight": false },
+                { "cells": ["Stop Mean",   "Ø nach Haltestelle (stärkste naive Baseline)", "50,0 s"], "highlight": true }
               ]
             },
             {
@@ -251,7 +251,7 @@
                   "points": [
                     "prev_trip_delay: Verspätung des Vorgänger-Trips an diesem Halt — echtzeit-verfügbar",
                     "stop_sequence_pct: normierter Streckenfortschritt (0–1) — linienübergreifend lernbar",
-                    "Ergebnis: MAE 45.7s → 18,56 s, −63%"
+                    "Ergebnis: MAE 45,7 s → 18,56 s, −63%"
                   ]
                 }
               ]
@@ -273,7 +273,7 @@
               "items": [
                 {
                   "assumption": "XGBoost als Standard-Benchmark",
-                  "finding": "XGBoost: val MAE ~21.4s bei 150 Runden auf 85M Zeilen — über 90 Minuten Trainingszeit. LightGBM: vergleichbare Qualität in ca. 18 Minuten. Klare Wahl für iteratives Arbeiten."
+                  "finding": "XGBoost: val MAE ~21,4 s bei 150 Runden auf 85M Zeilen — über 90 Minuten Trainingszeit. LightGBM: vergleichbare Qualität in ca. 18 Minuten. Klare Wahl für iteratives Arbeiten."
                 },
                 {
                   "assumption": "Native Categoricals über One-Hot Encoding",
@@ -299,14 +299,14 @@
               "type": "comparison_table",
               "columns": ["Version", "Neue Features", "MAE (Test)", "MBE (Test)", "OTP-Verbesserung"],
               "rows": [
-                { "cells": ["Baseline (Stop Mean)", "—",                                        "50.0s", "—",      "—"],        "highlight": false },
-                { "cells": ["LightGBM v1",          "34 Features (Zeit · Wetter · Netz)",       "45.7s", "+8.3s",  "71.9% → 77.5%"], "highlight": false },
-                { "cells": ["LightGBM v2",          "+prev_trip_delay, +stop_sequence_pct",     "18,56 s", "−0.69s", "→ kalibriert"], "highlight": true }
+                { "cells": ["Baseline (Stop Mean)", "—",                                        "50,0 s", "—",      "—"],        "highlight": false },
+                { "cells": ["LightGBM v1",          "34 Features (Zeit · Wetter · Netz)",       "45,7 s", "+8,3 s",  "71.9% → 77.5%"], "highlight": false },
+                { "cells": ["LightGBM v2",          "+prev_trip_delay, +stop_sequence_pct",     "18,56 s", "−0,69 s", "→ kalibriert"], "highlight": true }
               ]
             },
             {
               "type": "statement",
-              "text": "v1 war systematisch zu optimistisch (MBE +8.3s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0.69s. Der MAE-Sprung von 45.7s auf 18,56 s entspricht −63% und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.",
+              "text": "v1 war systematisch zu optimistisch (MBE +8,3 s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0,69 s. Der MAE-Sprung von 45,7 s auf 18,56 s entspricht −63% und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.",
               "sentiment": "positive"
             }
           ]
@@ -318,7 +318,7 @@
             {
               "type": "figures",
               "items": [
-                { "value": "~21.4s", "label": "XGBoost val MAE (150 Runden)", "sentiment": "warning" },
+                { "value": "~21,4 s", "label": "XGBoost val MAE (150 Runden)", "sentiment": "warning" },
                 { "value": "90+ Min", "label": "XGBoost Trainingszeit auf 85M Zeilen", "sentiment": "negative" },
                 { "value": "18 Min",  "label": "LightGBM v2 Trainingszeit", "sentiment": "positive" },
                 { "value": "18,56 s",  "label": "LightGBM v2 Test MAE (2025)", "sentiment": "positive" }
@@ -367,7 +367,7 @@
               "items": [
                 {
                   "assumption": "Produktionsreif",
-                  "finding": "LightGBM v2: MAE 18,56 s, MBE −0.69s, trainiert auf 41M Fahrten, getestet auf vollständigem Jahr 2025 (~29M). Streamlit-Dashboard mit Live-Predictor lauffähig. Code vollständig reproduzierbar."
+                  "finding": "LightGBM v2: MAE 18,56 s, MBE −0,69 s, trainiert auf 41M Fahrten, getestet auf vollständigem Jahr 2025 (~29M). Streamlit-Dashboard mit Live-Predictor lauffähig. Code vollständig reproduzierbar."
                 },
                 {
                   "assumption": "Offen: Hyperparameter-Tuning",

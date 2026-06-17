@@ -84,7 +84,7 @@
                   "context": "Der Rückstand ist systemisch, nicht episodisch — er taucht in jedem Jahr, auf jeder Linie auf."
                 },
                 {
-                  "value": "56.3s",
+                  "value": "56,3 s",
                   "label": "Ø Ankunfts-\nverspätung",
                   "sentiment": "warning",
                   "context": "Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre."
@@ -149,11 +149,11 @@
               "items": [
                 {
                   "assumption": "Die Innenstadt ist der Verspätungs-Hotspot",
-                  "finding": "Central (48.3s) und Paradeplatz (48.2s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93.8s, Balgrist 85.2s"
+                  "finding": "Central (48,3 s) und Paradeplatz (48,2 s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93,8 s, Balgrist 85,2 s"
                 },
                 {
                   "assumption": "Der Morgenrush ist das grösste Zeitproblem",
-                  "finding": "7h liegt mit 48.9s unter Netzschnitt. Echter Peak: 21h (67.9s) durch Abreisewellen nach Veranstaltungen"
+                  "finding": "7h liegt mit 48,9 s unter Netzschnitt. Echter Peak: 21h (67,9 s) durch Abreisewellen nach Veranstaltungen"
                 },
                 {
                   "assumption": "Schlechtes Wetter ist die Hauptursache",
@@ -198,7 +198,7 @@
               "type": "figures",
               "items": [
                 { "value": "71.5%", "label": "Halte die Delay akkumulieren", "sentiment": "warning" },
-                { "value": "L11",   "label": "68.7s · OTP 82% — stärkste Akkumulation", "sentiment": "negative" },
+                { "value": "L11",   "label": "68,7 s · OTP 82% — stärkste Akkumulation", "sentiment": "negative" },
                 { "value": "71.3%", "label": "Haltestellen ohne Standzeit", "sentiment": "warning" },
                 { "value": "r ≥ 0.85", "label": "Kaskadenkorrelation alle 16 Linien", "sentiment": "negative" }
               ]
@@ -255,9 +255,9 @@
               "type": "comparison_table",
               "columns": ["Ansatz", "Features", "MAE (Test)", "Verbesserung"],
               "rows": [
-                { "cells": ["Baseline (Stop Mean)", "—", "50.0s", "Ausgangspunkt"], "highlight": false },
-                { "cells": ["LightGBM v1 — Zeit · Wetter · Netz-Features · kein Live-Signal · MBE +8.3s", "34", "45.7s", "−4.3s"], "highlight": false },
-                { "cells": ["LightGBM v2 — +prev_trip_delay · +stop_sequence_pct · Isotonic-Kalibrierung · MBE −0.69s", "36", "18,56 s", "−31.4s (−63%)"], "highlight": true }
+                { "cells": ["Baseline (Stop Mean)", "—", "50,0 s", "Ausgangspunkt"], "highlight": false },
+                { "cells": ["LightGBM v1 — Zeit · Wetter · Netz-Features · kein Live-Signal · MBE +8,3 s", "34", "45,7 s", "−4,3 s"], "highlight": false },
+                { "cells": ["LightGBM v2 — +prev_trip_delay · +stop_sequence_pct · Isotonic-Kalibrierung · MBE −0,69 s", "36", "18,56 s", "−31,4 s (−63%)"], "highlight": true }
               ]
             },
             {
@@ -339,7 +339,7 @@
                   "priority": 1,
                   "title": "Gezielte Standzeit-Puffer auf Linie 11",
                   "points": [
-                    "L11: OTP 82%, Ø 68.7s, kein einziger Puffer auf der gesamten Strecke",
+                    "L11: OTP 82%, Ø 68,7 s, kein einziger Puffer auf der gesamten Strecke",
                     "Bereits 10 Sekunden an 3 bis 5 kritischen Koppelstellen unterbrechen die Kaskade",
                     "Nachgewiesener Hebel Nr. 1, direkt auf Fahrplandaten gestützt"
                   ]
@@ -359,8 +359,8 @@
                   "priority": 2,
                   "title": "Takterhöhung 20 bis 22h auf L11 und L8",
                   "points": [
-                    "Peak 21h: 67.9s, nicht der Morgen (7h: 48.9s unter Netzschnitt)",
-                    "Fachmessen schlechteste Event-Kategorie (66.0s)",
+                    "Peak 21h: 67,9 s, nicht der Morgen (7h: 48,9 s unter Netzschnitt)",
+                    "Fachmessen schlechteste Event-Kategorie (66,0 s)",
                     "Spitzenlastmomente sind kalendarisch bekannt und im Voraus planbar"
                   ]
                 },
@@ -369,7 +369,7 @@
                   "priority": 2,
                   "title": "Stadtkreise 11 und 12 als strukturelle Prioritätszonen",
                   "points": [
-                    "Stadtkreis 11: OTP 83%, Ø 68.3s, strukturell benachteiligt",
+                    "Stadtkreis 11: OTP 83%, Ø 68,3 s, strukturell benachteiligt",
                     "Separates OTP-Tracking auf Haltestellenebene ermöglicht Frühindikation",
                     "Kombination mit Vorhersagemodell: proaktive Steuerung statt reaktive Entstörung"
                   ]
