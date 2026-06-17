@@ -21,8 +21,8 @@
 **Datengetriebenes Analyse- und ML-Projekt**
 
 * **94,4 M** — Halt-Ereignisse 2023–2025
-* **87 %** — OTP · Ziel: 95%
-* **71.3%** — Haltestellen ohne Puffer
+* **87 %** — OTP · Ziel: 95 %
+* **71,3 %** — Haltestellen ohne Puffer
 * **18,56 s** — Vorhersage-MAE LightGBM v2
 
 ## Inhalt
@@ -44,7 +44,7 @@
 ## Die Ausgangssituation
 *8 Prozentpunkte unter dem selbstgesteckten Ziel des VBZ*
 
-* **95%** — VBZ-Ziel
+* **95 %** — VBZ-Ziel
 bis 2028
   - VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)
 * *87 %* — OTP 2023–2025
@@ -82,9 +82,9 @@ analysiert
 ## Die Erkenntnis
 *Kein Puffer im Fahrplan, die Verspätung kaskadiert*
 
-* **71.5%** — Halte die Delay akkumulieren
-* **L11** — 68,7 s · OTP 82% — stärkste Akkumulation
-* **71.3%** — Haltestellen ohne Standzeit
+* **71,5 %** — Halte die Delay akkumulieren
+* **L11** — 68,7 s · OTP 82 % — stärkste Akkumulation
+* **71,3 %** — Haltestellen ohne Standzeit
 * **r ≥ 0.85** — Kaskadenkorrelation alle 16 Linien
 > Das ist kein Betriebsversagen. Es ist ein Fahrplan-Design-Thema. Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden.
 > Zwei externe Einflussfaktoren sind messbar und erheblich: Schnee (+54s) und Grossevents (bis +66s bei Fachmessen). Doch das Grundniveau der Verspätung bleibt auch bei optimalen Bedingungen konstant hoch. Externe Faktoren verstärken, was intern bereits strukturell angelegt ist.
@@ -105,7 +105,7 @@ analysiert
 
 * **41 Mio.** — Trainings-Fahrten 2023 bis Mitte 2024
 * **~29 Mio.** — Test-Fahrten, vollständiges Jahr 2025
-* **−63%** — Verbesserung vs. Baseline (Stop Mean)
+* **−63 %** — Verbesserung vs. Baseline (Stop Mean)
 > Kalibrierter Bias: −0,69 Sekunden, nahezu verzerrungsfrei. Trainiert auf Consumer-Hardware in ca. 18 Minuten.
 
 ## Das Modell
@@ -131,7 +131,7 @@ analysiert
 *Die Verspätungen im Zürcher Tramnetz folgen klaren Mustern. Das Fahrplan-Design ist die Ursache und der Hebel. Vier Handlungsempfehlungen sind durch die Daten direkt begründet.*
 
 * **87 %** — OTP heute
-* **95%** — VBZ-Ziel 2028
+* **95 %** — VBZ-Ziel 2028
 
 
 ---
@@ -174,6 +174,6 @@ analysiert
 **Datengetriebenes Analyse- und ML-Projekt**
 
 * **94,4 M** — Halt-Ereignisse 2023–2025
-* **87 %** — OTP · Ziel: 95%
-* **71.3%** — Haltestellen ohne Puffer
+* **87 %** — OTP · Ziel: 95 %
+* **71,3 %** — Haltestellen ohne Puffer
 * **18,56 s** — Vorhersage-MAE LightGBM v2

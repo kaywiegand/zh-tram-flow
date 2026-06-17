@@ -113,7 +113,7 @@
 <section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)" data-chapter="0">
   <h1>Zurich Tram Flow</h1>
   <div class="sub">Das Projekt als End-to-End ML Case<br><span style="opacity:0.3;">·</span><br>Data Engineering · EDA · Feature Engineering · LightGBM</div>
-  <div class="kpi-row"><div class="kpi"><div class="v">94,4 M</div><div class="l">Halt-Ereignisse<br>4 Datenquellen</div></div><div class="kpi"><div class="v">50,0 s</div><div class="l">Baseline MAE<br>(Stop Mean)</div></div><div class="kpi green"><div class="v">18,56 s</div><div class="l">LightGBM v2 MAE<br>Test 2025</div></div><div class="kpi green"><div class="v">−63%</div><div class="l">Verbesserung<br>vs. Baseline</div></div></div>
+  <div class="kpi-row"><div class="kpi"><div class="v">94,4 M</div><div class="l">Halt-Ereignisse<br>4 Datenquellen</div></div><div class="kpi"><div class="v">50,0 s</div><div class="l">Baseline MAE<br>(Stop Mean)</div></div><div class="kpi green"><div class="v">18,56 s</div><div class="l">LightGBM v2 MAE<br>Test 2025</div></div><div class="kpi green"><div class="v">−63 %</div><div class="l">Verbesserung<br>vs. Baseline</div></div></div>
   <div class="meta">Kay Wiegand · github.com/kaywiegand/zh-tram-flow</div>
 </section>
 <section data-chapter="0">
@@ -123,8 +123,8 @@
 </section>
 <section data-chapter="1">
   <h2>Ausgangssituation</h2>
-  <span class="subline">OTP 87 % netzweit, Ziel 95% bis 2028 — Analyse vor Modellierung</span>
-  <div class="mrow"><div class="m red"><div class="v">87</div><div class="l">OTP netzweit<br>2023–2025</div></div><div class="m red"><div class="v">−8 PP</div><div class="l">Lücke zum<br>VBZ-Ziel 95%</div></div><div class="m amber"><div class="v">56,3 s</div><div class="l">Ø Ankunfts-<br>verspätung</div></div><div class="m amber"><div class="v">71,5 %</div><div class="l">Halte akkumulieren<br>Delay</div></div></div>
+  <span class="subline">OTP 87 % netzweit, Ziel 95 % bis 2028 — Analyse vor Modellierung</span>
+  <div class="mrow"><div class="m red"><div class="v">87</div><div class="l">OTP netzweit<br>2023–2025</div></div><div class="m red"><div class="v">−8 PP</div><div class="l">Lücke zum<br>VBZ-Ziel 95 %</div></div><div class="m amber"><div class="v">56,3 s</div><div class="l">Ø Ankunfts-<br>verspätung</div></div><div class="m amber"><div class="v">71,5 %</div><div class="l">Halte akkumulieren<br>Delay</div></div></div>
   <div class="box" style="margin-top:14px;"><strong>Schritt 1 — Analyse der Entstehungsmuster und Einflussfaktoren:</strong> Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition</div>
   <div class="box green" style="margin-top:8px;"><strong>Schritt 2 — Verspätungen vorhersagen:</strong> arrival_delay in Sekunden — direkt kommunizierbar, kein Schwellwert-Bias. Temporaler Split, kein Shuffle</div>
 </section>
@@ -146,7 +146,7 @@
 </section>
 <section data-chapter="4">
   <h2>Feature Engineering</h2>
-  <span class="subline">34 Features in v1, 36 in v2 — zwei neue Features erklären −63% MAE</span>
+  <span class="subline">34 Features in v1, 36 in v2 — zwei neue Features erklären −63 % MAE</span>
   <div class="pf-grid"><div class="pf-card"><div class="pf-title">Temporale Features (v1)</div><ul><li>hour, weekday, month, season, year</li><li>is_weekend, is_november, is_holiday</li><li>is_late_night_weekend (Kombi-Feature)</li></ul></div><div class="pf-card"><div class="pf-title">Netz-Features (v1)</div><ul><li>line_name, stop_name (native categoricals)</li><li>district_nr, n_lines_at_stop, n_stops_line</li><li>is_start_stop, is_end_stop, dwell_time</li></ul></div><div class="pf-card"><div class="pf-title">Externe Features (v1)</div><ul><li>temperature, precipitation, wind_speed</li><li>has_rain, has_heavy_rain, has_snow, is_hot</li><li>has_event, event_type, event_size, event_weight</li></ul></div><div class="pf-card"><div class="pf-title">Kaskaden-Features (neu in v2)</div><ul><li><strong>prev_trip_delay:</strong> Verspätung des Vorgänger-Trips, echtzeit-verfügbar</li><li><strong>stop_sequence_pct:</strong> normierter Streckenfortschritt (0–1), linienübergreifend lernbar</li><li>Ergebnis: MAE 45,7 s → 18,56 s (−31,4 s)</li></ul></div></div>
 </section>
 <section data-chapter="5">

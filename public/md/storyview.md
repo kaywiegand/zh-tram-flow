@@ -21,9 +21,9 @@
 **Data Engineering · EDA · Machine Learning · Dashboard**
 
 * **94,4 M** — Halt-Ereignisse
-* **87 %** — OTP heute · Ziel: 95%
+* **87 %** — OTP heute · Ziel: 95 %
 * **18,56 s** — MAE LightGBM v2
-* **−63%** — vs. Baseline
+* **−63 %** — vs. Baseline
 
 ## Die These
 *Ein Satz, der das gesamte Projekt trägt*
@@ -50,9 +50,9 @@
 ## Die Ausgangsfrage
 *Eine einfache Beobachtung, eine konkrete Frage*
 
-> Das Zürcher Tramnetz operiert mit 87 % OTP systemisch unter dem VBZ-Zielwert von 95%. An 71.5% aller Halte akkumulieren Trams Verspätung. Das ist kein Wetter- und kein Event-Problem. Die Frage: Wo entsteht die Verspätung wirklich — und ist sie vorhersagbar?
+> Das Zürcher Tramnetz operiert mit 87 % OTP systemisch unter dem VBZ-Zielwert von 95 %. An 71,5 % aller Halte akkumulieren Trams Verspätung. Das ist kein Wetter- und kein Event-Problem. Die Frage: Wo entsteht die Verspätung wirklich — und ist sie vorhersagbar?
 * *87 %* — OTP netzweit 2023–2025
-* **95%** — VBZ-Ziel bis 2028
+* **95 %** — VBZ-Ziel bis 2028
 * **−8 PP** — Strukturelle Lücke
 * **56,3 s** — Ø Ankunftsverspätung
 
@@ -112,9 +112,9 @@
 ## Die Erkenntnis
 *Kein Puffer im Fahrplan, die Verspätung kaskadiert — in vier Schritten bewiesen*
 
-* **71.5%** — Halte akkumulieren Delay
-* **L11** — 68,7 s · OTP 82%, stärkste Akkumulation
-* **71.3%** — Haltestellen ohne Standzeit (0s)
+* **71,5 %** — Halte akkumulieren Delay
+* **L11** — 68,7 s · OTP 82 %, stärkste Akkumulation
+* **71,3 %** — Haltestellen ohne Standzeit (0s)
 * **r ≥ 0.85** — Kaskadenkorrelation alle 16 Linien
 
 
@@ -183,7 +183,7 @@
 *Ein Projekt, das zeigt: Datengetriebene Analyse ist kein akademisches Artefakt — sie liefert operative Entscheidungsgrundlagen.*
 
 * **87 %** — OTP heute
-* **95%** — VBZ-Ziel 2028
+* **95 %** — VBZ-Ziel 2028
 
 ## Zürich Tram Flow
 *Kay Wiegand · 2023–2025*
@@ -193,4 +193,4 @@
 * **66** — Befunde
 * **12** — Notebooks
 * **18,56 s** — MAE · LightGBM v2
-* **−63%** — vs. Baseline
+* **−63 %** — vs. Baseline

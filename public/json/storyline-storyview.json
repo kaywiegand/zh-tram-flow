@@ -27,9 +27,9 @@
               "type": "figures",
               "items": [
                 { "value": "94,4 M", "label": "Halt-Ereignisse",            "sentiment": "neutral" },
-                { "value": "87 %",   "label": "OTP heute · Ziel: 95%",      "sentiment": "negative" },
+                { "value": "87 %",   "label": "OTP heute · Ziel: 95 %",      "sentiment": "negative" },
                 { "value": "18,56 s", "label": "MAE LightGBM v2",            "sentiment": "positive" },
-                { "value": "−63%",  "label": "vs. Baseline",               "sentiment": "positive" }
+                { "value": "−63 %",  "label": "vs. Baseline",               "sentiment": "positive" }
               ]
             }
           ]
@@ -76,13 +76,13 @@
       "slides": [
         {
           "title": "Ausgangssituation",
-          "subtitle": "OTP 87 %, Ziel 95% — das Projekt folgt einer sequenziellen Logik",
+          "subtitle": "OTP 87 %, Ziel 95 % — das Projekt folgt einer sequenziellen Logik",
           "content": [
             {
               "type": "figures",
               "items": [
                 { "value": "87 %", "label": "OTP netzweit 2023–2025",  "sentiment": "negative" },
-                { "value": "95%",   "label": "VBZ-Ziel bis 2028",        "sentiment": "positive" },
+                { "value": "95 %",   "label": "VBZ-Ziel bis 2028",        "sentiment": "positive" },
                 { "value": "−8 PP", "label": "Strukturelle Lücke",       "sentiment": "negative" },
                 { "value": "56,3 s", "label": "Ø Ankunftsverspätung",     "sentiment": "warning" }
               ]
@@ -98,7 +98,7 @@
                 {
                   "step": "2",
                   "label": "Verspätungen vorhersagen",
-                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s, −63% vs. Baseline"
+                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s, −63 % vs. Baseline"
                 }
               ]
             }
@@ -256,9 +256,9 @@
             {
               "type": "figures",
               "items": [
-                { "value": "71.5%",    "label": "Halte akkumulieren Delay",          "sentiment": "warning" },
-                { "value": "L11",      "label": "68,7 s · OTP 82%, stärkste Akkumulation", "sentiment": "negative" },
-                { "value": "71.3%",    "label": "Haltestellen ohne Standzeit (0s)", "sentiment": "warning" },
+                { "value": "71,5 %",    "label": "Halte akkumulieren Delay",          "sentiment": "warning" },
+                { "value": "L11",      "label": "68,7 s · OTP 82 %, stärkste Akkumulation", "sentiment": "negative" },
+                { "value": "71,3 %",    "label": "Haltestellen ohne Standzeit (0s)", "sentiment": "warning" },
                 { "value": "r ≥ 0.85", "label": "Kaskadenkorrelation alle 16 Linien", "sentiment": "negative" }
               ]
             },
@@ -275,7 +275,7 @@
                 },
                 {
                   "label": "Mechanismus",
-                  "text": "71.3% aller Haltestellen: 0s dwell_time. Kein Puffer eingebaut, keine Möglichkeit zur Erholung."
+                  "text": "71,3 % aller Haltestellen: 0s dwell_time. Kein Puffer eingebaut, keine Möglichkeit zur Erholung."
                 },
                 {
                   "label": "Kaskade",
@@ -306,7 +306,7 @@
               "rows": [
                 { "cells": ["Baseline (Stop Mean)", "—",   "50,0 s", "Ausgangspunkt"],       "highlight": false },
                 { "cells": ["LightGBM v1",          "34",  "45,7 s", "−4,3 s"],               "highlight": false },
-                { "cells": ["LightGBM v2",          "36",  "18,56 s", "−31,4 s (−63%)"],       "highlight": true }
+                { "cells": ["LightGBM v2",          "36",  "18,56 s", "−31,4 s (−63 %)"],       "highlight": true }
               ]
             }
           ]
@@ -398,9 +398,9 @@
                   "category": "R1 · Fahrplan-Design",
                   "title": "Standzeit-Puffer L11 an Koppelstellen",
                   "points": [
-                    "71.3% aller Haltestellen: dwell_time = 0s — Root Cause identifiziert",
+                    "71,3 % aller Haltestellen: dwell_time = 0s — Root Cause identifiziert",
                     "+10s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt",
-                    "L11: OTP 82%, Ø 68,7 s — Hebel Nr. 1 aus Analyse und Modell"
+                    "L11: OTP 82 %, Ø 68,7 s — Hebel Nr. 1 aus Analyse und Modell"
                   ]
                 },
                 {
@@ -425,7 +425,7 @@
                   "category": "R4 · Monitoring",
                   "title": "Stadtkreise 11 und 12 als strukturelle Prioritätszonen",
                   "points": [
-                    "Kreis 11: OTP 83%, Ø 68,3 s — strukturell benachteiligt, nicht situativ",
+                    "Kreis 11: OTP 83 %, Ø 68,3 s — strukturell benachteiligt, nicht situativ",
                     "OTP-Tracking auf Haltestellenebene ermöglicht Frühindikation",
                     "Kombination mit Prediction-Modell: proaktive Steuerung statt reaktive Entstörung"
                   ]
@@ -510,7 +510,7 @@
               "type": "figures",
               "items": [
                 { "value": "87 %", "label": "OTP heute", "sentiment": "negative" },
-                { "value": "95%", "label": "VBZ-Ziel 2028", "sentiment": "positive" }
+                { "value": "95 %", "label": "VBZ-Ziel 2028", "sentiment": "positive" }
               ]
             }
           ]
@@ -528,7 +528,7 @@
                 { "value": "66",    "label": "Befunde",             "sentiment": "neutral" },
                 { "value": "12",    "label": "Notebooks",           "sentiment": "neutral" },
                 { "value": "18,56 s", "label": "MAE · LightGBM v2",  "sentiment": "positive" },
-                { "value": "−63%",  "label": "vs. Baseline",        "sentiment": "positive" }
+                { "value": "−63 %",  "label": "vs. Baseline",        "sentiment": "positive" }
               ]
             },
             {

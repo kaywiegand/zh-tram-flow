@@ -18,12 +18,12 @@
 # Zurich Tram Flow
 
 **Predictive Analytics für das Zürcher Tramnetz**
-**94,4 M Halt-Ereignisse · −63% MAE · Vier Handlungsfelder**
+**94,4 M Halt-Ereignisse · −63 % MAE · Vier Handlungsfelder**
 
 * **94,4 M** — Halt-Ereignisse 2023–2025
-* **87 %** — OTP Status Quo vs. 95% Ziel
+* **87 %** — OTP Status Quo vs. 95 % Ziel
 * **18,56 s** — LightGBM MAE Vorhersagegenauigkeit
-* **−63%** — Verbesserung vs. Baseline
+* **−63 %** — Verbesserung vs. Baseline
 
 
 ---
@@ -33,7 +33,7 @@
 ## Die Frage
 *Sind Tramverspätungen vorhersagbar? Welche Muster stecken in den Daten?*
 
-Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87 %, Ziel 95% bis 2028. Wenn Verspätungen Mustern folgen, können wir:
+Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87 %, Ziel 95 % bis 2028. Wenn Verspätungen Mustern folgen, können wir:
 
 
 ---
@@ -48,7 +48,7 @@ Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87 %, Zi
   - Pearson r ≥ 0.85 über alle 16 Linien — nicht Zufall
   - Bedeutung: Wenn wir die Kette unterbrechen, stabilisiert sich das Gesamtsystem
 * **✓ Das System hat keinen Puffer eingebaut**
-  - 71.3% aller Halte haben dwell_time = 0s — keine Möglichkeit zur Selbstkorrektur
+  - 71,3 % aller Halte haben dwell_time = 0s — keine Möglichkeit zur Selbstkorrektur
   - Linie 11 an Koppelstellen am stärksten betroffen
   - Bedeutung: Fahrplan-Design ist die Ursache — und damit der Hebel
 * **✓ Verspätungen entstehen systematisch an der Peripherie — nicht im Zentrum**

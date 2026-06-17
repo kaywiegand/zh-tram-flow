@@ -29,7 +29,7 @@
                 { "value": "94,4 M", "label": "Halt-Ereignisse, 4 Datenquellen", "sentiment": "neutral" },
                 { "value": "50,0 s", "label": "Baseline MAE (Stop Mean)",         "sentiment": "neutral" },
                 { "value": "18,56 s", "label": "LightGBM v2 MAE (Test 2025)",     "sentiment": "positive" },
-                { "value": "−63%",  "label": "Verbesserung vs. Baseline",        "sentiment": "positive" }
+                { "value": "−63 %",  "label": "Verbesserung vs. Baseline",        "sentiment": "positive" }
               ]
             }
           ]
@@ -78,15 +78,15 @@
       "slides": [
         {
           "title": "Ausgangssituation",
-          "subtitle": "OTP 87 % netzweit, Ziel 95% bis 2028 — Analyse vor Modellierung",
+          "subtitle": "OTP 87 % netzweit, Ziel 95 % bis 2028 — Analyse vor Modellierung",
           "content": [
             {
               "type": "figures",
               "items": [
                 { "value": "87 %",   "label": "OTP netzweit 2023–2025",       "sentiment": "negative" },
-                { "value": "−8 PP",   "label": "Lücke zum VBZ-Ziel 95%",       "sentiment": "negative" },
+                { "value": "−8 PP",   "label": "Lücke zum VBZ-Ziel 95 %",       "sentiment": "negative" },
                 { "value": "56,3 s",   "label": "Ø Ankunftsverspätung",          "sentiment": "warning" },
-                { "value": "71.5%",   "label": "Halte akkumulieren Delay",      "sentiment": "warning" }
+                { "value": "71,5 %",   "label": "Halte akkumulieren Delay",      "sentiment": "warning" }
               ]
             },
             {
@@ -251,7 +251,7 @@
                   "points": [
                     "prev_trip_delay: Verspätung des Vorgänger-Trips an diesem Halt — echtzeit-verfügbar",
                     "stop_sequence_pct: normierter Streckenfortschritt (0–1) — linienübergreifend lernbar",
-                    "Ergebnis: MAE 45,7 s → 18,56 s, −63%"
+                    "Ergebnis: MAE 45,7 s → 18,56 s, −63 %"
                   ]
                 }
               ]
@@ -300,13 +300,13 @@
               "columns": ["Version", "Neue Features", "MAE (Test)", "MBE (Test)", "OTP-Verbesserung"],
               "rows": [
                 { "cells": ["Baseline (Stop Mean)", "—",                                        "50,0 s", "—",      "—"],        "highlight": false },
-                { "cells": ["LightGBM v1",          "34 Features (Zeit · Wetter · Netz)",       "45,7 s", "+8,3 s",  "71.9% → 77.5%"], "highlight": false },
+                { "cells": ["LightGBM v1",          "34 Features (Zeit · Wetter · Netz)",       "45,7 s", "+8,3 s",  "71,9 % → 77,5 %"], "highlight": false },
                 { "cells": ["LightGBM v2",          "+prev_trip_delay, +stop_sequence_pct",     "18,56 s", "−0,69 s", "→ kalibriert"], "highlight": true }
               ]
             },
             {
               "type": "statement",
-              "text": "v1 war systematisch zu optimistisch (MBE +8,3 s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0,69 s. Der MAE-Sprung von 45,7 s auf 18,56 s entspricht −63% und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.",
+              "text": "v1 war systematisch zu optimistisch (MBE +8,3 s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0,69 s. Der MAE-Sprung von 45,7 s auf 18,56 s entspricht −63 % und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.",
               "sentiment": "positive"
             }
           ]
@@ -379,7 +379,7 @@
                 },
                 {
                   "assumption": "Offen: Ensemble / Stacking",
-                  "finding": "Nicht evaluiert. LightGBM v2 allein liefert bereits −63% vs. Baseline. Ensemble-Ansätze wären nächste Iteration."
+                  "finding": "Nicht evaluiert. LightGBM v2 allein liefert bereits −63 % vs. Baseline. Ensemble-Ansätze wären nächste Iteration."
                 }
               ]
             }
@@ -402,7 +402,7 @@
                   "category": "R1 · Fahrplan-Design",
                   "title": "Standzeit-Puffer L11 an Koppelstellen",
                   "points": [
-                    "dwell_time = 0s an 71.3% aller Haltestellen ist das Root-Cause-Feature",
+                    "dwell_time = 0s an 71,3 % aller Haltestellen ist das Root-Cause-Feature",
                     "L11 zeigt stärksten Kaskadeneffekt: prev_trip_delay ist dominantes Feature",
                     "+10s Puffer an 3–5 Koppelstellen unterbricht den Feedback-Loop"
                   ]
@@ -451,7 +451,7 @@
                 { "value": "~29M",   "label": "Test-Fahrten (2025)", "sentiment": "neutral" },
                 { "value": "36",     "label": "Features (v2)",       "sentiment": "neutral" },
                 { "value": "18,56 s",  "label": "MAE · LightGBM v2",  "sentiment": "positive" },
-                { "value": "−63%",   "label": "vs. Baseline",        "sentiment": "positive" }
+                { "value": "−63 %",   "label": "vs. Baseline",        "sentiment": "positive" }
               ]
             },
             {

@@ -27,8 +27,8 @@
               "type": "figures",
               "items": [
                 { "value": "94,4 M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
-                { "value": "87 %",   "label": "OTP · Ziel: 95%",           "sentiment": "negative" },
-                { "value": "71.3%", "label": "Haltestellen ohne Puffer",   "sentiment": "warning" },
+                { "value": "87 %",   "label": "OTP · Ziel: 95 %",           "sentiment": "negative" },
+                { "value": "71,3 %", "label": "Haltestellen ohne Puffer",   "sentiment": "warning" },
                 { "value": "18,56 s", "label": "Vorhersage-MAE LightGBM v2", "sentiment": "positive" }
               ]
             }
@@ -72,7 +72,7 @@
                   "context": "Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend."
                 },
                 {
-                  "value": "95%",
+                  "value": "95 %",
                   "label": "VBZ-Ziel\nbis 2028",
                   "sentiment": "positive",
                   "context": "VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)"
@@ -102,7 +102,7 @@
                 {
                   "step": "2",
                   "label": "Verspätungen vorhersagen",
-                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s, −63% vs. Baseline"
+                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s, −63 % vs. Baseline"
                 },
                 {
                   "step": "3",
@@ -123,7 +123,7 @@
                 {
                   "label": "OTP nach Tramlinien",
                   "source": "target-otp-per-line",
-                  "caption": "OTP nach Tramlinien, 2023–2025. Alle 16 Linien liegen unter dem 95%-Ziel."
+                  "caption": "OTP nach Tramlinien, 2023–2025. Alle 16 Linien liegen unter dem 95 %-Ziel."
                 },
                 {
                   "label": "OTP Jahresverlauf",
@@ -197,9 +197,9 @@
             {
               "type": "figures",
               "items": [
-                { "value": "71.5%", "label": "Halte die Delay akkumulieren", "sentiment": "warning" },
-                { "value": "L11",   "label": "68,7 s · OTP 82% — stärkste Akkumulation", "sentiment": "negative" },
-                { "value": "71.3%", "label": "Haltestellen ohne Standzeit", "sentiment": "warning" },
+                { "value": "71,5 %", "label": "Halte die Delay akkumulieren", "sentiment": "warning" },
+                { "value": "L11",   "label": "68,7 s · OTP 82 % — stärkste Akkumulation", "sentiment": "negative" },
+                { "value": "71,3 %", "label": "Haltestellen ohne Standzeit", "sentiment": "warning" },
                 { "value": "r ≥ 0.85", "label": "Kaskadenkorrelation alle 16 Linien", "sentiment": "negative" }
               ]
             },
@@ -216,7 +216,7 @@
                 },
                 {
                   "label": "Mechanismus",
-                  "text": "71.3% aller Haltestellen haben 0 Sekunden eingeplante Standzeit. Kein Puffer, keine Erholung möglich."
+                  "text": "71,3 % aller Haltestellen haben 0 Sekunden eingeplante Standzeit. Kein Puffer, keine Erholung möglich."
                 },
                 {
                   "label": "Kaskade",
@@ -257,7 +257,7 @@
               "rows": [
                 { "cells": ["Baseline (Stop Mean)", "—", "50,0 s", "Ausgangspunkt"], "highlight": false },
                 { "cells": ["LightGBM v1 — Zeit · Wetter · Netz-Features · kein Live-Signal · MBE +8,3 s", "34", "45,7 s", "−4,3 s"], "highlight": false },
-                { "cells": ["LightGBM v2 — +prev_trip_delay · +stop_sequence_pct · Isotonic-Kalibrierung · MBE −0,69 s", "36", "18,56 s", "−31,4 s (−63%)"], "highlight": true }
+                { "cells": ["LightGBM v2 — +prev_trip_delay · +stop_sequence_pct · Isotonic-Kalibrierung · MBE −0,69 s", "36", "18,56 s", "−31,4 s (−63 %)"], "highlight": true }
               ]
             },
             {
@@ -277,7 +277,7 @@
               "items": [
                 { "value": "41 Mio.", "label": "Trainings-Fahrten 2023 bis Mitte 2024", "sentiment": "neutral" },
                 { "value": "~29 Mio.", "label": "Test-Fahrten, vollständiges Jahr 2025", "sentiment": "neutral" },
-                { "value": "−63%", "label": "Verbesserung vs. Baseline (Stop Mean)", "sentiment": "positive" }
+                { "value": "−63 %", "label": "Verbesserung vs. Baseline (Stop Mean)", "sentiment": "positive" }
               ]
             },
             {
@@ -339,7 +339,7 @@
                   "priority": 1,
                   "title": "Gezielte Standzeit-Puffer auf Linie 11",
                   "points": [
-                    "L11: OTP 82%, Ø 68,7 s, kein einziger Puffer auf der gesamten Strecke",
+                    "L11: OTP 82 %, Ø 68,7 s, kein einziger Puffer auf der gesamten Strecke",
                     "Bereits 10 Sekunden an 3 bis 5 kritischen Koppelstellen unterbrechen die Kaskade",
                     "Nachgewiesener Hebel Nr. 1, direkt auf Fahrplandaten gestützt"
                   ]
@@ -369,7 +369,7 @@
                   "priority": 2,
                   "title": "Stadtkreise 11 und 12 als strukturelle Prioritätszonen",
                   "points": [
-                    "Stadtkreis 11: OTP 83%, Ø 68,3 s, strukturell benachteiligt",
+                    "Stadtkreis 11: OTP 83 %, Ø 68,3 s, strukturell benachteiligt",
                     "Separates OTP-Tracking auf Haltestellenebene ermöglicht Frühindikation",
                     "Kombination mit Vorhersagemodell: proaktive Steuerung statt reaktive Entstörung"
                   ]
@@ -410,7 +410,7 @@
               "type": "figures",
               "items": [
                 { "value": "87 %", "label": "OTP heute", "sentiment": "negative" },
-                { "value": "95%", "label": "VBZ-Ziel 2028", "sentiment": "positive" }
+                { "value": "95 %", "label": "VBZ-Ziel 2028", "sentiment": "positive" }
               ]
             }
           ]
@@ -487,8 +487,8 @@
               "type": "figures",
               "items": [
                 { "value": "94,4 M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
-                { "value": "87 %",   "label": "OTP · Ziel: 95%",           "sentiment": "negative" },
-                { "value": "71.3%", "label": "Haltestellen ohne Puffer",   "sentiment": "warning" },
+                { "value": "87 %",   "label": "OTP · Ziel: 95 %",           "sentiment": "negative" },
+                { "value": "71,3 %", "label": "Haltestellen ohne Puffer",   "sentiment": "warning" },
                 { "value": "18,56 s", "label": "Vorhersage-MAE LightGBM v2", "sentiment": "positive" }
               ]
             }

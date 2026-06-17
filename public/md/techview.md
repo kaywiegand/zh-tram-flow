@@ -23,7 +23,7 @@
 * **94,4 M** — Halt-Ereignisse, 4 Datenquellen
 * **50,0 s** — Baseline MAE (Stop Mean)
 * **18,56 s** — LightGBM v2 MAE (Test 2025)
-* **−63%** — Verbesserung vs. Baseline
+* **−63 %** — Verbesserung vs. Baseline
 
 ## Inhalt
 *Sechs Abschnitte, ein durchgehender ML-Workflow*
@@ -51,12 +51,12 @@
 ### Ausgangssituation
 
 ## Ausgangssituation
-*OTP 87 % netzweit, Ziel 95% bis 2028, strukturelles Defizit*
+*OTP 87 % netzweit, Ziel 95 % bis 2028, strukturelles Defizit*
 
 * *87 %* — OTP netzweit 2023–2025
-* **−8 PP** — Lücke zum VBZ-Ziel 95%
+* **−8 PP** — Lücke zum VBZ-Ziel 95 %
 * **56,3 s** — Ø Ankunftsverspätung
-* **71.5%** — Halte akkumulieren Delay
+* **71,5 %** — Halte akkumulieren Delay
 > Ziel: arrival_delay in Sekunden vorhersagen — direkt kommunizierbar, kein Schwellwert-Bias. Split: temporal (kein Shuffle). Train 2023–Jun 2024 / Val Jul–Dez 2024 / Test 2025.
 
 
@@ -121,7 +121,7 @@
 * **Kaskaden-Features (neu in v2)**
   - prev_trip_delay: Verspätung des Vorgänger-Trips an diesem Halt — echtzeit-verfügbar
   - stop_sequence_pct: normierter Streckenfortschritt (0–1) — linienübergreifend lernbar
-  - Ergebnis: MAE 45,7 s → 18,56 s, −63%
+  - Ergebnis: MAE 45,7 s → 18,56 s, −63 %
 
 
 ---
@@ -135,7 +135,7 @@
 ## Modellauswahl und -Anpassung
 *v1 zu v2: der Sprung kam aus der Analyse, nicht aus dem Algorithmus*
 
-> v1 war systematisch zu optimistisch (MBE +8,3 s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0,69 s. Der MAE-Sprung von 45,7 s auf 18,56 s entspricht −63% und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.
+> v1 war systematisch zu optimistisch (MBE +8,3 s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0,69 s. Der MAE-Sprung von 45,7 s auf 18,56 s entspricht −63 % und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.
 
 ## Robustheits-Check
 *XGBoost-Vergleich und Stabilitätsprüfung*
@@ -177,4 +177,4 @@
 * **~29 M** — Test-Fahrten (2025)
 * **36** — Features (v2)
 * **18,56 s** — MAE · LightGBM v2
-* **−63%** — vs. Baseline
+* **−63 %** — vs. Baseline

@@ -36,7 +36,7 @@ hook:       Der Hauptpeak liegt um 21h (Abreisewelle nach Events) — nicht um 8
 proof:      4-Schritt-Beweiskette:
             1. Anomalie — periphere Hotspots, nicht zentrale Knotenpunkte
             2. Gradient — Delay wächst entlang der Strecke (L11 vs. L6 als Kontrast)
-            3. Mechanismus — 71.3% dwell_time = 0s: kein Puffer, keine Erholung möglich
+            3. Mechanismus — 71,3 % dwell_time = 0s: kein Puffer, keine Erholung möglich
             4. Kaskade — Pearson r ≥ 0.85 netzweit: systematisch, kein Einzelfall
 
 so_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse:
@@ -51,12 +51,12 @@ so_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analy
 ```
 kpi_name:   OTP — On-Time Performance (arrival_delay ≤ 120s)
 kpi_ist:    87
-kpi_soll:   95% (VBZ-Standard / VDPW)
-kpi_gap:    −8pp
+kpi_soll:   95 % (VBZ-Standard / VDPW)
+kpi_gap:    −8 pp
 
 problem_statement: |
   Das Zürcher Tramnetz operiert systemisch unter dem VBZ-Zielwert: 87 % OTP
-  statt 95%. An 71.5% aller Halte akkumulieren Trams Verspätung — und 71.3%
+  statt 95 %. An 71,5 % aller Halte akkumulieren Trams Verspätung — und 71,3 %
   aller Haltestellen haben 0s dwell_time, also keinen eingebauten Puffer.
   Das ist kein Wetter- und kein Event-Problem. Es ist ein Fahrplan-Design-Problem.
 ```
@@ -68,10 +68,10 @@ problem_statement: |
 
 ### F1 — Struktur: Kein Puffer eingebaut
 ```
-finding:   71.5% aller Halte akkumulieren Delay (delay_delta > 0) — weil
-           71.3% der Haltestellen 0s dwell_time haben. Das Netz hat keinen
+finding:   71,5 % aller Halte akkumulieren Delay (delay_delta > 0) — weil
+           71,3 % der Haltestellen 0s dwell_time haben. Das Netz hat keinen
            Erholungsmechanismus eingebaut.
-number:    71.3% dwell_time = 0s
+number:    71,3 % dwell_time = 0s
 source:    03_analysis_1-target.ipynb · 03_analysis_4-spatial.ipynb
 ```
 
@@ -96,7 +96,7 @@ source:    03_analysis_3-temporal.ipynb
 
 ### F4 — Wetter: Schnee geografisch trennbar von Regen
 ```
-finding:   Schnee ist der stärkste Einzeleffekt (+54s, OTP −10.9pp). Geografisch
+finding:   Schnee ist der stärkste Einzeleffekt (+54s, OTP −10,9 pp). Geografisch
            klar trennbar: Schnee trifft Höhenlagen (K10/K4/K12), Regen trifft
            Flusstäler (K5 / Limmat). Linien reagieren komplett unterschiedlich:
            L9 Schnee +75,9 s vs. Regen +10,0 s — L17 umgekehrt.
@@ -154,7 +154,7 @@ test_rows:      ~29 M (inkl. Nov/Dez 2025 — vorher ausgeschlossen, nach Maskie
 |---|---|---|---|---|
 | Stop Mean Baseline | — | 50,0 s | — | Historical stop mean |
 | LightGBM v1 | 34 (Zeit · Wetter · Events · Linie · Stop) | 45,7 s | −4,3 s | Schedule + Weather + Events |
-| LightGBM v2 | 36 (+prev_trip_delay, +stop_sequence_pct) | **18,56 s** | **−31,4 s (−63%)** | + Live-Signal (Vorgänger-Halt) |
+| LightGBM v2 | 36 (+prev_trip_delay, +stop_sequence_pct) | **18,56 s** | **−31,4 s (−63 %)** | + Live-Signal (Vorgänger-Halt) |
 
 ```
 best_model:     LightGBM v2
@@ -165,7 +165,7 @@ key_insight:    prev_trip_delay ist das stärkste neue Feature — bestätigt di
                 → LightGBM klar überlegen bei Trainingszeit.
 mbe_v1:         +8,3 s (Modell war systematisch zu optimistisch)
 mbe_v2:         −0,69 s (Isotonic-Regression-Kalibrierung wirksam)
-otp_v1:         77.5% (vs. Stop-Mean-Baseline 71.9%)
+otp_v1:         77,5 % (vs. Stop-Mean-Baseline 71,9 %)
 ```
 
 ---
@@ -217,14 +217,14 @@ model:
 ```
 r1:
   title:  Fahrplan-Redesign L11 — gezielter Puffer einbauen
-  detail: 71.3% aller Haltestellen haben 0s dwell_time — kein Erholungsmechanismus.
-          L11 (68,7 s, OTP 82%) und ihre Endstationen zeigen die stärkste Akkumulation.
+  detail: 71,3 % aller Haltestellen haben 0s dwell_time — kein Erholungsmechanismus.
+          L11 (68,7 s, OTP 82 %) und ihre Endstationen zeigen die stärkste Akkumulation.
           Selbst +10s Puffer an 3–5 kritischen Koppelstellen würde den Kaskadeneffekt
           unterbrechen (Hebel #1, direkt durch dwell_time=0 und Pearson r ≥ 0.85 gedeckt).
 
 r2:
   title:  Real-Time Dispatch — Kaskadenmodell operativ nutzen
-  detail: LightGBM v2 mit prev_trip_delay erreicht MAE 18,56 s (−63% vs. Baseline).
+  detail: LightGBM v2 mit prev_trip_delay erreicht MAE 18,56 s (−63 % vs. Baseline).
           Das Signal ist echtzeit-verfügbar (Vorgänger-Halt als Input). Dispatchsystem
           könnte automatisch Taktlücken schließen bevor der Kaskadeneffekt entsteht.
 
@@ -237,7 +237,7 @@ r3:
 
 r4:
   title:  OTP-Monitoring nach Stadtkreis — K11/K12 als Priority Zones
-  detail: Kreis 11 (68,3 s, OTP 83%) und Kreis 12 (66,3 s) sind strukturell benachteiligt.
+  detail: Kreis 11 (68,3 s, OTP 83 %) und Kreis 12 (66,3 s) sind strukturell benachteiligt.
           Automatisiertes Alert-System auf Haltestellenebene — kombiniert mit dem
           Prediction-Modell als Frühwarnsignal — ermöglicht proaktive Steuerung
           statt reaktiver Entstörung.
