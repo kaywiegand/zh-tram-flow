@@ -27,7 +27,7 @@
               "type": "figures",
               "items": [
                 { "value": "94.4M", "label": "Halt-Ereignisse",            "sentiment": "neutral" },
-                { "value": "87%",   "label": "OTP heute · Ziel: 95%",      "sentiment": "negative" },
+                { "value": "87 %",   "label": "OTP heute · Ziel: 95%",      "sentiment": "negative" },
                 { "value": "18,56 s", "label": "MAE LightGBM v2",            "sentiment": "positive" },
                 { "value": "−63%",  "label": "vs. Baseline",               "sentiment": "positive" }
               ]
@@ -76,12 +76,12 @@
       "slides": [
         {
           "title": "Ausgangssituation",
-          "subtitle": "OTP 87%, Ziel 95% — das Projekt folgt einer sequenziellen Logik",
+          "subtitle": "OTP 87 %, Ziel 95% — das Projekt folgt einer sequenziellen Logik",
           "content": [
             {
               "type": "figures",
               "items": [
-                { "value": "87%", "label": "OTP netzweit 2023–2025",  "sentiment": "negative" },
+                { "value": "87 %", "label": "OTP netzweit 2023–2025",  "sentiment": "negative" },
                 { "value": "95%",   "label": "VBZ-Ziel bis 2028",        "sentiment": "positive" },
                 { "value": "−8 PP", "label": "Strukturelle Lücke",       "sentiment": "negative" },
                 { "value": "56.3s", "label": "Ø Ankunftsverspätung",     "sentiment": "warning" }
@@ -509,7 +509,7 @@
             {
               "type": "figures",
               "items": [
-                { "value": "87%", "label": "OTP heute", "sentiment": "negative" },
+                { "value": "87 %", "label": "OTP heute", "sentiment": "negative" },
                 { "value": "95%", "label": "VBZ-Ziel 2028", "sentiment": "positive" }
               ]
             }

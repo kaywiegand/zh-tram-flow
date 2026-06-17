@@ -21,7 +21,7 @@
 **Datengetriebenes Analyse- und ML-Projekt**
 
 * **94.4M** — Halt-Ereignisse 2023–2025
-* **87%** — OTP · Ziel: 95%
+* **87 %** — OTP · Ziel: 95%
 * **71.3%** — Haltestellen ohne Puffer
 * **18,56 s** — Vorhersage-MAE LightGBM v2
 
@@ -130,7 +130,7 @@ analysiert
 ## Was vorhersagbar ist, ist steuerbar.
 *Die Verspätungen im Zürcher Tramnetz folgen klaren Mustern. Das Fahrplan-Design ist die Ursache und der Hebel. Vier Handlungsempfehlungen sind durch die Daten direkt begründet.*
 
-* **87%** — OTP heute
+* **87 %** — OTP heute
 * **95%** — VBZ-Ziel 2028
 
 
@@ -174,6 +174,6 @@ analysiert
 **Datengetriebenes Analyse- und ML-Projekt**
 
 * **94.4M** — Halt-Ereignisse 2023–2025
-* **87%** — OTP · Ziel: 95%
+* **87 %** — OTP · Ziel: 95%
 * **71.3%** — Haltestellen ohne Puffer
 * **18,56 s** — Vorhersage-MAE LightGBM v2

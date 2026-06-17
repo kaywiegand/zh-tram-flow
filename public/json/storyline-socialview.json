@@ -27,7 +27,7 @@
               "type": "figures",
               "items": [
                 { "value": "94.4M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
-                { "value": "87%", "label": "OTP Status Quo vs. 95% Ziel", "sentiment": "negative" },
+                { "value": "87 %", "label": "OTP Status Quo vs. 95% Ziel", "sentiment": "negative" },
                 { "value": "18,56 s", "label": "LightGBM MAE Vorhersagegenauigkeit", "sentiment": "positive" },
                 { "value": "−63%", "label": "Verbesserung vs. Baseline", "sentiment": "positive" }
               ]
@@ -42,12 +42,12 @@
       "slides": [
         {
           "title": "Ausgangssituation",
-          "subtitle": "OTP 87%, Ziel 95% — Verstehen, dann Vorhersagen",
+          "subtitle": "OTP 87 %, Ziel 95% — Verstehen, dann Vorhersagen",
           "content": [
             {
               "type": "figures",
               "items": [
-                { "value": "87%",   "label": "OTP Status Quo",           "sentiment": "negative" },
+                { "value": "87 %",   "label": "OTP Status Quo",           "sentiment": "negative" },
                 { "value": "95%",   "label": "VBZ-Ziel bis 2028",        "sentiment": "positive" },
                 { "value": "18,56 s", "label": "Vorhersage-MAE",           "sentiment": "positive" },
                 { "value": "−63%",  "label": "vs. naive Baseline",       "sentiment": "positive" }

@@ -21,7 +21,7 @@
 **94.4M Halt-Ereignisse · −63% MAE · Vier Handlungsfelder**
 
 * **94.4M** — Halt-Ereignisse 2023–2025
-* **87%** — OTP Status Quo vs. 95% Ziel
+* **87 %** — OTP Status Quo vs. 95% Ziel
 * **18,56 s** — LightGBM MAE Vorhersagegenauigkeit
 * **−63%** — Verbesserung vs. Baseline
 
@@ -33,7 +33,7 @@
 ## Die Frage
 *Sind Tramverspätungen vorhersagbar? Welche Muster stecken in den Daten?*
 
-Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87%, Ziel 95% bis 2028. Wenn Verspätungen Mustern folgen, können wir:
+Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87 %, Ziel 95% bis 2028. Wenn Verspätungen Mustern folgen, können wir:
 
 
 ---

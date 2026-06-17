@@ -78,12 +78,12 @@
       "slides": [
         {
           "title": "Ausgangssituation",
-          "subtitle": "OTP 87% netzweit, Ziel 95% bis 2028 — Analyse vor Modellierung",
+          "subtitle": "OTP 87 % netzweit, Ziel 95% bis 2028 — Analyse vor Modellierung",
           "content": [
             {
               "type": "figures",
               "items": [
-                { "value": "87%",   "label": "OTP netzweit 2023–2025",       "sentiment": "negative" },
+                { "value": "87 %",   "label": "OTP netzweit 2023–2025",       "sentiment": "negative" },
                 { "value": "−8 PP",   "label": "Lücke zum VBZ-Ziel 95%",       "sentiment": "negative" },
                 { "value": "56.3s",   "label": "Ø Ankunftsverspätung",          "sentiment": "warning" },
                 { "value": "71.5%",   "label": "Halte akkumulieren Delay",      "sentiment": "warning" }

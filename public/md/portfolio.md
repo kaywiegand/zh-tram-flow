@@ -55,7 +55,7 @@ kpi_soll:   95% (VBZ-Standard / VDPW)
 kpi_gap:    −8pp
 
 problem_statement: |
-  Das Zürcher Tramnetz operiert systemisch unter dem VBZ-Zielwert: 87% OTP
+  Das Zürcher Tramnetz operiert systemisch unter dem VBZ-Zielwert: 87 % OTP
   statt 95%. An 71.5% aller Halte akkumulieren Trams Verspätung — und 71.3%
   aller Haltestellen haben 0s dwell_time, also keinen eingebauten Puffer.
   Das ist kein Wetter- und kein Event-Problem. Es ist ein Fahrplan-Design-Problem.

@@ -51,7 +51,7 @@
 ### Ausgangssituation
 
 ## Ausgangssituation
-*OTP 87% netzweit, Ziel 95% bis 2028, strukturelles Defizit*
+*OTP 87 % netzweit, Ziel 95% bis 2028, strukturelles Defizit*
 
 * *87 %* — OTP netzweit 2023–2025
 * **−8 PP** — Lücke zum VBZ-Ziel 95%

@@ -27,7 +27,7 @@
               "type": "figures",
               "items": [
                 { "value": "94.4M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
-                { "value": "87%",   "label": "OTP · Ziel: 95%",           "sentiment": "negative" },
+                { "value": "87 %",   "label": "OTP · Ziel: 95%",           "sentiment": "negative" },
                 { "value": "71.3%", "label": "Haltestellen ohne Puffer",   "sentiment": "warning" },
                 { "value": "18,56 s", "label": "Vorhersage-MAE LightGBM v2", "sentiment": "positive" }
               ]
@@ -66,10 +66,10 @@
               "type": "figures_with_context",
               "items": [
                 {
-                  "value": "87%",
+                  "value": "87 %",
                   "label": "OTP 2023–2025\n(netzweit)",
                   "sentiment": "negative",
-                  "context": "Ist-Zustand 2023–2025: 87 % % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend."
+                  "context": "Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend."
                 },
                 {
                   "value": "95%",
@@ -409,7 +409,7 @@
             {
               "type": "figures",
               "items": [
-                { "value": "87%", "label": "OTP heute", "sentiment": "negative" },
+                { "value": "87 %", "label": "OTP heute", "sentiment": "negative" },
                 { "value": "95%", "label": "VBZ-Ziel 2028", "sentiment": "positive" }
               ]
             }
@@ -487,7 +487,7 @@
               "type": "figures",
               "items": [
                 { "value": "94.4M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
-                { "value": "87%",   "label": "OTP · Ziel: 95%",           "sentiment": "negative" },
+                { "value": "87 %",   "label": "OTP · Ziel: 95%",           "sentiment": "negative" },
                 { "value": "71.3%", "label": "Haltestellen ohne Puffer",   "sentiment": "warning" },
                 { "value": "18,56 s", "label": "Vorhersage-MAE LightGBM v2", "sentiment": "positive" }
               ]
