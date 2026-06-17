@@ -26,7 +26,7 @@
             {
               "type": "figures",
               "items": [
-                { "value": "94.4M", "label": "Halt-Ereignisse",            "sentiment": "neutral" },
+                { "value": "94,4 M", "label": "Halt-Ereignisse",            "sentiment": "neutral" },
                 { "value": "87 %",   "label": "OTP heute · Ziel: 95%",      "sentiment": "negative" },
                 { "value": "18,56 s", "label": "MAE LightGBM v2",            "sentiment": "positive" },
                 { "value": "−63%",  "label": "vs. Baseline",               "sentiment": "positive" }
@@ -122,7 +122,7 @@
                   "points": [
                     "Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025",
                     "Granularität: jede Fahrt, jede Haltestelle, jeder Zeitstempel",
-                    "94.4 Mio. Zeilen — verarbeitet mit Polars (lazy evaluation)"
+                    "94,4 Mio. Zeilen — verarbeitet mit Polars (lazy evaluation)"
                   ]
                 },
                 {
@@ -143,7 +143,7 @@
                   "label": "Event-Kalender",
                   "points": [
                     "Grossveranstaltungen Zürich 2023–2025: Konzerte, Messen, Sport, Feiertage",
-                    "Ergebnis: 94.4 Mio. Zeilen · 26 Features · 541 MB Parquet"
+                    "Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet"
                   ]
                 }
               ]
@@ -451,7 +451,7 @@
                   "label": "Datenbasis und Umfang",
                   "points": [
                     "VBZ IST-Daten · GTFS · Meteo Schweiz · Event-Kalender",
-                    "94.4 Mio. Zeilen · 26 Features · 541 MB Parquet",
+                    "94,4 Mio. Zeilen · 26 Features · 541 MB Parquet",
                     "3 vollständige Betriebsjahre · 16 Linien · ca. 190 Haltestellen",
                     "66 dokumentierte Befunde in 12 Jupyter-Notebooks"
                   ]
@@ -523,7 +523,7 @@
             {
               "type": "figures",
               "items": [
-                { "value": "94.4M", "label": "Halt-Ereignisse",    "sentiment": "neutral" },
+                { "value": "94,4 M", "label": "Halt-Ereignisse",    "sentiment": "neutral" },
                 { "value": "16",    "label": "Tramlinien",          "sentiment": "neutral" },
                 { "value": "66",    "label": "Befunde",             "sentiment": "neutral" },
                 { "value": "12",    "label": "Notebooks",           "sentiment": "neutral" },

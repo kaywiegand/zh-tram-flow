@@ -18,9 +18,9 @@
 # Zurich Tram Flow
 
 **Predictive Analytics für das Zürcher Tramnetz**
-**94.4M Halt-Ereignisse · −63% MAE · Vier Handlungsfelder**
+**94,4 M Halt-Ereignisse · −63% MAE · Vier Handlungsfelder**
 
-* **94.4M** — Halt-Ereignisse 2023–2025
+* **94,4 M** — Halt-Ereignisse 2023–2025
 * **87 %** — OTP Status Quo vs. 95% Ziel
 * **18,56 s** — LightGBM MAE Vorhersagegenauigkeit
 * **−63%** — Verbesserung vs. Baseline
@@ -62,7 +62,7 @@ Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87 %, Zi
 ### Die Datenbasis
 
 ## Die Datenbasis
-*94.4 Millionen Halt-Ereignisse, vier Datenquellen, ein konsistentes Dataset*
+*94,4 Millionen Halt-Ereignisse, vier Datenquellen, ein konsistentes Dataset*
 
 * **VBZ IST-Daten**
   - Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025
@@ -79,7 +79,7 @@ Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87 %, Zi
 
 ## Dataset-Metriken
 
-* **94.4M** — Halt-Ereignisse
+* **94,4 M** — Halt-Ereignisse
 * **36** — Features (LightGBM v2)
 * **541 MB** — Parquet (komprimiert)
 

@@ -26,7 +26,7 @@
             {
               "type": "figures",
               "items": [
-                { "value": "94.4M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
+                { "value": "94,4 M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
                 { "value": "87 %",   "label": "OTP · Ziel: 95%",           "sentiment": "negative" },
                 { "value": "71.3%", "label": "Haltestellen ohne Puffer",   "sentiment": "warning" },
                 { "value": "18,56 s", "label": "Vorhersage-MAE LightGBM v2", "sentiment": "positive" }
@@ -435,7 +435,7 @@
                     "GTFS: Fahrplandaten, Haltestellen-Koordinaten, Liniengeometrien",
                     "Meteo Schweiz: stündliche Messwerte (Temperatur, Niederschlag, Schnee)",
                     "Event-Kalender: Grossveranstaltungen Zürich 2023–2025",
-                    "Ergebnis: 94.4 Mio. Zeilen · 26 Features · 541 MB Parquet"
+                    "Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet"
                   ]
                 },
                 {
@@ -486,7 +486,7 @@
             {
               "type": "figures",
               "items": [
-                { "value": "94.4M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
+                { "value": "94,4 M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
                 { "value": "87 %",   "label": "OTP · Ziel: 95%",           "sentiment": "negative" },
                 { "value": "71.3%", "label": "Haltestellen ohne Puffer",   "sentiment": "warning" },
                 { "value": "18,56 s", "label": "Vorhersage-MAE LightGBM v2", "sentiment": "positive" }

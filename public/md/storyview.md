@@ -20,7 +20,7 @@
 **Von der Frage bis zur Empfehlung**
 **Data Engineering · EDA · Machine Learning · Dashboard**
 
-* **94.4M** — Halt-Ereignisse
+* **94,4 M** — Halt-Ereignisse
 * **87 %** — OTP heute · Ziel: 95%
 * **18,56 s** — MAE LightGBM v2
 * **−63%** — vs. Baseline
@@ -67,7 +67,7 @@
 * **Primärquelle: VBZ IST-Daten**
   - Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025
   - Granularität: jede Fahrt, jede Haltestelle, jeder Zeitstempel
-  - 94.4 Mio. Zeilen — verarbeitet mit Polars (lazy evaluation)
+  - 94,4 Mio. Zeilen — verarbeitet mit Polars (lazy evaluation)
 * **Fahrplandaten: GTFS**
   - Geplante Zeiten, dwell_time, stop_sequence, Liniengeometrien
   - Ermöglicht Berechnung von arrival_delay = IST − SOLL
@@ -76,7 +76,7 @@
   - Flags: has_rain, has_snow, is_hot — für Modell und EDA
 * **Event-Kalender**
   - Grossveranstaltungen Zürich 2023–2025: Konzerte, Messen, Sport, Feiertage
-  - Ergebnis: 94.4 Mio. Zeilen · 26 Features · 541 MB Parquet
+  - Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet
 
 ## Data Engineering
 *Cleaning als Forschungsentscheidung, nicht als Routine*
@@ -163,7 +163,7 @@
 
 * **Datenbasis und Umfang**
   - VBZ IST-Daten · GTFS · Meteo Schweiz · Event-Kalender
-  - 94.4 Mio. Zeilen · 26 Features · 541 MB Parquet
+  - 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet
   - 3 vollständige Betriebsjahre · 16 Linien · ca. 190 Haltestellen
   - 66 dokumentierte Befunde in 12 Jupyter-Notebooks
 * **Technologie-Stack**
@@ -188,7 +188,7 @@
 ## Zürich Tram Flow
 *Kay Wiegand · 2023–2025*
 
-* **94.4M** — Halt-Ereignisse
+* **94,4 M** — Halt-Ereignisse
 * **16** — Tramlinien
 * **66** — Befunde
 * **12** — Notebooks

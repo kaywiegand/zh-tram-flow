@@ -20,13 +20,13 @@
           "title": "Zurich Tram Flow",
           "subtitle": [
             "Predictive Analytics für das Zürcher Tramnetz",
-            "94.4M Halt-Ereignisse · −63% MAE · Vier Handlungsfelder"
+            "94,4 M Halt-Ereignisse · −63% MAE · Vier Handlungsfelder"
           ],
           "content": [
             {
               "type": "figures",
               "items": [
-                { "value": "94.4M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
+                { "value": "94,4 M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
                 { "value": "87 %", "label": "OTP Status Quo vs. 95% Ziel", "sentiment": "negative" },
                 { "value": "18,56 s", "label": "LightGBM MAE Vorhersagegenauigkeit", "sentiment": "positive" },
                 { "value": "−63%", "label": "Verbesserung vs. Baseline", "sentiment": "positive" }
@@ -119,7 +119,7 @@
       "slides": [
         {
           "title": "Die Datenbasis",
-          "subtitle": "94.4 Millionen Halt-Ereignisse, vier Datenquellen, ein konsistentes Dataset",
+          "subtitle": "94,4 Millionen Halt-Ereignisse, vier Datenquellen, ein konsistentes Dataset",
           "content": [
             {
               "type": "sections",
@@ -163,7 +163,7 @@
             {
               "type": "figures",
               "items": [
-                { "value": "94.4M", "label": "Halt-Ereignisse", "sentiment": "neutral" },
+                { "value": "94,4 M", "label": "Halt-Ereignisse", "sentiment": "neutral" },
                 { "value": "36", "label": "Features (LightGBM v2)", "sentiment": "neutral" },
                 { "value": "541 MB", "label": "Parquet (komprimiert)", "sentiment": "neutral" }
               ]
@@ -281,7 +281,7 @@
                   "label": "",
                   "points": [
                     "Echtem Problem: Verspätungen im öffentlichen Verkehr, strukturelles Defizit, klarer Business Case",
-                    "Echten Daten: 94.4M Zeilen, vier Quellen, temporale Struktur",
+                    "Echten Daten: 94,4 M Zeilen, vier Quellen, temporale Struktur",
                     "Echtem Impact: Vier Handlungsfelder direkt aus der Analyse",
                     "Echtem Workflow: Exploration → Hypothesen → Feature Engineering → Modellierung → Validierung → Handlung"
                   ]

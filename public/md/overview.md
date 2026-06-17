@@ -20,7 +20,7 @@
 **Verspätungsvorhersage im Zürcher Tramnetz**
 **Datengetriebenes Analyse- und ML-Projekt**
 
-* **94.4M** — Halt-Ereignisse 2023–2025
+* **94,4 M** — Halt-Ereignisse 2023–2025
 * **87 %** — OTP · Ziel: 95%
 * **71.3%** — Haltestellen ohne Puffer
 * **18,56 s** — Vorhersage-MAE LightGBM v2
@@ -146,7 +146,7 @@ analysiert
   - GTFS: Fahrplandaten, Haltestellen-Koordinaten, Liniengeometrien
   - Meteo Schweiz: stündliche Messwerte (Temperatur, Niederschlag, Schnee)
   - Event-Kalender: Grossveranstaltungen Zürich 2023–2025
-  - Ergebnis: 94.4 Mio. Zeilen · 26 Features · 541 MB Parquet
+  - Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet
 * **Umfang und Zeitaufwand**
   - Zeitraum: 3 vollständige Betriebsjahre (2023, 2024, 2025)
   - 16 Tramlinien, ca. 190 Haltestellen im Netz
@@ -173,7 +173,7 @@ analysiert
 **Verspätungsvorhersage im Zürcher Tramnetz**
 **Datengetriebenes Analyse- und ML-Projekt**
 
-* **94.4M** — Halt-Ereignisse 2023–2025
+* **94,4 M** — Halt-Ereignisse 2023–2025
 * **87 %** — OTP · Ziel: 95%
 * **71.3%** — Haltestellen ohne Puffer
 * **18,56 s** — Vorhersage-MAE LightGBM v2

@@ -20,7 +20,7 @@
 **Das Projekt als End-to-End ML Case**
 **Data Engineering · EDA · Feature Engineering · LightGBM**
 
-* **94.4M** — Halt-Ereignisse, 4 Datenquellen
+* **94,4 M** — Halt-Ereignisse, 4 Datenquellen
 * **50.0s** — Baseline MAE (Stop Mean)
 * **18,56 s** — LightGBM v2 MAE (Test 2025)
 * **−63%** — Verbesserung vs. Baseline
@@ -65,7 +65,7 @@
 ### Datenstrategie
 
 ## Datenstrategie
-*Vier Quellen, ein temporaler Join, 94.4 Millionen Zeilen*
+*Vier Quellen, ein temporaler Join, 94,4 Millionen Zeilen*
 
 * **VBZ IST-Daten (Primärquelle)**
   - Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025
@@ -82,7 +82,7 @@
 * **Event-Kalender**
   - Grossveranstaltungen Zürich 2023–2025: Konzerte, Messen, Sport
   - Kategorisierung: event_type, event_size, event_weight
-  - Ergebnis: 94.4 Mio. Zeilen · 26 Features · 541 MB Parquet
+  - Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet
 
 ## Datenstrategie
 *Cleaning-Entscheidungen und ihre Begründungen*
@@ -172,7 +172,7 @@
 ## Zürich Tram Flow
 *Kay Wiegand · 2023–2025*
 
-* **94.4M** — Halt-Ereignisse
+* **94,4 M** — Halt-Ereignisse
 * **41.2M** — Trainings-Fahrten
 * **~29M** — Test-Fahrten (2025)
 * **36** — Features (v2)
