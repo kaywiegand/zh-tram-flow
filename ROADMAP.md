@@ -40,7 +40,7 @@
 - ✅ Outlier Detection (O1–O5, Vor/Nach-Vergleich Delays, Log-Skala Precipitation)
 - ✅ EDA-Abschluss: Konsolidierte Findings-Tabelle + Feature-Ideen + Cleaning-Prognose
 
-### Analyse-Notebooks (6 Notebooks · 63 Findings)
+### Analyse-Notebooks (6 Notebooks · 66 Findings)
 - ✅ `03_analysis_0-overview.ipynb` — Zentrale Findings, Kernfragen, Executive Summary, Report-Auswahl
 - ✅ `03_analysis_1-target.ipynb` — Delay-Verteilung, OTP 87, Cancellations, lf_clean-Strategie (13 Findings)
 - ✅ `03_analysis_2-network.ipynb` — Netzveränderungen 2023–2025, Hotspots, Versorgungsqualität (9 Findings)
@@ -117,6 +117,7 @@
 - ✅ Encoding-Entscheidung: LightGBM native Categorical für `stop_name`, `line_name`, `event_type`, `season`
 - ✅ `train_features.parquet` + `test_features.parquet` exportiert (55.5M / ~30 M Zeilen, inkl. Nov/Dez 2025)
 - ✅ `train_final.parquet` + `test_final.parquet` exportiert (ML-ready · leaky Spalten entfernt)
+- ✅ **Feature-Count:** v1 = 32 Features · v2 = 34 Features (+prev_trip_delay, +stop_sequence_pct)
 
 ---
 
@@ -158,7 +159,7 @@
 - ✅ Predicted vs. Actual (Hexbin) — Bias visuell greifbar
 
 ### LightGBM v2 + Kaskadenfeature (`06_prediction_4-model_v2.ipynb`) ✅
-- ✅ Feature Engineering: `prev_trip_delay` (Kaskadenindikator) + `stop_sequence_pct` — 2 neue Features
+- ✅ Feature Engineering: `prev_trip_delay` (Kaskadenindikator) + `stop_sequence_pct` — **34 Features total**
 - ✅ Export: `train_final_v2.parquet` + `test_final_v2.parquet` (inkl. Nov/Dez 2025)
 - ✅ Training: LightGBM v2 — identische Hyperparameter, erweitertes Feature-Set
 - ✅ **Test MAE: 18,56 s · MBE −0,69 s** — −63% vs. Stop Mean Baseline (50.0s)

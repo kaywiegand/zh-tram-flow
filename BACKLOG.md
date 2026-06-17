@@ -8,12 +8,13 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 ---
 
-## Artefakte — morgen früh komplett erledigen
+## Portfolio-Aufbereitung — nächste Sessions
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 50 | **`presentation.html` neu generieren** — `/project-case slides` ausführen. Vollständige Slide-Struktur für technisches Publikum. → `presentation-v4.html` (Board-Version) fertig 2026-06-15. | 2 |
-| 51 | **`index.html` als Übersicht neu generieren** — `/project-case report` ausführen. Scan + Dive + Deep-Dive Ebenen mit eingebetteten Charts. Ziel: 150–300 KB. | 1 |
+| 50 | **`overview.html` neu generieren** — `/project-case report` ausführen. Scan + Dive + Deep-Dive Ebenen mit eingebetteten Charts. Ziel: 150–300 KB. | 1 |
+| 51 | **Weitere Presentation Views** — Falls nötig nach Review. Storytelling-JSONs sind Single Source of Truth. | 2 |
+| 60 | **public/pdf/ aufräumen** — PDF-Exporte sind Temp-Dateien (6 MB). Nur Portfolio-relevante PDF behalten, Rest entfernen. | 3 |
 
 ---
 

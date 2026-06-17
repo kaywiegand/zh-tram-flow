@@ -8,6 +8,8 @@
 ![Type](https://img.shields.io/badge/Type-Analysis%20%2B%20Prediction-lightgrey)
 ![Status](https://img.shields.io/badge/Status-Phase%204%20complete-brightgreen)
 
+![Zurich Tram Delay Hotspots](public/img/spatial-stop-delay-map.png)
+
 ---
 
 ## TL;DR
@@ -171,9 +173,10 @@ Strategy: temporal train/test split — 2023–Jun 2024 train / Jul–Dec 2024 v
 
 | Artifact | What it shows |
 | :--- | :--- |
-| [Report](public/report.html) | Full narrative — Scan (30s) · Dive (5min) · Deep-Dive (30min) reading layers |
-| [Presentation](public/presentation.html) | Slide deck for live presentation — pipeline, findings, model, recommendations |
-| [Landing Page](public/landingpage.html) | Non-technical entry point — story without jargon |
+| [Report](public/index.html) | Full narrative — Scan (30s) · Dive (5min) · Deep-Dive (30min) reading layers |
+| [Overview](public/overview.html) | Executive summary — KPIs, key findings, recommendations |
+| [Story View](public/storyview.html) | Narrative perspective — the delay cascade story |
+| [Tech View](public/techview.html) | Technical deep-dive — approach, model, evaluation |
 | [Dashboard](https://zh-tram-flow.streamlit.app) | Interactive map explorer — click any stop, line, or district |
 
 ---

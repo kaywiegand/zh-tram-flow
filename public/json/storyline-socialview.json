@@ -13,7 +13,7 @@
   "chapters": [
 
     {
-      "nav_label": "Headline",
+      "nav_label": "Einstieg",
       "slides": [
         {
           "role": "title",
@@ -264,7 +264,7 @@
     },
 
     {
-      "nav_label": "Portfolio-Wert",
+      "nav_label": "Abschluss",
       "slides": [
         {
           "title": "Portfolio-Wert",
