@@ -1,6 +1,6 @@
-# Zürich Tram Flow
+# Zurich Tram Flow
 
-**Delay analysis and prediction across Zürich's tram network — 94.4M stop events, 3 years, 16–18 lines.**
+**Delay analysis and prediction across Zurich's tram network — 94.4M stop events, 3 years, 16–18 lines.**
 
 ![Python](https://img.shields.io/badge/Python-3.10-blue)
 ![Polars](https://img.shields.io/badge/Polars-0.20+-orange)
@@ -56,11 +56,11 @@
 
 Public transport is part of everyday life — everyone experiences it, everyone has an opinion on it. That makes it an ideal subject for communicating data analysis and data science to a broad audience: no insider knowledge required to understand what a tram delay means or why it matters.
 
-The choice of Zürich's tram network was deliberate on three levels:
+The choice of Zurich's tram network was deliberate on three levels:
 
 - **Relatability** — delays are a lived experience, not an abstract metric. The findings connect directly to what commuters notice every day.
 - **Public good & sustainability** — public transit is a collective resource. Better scheduling and transparency serve society, not a private interest.
-- **Data quality** — Zürich's VBZ publishes granular real-time departure and arrival data for every stop event as Open Government Data. Combined with weather, GTFS schedule, and event data, this creates a rare foundation: large enough for real ML, concrete enough for operational recommendations.
+- **Data quality** — Zurich's VBZ publishes granular real-time departure and arrival data for every stop event as Open Government Data. Combined with weather, GTFS schedule, and event data, this creates a rare foundation: large enough for real ML, concrete enough for operational recommendations.
 
 The project covers the full data cycle end-to-end:
 
@@ -108,13 +108,13 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 | Columns | 26 |
 | Period | 2023–2025 |
 | Granularity | Per stop arrival/departure event |
-| Network | VBZ Zürich — 16–18 lines per year (varies by timetable) |
+| Network | VBZ Zurich — 16–18 lines per year (varies by timetable) |
 
 **Data sources joined:**
 
 - **IST real-time data** — [opentransportdata.swiss](https://data.opentransportdata.swiss): per-stop arrival/departure times for every trip · 36 ZIP files · ~38 GB compressed
 - **GTFS schedule** — [ZVV](https://www.zvv.ch): stop coordinates, district assignment, line definitions · 3 annual versions (j23/j24/j25)
-- **Weather** — [Stadt Zürich OGD](https://data.stadt-zuerich.ch): hourly values from 3 city measurement stations · temperature, precipitation, snow, radiation
+- **Weather** — [Stadt Zurich OGD](https://data.stadt-zuerich.ch): hourly values from 3 city measurement stations · temperature, precipitation, snow, radiation
 - **Events** — manually curated: 301 entries · 5 categories (Feiertag, Stadtfest, Konzert, Messe, Fussball) · weighted 1–3
 
 **Known issues:**
