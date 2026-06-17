@@ -104,9 +104,12 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 60 | **`presentation-v4.html` QR-Code + Dashboard-URL** — Streamlit Cloud deployen, URL in Button-`href` + QR-`src` eintragen (Slide 18 Call-to-Action). | 1 |
-| 61 | **`presentation.html` (technische Version) reviewen** — Inhalt gegen aktuelle Ergebnisse abgleichen: MAE-Werte, Feature-Importance, Modell-Progression korrekt? | 1 |
-| 62 | **`public/index.html` reviewen** — 3-Ebenen-Report (Scan · Dive · Deep-Dive) gegen aktuelle Notebooks abgleichen. Zahlen, Links und Findings-Referenzen prüfen. | 1 |
+<!-- Erledigt 2026-06-17:
+  #60 presentation-v4.html + #61 presentation.html — obsolet. Ersetzt durch 4-View-System:
+       overview.html (Management) · techview.html (DS/Tech) · storyview.html (Portfolio) · socialview.html (Social)
+       _archive/ gelöscht. Dashboard-URL (Streamlit) bleibt offen → #65
+-->
+| 62 | **`public/index.html` reviewen** — Zahlen, Links und Findings-Referenzen prüfen. | 1 |
 | 65 | **`public/index.html` — Dashboard-Link prüfen** — Link auf Live Dashboard (Streamlit) zeigt nicht korrekt. URL verifizieren und korrigieren sobald Streamlit Cloud deployed. | 2 |
 | 63 | **`/project-case check`** — Portfolio-Readiness prüfen bevor weitere Aufbereitung. Gibt Priorisierung für die letzten Schritte. | 1 |
 | 64 | **README finalisieren** — Rollentrennung README vs. `00_introduction` explizit dokumentieren. Deliverables-Liste aktuell? → BACKLOG #1 schliessen. | 2 |
