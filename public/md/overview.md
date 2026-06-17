@@ -150,7 +150,7 @@ analysiert
 * **Umfang und Zeitaufwand**
   - Zeitraum: 3 vollständige Betriebsjahre (2023, 2024, 2025)
   - 16 Tramlinien, ca. 190 Haltestellen im Netz
-  - 63 dokumentierte Analyse-Befunde in 12 Notebooks
+  - 66 dokumentierte Analyse-Befunde in 12 Notebooks
   - Ca. 3 Wochen: 1 Woche Data Engineering, 2 Wochen Analyse und Modellierung
 * **Technologie-Stack**
   - Python · Polars (85 Mio. Zeilen, lazy evaluation) · Jupyter · uv

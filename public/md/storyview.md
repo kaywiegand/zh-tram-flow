@@ -165,7 +165,7 @@
   - VBZ IST-Daten · GTFS · Meteo Schweiz · Event-Kalender
   - 94.4 Mio. Zeilen · 26 Features · 541 MB Parquet
   - 3 vollständige Betriebsjahre · 16 Linien · ca. 190 Haltestellen
-  - 63 dokumentierte Befunde in 12 Jupyter-Notebooks
+  - 66 dokumentierte Befunde in 12 Jupyter-Notebooks
 * **Technologie-Stack**
   - Python · Polars (85 Mio. Zeilen, lazy evaluation) · Jupyter · uv
   - LightGBM (Modellierung) · Plotly (Visualisierung) · Streamlit (Dashboard)
@@ -190,7 +190,7 @@
 
 * **94.4M** — Halt-Ereignisse
 * **16** — Tramlinien
-* **63** — Befunde
+* **66** — Befunde
 * **12** — Notebooks
 * **18.6s** — MAE · LightGBM v2
 * **−63%** — vs. Baseline

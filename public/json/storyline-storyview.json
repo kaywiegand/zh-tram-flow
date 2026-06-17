@@ -453,7 +453,7 @@
                     "VBZ IST-Daten · GTFS · Meteo Schweiz · Event-Kalender",
                     "94.4 Mio. Zeilen · 26 Features · 541 MB Parquet",
                     "3 vollständige Betriebsjahre · 16 Linien · ca. 190 Haltestellen",
-                    "63 dokumentierte Befunde in 12 Jupyter-Notebooks"
+                    "66 dokumentierte Befunde in 12 Jupyter-Notebooks"
                   ]
                 },
                 {
@@ -525,7 +525,7 @@
               "items": [
                 { "value": "94.4M", "label": "Halt-Ereignisse",    "sentiment": "neutral" },
                 { "value": "16",    "label": "Tramlinien",          "sentiment": "neutral" },
-                { "value": "63",    "label": "Befunde",             "sentiment": "neutral" },
+                { "value": "66",    "label": "Befunde",             "sentiment": "neutral" },
                 { "value": "12",    "label": "Notebooks",           "sentiment": "neutral" },
                 { "value": "18.6s", "label": "MAE · LightGBM v2",  "sentiment": "positive" },
                 { "value": "−63%",  "label": "vs. Baseline",        "sentiment": "positive" }
