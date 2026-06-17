@@ -97,7 +97,7 @@ This mirrors professional data team workflows (think Jira for analysis): finding
 | Weather | Snow is strongest factor, geographically separable from rain | Snow +54s, OTP −10.9pp |
 | Events | Large events delay during 18–22h; public holidays best day type | Events +10.5s · Holidays −9.9s |
 | Network | Dec 2023 VBZ overhaul (largest in history) invisible in delay signal | Net effect +0.5s only |
-| OTP | 87.0% of stops on time (< 120s late) · 71.5% accumulate delay along route | Baseline for model target |
+| OTP | 87 of stops on time (< 120s late) · 71.5% accumulate delay along route | Baseline for model target |
 
 ### Model Comparison
 
@@ -384,7 +384,7 @@ Built with [wgnd-toolkit](https://github.com/kaywiegand/wgnd-toolkit) and [wgnd-
 - ✅ Wann? → Peak 21h (Events), Donnerstag, November — kein Morgenrush
 - ✅ Wetter → Schnee +54s stärkster Effekt; geografisch trennbar von Regen
 - ✅ Events → Grosse Events +10.5s (primär Abend 18–22h); Feiertage −9.9s (bester Tag-Typ)
-- ✅ Extremfälle → OTP 87.0%; 71.5% aller Halte akkumulieren Delay; Linie E separat
+- ✅ Extremfälle → OTP 87; 71.5% aller Halte akkumulieren Delay; Linie E separat
 
 ### Visualisierungen — erstellt
 - ✅ Heatmap Verspätungen nach Tageszeit und Wochentag (L11 / alle Linien)
@@ -590,7 +590,7 @@ PROCESS_LOG Session-Notes verwenden ab dieser Sektion Pointer auf Notebooks — 
 | lf_clean Zeilen | ~85M | `02_preparation.ipynb` | portfolio.md |
 | Train / Val / Test Zeilen | 41.2M / 14.3M / ~29M | `05_feature_engineering.ipynb` | portfolio.md |
 | Findings gesamt | 55 | `03_analysis_0-overview.ipynb` | README · ROADMAP · portfolio.md |
-| OTP netzweit | 87.0% | `03_analysis_1-target.ipynb` | README · ROADMAP · portfolio.md |
+| OTP netzweit | 87 | `03_analysis_1-target.ipynb` | README · ROADMAP · portfolio.md |
 | Delay-Akkumulation | 71.5% | `03_analysis_1-target.ipynb` | README · portfolio.md |
 | Stop Mean Baseline MAE | 50.0s | `06_prediction_1-baseline.ipynb` | README · ROADMAP · portfolio.md |
 | LightGBM v1 Test MAE / MBE | 45.7s / +8.3s | `06_prediction_2-model.ipynb` | README · ROADMAP · portfolio.md |
@@ -849,7 +849,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 
 **4. Schnee stärkster Einzelfaktor — geografisch trennbar von Regen** — Schnee +54s, OTP −10.9pp. Schnee trifft Höhenlagen (K10/K4/K12), Regen trifft Flusstäler (K5). L17 leidet stark unter Regen (+41.2s), kaum unter Schnee; L9 umgekehrt (+75.9s Schnee). Visualisierung: zwei Choropleth-Karten "Schnee-Effekt" / "Regen-Effekt" nebeneinander.
 
-**5. Feiertage beste Tage** — 46.3s vs. 56.2s normal (−9.9s). OTP 90.6% vs. 87.0%. Rückgang des Berufsverkehrs übertrifft Event-Effekt. Direkte Implikation: ÖPNV funktioniert besser wenn weniger Autos unterwegs sind. Visualisierung: Vergleichs-Bar "Feiertag / Normal / Großevent".
+**5. Feiertage beste Tage** — 46.3s vs. 56.2s normal (−9.9s). OTP 90.6% vs. 87. Rückgang des Berufsverkehrs übertrifft Event-Effekt. Direkte Implikation: ÖPNV funktioniert besser wenn weniger Autos unterwegs sind. Visualisierung: Vergleichs-Bar "Feiertag / Normal / Großevent".
 
 **6. Größter Fahrplanwechsel VBZ-Geschichte unsichtbar** — Dez 2023 (L9/L11/L13 fundamental umgebaut): netzweit +0.5s. Geänderte Linien (L11 +5.3s) und unveränderte Linien (L15 +5.2s) bewegen sich identisch. Visualisierung: Zeitreihe 2023–2025 mit vertikaler Linie Dez 2023, veränderte vs. stabile Linien.
 
@@ -1730,7 +1730,7 @@ proof:      4-Schritt-Beweiskette:
 
 so_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse:
             prev_trip_delay (Kaskadenindikator) ist das stärkste neue Feature in v2
-            — MAE sinkt von 45.7s auf 18.6s. Fahrplan-Redesign an L11 ist der Hebel.
+            — MAE sinkt von 45.7s auf 18.56. Fahrplan-Redesign an L11 ist der Hebel.
 ```
 
 ---
@@ -1739,7 +1739,7 @@ so_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analy
 
 ```
 kpi_name:   OTP — On-Time Performance (arrival_delay ≤ 120s)
-kpi_ist:    87.0%
+kpi_ist:    87
 kpi_soll:   95% (VBZ-Standard / VDPW)
 kpi_gap:    −8pp
 
@@ -1808,7 +1808,7 @@ source:    03_analysis_6-events.ipynb
 finding:   Der Delay an einem Halt überträgt sich mit r ≥ 0.85 auf den nächsten
            Halt desselben Trips — auf allen 16 Linien. Das ist kein statistisches
            Artefakt, sondern ein lernbares Signal: prev_trip_delay ist in LightGBM v2
-           das stärkste neue Feature und erklärt den Sprung von 45.7s auf 18.6s MAE.
+           das stärkste neue Feature und erklärt den Sprung von 45.7s auf 18.56 MAE.
 number:    Pearson r ≥ 0.85 (alle 16 Linien)
 source:    03_analysis_4-spatial.ipynb · 06_prediction_4-model_v2.ipynb
 ```
@@ -1843,7 +1843,7 @@ test_rows:      ~29M (inkl. Nov/Dez 2025 — vorher ausgeschlossen, nach Maskier
 |---|---|---|---|---|
 | Stop Mean Baseline | — | 50.0s | — | Historical stop mean |
 | LightGBM v1 | 34 (Zeit · Wetter · Events · Linie · Stop) | 45.7s | −4.3s | Schedule + Weather + Events |
-| LightGBM v2 | 36 (+prev_trip_delay, +stop_sequence_pct) | **18.6s** | **−31.4s (−63%)** | + Live-Signal (Vorgänger-Halt) |
+| LightGBM v2 | 36 (+prev_trip_delay, +stop_sequence_pct) | **18.56** | **−31.4s (−63%)** | + Live-Signal (Vorgänger-Halt) |
 
 ```
 best_model:     LightGBM v2
@@ -1913,7 +1913,7 @@ r1:
 
 r2:
   title:  Real-Time Dispatch — Kaskadenmodell operativ nutzen
-  detail: LightGBM v2 mit prev_trip_delay erreicht MAE 18.6s (−63% vs. Baseline).
+  detail: LightGBM v2 mit prev_trip_delay erreicht MAE 18.56 (−63% vs. Baseline).
           Das Signal ist echtzeit-verfügbar (Vorgänger-Halt als Input). Dispatchsystem
           könnte automatisch Taktlücken schließen bevor der Kaskadeneffekt entsteht.
 

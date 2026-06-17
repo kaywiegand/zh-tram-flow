@@ -51,7 +51,7 @@ PROCESS_LOG Session-Notes verwenden ab dieser Sektion Pointer auf Notebooks — 
 | lf_clean Zeilen | ~85M | `02_preparation.ipynb` | portfolio.md |
 | Train / Val / Test Zeilen | 41.2M / 14.3M / ~29M | `05_feature_engineering.ipynb` | portfolio.md |
 | Findings gesamt | 55 | `03_analysis_0-overview.ipynb` | README · ROADMAP · portfolio.md |
-| OTP netzweit | 87.0% | `03_analysis_1-target.ipynb` | README · ROADMAP · portfolio.md |
+| OTP netzweit | 87 | `03_analysis_1-target.ipynb` | README · ROADMAP · portfolio.md |
 | Delay-Akkumulation | 71.5% | `03_analysis_1-target.ipynb` | README · portfolio.md |
 | Stop Mean Baseline MAE | 50.0s | `06_prediction_1-baseline.ipynb` | README · ROADMAP · portfolio.md |
 | LightGBM v1 Test MAE / MBE | 45.7s / +8.3s | `06_prediction_2-model.ipynb` | README · ROADMAP · portfolio.md |
@@ -310,7 +310,7 @@ Vollständiger Review der abgeschlossenen Analyse-Phase — gelesen wurden: READ
 
 **4. Schnee stärkster Einzelfaktor — geografisch trennbar von Regen** — Schnee +54s, OTP −10.9pp. Schnee trifft Höhenlagen (K10/K4/K12), Regen trifft Flusstäler (K5). L17 leidet stark unter Regen (+41.2s), kaum unter Schnee; L9 umgekehrt (+75.9s Schnee). Visualisierung: zwei Choropleth-Karten "Schnee-Effekt" / "Regen-Effekt" nebeneinander.
 
-**5. Feiertage beste Tage** — 46.3s vs. 56.2s normal (−9.9s). OTP 90.6% vs. 87.0%. Rückgang des Berufsverkehrs übertrifft Event-Effekt. Direkte Implikation: ÖPNV funktioniert besser wenn weniger Autos unterwegs sind. Visualisierung: Vergleichs-Bar "Feiertag / Normal / Großevent".
+**5. Feiertage beste Tage** — 46.3s vs. 56.2s normal (−9.9s). OTP 90.6% vs. 87. Rückgang des Berufsverkehrs übertrifft Event-Effekt. Direkte Implikation: ÖPNV funktioniert besser wenn weniger Autos unterwegs sind. Visualisierung: Vergleichs-Bar "Feiertag / Normal / Großevent".
 
 **6. Größter Fahrplanwechsel VBZ-Geschichte unsichtbar** — Dez 2023 (L9/L11/L13 fundamental umgebaut): netzweit +0.5s. Geänderte Linien (L11 +5.3s) und unveränderte Linien (L15 +5.2s) bewegen sich identisch. Visualisierung: Zeitreihe 2023–2025 mit vertikaler Linie Dez 2023, veränderte vs. stabile Linien.
 

@@ -78,7 +78,7 @@
   <div class="kpi-row">
     <div class="kpi"><div class="v">94.4M</div><div class="l">Halt-Ereignisse<br>2023–2025</div></div>
     <div class="kpi red"><div class="v">87%</div><div class="l">OTP Status Quo<br>vs. 95% Ziel</div></div>
-    <div class="kpi green"><div class="v">18.6s</div><div class="l">LightGBM MAE<br>Vorhersagegenauigkeit</div></div>
+    <div class="kpi green"><div class="v">18.56</div><div class="l">LightGBM MAE<br>Vorhersagegenauigkeit</div></div>
     <div class="kpi green"><div class="v">−63%</div><div class="l">Verbesserung<br>vs. Baseline</div></div>
   </div>
 </div>
@@ -90,7 +90,7 @@
   <p>Das Zürcher Tramnetz liegt dauerhaft 8 Prozentpunkte unter dem selbstgesteckten VBZ-Zielwert. Das Projekt geht in zwei Schritten vor:</p>
   <ul style="padding-left: 1.4em; margin: 12px 0;">
     <li><strong>Analyse der Entstehungsmuster und Einflussfaktoren</strong> — Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition</li>
-    <li><strong>Verspätungen vorhersagen</strong> — LightGBM, MAE 18.6s, −63% vs. naive Baseline</li>
+    <li><strong>Verspätungen vorhersagen</strong> — LightGBM, MAE 18.56, −63% vs. naive Baseline</li>
   </ul>
 </section>
 
@@ -153,7 +153,7 @@
       <ul>
         <li>Stärkstes Feature, echtzeit-verfügbar</li>
         <li>LightGBM v2 Inferenz: Millisekunden</li>
-        <li>MAE 18.6s nachgewiesen</li>
+        <li>MAE 18.56 nachgewiesen</li>
       </ul>
     </div>
     <div class="reco">
@@ -187,7 +187,7 @@
     <strong>Aufteilung:</strong> Temporal Split (kein Shuffle). Train 2023–Jun 2024 · Val Jul–Dez 2024 · Test 2025. Zukunft darf Vergangenheit nicht kennen. Verhindert Data Leakage.
   </div>
   <div class="finding" style="margin-top: 12px;">
-    <strong>Validierung:</strong> 18.6s MAE auf ~29M Test-Fahrten (ein ganzes Jahr). XGBoost-Vergleich bestätigt Robustheit. Isotonic Regression Kalibrierung senkt MBE von +8.3s auf −0.69s.
+    <strong>Validierung:</strong> 18.56 MAE auf ~29M Test-Fahrten (ein ganzes Jahr). XGBoost-Vergleich bestätigt Robustheit. Isotonic Regression Kalibrierung senkt MBE von +8.3s auf −0.69s.
   </div>
 </section>
 
@@ -236,7 +236,7 @@
   </div>
   <div style="margin-top: 20px; font-size: 0.85em; color: rgba(255,255,255,0.6);">
     2023–2025 · Data Engineering · EDA · Feature Engineering · LightGBM<br>
-    Temporal Split Validation · 18.6s MAE · −63% vs. Baseline
+    Temporal Split Validation · 18.56 MAE · −63% vs. Baseline
   </div>
 </footer>
 </body>

@@ -28,7 +28,7 @@
               "items": [
                 { "value": "94.4M", "label": "Halt-Ereignisse",            "sentiment": "neutral" },
                 { "value": "87%",   "label": "OTP heute · Ziel: 95%",      "sentiment": "negative" },
-                { "value": "18.6s", "label": "MAE LightGBM v2",            "sentiment": "positive" },
+                { "value": "18.56s", "label": "MAE LightGBM v2",            "sentiment": "positive" },
                 { "value": "−63%",  "label": "vs. Baseline",               "sentiment": "positive" }
               ]
             }
@@ -45,7 +45,7 @@
             },
             {
               "type": "statement",
-              "text": "Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45.7s auf 18.6s. Fahrplan-Redesign an L11 ist der Hebel.",
+              "text": "Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45.7s auf 18.56s. Fahrplan-Redesign an L11 ist der Hebel.",
               "sentiment": "positive"
             }
           ]
@@ -81,7 +81,7 @@
             {
               "type": "figures",
               "items": [
-                { "value": "87.0%", "label": "OTP netzweit 2023–2025",  "sentiment": "negative" },
+                { "value": "87%", "label": "OTP netzweit 2023–2025",  "sentiment": "negative" },
                 { "value": "95%",   "label": "VBZ-Ziel bis 2028",        "sentiment": "positive" },
                 { "value": "−8 PP", "label": "Strukturelle Lücke",       "sentiment": "negative" },
                 { "value": "56.3s", "label": "Ø Ankunftsverspätung",     "sentiment": "warning" }
@@ -98,7 +98,7 @@
                 {
                   "step": "2",
                   "label": "Verspätungen vorhersagen",
-                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18.6s, −63% vs. Baseline"
+                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18.56s, −63% vs. Baseline"
                 }
               ]
             }
@@ -306,7 +306,7 @@
               "rows": [
                 { "cells": ["Baseline (Stop Mean)", "—",   "50.0s", "Ausgangspunkt"],       "highlight": false },
                 { "cells": ["LightGBM v1",          "34",  "45.7s", "−4.3s"],               "highlight": false },
-                { "cells": ["LightGBM v2",          "36",  "18.6s", "−31.4s (−63%)"],       "highlight": true }
+                { "cells": ["LightGBM v2",          "36",  "18.56s", "−31.4s (−63%)"],       "highlight": true }
               ]
             }
           ]
@@ -317,7 +317,7 @@
           "content": [
             {
               "type": "figures",
-              "hero": { "value": "18.6 Sekunden", "label": "MAE · LightGBM v2 · Test 2025 (~29M Fahrten)", "sentiment": "positive" },
+              "hero": { "value": "18.56 Sekunden", "label": "MAE · LightGBM v2 · Test 2025 (~29M Fahrten)", "sentiment": "positive" },
               "items": [
                 { "value": "41 Mio.", "label": "Trainings-Fahrten 2023–Jun 2024",      "sentiment": "neutral" },
                 { "value": "~29 Mio.", "label": "Test-Fahrten vollständiges Jahr 2025", "sentiment": "neutral" },
@@ -326,7 +326,7 @@
             },
             {
               "type": "statement",
-              "text": "prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45.7s auf 18.6s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt.",
+              "text": "prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45.7s auf 18.56s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt.",
               "sentiment": "positive"
             }
           ]
@@ -407,7 +407,7 @@
                   "category": "R2 · Real-Time Dispatch",
                   "title": "Kaskadenmodell operativ als Frühwarnsystem",
                   "points": [
-                    "LightGBM v2: MAE 18.6s, produktionsreif auf Consumer-Hardware",
+                    "LightGBM v2: MAE 18.56s, produktionsreif auf Consumer-Hardware",
                     "prev_trip_delay ist in Echtzeit aus VBZ-Betriebssystem verfügbar",
                     "Frühwarnung bevor der Kaskadeneffekt einsetzt, nicht reaktiv danach"
                   ]
@@ -527,7 +527,7 @@
                 { "value": "16",    "label": "Tramlinien",          "sentiment": "neutral" },
                 { "value": "66",    "label": "Befunde",             "sentiment": "neutral" },
                 { "value": "12",    "label": "Notebooks",           "sentiment": "neutral" },
-                { "value": "18.6s", "label": "MAE · LightGBM v2",  "sentiment": "positive" },
+                { "value": "18.56s", "label": "MAE · LightGBM v2",  "sentiment": "positive" },
                 { "value": "−63%",  "label": "vs. Baseline",        "sentiment": "positive" }
               ]
             },

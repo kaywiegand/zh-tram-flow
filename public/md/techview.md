@@ -22,7 +22,7 @@
 
 * **94.4M** — Halt-Ereignisse, 4 Datenquellen
 * **50.0s** — Baseline MAE (Stop Mean)
-* **18.6s** — LightGBM v2 MAE (Test 2025)
+* **18.56** — LightGBM v2 MAE (Test 2025)
 * **−63%** — Verbesserung vs. Baseline
 
 ## Inhalt
@@ -53,7 +53,7 @@
 ## Ausgangssituation
 *OTP 87% netzweit, Ziel 95% bis 2028, strukturelles Defizit*
 
-* **87.0%** — OTP netzweit 2023–2025
+* **87** — OTP netzweit 2023–2025
 * **−8 PP** — Lücke zum VBZ-Ziel 95%
 * **56.3s** — Ø Ankunftsverspätung
 * **71.5%** — Halte akkumulieren Delay
@@ -121,7 +121,7 @@
 * **Kaskaden-Features (neu in v2)**
   - prev_trip_delay: Verspätung des Vorgänger-Trips an diesem Halt — echtzeit-verfügbar
   - stop_sequence_pct: normierter Streckenfortschritt (0–1) — linienübergreifend lernbar
-  - Ergebnis: MAE 45.7s → 18.6s, −63%
+  - Ergebnis: MAE 45.7s → 18.56, −63%
 
 
 ---
@@ -135,7 +135,7 @@
 ## Modellauswahl und -Anpassung
 *v1 zu v2: der Sprung kam aus der Analyse, nicht aus dem Algorithmus*
 
-> v1 war systematisch zu optimistisch (MBE +8.3s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0.69s. Der MAE-Sprung von 45.7s auf 18.6s entspricht −63% und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.
+> v1 war systematisch zu optimistisch (MBE +8.3s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0.69s. Der MAE-Sprung von 45.7s auf 18.56 entspricht −63% und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.
 
 ## Robustheits-Check
 *XGBoost-Vergleich und Stabilitätsprüfung*
@@ -143,7 +143,7 @@
 * **~21.4s** — XGBoost val MAE (150 Runden)
 * **90+ Min** — XGBoost Trainingszeit auf 85M Zeilen
 * **18 Min** — LightGBM v2 Trainingszeit
-* **18.6s** — LightGBM v2 Test MAE (2025)
+* **18.56** — LightGBM v2 Test MAE (2025)
 > XGBoost erreicht auf dem Validation-Set vergleichbare Qualität, braucht aber 5× mehr Zeit. Für iteratives Feature Engineering über mehrere Wochen ist LightGBM die klar überlegene Wahl. Das ist eine Workflow-Entscheidung, keine Qualitätskompromittierung.
 
 
@@ -176,5 +176,5 @@
 * **41.2M** — Trainings-Fahrten
 * **~29M** — Test-Fahrten (2025)
 * **36** — Features (v2)
-* **18.6s** — MAE · LightGBM v2
+* **18.56** — MAE · LightGBM v2
 * **−63%** — vs. Baseline

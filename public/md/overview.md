@@ -23,7 +23,7 @@
 * **94.4M** — Halt-Ereignisse 2023–2025
 * **87%** — OTP · Ziel: 95%
 * **71.3%** — Haltestellen ohne Puffer
-* **18.6s** — Vorhersage-MAE LightGBM v2
+* **18.56** — Vorhersage-MAE LightGBM v2
 
 ## Inhalt
 *Diese Präsentation auf einen Blick*
@@ -47,9 +47,9 @@
 * **95%** — VBZ-Ziel
 bis 2028
   - VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)
-* **87.0%** — OTP 2023–2025
+* **87** — OTP 2023–2025
 (netzweit)
-  - Ist-Zustand 2023–2025: 87.0 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.
+  - Ist-Zustand 2023–2025: 87 netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.
 * **56.3s** — Ø Ankunfts-
 verspätung
   - Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Der Wert ist über alle drei Betriebsjahre stabil, 2023, 2024 und 2025 ohne erkennbaren Aufwärtstrend.
@@ -101,7 +101,7 @@ analysiert
 > Der Sprung von v1 auf v2 kam nicht durch einen besseren Algorithmus, sondern durch das richtige Signal aus der Analyse: den Kaskadenindikator (prev_trip_delay).
 
 ## Das Modell
-*18.6 Sekunden mittlerer Vorhersagefehler auf einem vollständigen ungesehenen Jahr*
+*18.56 Sekunden mittlerer Vorhersagefehler auf einem vollständigen ungesehenen Jahr*
 
 * **41 Mio.** — Trainings-Fahrten 2023 bis Mitte 2024
 * **~29 Mio.** — Test-Fahrten, vollständiges Jahr 2025
@@ -176,4 +176,4 @@ analysiert
 * **94.4M** — Halt-Ereignisse 2023–2025
 * **87%** — OTP · Ziel: 95%
 * **71.3%** — Haltestellen ohne Puffer
-* **18.6s** — Vorhersage-MAE LightGBM v2
+* **18.56** — Vorhersage-MAE LightGBM v2

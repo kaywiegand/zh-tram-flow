@@ -245,7 +245,7 @@
     <div class="kpi"><div class="v">94.4M</div><div class="l">Halt-Ereignisse<br>2023–2025</div></div>
     <div class="kpi red"><div class="v">87%</div><div class="l">OTP · Ziel: 95%</div></div>
     <div class="kpi amber"><div class="v">71.3%</div><div class="l">Haltestellen<br>ohne Puffer</div></div>
-    <div class="kpi green"><div class="v">18.6s</div><div class="l">Vorhersage-MAE<br>LightGBM v2</div></div>
+    <div class="kpi green"><div class="v">18.56</div><div class="l">Vorhersage-MAE<br>LightGBM v2</div></div>
   </div>
   <div class="meta">Kay Wiegand · github.com/kaywiegand/zh-tram-flow</div>
 </section>
@@ -289,11 +289,11 @@
 
     <div class="kv-row">
       <div class="kv-fact red">
-        <div class="fv">87.0%</div>
+        <div class="fv">87</div>
         <div class="fl">OTP 2023–2025<br>(netzweit)</div>
       </div>
       <div class="kv-text">
-        Ist-Zustand 2023–2025: 87.0 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.
+        Ist-Zustand 2023–2025: 87 netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.
       </div>
     </div>
 
@@ -326,7 +326,7 @@
     </div>
     <div style="flex:1; background:#edfaf3; border:1px solid #b8e8cf; border-radius:8px; padding:12px 16px;">
       <strong style="color:#1a6640;">② Verspätungen vorhersagen</strong><br>
-      <span style="font-size:0.85em; color:#555;">Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18.6s, −63% vs. Baseline</span>
+      <span style="font-size:0.85em; color:#555;">Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18.56, −63% vs. Baseline</span>
     </div>
   </div>
 
@@ -497,7 +497,7 @@
       <tr class="hl">
         <td><strong>LightGBM v2</strong><br><span style="font-size:0.82em;color:#1a6e3a;font-weight:400;">+prev_trip_delay (Kaskadenindikator) · +stop_sequence_pct · Isotonic-Kalibrierung · MBE −0.69s</span></td>
         <td><strong>36</strong></td>
-        <td><strong>18.6s</strong></td>
+        <td><strong>18.56</strong></td>
         <td><strong>−31.4s (−63%)</strong></td>
       </tr>
     </tbody>
@@ -513,9 +513,9 @@
 ══════════════════════════════════════════════ -->
 <section data-chapter="4">
   <h2>Das Modell</h2>
-  <span class="subline">18.6 Sekunden mittlerer Vorhersagefehler auf einem vollständigen ungesehenen Jahr</span>
+  <span class="subline">18.56 Sekunden mittlerer Vorhersagefehler auf einem vollständigen ungesehenen Jahr</span>
   <div class="hero">
-    <div class="hv">18.6 Sekunden</div>
+    <div class="hv">18.56 Sekunden</div>
     <div class="hl">mittlerer Vorhersagefehler (MAE) · getestet auf dem vollständigen Jahr 2025</div>
   </div>
   <div class="mrow">
@@ -590,7 +590,7 @@
       <div class="rn">R2 · Betriebssteuerung <span style="background:#1a3a5c;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:6px;">Priorität 1</span></div>
       <strong>Vorhersagemodell als Frühwarnsignal im Leitstellen-System</strong>
       <ul>
-        <li>MAE 18.6s auf vollständigem Testjahr 2025, produktionsreif</li>
+        <li>MAE 18.56 auf vollständigem Testjahr 2025, produktionsreif</li>
         <li>Kaskadenindikator ist in Echtzeit aus dem VBZ-Betriebssystem verfügbar</li>
         <li>Frühwarnung bevor der Effekt einsetzt, nicht reaktiv nach Eskalation</li>
       </ul>
@@ -722,7 +722,7 @@
       <div style="font-size:0.58em; color:rgba(255,255,255,0.5); margin-top:3px;">Notebooks</div>
     </div>
     <div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:9px 16px; text-align:center;">
-      <div style="font-size:1.4em; font-weight:700; color:#4cd98a; line-height:1;">18.6s</div>
+      <div style="font-size:1.4em; font-weight:700; color:#4cd98a; line-height:1;">18.56</div>
       <div style="font-size:0.58em; color:rgba(255,255,255,0.5); margin-top:3px;">MAE · LightGBM v2</div>
     </div>
     <div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:9px 16px; text-align:center;">

@@ -28,7 +28,7 @@
               "items": [
                 { "value": "94.4M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
                 { "value": "87%", "label": "OTP Status Quo vs. 95% Ziel", "sentiment": "negative" },
-                { "value": "18.6s", "label": "LightGBM MAE Vorhersagegenauigkeit", "sentiment": "positive" },
+                { "value": "18.56s", "label": "LightGBM MAE Vorhersagegenauigkeit", "sentiment": "positive" },
                 { "value": "−63%", "label": "Verbesserung vs. Baseline", "sentiment": "positive" }
               ]
             }
@@ -49,7 +49,7 @@
               "items": [
                 { "value": "87%",   "label": "OTP Status Quo",           "sentiment": "negative" },
                 { "value": "95%",   "label": "VBZ-Ziel bis 2028",        "sentiment": "positive" },
-                { "value": "18.6s", "label": "Vorhersage-MAE",           "sentiment": "positive" },
+                { "value": "18.56s", "label": "Vorhersage-MAE",           "sentiment": "positive" },
                 { "value": "−63%",  "label": "vs. naive Baseline",       "sentiment": "positive" }
               ]
             },
@@ -64,7 +64,7 @@
                 {
                   "step": "2",
                   "label": "Verspätungen vorhersagen",
-                  "detail": "LightGBM, MAE 18.6s — −63% gegenüber naiver Baseline"
+                  "detail": "LightGBM, MAE 18.56s — −63% gegenüber naiver Baseline"
                 }
               ]
             }
@@ -196,7 +196,7 @@
                   "points": [
                     "prev_trip_delay als Echtzeit-Signal nutzen",
                     "LightGBM v2 Inferenz: Millisekunden",
-                    "MAE 18.6s nachgewiesen"
+                    "MAE 18.56s nachgewiesen"
                   ]
                 },
                 {
@@ -251,7 +251,7 @@
                 {
                   "label": "Validierung",
                   "points": [
-                    "18.6s MAE auf ~29M Test-Fahrten (ein ganzes Jahr)",
+                    "18.56s MAE auf ~29M Test-Fahrten (ein ganzes Jahr)",
                     "XGBoost-Vergleich bestätigt Robustheit",
                     "Isotonic Regression Kalibrierung senkt MBE von +8.3s auf −0.69s"
                   ]

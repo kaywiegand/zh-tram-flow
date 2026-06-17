@@ -41,7 +41,7 @@ proof:      4-Schritt-Beweiskette:
 
 so_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse:
             prev_trip_delay (Kaskadenindikator) ist das stärkste neue Feature in v2
-            — MAE sinkt von 45.7s auf 18.6s. Fahrplan-Redesign an L11 ist der Hebel.
+            — MAE sinkt von 45.7s auf 18.56. Fahrplan-Redesign an L11 ist der Hebel.
 ```
 
 ---
@@ -50,7 +50,7 @@ so_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analy
 
 ```
 kpi_name:   OTP — On-Time Performance (arrival_delay ≤ 120s)
-kpi_ist:    87.0%
+kpi_ist:    87
 kpi_soll:   95% (VBZ-Standard / VDPW)
 kpi_gap:    −8pp
 
@@ -119,7 +119,7 @@ source:    03_analysis_6-events.ipynb
 finding:   Der Delay an einem Halt überträgt sich mit r ≥ 0.85 auf den nächsten
            Halt desselben Trips — auf allen 16 Linien. Das ist kein statistisches
            Artefakt, sondern ein lernbares Signal: prev_trip_delay ist in LightGBM v2
-           das stärkste neue Feature und erklärt den Sprung von 45.7s auf 18.6s MAE.
+           das stärkste neue Feature und erklärt den Sprung von 45.7s auf 18.56 MAE.
 number:    Pearson r ≥ 0.85 (alle 16 Linien)
 source:    03_analysis_4-spatial.ipynb · 06_prediction_4-model_v2.ipynb
 ```
@@ -154,7 +154,7 @@ test_rows:      ~29M (inkl. Nov/Dez 2025 — vorher ausgeschlossen, nach Maskier
 |---|---|---|---|---|
 | Stop Mean Baseline | — | 50.0s | — | Historical stop mean |
 | LightGBM v1 | 34 (Zeit · Wetter · Events · Linie · Stop) | 45.7s | −4.3s | Schedule + Weather + Events |
-| LightGBM v2 | 36 (+prev_trip_delay, +stop_sequence_pct) | **18.6s** | **−31.4s (−63%)** | + Live-Signal (Vorgänger-Halt) |
+| LightGBM v2 | 36 (+prev_trip_delay, +stop_sequence_pct) | **18.56** | **−31.4s (−63%)** | + Live-Signal (Vorgänger-Halt) |
 
 ```
 best_model:     LightGBM v2
@@ -224,7 +224,7 @@ r1:
 
 r2:
   title:  Real-Time Dispatch — Kaskadenmodell operativ nutzen
-  detail: LightGBM v2 mit prev_trip_delay erreicht MAE 18.6s (−63% vs. Baseline).
+  detail: LightGBM v2 mit prev_trip_delay erreicht MAE 18.56 (−63% vs. Baseline).
           Das Signal ist echtzeit-verfügbar (Vorgänger-Halt als Input). Dispatchsystem
           könnte automatisch Taktlücken schließen bevor der Kaskadeneffekt entsteht.
 

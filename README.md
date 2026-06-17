@@ -14,7 +14,7 @@
 
 **Target:** `arrival_delay` — how many seconds late a tram arrives at a stop · **OTP (On-Time Performance):** a stop is counted as on time if arrival delay < 120s
 
-- **87.0% OTP** across the network — against VBZ's own target of 95%. The gap is structural, not random.
+- **87 OTP** across the network — against VBZ's own target of 95%. The gap is structural, not random.
 - **Peripheral corridors dominate.** Friedhof Enzenbühl (93.8s) and Balgrist (85.2s) are the worst stops — while Paradeplatz, where 14–15 lines cross, performs well.
 - **71.3% of all stops have 0s dwell time.** No recovery buffer built in. Delay accumulates and propagates: Pearson r ≥ 0.85 between consecutive stops across all lines.
 - **Snow is the strongest single factor:** +54s average delay, OTP −10.9pp — geographically separable from rain.
@@ -88,11 +88,11 @@ Can delays be predicted with operational accuracy? LightGBM v2, MAE 18.56s, −6
 
 | Metric | Value |
 | :--- | :--- |
-| Network OTP (2023–2025) | **87.0%** |
+| Network OTP (2023–2025) | **87** |
 | VBZ target | **95%** |
 | Gap | **−8pp** |
 
-87.0% sounds acceptable. It isn't — because 71.5% of all stops *accumulate* delay along the route. The network has no built-in recovery mechanism: 71.3% of stops have 0s planned dwell time. A delay that enters a trip stays in the trip, and spreads to the next.
+87 sounds acceptable. It isn't — because 71.5% of all stops *accumulate* delay along the route. The network has no built-in recovery mechanism: 71.3% of stops have 0s planned dwell time. A delay that enters a trip stays in the trip, and spreads to the next.
 
 The goal is not just a model, but a full analytical story: **analysis dictates the model, findings become features.**
 
@@ -145,7 +145,7 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 
 | Dimension | Notebook | Key Finding |
 | :--- | :--- | :--- |
-| **Target** | [03_analysis_1-target](notebooks/03_analysis_1-target.ipynb) | OTP 87% · 71.5% of stops accumulate delay |
+| **Target** | [03_analysis_1-target](notebooks/03_analysis_1-target.ipynb) | OTP 87 · 71.5% of stops accumulate delay |
 | **Network** | [03_analysis_2-network](notebooks/03_analysis_2-network.ipynb) | Dec 2023 VBZ overhaul invisible in delay signal (+0.5s net) |
 | **Temporal** | [03_analysis_3-temporal](notebooks/03_analysis_3-temporal.ipynb) | Peak at 21h (event wave) — not morning rush |
 | **Spatial** | [03_analysis_4-spatial](notebooks/03_analysis_4-spatial.ipynb) | Peripheral corridors dominate · 0 overlap density vs. delay |
