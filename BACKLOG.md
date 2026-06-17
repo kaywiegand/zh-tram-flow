@@ -95,8 +95,8 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
 <!-- Erledigt 2026-06-17: #55 → siehe #53 -->
-| 56 | **03_analysis_1–6 Inhalte prüfen** — Kernfragen-Bezug: Beantwortet jedes Notebook die zugehörige Frage aus `03_analysis_0-overview`? Section-Header auf Englisch prüfen. | 1 |
-| 57 | **06_prediction_0-overview aktualisieren** — Notebook hat noch Planungssprache ("Fahrplan für die Modellierungsphase"). Analog zu `03_analysis_0`: auf tatsächliche Ergebnisse umschreiben. | 1 |
+<!-- Erledigt 2026-06-17: #56 — 03_analysis_1–6 alle deutschen Header → Englisch, Kernfragen-Bezug (Q1–Q5) als Callout in Intro-Zelle jedes Notebooks -->
+<!-- Erledigt 2026-06-17: #57 — 06_prediction_0-overview: Planungssprache → Ergebnissprache, alle Headers English, Notebooks-Tabelle vollständig (7), Key Decisions, Success Criteria mit Actual-Spalte -->
 | 58 | **`03_analysis_7-findings.ipynb` finalisieren** — Notebook-Inhalte prüfen: Findings-Tabelle vollständig? Header englisch? "Why Structured Finding IDs?"-Abschnitt professionell? | 2 |
 | 59 | **Line Colors mit Swatches** — `03_analysis_0-overview.ipynb`: Hex-Codes visuell ergänzen. → BACKLOG #54 | 3 |
 
@@ -107,6 +107,7 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 | 60 | **`presentation-v4.html` QR-Code + Dashboard-URL** — Streamlit Cloud deployen, URL in Button-`href` + QR-`src` eintragen (Slide 18 Call-to-Action). | 1 |
 | 61 | **`presentation.html` (technische Version) reviewen** — Inhalt gegen aktuelle Ergebnisse abgleichen: MAE-Werte, Feature-Importance, Modell-Progression korrekt? | 1 |
 | 62 | **`public/index.html` reviewen** — 3-Ebenen-Report (Scan · Dive · Deep-Dive) gegen aktuelle Notebooks abgleichen. Zahlen, Links und Findings-Referenzen prüfen. | 1 |
+| 65 | **`public/index.html` — Dashboard-Link prüfen** — Link auf Live Dashboard (Streamlit) zeigt nicht korrekt. URL verifizieren und korrigieren sobald Streamlit Cloud deployed. | 2 |
 | 63 | **`/project-case check`** — Portfolio-Readiness prüfen bevor weitere Aufbereitung. Gibt Priorisierung für die letzten Schritte. | 1 |
 | 64 | **README finalisieren** — Rollentrennung README vs. `00_introduction` explizit dokumentieren. Deliverables-Liste aktuell? → BACKLOG #1 schliessen. | 2 |
 | 5 | **Pipeline-Skizze dokumentieren** — vollständige Datenpipeline in `00_introduction.ipynb`: wann lazy, wann collect(), wann sink_parquet() und warum. Format: Diagramm + Begründungstabelle. | 2 |

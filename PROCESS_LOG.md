@@ -1296,3 +1296,30 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - Noch offen: 03_analysis_1–6 (deutsche Header, Kernfragen-Bezug), 06_prediction_0-overview (Planungssprache → Ergebnisse), 05_feature_engineering, 06_prediction_1–6
 
 **Nächster Schritt:** 06_prediction_0-overview überarbeiten (Planungssprache → Ergebnisse) → dann 03_analysis_1–6 Inhalte prüfen
+
+---
+
+### 2026-06-17 (2) — analysis_1–6 + prediction_0 überarbeitet
+
+**Was passiert ist:**
+
+- **06_prediction_0-overview** vollständig auf Ergebnissprache umgeschrieben (BACKLOG #57)
+  - Subtitle: APPROACH · RESULTS · V1 → V2 · KEY INSIGHT
+  - Planungs-Intro → 2-Satz-Ergebnis-Summary (v1 45.7s → v2 18.56s, −63%)
+  - "Vorgehen Schritt für Schritt" / "Tag 1/Tag 2" → "Modelling Approach" (5 Schritte, Past Tense)
+  - "Offene Entscheidungen" → "Key Decisions" mit Outcomes
+  - "Notebooks in dieser Phase" → vollständig (7 Notebooks)
+  - "Was Erfolg bedeutet" → "Success Criteria — Results" mit Actual-Spalte
+  - Alle 14 Section-Header ins Englische übersetzt
+- **03_analysis_1–6 Section-Header** alle ins Englische übersetzt (BACKLOG #56)
+  - ~42 Header über 5 Notebooks übersetzt
+  - 03_analysis_3-temporal war bereits vollständig Englisch — kein Handlungsbedarf
+  - Kernfragen-Bezug (Q1–Q5) als Callout in Intro-Zelle jedes Notebooks eingefügt
+  - ToC-Anchors in allen 5 Notebooks neu gebaut
+
+**Notebook-Status jetzt:**
+- Alle 21 Notebooks: Header-Format ✅ · ToC ✅ · Englische Header ✅
+- Inhaltlich reviewed: 00–04, 03_analysis_0+7, 06_prediction_0 ✅
+- Noch offen: 05_feature_engineering (deutsche Sekundär-Header), 06_prediction_1–6 (kursorisch)
+
+**Nächster Schritt:** `/project-case check` → Portfolio-Readiness Score · dann #58 (03_analysis_7-findings finalisieren)
