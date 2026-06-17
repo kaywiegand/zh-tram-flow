@@ -27,7 +27,7 @@
 | You are… | Start here |
 | :--- | :--- |
 | New to the project | [`00_introduction`](notebooks/00_introduction.ipynb) — context, data dictionary, network overview |
-| Looking for findings | [`03_analysis_0-overview`](notebooks/03_analysis_0-overview.ipynb) — all 63 findings indexed |
+| Looking for findings | [`03_analysis_0-overview`](notebooks/03_analysis_0-overview.ipynb) — all 66 findings indexed |
 | Looking for the model | [`06_prediction_0-overview`](notebooks/06_prediction_0-overview.ipynb) — ML approach and results |
 | Want to see it live | [Report](https://kaywiegand.github.io/zh-tram-flow/report.html) · [Dashboard](https://zh-tram-flow.streamlit.app) |
 
@@ -67,7 +67,7 @@ The project covers the full data cycle end-to-end:
 | Phase | Scope | Where |
 | :--- | :--- | :--- |
 | **Data Engineering** | Ingest, join, validate 4 data sources (IST · GTFS · Weather · Events) → master dataset | [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) |
-| **Data Analysis** | 6 analysis dimensions · 63 structured findings | [`03_analysis_0-overview`](notebooks/03_analysis_0-overview.ipynb) |
+| **Data Analysis** | 6 analysis dimensions · 66 structured findings | [`03_analysis_0-overview`](notebooks/03_analysis_0-overview.ipynb) |
 | **Data Science** | Feature engineering → LightGBM v1 + v2 → evaluation | [`06_prediction_0-overview`](notebooks/06_prediction_0-overview.ipynb) |
 | **Data Storytelling** | Report · Presentation · Dashboard · Landing Page | [`public/index.html`](https://kaywiegand.github.io/zh-tram-flow/) |
 
@@ -79,7 +79,7 @@ The project follows a sequential logic — understanding before predicting:
 
 **Step 1 — Analysis of delay patterns and influencing factors**  
 Six dimensions: Temporal · Spatial · Network · Meteorology · Events · Target distribution  
-63 structured findings across 6 analysis notebooks.
+66 structured findings across 6 analysis notebooks.
 
 **Step 2 — Predictive modelling**  
 Can delays be predicted with operational accuracy? LightGBM v2, MAE 18.56s, −63% vs. naive baseline.
@@ -139,9 +139,9 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 
 ### Data Analysis
 
-→ [`03_analysis_0-overview`](notebooks/03_analysis_0-overview.ipynb) — index of all 63 findings
+→ [`03_analysis_0-overview`](notebooks/03_analysis_0-overview.ipynb) — index of all 66 findings
 
-6 analysis notebooks · **63 structured findings** across 6 dimensions: Target · Network · Temporal · Spatial · Weather · Events
+6 analysis notebooks · **66 structured findings** across 6 dimensions: Target · Network · Temporal · Spatial · Weather · Events
 
 | Dimension | Notebook | Key Finding |
 | :--- | :--- | :--- |
@@ -208,7 +208,7 @@ Four concrete actions that follow directly from the analysis findings:
 | [00_introduction](notebooks/00_introduction.ipynb) | Project context · data dictionary · VBZ line colours |
 | [01_exploration](notebooks/01_exploration.ipynb) | EDA: distributions · data quality · correlations · outliers |
 | [02_preparation](notebooks/02_preparation.ipynb) | Cleaning strategy · temporal split · feature prep |
-| [03_analysis_0-overview](notebooks/03_analysis_0-overview.ipynb) | All 63 findings indexed · executive summary |
+| [03_analysis_0-overview](notebooks/03_analysis_0-overview.ipynb) | All 66 findings indexed · executive summary |
 | [03_analysis_1-target](notebooks/03_analysis_1-target.ipynb) | Delay distribution · OTP 87% · cancellation patterns |
 | [03_analysis_2-network](notebooks/03_analysis_2-network.ipynb) | Network changes 2023–2025 · hotspot mapping |
 | [03_analysis_3-temporal](notebooks/03_analysis_3-temporal.ipynb) | Hour/weekday/month patterns — peak at 21h |

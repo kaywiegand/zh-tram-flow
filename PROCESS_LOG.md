@@ -369,7 +369,7 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 
 **Phase 0 (Data Engineering):** ✅ Abgeschlossen — in `sf_data-research`
 **Phase 1 (Setup & Dateneinstieg):** ✅ Abgeschlossen
-**Phase 2 (EDA & Analyse):** ✅ Abgeschlossen — 6 Analyse-Notebooks · 63 Findings
+**Phase 2 (EDA & Analyse):** ✅ Abgeschlossen — 6 Analyse-Notebooks · 66 Findings
 **Phase 3 (Feature Engineering):** ✅ Abgeschlossen — `train_final.parquet` / `test_final.parquet` (55.5M Zeilen)
 **Phase 4 (Modellierung):** ✅ Abgeschlossen — LightGBM v1 + v2 trainiert, XGBoost Robustheits-Check, Evaluation vollständig · Details → `06_prediction_*`
 **Phase 5 (Dashboard):** ⏳ Ausstehend — Tooling-Entscheidung (Streamlit vs. Dash) steht noch aus
@@ -379,7 +379,7 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 00_introduction.ipynb            ✅ fertig
 01_exploration.ipynb             ✅ fertig
 02_preparation.ipynb             ✅ ausgeführt — train/test + features in data/
-03_analysis_0-overview.ipynb     ✅ fertig (63 Findings · Executive Summary)
+03_analysis_0-overview.ipynb     ✅ fertig (66 Findings · Executive Summary)
 03_analysis_1-target.ipynb       ✅ fertig
 03_analysis_2-network.ipynb      ✅ fertig
 03_analysis_3-temporal.ipynb     ✅ fertig
