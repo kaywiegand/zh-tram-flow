@@ -1336,6 +1336,23 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 
 ---
 
+### 2026-06-17 (4) — Consistency Audit + README clean
+
+- **Fact-Check alle Notebooks**: MAE-Werte, Zeilenzahlen, Findings-Count systematisch geprüft
+- **Echte Inkonsistenzen behoben:**
+  - 93.9M → 94.4M (analysis_0-overview, älterer Zählstand)
+  - 63 → 66 Findings überall (F-REC-01–04 nach dem 63er-Stand hinzugekommen)
+  - 55 → 66 in prediction_3 (stand noch auf Pre-F-SIM-Stand)
+  - 49.0s / 49.1s → 49.10s (einheitlich 2 Nachkommastellen)
+  - Feature-Counts README: v1 34→32, v2 36→34 (aus lgbm_v1/v2_meta.json verifiziert)
+- **Findings-Tabelle** in analysis_7-findings: Zeilennummern 1–66 ergänzt
+- **Deutsche `###`/`####` Header** in 00_introduction, 01_exploration, 02_preparation übersetzt (14 Header)
+- **README**: "Zürich" → "Zurich" (6 Stellen), Haltestellenname Enzenbühl bleibt
+
+**Status:** Alle 21 Notebooks und README sauber und konsistent ✅
+
+---
+
 ### 2026-06-17 (4) — Public Views konsolidiert: Konsistenz & Inhaltsqualität
 
 **Was passiert ist:**
