@@ -90,7 +90,7 @@ No automated pipeline needed. For a new year (e.g. 2026):
 
 ### `prev_trip_delay` in Live Inference
 
-`prev_trip_delay` drives the main improvement (45.7s → 18.56s MAE). In a live inference scenario it requires **real-time trip tracking**.
+`prev_trip_delay` drives the main improvement (45.7s → 18,56 s MAE). In a live inference scenario it requires **real-time trip tracking**.
 
 | Scenario | Feasibility |
 | :--- | :--- |

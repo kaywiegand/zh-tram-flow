@@ -7,7 +7,7 @@ status: phase-4-complete
 date_completed: 2026-06
 stack: Python · Polars · LightGBM · Plotly · Jupyter
 rows: 94.4M
-model_mae: 18.56s
+model_mae: 18,56 s
 improvement: -63% vs. baseline
 links:
   github: https://github.com/kaywiegand/zh-tram-flow
@@ -37,7 +37,7 @@ Delays in Zürich's tram network are predictable because they are embedded in sc
 |:------|:--------:|:------------:|
 | Stop Mean Baseline | 50.0s | — |
 | LightGBM v1 | 45.7s | −4.3s |
-| **LightGBM v2** | **18.56s** | **−63%** |
+| **LightGBM v2** | **18,56 s** | **−63%** |
 
 Key driver: `prev_trip_delay` (cascade indicator) — top-2 feature by gain.
 

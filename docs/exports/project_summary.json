@@ -69,7 +69,7 @@
       },
       {
         "name": "LightGBM v2",
-        "test_mae_s": 18.56,
+        "test_mae_s": 18,56 s,
         "mbe_s": -0.69,
         "improvement_vs_baseline_pct": -63,
         "notes": "added prev_trip_delay + stop_sequence_pct"

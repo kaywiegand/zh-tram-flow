@@ -14,11 +14,11 @@
 
 **Target:** `arrival_delay` — how many seconds late a tram arrives at a stop · **OTP (On-Time Performance):** a stop is counted as on time if arrival delay < 120s
 
-- **87 OTP** across the network — against VBZ's own target of 95%. The gap is structural, not random.
+- 87 % across the network — against VBZ's own target of 95%. The gap is structural, not random.
 - **Peripheral corridors dominate.** Friedhof Enzenbühl (93.8s) and Balgrist (85.2s) are the worst stops — while Paradeplatz, where 14–15 lines cross, performs well.
 - **71.3% of all stops have 0s dwell time.** No recovery buffer built in. Delay accumulates and propagates: Pearson r ≥ 0.85 between consecutive stops across all lines.
 - **Snow is the strongest single factor:** +54s average delay, OTP −10.9pp — geographically separable from rain.
-- **LightGBM v2: MAE 18.56s — 63% below the Stop Mean baseline (50.0s).** Adding `prev_trip_delay` (cascade feature, derived from analysis finding F-NET-07) drove the main improvement. The model confirms the analysis: delay is predictable because it's structural.
+- **LightGBM v2: MAE 18,56 s — 63% below the Stop Mean baseline (50.0s).** Adding `prev_trip_delay` (cascade feature, derived from analysis finding F-NET-07) drove the main improvement. The model confirms the analysis: delay is predictable because it's structural.
 
 ---
 
@@ -82,17 +82,17 @@ Six dimensions: Temporal · Spatial · Network · Meteorology · Events · Targe
 66 structured findings across 6 analysis notebooks.
 
 **Step 2 — Predictive modelling**  
-Can delays be predicted with operational accuracy? LightGBM v2, MAE 18.56s, −63% vs. naive baseline.
+Can delays be predicted with operational accuracy? LightGBM v2, MAE 18,56 s, −63% vs. naive baseline.
 
 **OTP — On-Time Performance:** a stop event is counted as on time if `arrival_delay < 120s`.
 
 | Metric | Value |
 | :--- | :--- |
-| Network OTP (2023–2025) | **87** |
+| Network OTP (2023–2025) | *87 %* |
 | VBZ target | **95%** |
 | Gap | **−8pp** |
 
-87 sounds acceptable. It isn't — because 71.5% of all stops *accumulate* delay along the route. The network has no built-in recovery mechanism: 71.3% of stops have 0s planned dwell time. A delay that enters a trip stays in the trip, and spreads to the next.
+87 % sounds acceptable. It isn't — because 71.5% of all stops *accumulate* delay along the route. The network has no built-in recovery mechanism: 71.3% of stops have 0s planned dwell time. A delay that enters a trip stays in the trip, and spreads to the next.
 
 The goal is not just a model, but a full analytical story: **analysis dictates the model, findings become features.**
 
@@ -145,7 +145,7 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 
 | Dimension | Notebook | Key Finding |
 | :--- | :--- | :--- |
-| **Target** | [03_analysis_1-target](notebooks/03_analysis_1-target.ipynb) | OTP 87 · 71.5% of stops accumulate delay |
+| **Target** | [03_analysis_1-target](notebooks/03_analysis_1-target.ipynb) | OTP 87 % · 71.5% of stops accumulate delay |
 | **Network** | [03_analysis_2-network](notebooks/03_analysis_2-network.ipynb) | Dec 2023 VBZ overhaul invisible in delay signal (+0.5s net) |
 | **Temporal** | [03_analysis_3-temporal](notebooks/03_analysis_3-temporal.ipynb) | Peak at 21h (event wave) — not morning rush |
 | **Spatial** | [03_analysis_4-spatial](notebooks/03_analysis_4-spatial.ipynb) | Peripheral corridors dominate · 0 overlap density vs. delay |
@@ -162,7 +162,7 @@ Every finding gets a structured entry (ID · Finding · Impact · Action → Fea
 | :--- | :---: | :---: | :--- |
 | Stop Mean Baseline | — | 50.0s | — |
 | LightGBM v1 | 32 | 45.7s | −4.3s |
-| **LightGBM v2** | **34** | **18.56s** | **−31.4s (−63%)** |
+| **LightGBM v2** | **34** | **18,56 s** | **−31.4s (−63%)** |
 
 Strategy: temporal train/test split — 2023–Jun 2024 train / Jul–Dec 2024 val / 2025 hold-out test.
 `prev_trip_delay` (cascade feature from F-NET-07) drives the main improvement. The signal was in the data — not in the algorithm.
@@ -184,7 +184,7 @@ Strategy: temporal train/test split — 2023–Jun 2024 train / Jul–Dec 2024 v
 
 Top features (LightGBM v2 by gain): `stop_name` · `prev_trip_delay` · `hour` · `line_name` · `has_snow`
 
-MAE 18.56s means the model is on average less than 19 seconds off — on a network where the worst stops average 90+ seconds late. Bias (MBE) is −0.69s, effectively zero.
+MAE 18,56 s means the model is on average less than 19 seconds off — on a network where the worst stops average 90+ seconds late. Bias (MBE) is −0.69s, effectively zero.
 
 ### Recommendations
 
@@ -221,7 +221,7 @@ Four concrete actions that follow directly from the analysis findings:
 | [06_prediction_1-baseline](notebooks/06_prediction_1-baseline.ipynb) | Stop Mean baseline = 50.0s MAE |
 | [06_prediction_2-model](notebooks/06_prediction_2-model.ipynb) | First model: 32 features · Test MAE 45.7s |
 | [06_prediction_3-evaluation](notebooks/06_prediction_3-evaluation.ipynb) | Residuals · error analysis · feature importance |
-| [06_prediction_4-model_v2](notebooks/06_prediction_4-model_v2.ipynb) | Cascade feature → Test MAE 18.56s |
+| [06_prediction_4-model_v2](notebooks/06_prediction_4-model_v2.ipynb) | Cascade feature → Test MAE 18,56 s |
 | [06_prediction_5-comparison](notebooks/06_prediction_5-comparison.ipynb) | All models compared — final verdict |
 | [06_prediction_6-dwell_simulator](notebooks/06_prediction_6-dwell_simulator.ipynb) | Dwell-time confounding · binary distribution · cascade mechanism |
 | [06_prediction_7-recommendations](notebooks/06_prediction_7-recommendations.ipynb) | Risk matrix Stop×Line×Context · scheduling buffer recommendations |

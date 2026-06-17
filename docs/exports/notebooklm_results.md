@@ -41,7 +41,7 @@ proof:      4-Schritt-Beweiskette:
 
 so_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse:
             prev_trip_delay (Kaskadenindikator) ist das stärkste neue Feature in v2
-            — MAE sinkt von 45.7s auf 18.56. Fahrplan-Redesign an L11 ist der Hebel.
+            — MAE sinkt von 45.7s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.
 ```
 
 ---
@@ -119,7 +119,7 @@ source:    03_analysis_6-events.ipynb
 finding:   Der Delay an einem Halt überträgt sich mit r ≥ 0.85 auf den nächsten
            Halt desselben Trips — auf allen 16 Linien. Das ist kein statistisches
            Artefakt, sondern ein lernbares Signal: prev_trip_delay ist in LightGBM v2
-           das stärkste neue Feature und erklärt den Sprung von 45.7s auf 18.56 MAE.
+           das stärkste neue Feature und erklärt den Sprung von 45.7s auf 18,56 s MAE.
 number:    Pearson r ≥ 0.85 (alle 16 Linien)
 source:    03_analysis_4-spatial.ipynb · 06_prediction_4-model_v2.ipynb
 ```
@@ -154,11 +154,11 @@ test_rows:      ~29M (inkl. Nov/Dez 2025 — vorher ausgeschlossen, nach Maskier
 |---|---|---|---|---|
 | Stop Mean Baseline | — | 50.0s | — | Historical stop mean |
 | LightGBM v1 | 34 (Zeit · Wetter · Events · Linie · Stop) | 45.7s | −4.3s | Schedule + Weather + Events |
-| LightGBM v2 | 36 (+prev_trip_delay, +stop_sequence_pct) | **18.56** | **−31.4s (−63%)** | + Live-Signal (Vorgänger-Halt) |
+| LightGBM v2 | 36 (+prev_trip_delay, +stop_sequence_pct) | **18,56 s** | **−31.4s (−63%)** | + Live-Signal (Vorgänger-Halt) |
 
 ```
 best_model:     LightGBM v2
-best_metric:    18.56s MAE (Test) · MBE −0.69s (nahezu bias-frei)
+best_metric:    18,56 s MAE (Test) · MBE −0.69s (nahezu bias-frei)
 key_insight:    prev_trip_delay ist das stärkste neue Feature — bestätigt die
                 Kaskadenanalyse: Das Signal steckt in den Daten, nicht im Algorithmus.
                 XGBoost Robustheits-Check: val MAE ~21.4s (150 Runden, >90 Min auf 85M Zeilen)
@@ -224,7 +224,7 @@ r1:
 
 r2:
   title:  Real-Time Dispatch — Kaskadenmodell operativ nutzen
-  detail: LightGBM v2 mit prev_trip_delay erreicht MAE 18.56 (−63% vs. Baseline).
+  detail: LightGBM v2 mit prev_trip_delay erreicht MAE 18,56 s (−63% vs. Baseline).
           Das Signal ist echtzeit-verfügbar (Vorgänger-Halt als Input). Dispatchsystem
           könnte automatisch Taktlücken schließen bevor der Kaskadeneffekt entsteht.
 
@@ -282,8 +282,8 @@ slides_html:     ✅ vorhanden (presentation-v3.html — 21 Slides, manuell erst
 
 - **Delays are a periphery problem, not a city-centre problem.** Friedhof Enzenbühl (93.8s) and Balgrist (85.2s) are the worst stops — while Paradeplatz (14–15 lines crossing) performs well.
 - **Snow is the strongest single factor:** +54s average delay, OTP −10.9 percentage points. Geographically separable from rain — snow hits elevation zones (K10/K4/K12), rain hits river valleys (K5).
-- **LightGBM v2 predicts delay with MAE 18.56s — 63% below the Stop Mean baseline of 50.0s.** Adding a cascade feature (`prev_trip_delay`) drove the main improvement, confirming that delay propagates through the network.
-- **Predictable = structural = actionable.** A MAE of 18.56s is only achievable if delays follow patterns — random events don't predict this well. The model identifies which stops, lines, and operating conditions need schedule buffer, turning analysis findings directly into scheduling recommendations.
+- **LightGBM v2 predicts delay with MAE 18,56 s — 63% below the Stop Mean baseline of 50.0s.** Adding a cascade feature (`prev_trip_delay`) drove the main improvement, confirming that delay propagates through the network.
+- **Predictable = structural = actionable.** A MAE of 18,56 s is only achievable if delays follow patterns — random events don't predict this well. The model identifies which stops, lines, and operating conditions need schedule buffer, turning analysis findings directly into scheduling recommendations.
 
 ---
 
@@ -335,7 +335,7 @@ Every finding gets a structured entry — like a ticket:
 | **Finding** | Cascade effect confirmed: Pearson r ≥ 0.85 between consecutive stop delays within a trip |
 | **Impact** | High — affects every trip in the network, not just individual stops |
 | **Action → Feature** | `prev_trip_delay` added to LightGBM v2 |
-| **Result** | MAE dropped from 45.7s to **18.56s** — the single largest improvement |
+| **Result** | MAE dropped from 45.7s to **18,56 s** — the single largest improvement |
 
 This mirrors professional data team workflows (think Jira for analysis): findings are tracked systematically, impact-rated, and linked to concrete outputs — features, model decisions, or recommendations. The analysis overview notebook ([`03_analysis_0-overview.ipynb`](notebooks/03_analysis_0-overview.ipynb)) is the index across all 63 findings.
 
@@ -359,7 +359,7 @@ This mirrors professional data team workflows (think Jira for analysis): finding
 | Weather | Snow is strongest factor, geographically separable from rain | Snow +54s, OTP −10.9pp |
 | Events | Large events delay during 18–22h; public holidays best day type | Events +10.5s · Holidays −9.9s |
 | Network | Dec 2023 VBZ overhaul (largest in history) invisible in delay signal | Net effect +0.5s only |
-| OTP | 87 of stops on time (< 120s late) · 71.5% accumulate delay along route | Baseline for model target |
+| OTP | 87 % of stops on time (< 120s late) · 71.5% accumulate delay along route | Baseline for model target |
 
 ### Model Comparison
 
@@ -367,7 +367,7 @@ This mirrors professional data team workflows (think Jira for analysis): finding
 | :--- | :---: | :---: | :--- |
 | Stop Mean Baseline | 50.0s | — | Predicts historic average per stop |
 | LightGBM v1 | 45.7s | +8.3s | 32 features · 481 trees · temporal split |
-| **LightGBM v2** | **18.56s** | **−0.69s** | +`prev_trip_delay` + `stop_sequence_pct` · −63% vs. baseline |
+| **LightGBM v2** | **18,56 s** | **−0.69s** | +`prev_trip_delay` + `stop_sequence_pct` · −63% vs. baseline |
 
 Top features (LightGBM v2 by gain): `stop_name` · `prev_trip_delay` · `hour` · `line_name` · `has_snow`
 
@@ -484,7 +484,7 @@ jupyter lab
 | 06-1 | [Baseline](notebooks/06_prediction_1-baseline.ipynb) | Stop Mean baseline = 50.0s MAE |
 | 06-2 | [LightGBM v1](notebooks/06_prediction_2-model.ipynb) | First model: 32 features, Test MAE 45.7s |
 | 06-3 | [Evaluation](notebooks/06_prediction_3-evaluation.ipynb) | Residuals, error analysis, feature importance |
-| 06-4 | [LightGBM v2](notebooks/06_prediction_4-model_v2.ipynb) | Cascade feature → Test MAE 18.56s |
+| 06-4 | [LightGBM v2](notebooks/06_prediction_4-model_v2.ipynb) | Cascade feature → Test MAE 18,56 s |
 | 06-5 | [Comparison](notebooks/06_prediction_5-comparison.ipynb) | All models compared — final verdict |
 | 06-6 | [Dwell Simulator](notebooks/06_prediction_6-dwell_simulator.ipynb) | Dwell-time confounding analysis — binary distribution, cascade mechanism |
 | 06-7 | [Scheduling Recommendations](notebooks/06_prediction_7-scheduling_recommendations.ipynb) | Risk matrix Stop×Line×Context, scheduling buffer recommendations |

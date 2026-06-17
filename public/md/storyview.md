@@ -22,14 +22,14 @@
 
 * **94.4M** — Halt-Ereignisse
 * **87%** — OTP heute · Ziel: 95%
-* **18.56** — MAE LightGBM v2
+* **18,56 s** — MAE LightGBM v2
 * **−63%** — vs. Baseline
 
 ## Die These
 *Ein Satz, der das gesamte Projekt trägt*
 
 > Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.
-> Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45.7s auf 18.56. Fahrplan-Redesign an L11 ist der Hebel.
+> Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45.7s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.
 
 ## Inhalt
 *Sieben Kapitel, ein durchgehender Datenpfad*
@@ -51,7 +51,7 @@
 *Eine einfache Beobachtung, eine konkrete Frage*
 
 > Das Zürcher Tramnetz operiert mit 87% OTP systemisch unter dem VBZ-Zielwert von 95%. An 71.5% aller Halte akkumulieren Trams Verspätung. Das ist kein Wetter- und kein Event-Problem. Die Frage: Wo entsteht die Verspätung wirklich — und ist sie vorhersagbar?
-* **87** — OTP netzweit 2023–2025
+* *87 %* — OTP netzweit 2023–2025
 * **95%** — VBZ-Ziel bis 2028
 * **−8 PP** — Strukturelle Lücke
 * **56.3s** — Ø Ankunftsverspätung
@@ -133,7 +133,7 @@
 * **41 Mio.** — Trainings-Fahrten 2023–Jun 2024
 * **~29 Mio.** — Test-Fahrten vollständiges Jahr 2025
 * **−0.69s** — MBE nach Isotonic-Regression-Kalibrierung
-> prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45.7s auf 18.56 MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt.
+> prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45.7s auf 18,56 s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt.
 
 ## Machine Learning
 *Feature Importance bestätigt die Kaskadenthese*
@@ -192,5 +192,5 @@
 * **16** — Tramlinien
 * **66** — Befunde
 * **12** — Notebooks
-* **18.56** — MAE · LightGBM v2
+* **18,56 s** — MAE · LightGBM v2
 * **−63%** — vs. Baseline

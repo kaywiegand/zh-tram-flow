@@ -29,7 +29,7 @@
                 { "value": "94.4M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
                 { "value": "87%",   "label": "OTP · Ziel: 95%",           "sentiment": "negative" },
                 { "value": "71.3%", "label": "Haltestellen ohne Puffer",   "sentiment": "warning" },
-                { "value": "18.56s", "label": "Vorhersage-MAE LightGBM v2", "sentiment": "positive" }
+                { "value": "18,56 s", "label": "Vorhersage-MAE LightGBM v2", "sentiment": "positive" }
               ]
             }
           ]
@@ -69,7 +69,7 @@
                   "value": "87%",
                   "label": "OTP 2023–2025\n(netzweit)",
                   "sentiment": "negative",
-                  "context": "Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend."
+                  "context": "Ist-Zustand 2023–2025: 87 % % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend."
                 },
                 {
                   "value": "95%",
@@ -102,7 +102,7 @@
                 {
                   "step": "2",
                   "label": "Verspätungen vorhersagen",
-                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18.56s, −63% vs. Baseline"
+                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s, −63% vs. Baseline"
                 },
                 {
                   "step": "3",
@@ -257,7 +257,7 @@
               "rows": [
                 { "cells": ["Baseline (Stop Mean)", "—", "50.0s", "Ausgangspunkt"], "highlight": false },
                 { "cells": ["LightGBM v1 — Zeit · Wetter · Netz-Features · kein Live-Signal · MBE +8.3s", "34", "45.7s", "−4.3s"], "highlight": false },
-                { "cells": ["LightGBM v2 — +prev_trip_delay · +stop_sequence_pct · Isotonic-Kalibrierung · MBE −0.69s", "36", "18.56s", "−31.4s (−63%)"], "highlight": true }
+                { "cells": ["LightGBM v2 — +prev_trip_delay · +stop_sequence_pct · Isotonic-Kalibrierung · MBE −0.69s", "36", "18,56 s", "−31.4s (−63%)"], "highlight": true }
               ]
             },
             {
@@ -269,11 +269,11 @@
         },
         {
           "title": "Das Modell",
-          "subtitle": "18.56 Sekunden mittlerer Vorhersagefehler auf einem vollständigen ungesehenen Jahr",
+          "subtitle": "18,56 s Sekunden mittlerer Vorhersagefehler auf einem vollständigen ungesehenen Jahr",
           "content": [
             {
               "type": "figures",
-              "hero": { "value": "18.56 Sekunden", "label": "mittlerer Vorhersagefehler (MAE) · getestet auf dem vollständigen Jahr 2025", "sentiment": "positive" },
+              "hero": { "value": "18,56 s Sekunden", "label": "mittlerer Vorhersagefehler (MAE) · getestet auf dem vollständigen Jahr 2025", "sentiment": "positive" },
               "items": [
                 { "value": "41 Mio.", "label": "Trainings-Fahrten 2023 bis Mitte 2024", "sentiment": "neutral" },
                 { "value": "~29 Mio.", "label": "Test-Fahrten, vollständiges Jahr 2025", "sentiment": "neutral" },
@@ -349,7 +349,7 @@
                   "priority": 1,
                   "title": "Vorhersagemodell als Frühwarnsignal im Leitstellen-System",
                   "points": [
-                    "MAE 18.56s auf vollständigem Testjahr 2025, produktionsreif",
+                    "MAE 18,56 s auf vollständigem Testjahr 2025, produktionsreif",
                     "Kaskadenindikator ist in Echtzeit aus dem VBZ-Betriebssystem verfügbar",
                     "Frühwarnung bevor der Effekt einsetzt, nicht reaktiv nach Eskalation"
                   ]
@@ -489,7 +489,7 @@
                 { "value": "94.4M", "label": "Halt-Ereignisse 2023–2025", "sentiment": "neutral" },
                 { "value": "87%",   "label": "OTP · Ziel: 95%",           "sentiment": "negative" },
                 { "value": "71.3%", "label": "Haltestellen ohne Puffer",   "sentiment": "warning" },
-                { "value": "18.56s", "label": "Vorhersage-MAE LightGBM v2", "sentiment": "positive" }
+                { "value": "18,56 s", "label": "Vorhersage-MAE LightGBM v2", "sentiment": "positive" }
               ]
             }
           ]

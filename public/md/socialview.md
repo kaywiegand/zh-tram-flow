@@ -22,7 +22,7 @@
 
 * **94.4M** — Halt-Ereignisse 2023–2025
 * **87%** — OTP Status Quo vs. 95% Ziel
-* **18.56** — LightGBM MAE Vorhersagegenauigkeit
+* **18,56 s** — LightGBM MAE Vorhersagegenauigkeit
 * **−63%** — Verbesserung vs. Baseline
 
 
@@ -98,7 +98,7 @@ Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87%, Zie
 * **R2 · Real-Time Dispatch [Priorität 1]**
   - prev_trip_delay als Echtzeit-Signal nutzen
   - LightGBM v2 Inferenz: Millisekunden
-  - MAE 18.56 nachgewiesen
+  - MAE 18,56 s nachgewiesen
 * **R3 · Kapazitätsplanung [Priorität 2]**
   - Taktanpassung 20–22 Uhr
   - hour = 21 stärkstes Temporal-Feature
@@ -125,7 +125,7 @@ Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87%, Zie
   - Train 2023–Jun 2024 · Val Jul–Dez 2024 · Test 2025
   - Zukunft darf Vergangenheit nicht kennen — verhindert Data Leakage
 * **Validierung**
-  - 18.56 MAE auf ~29M Test-Fahrten (ein ganzes Jahr)
+  - 18,56 s MAE auf ~29M Test-Fahrten (ein ganzes Jahr)
   - XGBoost-Vergleich bestätigt Robustheit
   - Isotonic Regression Kalibrierung senkt MBE von +8.3s auf −0.69s
 

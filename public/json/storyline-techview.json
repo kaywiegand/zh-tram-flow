@@ -28,7 +28,7 @@
               "items": [
                 { "value": "94.4M", "label": "Halt-Ereignisse, 4 Datenquellen", "sentiment": "neutral" },
                 { "value": "50.0s", "label": "Baseline MAE (Stop Mean)",         "sentiment": "neutral" },
-                { "value": "18.56s", "label": "LightGBM v2 MAE (Test 2025)",     "sentiment": "positive" },
+                { "value": "18,56 s", "label": "LightGBM v2 MAE (Test 2025)",     "sentiment": "positive" },
                 { "value": "−63%",  "label": "Verbesserung vs. Baseline",        "sentiment": "positive" }
               ]
             }
@@ -251,7 +251,7 @@
                   "points": [
                     "prev_trip_delay: Verspätung des Vorgänger-Trips an diesem Halt — echtzeit-verfügbar",
                     "stop_sequence_pct: normierter Streckenfortschritt (0–1) — linienübergreifend lernbar",
-                    "Ergebnis: MAE 45.7s → 18.56s, −63%"
+                    "Ergebnis: MAE 45.7s → 18,56 s, −63%"
                   ]
                 }
               ]
@@ -301,12 +301,12 @@
               "rows": [
                 { "cells": ["Baseline (Stop Mean)", "—",                                        "50.0s", "—",      "—"],        "highlight": false },
                 { "cells": ["LightGBM v1",          "34 Features (Zeit · Wetter · Netz)",       "45.7s", "+8.3s",  "71.9% → 77.5%"], "highlight": false },
-                { "cells": ["LightGBM v2",          "+prev_trip_delay, +stop_sequence_pct",     "18.56s", "−0.69s", "→ kalibriert"], "highlight": true }
+                { "cells": ["LightGBM v2",          "+prev_trip_delay, +stop_sequence_pct",     "18,56 s", "−0.69s", "→ kalibriert"], "highlight": true }
               ]
             },
             {
               "type": "statement",
-              "text": "v1 war systematisch zu optimistisch (MBE +8.3s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0.69s. Der MAE-Sprung von 45.7s auf 18.56s entspricht −63% und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.",
+              "text": "v1 war systematisch zu optimistisch (MBE +8.3s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0.69s. Der MAE-Sprung von 45.7s auf 18,56 s entspricht −63% und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.",
               "sentiment": "positive"
             }
           ]
@@ -321,7 +321,7 @@
                 { "value": "~21.4s", "label": "XGBoost val MAE (150 Runden)", "sentiment": "warning" },
                 { "value": "90+ Min", "label": "XGBoost Trainingszeit auf 85M Zeilen", "sentiment": "negative" },
                 { "value": "18 Min",  "label": "LightGBM v2 Trainingszeit", "sentiment": "positive" },
-                { "value": "18.56s",  "label": "LightGBM v2 Test MAE (2025)", "sentiment": "positive" }
+                { "value": "18,56 s",  "label": "LightGBM v2 Test MAE (2025)", "sentiment": "positive" }
               ]
             },
             {
@@ -367,7 +367,7 @@
               "items": [
                 {
                   "assumption": "Produktionsreif",
-                  "finding": "LightGBM v2: MAE 18.56s, MBE −0.69s, trainiert auf 41M Fahrten, getestet auf vollständigem Jahr 2025 (~29M). Streamlit-Dashboard mit Live-Predictor lauffähig. Code vollständig reproduzierbar."
+                  "finding": "LightGBM v2: MAE 18,56 s, MBE −0.69s, trainiert auf 41M Fahrten, getestet auf vollständigem Jahr 2025 (~29M). Streamlit-Dashboard mit Live-Predictor lauffähig. Code vollständig reproduzierbar."
                 },
                 {
                   "assumption": "Offen: Hyperparameter-Tuning",
@@ -413,7 +413,7 @@
                   "points": [
                     "prev_trip_delay ist das stärkste Feature — und in Echtzeit aus VBZ-System verfügbar",
                     "LightGBM v2 Inferenz: Millisekunden pro Vorhersage, keine Latenz-Probleme",
-                    "MAE 18.56s auf Test 2025: Produktionsreife bereits nachgewiesen"
+                    "MAE 18,56 s auf Test 2025: Produktionsreife bereits nachgewiesen"
                   ]
                 },
                 {
@@ -450,7 +450,7 @@
                 { "value": "41.2M",  "label": "Trainings-Fahrten",  "sentiment": "neutral" },
                 { "value": "~29M",   "label": "Test-Fahrten (2025)", "sentiment": "neutral" },
                 { "value": "36",     "label": "Features (v2)",       "sentiment": "neutral" },
-                { "value": "18.56s",  "label": "MAE · LightGBM v2",  "sentiment": "positive" },
+                { "value": "18,56 s",  "label": "MAE · LightGBM v2",  "sentiment": "positive" },
                 { "value": "−63%",   "label": "vs. Baseline",        "sentiment": "positive" }
               ]
             },

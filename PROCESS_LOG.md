@@ -51,11 +51,11 @@ PROCESS_LOG Session-Notes verwenden ab dieser Sektion Pointer auf Notebooks — 
 | lf_clean Zeilen | ~85M | `02_preparation.ipynb` | portfolio.md |
 | Train / Val / Test Zeilen | 41.2M / 14.3M / ~29M | `05_feature_engineering.ipynb` | portfolio.md |
 | Findings gesamt | 55 | `03_analysis_0-overview.ipynb` | README · ROADMAP · portfolio.md |
-| OTP netzweit | 87 | `03_analysis_1-target.ipynb` | README · ROADMAP · portfolio.md |
+| OTP netzweit | 87 % | `03_analysis_1-target.ipynb` | README · ROADMAP · portfolio.md |
 | Delay-Akkumulation | 71.5% | `03_analysis_1-target.ipynb` | README · portfolio.md |
 | Stop Mean Baseline MAE | 50.0s | `06_prediction_1-baseline.ipynb` | README · ROADMAP · portfolio.md |
 | LightGBM v1 Test MAE / MBE | 45.7s / +8.3s | `06_prediction_2-model.ipynb` | README · ROADMAP · portfolio.md |
-| LightGBM v2 Test MAE / MBE | 18.56s / −0.69s | `06_prediction_4-model_v2.ipynb` | README · ROADMAP · portfolio.md |
+| LightGBM v2 Test MAE / MBE | 18,56 s / −0.69s | `06_prediction_4-model_v2.ipynb` | README · ROADMAP · portfolio.md |
 | XGBoost val MAE (Robustheits-Check) | ~21.4s | `06_prediction_5-comparison.ipynb` | portfolio.md |
 
 **Konvention — welche Files dürfen Zahlen enthalten:**
@@ -338,7 +338,7 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 **Notebooks — erklärende Markdown-Zellen eingefügt (kein Code geändert):**
 - `01_exploration`: is_windy 100% NaN — Completeness-Lektion
 - `02_preparation`: Temporal Split — Data Leakage konkretes Gegenbeispiel, saisonale Vollständigkeit
-- `03_analysis_0-overview`: Finding-ID-System als Ticket-Analogie, vollständige Kette F-NET-07 → prev_trip_delay → MAE 18.56s
+- `03_analysis_0-overview`: Finding-ID-System als Ticket-Analogie, vollständige Kette F-NET-07 → prev_trip_delay → MAE 18,56 s
 - `06_prediction_0-overview`: MAE vs. RMSE erweitert, MBE definiert, MAPE-Ausschluss begründet
 - `06_prediction_2-model`: v1 Interpretation — 0.9s über Baseline ist der Plan, nicht Versagen (agile v1→v2)
 - `06_prediction_4-model_v2`: prev_trip_delay Stärke + Live-Availability-Risiko; Isotonic Regression Erklärung (Bias ≠ globaler Offset)
@@ -392,7 +392,7 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 06_prediction_1-baseline.ipynb   ✅ ausgeführt — Stop Mean 50.0s als Benchmark
 06_prediction_2-model.ipynb      ✅ ausgeführt — LightGBM v1: Test MAE 45.7s
 06_prediction_3-evaluation.ipynb ✅ ausgeführt — Fehleranalyse, Feature Importance, Residuals
-06_prediction_4-model_v2.ipynb   ✅ ausgeführt — LightGBM v2: Test MAE 18.56s, MBE −0.69s
+06_prediction_4-model_v2.ipynb   ✅ ausgeführt — LightGBM v2: Test MAE 18,56 s, MBE −0.69s
 06_prediction_5-comparison.ipynb ✅ ausgeführt — LightGBM v2 vs. XGBoost: Vergleich dokumentiert
 06_prediction_6-dwell_simulator.ipynb       ✅ ausgeführt — dwell_time binär (0/60s), r=+0.16 Konfundierung
 06_prediction_7-recommendations.ipynb ✅ ausgeführt — Risikomatrix Stop×Linie×Kontext, Empfehlungskarte
@@ -887,7 +887,7 @@ Vollständige Neuerstellung auf Basis von `presentation.html` (v1). Zentrale Än
 
 - **Kernthese-Folie (Slide 2):** "Die Verspätungen im Zürcher Tramnetz sind vorhersagbar. Vorhersagbar heisst: steuerbar." — eigene Folie statt nur Bullet in Insights
 - **4-Schritt-Beweiskette (Slide 10):** Evidence Chain als visuelles Kernelement: Anomalie → Gradient → Mechanismus → Kaskade. Schliesst direkt aus der Analyse-Phase.
-- **Modellentwicklung (Slide 13):** Progressions-Tabelle: Baseline 50.0s → LightGBM v1 45.7s → LightGBM v2 18.56s* → XGBoost (pending)
+- **Modellentwicklung (Slide 13):** Progressions-Tabelle: Baseline 50.0s → LightGBM v1 45.7s → LightGBM v2 18,56 s* → XGBoost (pending)
 - **v2-Interpretation (Slide 14):** Zwei Modell-Karten nebeneinander: v1 = Pre-Trip-Modell, v2 = Real-Time-Dispatch — erklärt den Unterschied und den Nutzungskontext
 - **Neue Empfehlungen (Slide 16):** Kein "Netzausbau K11/K12" mehr — stattdessen: Fahrplan-Redesign L11 · Real-Time Dispatch · Kapazität Abend · OTP-Monitoring
 - **Storyline entfernt:** "Investitions-Mismatch" vollständig raus — neue Empfehlungen sind alle direkt durch Befunde gedeckt
@@ -1032,7 +1032,7 @@ Ziel: `/portfolio story` auf einem Projekt aufrufen → `reports/portfolio_summa
 
 **Full-Circle-Narrative:**
 Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufällig)
-→ Modell (MAE 18.56s beweist Muster) → Empfehlung (Modell informiert Fahrplandesign)
+→ Modell (MAE 18,56 s beweist Muster) → Empfehlung (Modell informiert Fahrplandesign)
 
 **Nächster Schritt:** #45 Findings-Index + #44 Presentation-Folie + #40 Situationsvergleich
 
@@ -1059,7 +1059,7 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 **Was wurde gemacht:**
 
 **#6 Meta-Abgleich** (`00_introduction.ipynb` · `README.md` · `ROADMAP.md`):
-- `00_introduction.ipynb` Cell 6: TODO-Platzhalter durch tatsächliche Modell-Ergebnisse ersetzt (LightGBM v1 45.7s · v2 18.56s · Tabelle mit Baseline-Vergleich)
+- `00_introduction.ipynb` Cell 6: TODO-Platzhalter durch tatsächliche Modell-Ergebnisse ersetzt (LightGBM v1 45.7s · v2 18,56 s · Tabelle mit Baseline-Vergleich)
 - `00_introduction.ipynb` Cell 15: "55 Findings" → "63 Findings", MAE-Zahlen korrigiert (50.7→50.0, 46.3→45.7), fehlende Notebooks 06-4 bis 06-7 ergänzt, Status-Emojis aktualisiert (🔄→✅)
 - `00_introduction.ipynb` Cell 2 (Facts): Stack-Zeile bereinigt — GeoPandas + Folium entfernt
 - `README.md`: Notebooks-Tabelle um 06-6 (Dwell Simulator) + 06-7 (Scheduling Recommendations) ergänzt
@@ -1305,7 +1305,7 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 
 - **06_prediction_0-overview** vollständig auf Ergebnissprache umgeschrieben (BACKLOG #57)
   - Subtitle: APPROACH · RESULTS · V1 → V2 · KEY INSIGHT
-  - Planungs-Intro → 2-Satz-Ergebnis-Summary (v1 45.7s → v2 18.56s, −63%)
+  - Planungs-Intro → 2-Satz-Ergebnis-Summary (v1 45.7s → v2 18,56 s, −63%)
   - "Vorgehen Schritt für Schritt" / "Tag 1/Tag 2" → "Modelling Approach" (5 Schritte, Past Tense)
   - "Offene Entscheidungen" → "Key Decisions" mit Outcomes
   - "Notebooks in dieser Phase" → vollständig (7 Notebooks)

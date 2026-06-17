@@ -161,7 +161,7 @@
 - ✅ Feature Engineering: `prev_trip_delay` (Kaskadenindikator) + `stop_sequence_pct` — 2 neue Features
 - ✅ Export: `train_final_v2.parquet` + `test_final_v2.parquet` (inkl. Nov/Dez 2025)
 - ✅ Training: LightGBM v2 — identische Hyperparameter, erweitertes Feature-Set
-- ✅ **Test MAE: 18.56 · MBE −0.69s** — −63% vs. Stop Mean Baseline (50.0s)
+- ✅ **Test MAE: 18,56 s · MBE −0.69s** — −63% vs. Stop Mean Baseline (50.0s)
 - ✅ Feature Importance — `prev_trip_delay` in Top-2 (nach `stop_name`) — schließt Kreis zur Analyse
 - ✅ Bias-Kalibrierung: Isotonic Regression → MBE von +8.3s (v1) auf −0.69s (v2)
 - ✅ Export: `lgbm_v2.txt` + `lgbm_v2_meta.json` + `test_predictions_v2.parquet`
