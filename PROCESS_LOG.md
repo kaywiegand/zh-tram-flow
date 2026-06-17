@@ -1323,3 +1323,13 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - Noch offen: 05_feature_engineering (deutsche Sekundär-Header), 06_prediction_1–6 (kursorisch)
 
 **Nächster Schritt:** `/project-case check` → Portfolio-Readiness Score · dann #58 (03_analysis_7-findings finalisieren)
+
+---
+
+### 2026-06-17 (3) — Alle Notebooks: Deutsche Header vollständig übersetzt
+
+- **04_insights, 05_feature_engineering, 06_prediction_0–7**: restliche deutsche Section-Header → Englisch (~20 Header)
+- Alle 21 Notebooks haben jetzt ausschliesslich englische Section-Header ✅
+- Nebeneffekt entdeckt + behoben: `source` in einigen Zellen war als Zeichenliste statt Zeilenliste gespeichert (Normalisierung via `splitlines(keepends=True)`)
+
+**Nächster Schritt:** `/project-case check` → Portfolio-Readiness Score
