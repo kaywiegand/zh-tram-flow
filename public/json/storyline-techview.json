@@ -353,7 +353,7 @@
             },
             {
               "type": "statement",
-              "text": "Die Kaskadenanalyse (r ≥ 0.85 netzweit) hat die Feature-Wichtigkeit korrekt antizipiert. Das Modell bestätigt: Das Signal steckt in den Daten, nicht im Algorithmus.",
+              "text": "Die Kaskadenanalyse (r ≥ 0,85 netzweit) hat die Feature-Wichtigkeit korrekt antizipiert. Das Modell bestätigt: Das Signal steckt in den Daten, nicht im Algorithmus.",
               "sentiment": "positive"
             }
           ]

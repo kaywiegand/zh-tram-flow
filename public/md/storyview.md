@@ -115,7 +115,7 @@
 * **71,5 %** — Halte akkumulieren Delay
 * **L11** — 68,7 s · OTP 82 %, stärkste Akkumulation
 * **71,3 %** — Haltestellen ohne Standzeit (0s)
-* **r ≥ 0.85** — Kaskadenkorrelation alle 16 Linien
+* **r ≥ 0,85** — Kaskadenkorrelation alle 16 Linien
 
 
 ---

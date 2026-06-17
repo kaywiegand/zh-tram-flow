@@ -154,7 +154,7 @@
 ## Feature Importance
 *prev_trip_delay dominiert — die Analyse hat recht behalten*
 
-> Die Kaskadenanalyse (r ≥ 0.85 netzweit) hat die Feature-Wichtigkeit korrekt antizipiert. Das Modell bestätigt: Das Signal steckt in den Daten, nicht im Algorithmus.
+> Die Kaskadenanalyse (r ≥ 0,85 netzweit) hat die Feature-Wichtigkeit korrekt antizipiert. Das Modell bestätigt: Das Signal steckt in den Daten, nicht im Algorithmus.
 
 ## Produktionsreife und Reflexion
 *Was produktionsreif ist, was offen bleibt*

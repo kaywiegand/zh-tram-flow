@@ -161,7 +161,7 @@
   <div style="margin-top:1.4em;">
     <div class="box"><strong>F1: Welche Halte sind die Verursacher?</strong> Kreise 11 & 12 haben die höchsten Delay-Level.</div>
     <div class="box"><strong>F2: Zeitliche Muster?</strong> hour = 21 ist das stärkste Temporal-Feature. Spätschicht kritisch.</div>
-    <div class="box"><strong>F3: Kaskadeneffekt?</strong> Ja. Halt n+1 verzögert sich proportional zu Halt n. Korr. r ≥ 0.85 über alle 16 Linien.</div>
+    <div class="box"><strong>F3: Kaskadeneffekt?</strong> Ja. Halt n+1 verzögert sich proportional zu Halt n. Korr. r ≥ 0,85 über alle 16 Linien.</div>
     <div class="box amber"><strong>F4: Wetter-Abhängigkeit?</strong> hat_heavy_rain > has_rain. Aber Modell-Feature schwächer als Kaskade.</div>
     <div class="box green"><strong>F5: Stop-Sequenz-Effekt?</strong> Je später im Fahrplan, desto akkumulierter der Delay. stop_sequence_pct funktioniert.</div>
     <div class="box green"><strong>F6: Dwell-Time = 0 als Root Cause?</strong> Ja. Halte ohne geplante Standzeit können nicht aufholen. Sind Koppelstellen.</div>
@@ -172,7 +172,7 @@
   <span class="subline">Die Kaskadenentdeckung</span>
   <div style="margin-top:1.2em;">
     <div class="box" style="background:#e5f5ec; border-color:#4cd98a;"><strong>Kernbefund:</strong> Tramhalte sind nicht unabhängig. Verspätung an Halt n wirkt sich auf Halt n+1 aus. Diese Abhängigkeit ist stärker als Wetter, stärker als Uhrzeit.</div>
-    <div class="box" style="background:#e5f5ec; border-color:#4cd98a; margin-top:8px;"><strong>Messung:</strong> Pearson r ≥ 0.85 zwischen prev_trip_delay und arrival_delay über alle 16 Linien. Konsistenter Effekt.</div>
+    <div class="box" style="background:#e5f5ec; border-color:#4cd98a; margin-top:8px;"><strong>Messung:</strong> Pearson r ≥ 0,85 zwischen prev_trip_delay und arrival_delay über alle 16 Linien. Konsistenter Effekt.</div>
   </div>
   <div style="margin-top:1.2em; padding:14px; background:#f0f7fb; border:1px solid #d0e8f5; border-radius:8px;">
     <div style="font-size:0.88em; color:#1a3a5c;"><strong>Was das bedeutet:</strong> Ein Tramfahrer, der 2 Minuten Verspätung hat, überträgt diese Verspätung auf die nächste Haltestelle. Und die nächste. Das breitet sich aus wie eine Kettenreaktion.</div>
@@ -207,7 +207,7 @@
   <h2>Die Antwort</h2>
   <span class="subline">Ja, Tramverspätungen sind vorhersagbar</span>
   <div style="margin-top:1.4em;">
-    <div class="box green" style="background:#e5f5ec; border-color:#4cd98a;"><strong>Beweis 1: Kaskaden sind das Muster</strong> — prev_trip_delay ist mit r ≥ 0.85 korreliert. Nicht zufällig.</div>
+    <div class="box green" style="background:#e5f5ec; border-color:#4cd98a;"><strong>Beweis 1: Kaskaden sind das Muster</strong> — prev_trip_delay ist mit r ≥ 0,85 korreliert. Nicht zufällig.</div>
     <div class="box green" style="background:#e5f5ec; border-color:#4cd98a; margin-top:8px;"><strong>Ergebnis: Das Modell erreicht operative Genauigkeit</strong> — 18,56 s MAE auf ~29 M Test-Fahrten (ein ganzes Jahr 2025). MBE < 1 Sekunde.</div>
     <div class="box green" style="background:#e5f5ec; border-color:#4cd98a; margin-top:8px;"><strong>Beweis 3: Stop Dwell-Time ist das Root Cause</strong> — dwell_time = 0 ist das Feature, bei dem Halte nicht aufholen können. Ist bei Koppelstellen häufig.</div>
   </div>

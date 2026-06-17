@@ -30,14 +30,14 @@ thesis:     Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil si
             Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.
 
 hook:       Der Hauptpeak liegt um 21h (Abreisewelle nach Events) — nicht um 8h
-            (Morgenrush). Und alle 16 Tramlinien zeigen Pearson r ≥ 0.85 zwischen
+            (Morgenrush). Und alle 16 Tramlinien zeigen Pearson r ≥ 0,85 zwischen
             aufeinanderfolgenden Halten: Der Delay kaskadiert systematisch.
 
 proof:      4-Schritt-Beweiskette:
             1. Anomalie — periphere Hotspots, nicht zentrale Knotenpunkte
             2. Gradient — Delay wächst entlang der Strecke (L11 vs. L6 als Kontrast)
             3. Mechanismus — 71,3 % dwell_time = 0s: kein Puffer, keine Erholung möglich
-            4. Kaskade — Pearson r ≥ 0.85 netzweit: systematisch, kein Einzelfall
+            4. Kaskade — Pearson r ≥ 0,85 netzweit: systematisch, kein Einzelfall
 
 so_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse:
             prev_trip_delay (Kaskadenindikator) ist das stärkste neue Feature in v2
@@ -52,7 +52,7 @@ so_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analy
 kpi_name:   OTP — On-Time Performance (arrival_delay ≤ 120s)
 kpi_ist:    87
 kpi_soll:   95 % (VBZ-Standard / VDPW)
-kpi_gap:    −8 pp
+kpi_gap:    −8 %
 
 problem_statement: |
   Das Zürcher Tramnetz operiert systemisch unter dem VBZ-Zielwert: 87 % OTP
@@ -96,7 +96,7 @@ source:    03_analysis_3-temporal.ipynb
 
 ### F4 — Wetter: Schnee geografisch trennbar von Regen
 ```
-finding:   Schnee ist der stärkste Einzeleffekt (+54s, OTP −10,9 pp). Geografisch
+finding:   Schnee ist der stärkste Einzeleffekt (+54s, OTP −10,9 %). Geografisch
            klar trennbar: Schnee trifft Höhenlagen (K10/K4/K12), Regen trifft
            Flusstäler (K5 / Limmat). Linien reagieren komplett unterschiedlich:
            L9 Schnee +75,9 s vs. Regen +10,0 s — L17 umgekehrt.
@@ -114,13 +114,13 @@ number:    Feiertage −9,9 s · Fachmessen 66,0 s
 source:    03_analysis_6-events.ipynb
 ```
 
-### F6 — Kaskade: Pearson r ≥ 0.85 auf allen 16 Linien
+### F6 — Kaskade: Pearson r ≥ 0,85 auf allen 16 Linien
 ```
 finding:   Der Delay an einem Halt überträgt sich mit r ≥ 0.85 auf den nächsten
            Halt desselben Trips — auf allen 16 Linien. Das ist kein statistisches
            Artefakt, sondern ein lernbares Signal: prev_trip_delay ist in LightGBM v2
            das stärkste neue Feature und erklärt den Sprung von 45,7 s auf 18,56 s MAE.
-number:    Pearson r ≥ 0.85 (alle 16 Linien)
+number:    Pearson r ≥ 0,85 (alle 16 Linien)
 source:    03_analysis_4-spatial.ipynb · 06_prediction_4-model_v2.ipynb
 ```
 
@@ -220,7 +220,7 @@ r1:
   detail: 71,3 % aller Haltestellen haben 0s dwell_time — kein Erholungsmechanismus.
           L11 (68,7 s, OTP 82 %) und ihre Endstationen zeigen die stärkste Akkumulation.
           Selbst +10s Puffer an 3–5 kritischen Koppelstellen würde den Kaskadeneffekt
-          unterbrechen (Hebel #1, direkt durch dwell_time=0 und Pearson r ≥ 0.85 gedeckt).
+          unterbrechen (Hebel #1, direkt durch dwell_time=0 und Pearson r ≥ 0,85 gedeckt).
 
 r2:
   title:  Real-Time Dispatch — Kaskadenmodell operativ nutzen

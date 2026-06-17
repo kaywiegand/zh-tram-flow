@@ -87,7 +87,7 @@
                   "label": "✓ Kaskadeneffekt: Verspätungen breiten sich aus",
                   "points": [
                     "Halt n+1 verzögert sich proportional zu Halt n",
-                    "Pearson r ≥ 0.85 über alle 16 Linien — nicht Zufall",
+                    "Pearson r ≥ 0,85 über alle 16 Linien — nicht Zufall",
                     "Bedeutung: Wenn wir die Kette unterbrechen, stabilisiert sich das Gesamtsystem"
                   ]
                 },

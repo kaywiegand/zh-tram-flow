@@ -45,7 +45,7 @@ Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87 %, Zi
 
 * **✓ Kaskadeneffekt: Verspätungen breiten sich aus**
   - Halt n+1 verzögert sich proportional zu Halt n
-  - Pearson r ≥ 0.85 über alle 16 Linien — nicht Zufall
+  - Pearson r ≥ 0,85 über alle 16 Linien — nicht Zufall
   - Bedeutung: Wenn wir die Kette unterbrechen, stabilisiert sich das Gesamtsystem
 * **✓ Das System hat keinen Puffer eingebaut**
   - 71,3 % aller Halte haben dwell_time = 0s — keine Möglichkeit zur Selbstkorrektur

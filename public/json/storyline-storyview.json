@@ -259,7 +259,7 @@
                 { "value": "71,5 %",    "label": "Halte akkumulieren Delay",          "sentiment": "warning" },
                 { "value": "L11",      "label": "68,7 s · OTP 82 %, stärkste Akkumulation", "sentiment": "negative" },
                 { "value": "71,3 %",    "label": "Haltestellen ohne Standzeit (0s)", "sentiment": "warning" },
-                { "value": "r ≥ 0.85", "label": "Kaskadenkorrelation alle 16 Linien", "sentiment": "negative" }
+                { "value": "r ≥ 0,85", "label": "Kaskadenkorrelation alle 16 Linien", "sentiment": "negative" }
               ]
             },
             {
@@ -279,7 +279,7 @@
                 },
                 {
                   "label": "Kaskade",
-                  "text": "Pearson r ≥ 0.85 zwischen aufeinanderfolgenden Halts — auf allen 16 Linien. Systematisch, kein Einzelfall."
+                  "text": "Pearson r ≥ 0,85 zwischen aufeinanderfolgenden Halts — auf allen 16 Linien. Systematisch, kein Einzelfall."
                 }
               ]
             }

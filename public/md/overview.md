@@ -85,7 +85,7 @@ analysiert
 * **71,5 %** — Halte die Delay akkumulieren
 * **L11** — 68,7 s · OTP 82 % — stärkste Akkumulation
 * **71,3 %** — Haltestellen ohne Standzeit
-* **r ≥ 0.85** — Kaskadenkorrelation alle 16 Linien
+* **r ≥ 0,85** — Kaskadenkorrelation alle 16 Linien
 > Das ist kein Betriebsversagen. Es ist ein Fahrplan-Design-Thema. Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden.
 > Zwei externe Einflussfaktoren sind messbar und erheblich: Schnee (+54s) und Grossevents (bis +66s bei Fachmessen). Doch das Grundniveau der Verspätung bleibt auch bei optimalen Bedingungen konstant hoch. Externe Faktoren verstärken, was intern bereits strukturell angelegt ist.
 > Trotz Bauphasen, Streckensperrungen und Fahrplanumstellungen hält die VBZ das System bemerkenswert stabil. Die Verspätungslevel schwanken durch diese Eingriffe kaum. Die Ursache liegt nicht in externen Störungen, sondern im Fahrplan-Design selbst.
