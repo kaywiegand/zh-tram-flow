@@ -152,17 +152,21 @@ def otp_delta_str(otp: float) -> str:
     return f"{gap:+.1f} PP zum Ziel"
 
 def route_for_line(line: str) -> pd.DataFrame:
-    """Route-Profil einer Linie, angereichert mit Stop-Koordinaten."""
+    """Route-Profil einer Linie — geografisch sortiert mit OTP + dwell_time.
+
+    NOTE: route_df ist bereits nach lat/lon sortiert (geografische Reihenfolge entlang der Linie).
+    Wir bereichern es nur mit stop_df-Metadaten, behalten aber die Sortierung.
+    """
     r = (
         route_df
         .filter(pl.col("line_name").cast(pl.String) == str(line))
         .with_columns(pl.col("stop_name").cast(pl.Utf8))
         .join(
-            stop_df.select(["stop_name", "lat", "lon", "otp_pct", "dwell_time_median"])
+            stop_df.select(["stop_name", "otp_pct", "dwell_time_median"])
                 .with_columns(pl.col("stop_name").cast(pl.Utf8)),
             on="stop_name", how="left",
         )
-        .sort("mean_delay", descending=True)
+        # Keep geographic order (lat/lon) — don't re-sort
         .to_pandas()
     )
     r["stop_short"] = r["stop_name"].str.replace(r"Zürich, ?", "", regex=True)

@@ -151,14 +151,17 @@ print(f"  → stop_line_lookup: {len(stop_line_lookup)} rows")
 # ─── 6. Route delay profile (for cascade finding) ────────────────────────────
 print("Computing route_profile ...")
 
-# Stop sequence approximation: use mean delay along route, ordered by mean_delay
-# for each line, group by stop to get the cascade profile
+# Per line: stops ordered by geographic position (lat → lon)
+# This ensures the map shows stops in geographic sequence, not scrambled by delay
+# (stop_sequence was lost in feature engineering, so we approximate via lat/lon)
 route_profile = (
     lf.group_by(["line_name", "stop_name"])
     .agg(
         pl.mean("arrival_delay").alias("mean_delay"),
         pl.first("is_start_stop"),
         pl.first("is_end_stop"),
+        pl.first("stop_lat").alias("lat"),
+        pl.first("stop_lon").alias("lon"),
         pl.count().alias("n_obs"),
     )
     .collect()
@@ -166,7 +169,7 @@ route_profile = (
         pl.col("stop_name").cast(pl.String),
         pl.col("line_name").cast(pl.String),
     )
-    .sort(["line_name", "mean_delay"])
+    .sort(["line_name", "lat", "lon"])  # Geographic sort: latitude first, then longitude
 )
 
 route_profile.write_parquet(DATA_DIR / "route_profile.parquet")
