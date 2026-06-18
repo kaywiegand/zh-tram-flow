@@ -438,7 +438,6 @@ if page == "Linie erkunden":
                 color=map_data["mean_delay"],
                 colorscale=[[0, GREEN], [0.4, AMBER], [1, RED]],
                 colorbar=dict(title="Delay (s)", thickness=12),
-                line=dict(width=1, color="white"),
             ),
             text=[
                 f"<b>{stop}</b><br>"
