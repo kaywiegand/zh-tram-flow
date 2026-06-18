@@ -484,18 +484,33 @@ if page == "Linie erkunden":
         format_func=lambda x: f"Linie {x}",
     )
 
-    stats   = line_stats(sel_line)
-    route   = route_for_line(sel_line)
-    worst   = worst_stops_for_line(sel_line, n=5)
+    route = route_for_line(sel_line)
 
-    if not stats:
+    if len(route) == 0:
         st.warning("Keine Daten für diese Linie.")
         st.stop()
 
-    # ── KPIs ──
-    otp   = stats["otp_pct"]
-    delay = stats["mean_delay"]
-    n_stops = stats["n_stops_line"]
+    # Filter to main route FIRST (before calculating stats)
+    route_filtered = filter_route_for_display(route)
+
+    # Calculate KPIs from filtered route only
+    n_stops = len(route_filtered)
+    otp = (route_filtered["otp_pct"].mean() if "otp_pct" in route_filtered.columns
+           else route_filtered.get("otp_pct", 0).mean())
+    delay = route_filtered["mean_delay"].mean() if "mean_delay" in route_filtered.columns else 0
+
+    # Get TOP 5 from filtered route
+    worst = route_filtered.nlargest(5, "mean_delay") if len(route_filtered) > 0 else pd.DataFrame()
+
+    # Prepare worst_stops_for_display format
+    if len(worst) > 0:
+        worst_display = worst[["stop_name", "mean_delay", "otp_pct", "dwell_time_median"]].copy()
+        worst_display.columns = ["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"]
+        worst = worst_display
+    else:
+        worst = pd.DataFrame(columns=["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"])
+
+    # ── KPIs (now based on filtered route) ──
 
     c1, c2, c3 = st.columns(3)
     c1.metric(
@@ -505,16 +520,14 @@ if page == "Linie erkunden":
         delta_color="normal",
     )
     c2.metric("Ø Verspätung", f"{delay:.0f}s")
-    c3.metric("Haltestellen", int(n_stops))
+    c3.metric("Haltestellen (Hauptroute)", int(n_stops))
 
     st.markdown("---")
 
     # ── Delay-Profil: Plotly Bar (nach Delay sortiert) ──
     section_label("Delay pro Haltestelle")
 
-    # Filter route to main stops (≥5% of frequency) — consistent with map
-    route_filtered = filter_route_for_display(route)
-
+    # route_filtered already calculated above — use it consistently
     color = line_color(sel_line)
     bar_colors = [RED if d > 70 else AMBER if d > 40 else color for d in route_filtered["mean_delay"]]
 
@@ -523,7 +536,7 @@ if page == "Linie erkunden":
         y=route_filtered["mean_delay"].round(1),
         marker_color=bar_colors,
         marker_line_width=0,
-        text=route["mean_delay"].round(0).astype(int).astype(str) + "s",
+        text=route_filtered["mean_delay"].round(0).astype(int).astype(str) + "s",
         textposition="outside",
         hovertemplate=(
             "<b>%{customdata[0]}</b><br>"
@@ -569,14 +582,12 @@ if page == "Linie erkunden":
     st.markdown("---")
     section_label("Top 5 Problemhaltestellen")
 
-    # Filter worst stops to only those in main route (consistent with bar chart + map)
-    worst_filtered = worst[worst["Haltestelle"].isin(route_filtered["stop_name"])].head(5)
-
+    # worst is already filtered to main route (calculated above) — use directly
     col_tbl, col_rec = st.columns([3, 2], gap="large")
 
     with col_tbl:
         st.dataframe(
-            worst_filtered,
+            worst,
             hide_index=True,
             use_container_width=True,
             column_config={
@@ -587,8 +598,8 @@ if page == "Linie erkunden":
         )
 
     with col_rec:
-        rec_text = recommendation_text(sel_line, stats, worst_filtered)
-        box(rec_text, kind=recommendation_box_color(stats["otp_pct"]))
+        rec_text = recommendation_text(sel_line, {"otp_pct": otp, "mean_delay": delay}, worst)
+        box(rec_text, kind=recommendation_box_color(otp))
 
     box(
         f"Tipp: Im Tab <strong>«Delay vorhersagen»</strong> kannst du für jede Haltestelle "
