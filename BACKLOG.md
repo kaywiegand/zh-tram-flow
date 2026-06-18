@@ -357,6 +357,14 @@ Status: [ ] 2–3 Charts gewählt
 
 ---
 
+## Dashboard Enhancements
+
+| # | Beschreibung | Prio |
+| :--- | :--- | :--- |
+| 67 | **Fahrtrichtungs-Filter im Dashboard** — "Delay pro Haltestelle" mit Switch: Alle · Fahrtrichtung 1 · Fahrtrichtung 2. Erfordert: Raw-Daten Prüfung ob `direction` vorhanden, `precompute.py` Neuaggregierung, Dashboard UI-Switch. | 2 |
+
+---
+
 ## Tools
 
 | # | Beschreibung | Prio |
