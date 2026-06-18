@@ -18,72 +18,167 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 ---
 
+## Visual Candidate Matrix (Story-Punkte → Charts)
+
+**FINDING-LEVEL VISUALS (6 kritische Findings)**
+
+### F1 — Kein Puffer (71,3% dwell=0s)
+```
+Wert: Strukturelles Problem (kein Recovery-Mechanismus)
+Optionen:
+  [ ] spatial-dwell-time.png              — Dwell-Time-Profil nach Stop
+  [ ] spatial-dwell-profile-map.html      — Interaktive Karte (Plotly)
+  [ ] spatial-start-stop-diagnosis.png    — Start/Stop-Analyse
+Auswahl: [ ]
+Notiz: Welches zeigt am klarsten "0s überall"?
+```
+
+### F2 — Peripherie-Hotspots (Friedhof Enzenbühl 93.8s)
+```
+Wert: Geo-Pattern (Zentrum gut, Peripherie schlecht)
+Optionen:
+  [ ] spatial-top-delay-stops.png         — Ranking der Top-Halte mit Zahlen
+  [ ] network-hotspots.png                — Heatmap-Karte (Blasen = Delay)
+  [ ] spatial-district-analysis.png       — Stadtkreise nach OTP/Delay
+Auswahl: [ ]
+Notiz: Was macht das Geo-Muster am sichtbarsten?
+```
+
+### F3 — Peak 21h nicht Morgenrush (67.9s um 21h)
+```
+Wert: Temporal-Anomalie (Event-Abreisewelle, nicht Rush-Hour)
+Optionen:
+  [ ] temporal-hour-of-day.png            — Ø Delay pro Stunde (0–23h)
+  [ ] events-daily-delay-timeline.png     — Timeline mit Events eingezeichnet
+  [ ] temporal-day-of-week.png            — Wochentag-Vergleich
+Auswahl: [ ]
+Notiz: Welches zeigt "Peak ist 21h nicht 8h"?
+```
+
+### F4 — Schnee +54s (geographisch trennbar von Regen)
+```
+Wert: Wetter-Effekt (Schnee Höhenlagen, Regen Täler)
+Optionen:
+  [ ] meteo-snow-structural-interaction.png — Schnee-Effekt visuell
+  [ ] meteo-weather-stop-map.png          — Geo-Mapping Schnee/Regen
+  [ ] meteo-weather-overview.png          — Wetter-Typen-Vergleich
+Auswahl: [ ]
+Notiz: Zeigt es die geografische Trennung?
+```
+
+### F5 — Feiertage best (46.3s), Fachmessen worst (66.0s)
+```
+Wert: Events-Stratifizierung (nicht alle Events = schlecht)
+Optionen:
+  [ ] events-holiday-recovery.png         — Feiertag-Effekt (−9.9s)
+  [ ] events-event-type-hourly-profile.png — Event-Kategorien nach Stunde
+  [ ] events-event-district-effect.png    — Geo-Events-Impact
+Auswahl: [ ]
+Notiz: Was zeigt die Unterscheidung Feiertag vs Event?
+```
+
+### F6 — Kaskade (Pearson r ≥ 0,85 auf allen 16 Linien)
+```
+Wert: Mechanismus (Delay breitet sich aus systematisch)
+Optionen:
+  [ ] spatial-cascade-effect.png          — Kaskade visuell (Arrows/Flows)
+  [ ] spatial-line-delay-profile-map.html — Interaktiv: Stop → Delay-Progression
+  [ ] network-line-profiles.png           — Lilien-Delay-Profile
+Auswahl: [ ]
+Notiz: Welches zeigt "Delay akkumuliert entlang Trip"?
+```
+
+---
+
+**MODEL-LEVEL VISUALS (Beweis: Analyse → Feature → Modell)**
+
+### Model Progression (v1 45.7s → v2 18.56s)
+```
+Wert: Modell bestätigt Analyse (prev_trip_delay = Kaskadenindikator)
+Optionen:
+  [ ] target-delay-distribution-comparison.png — Vorhersage-Verteilung v1 vs v2
+  [ ] target-delay-delta-detail.png        — Residuals & Error-Analyse
+  [ ] spatial-line-hour-heatmap.png        — Feature-Interaction (Linie × Stunde)
+Auswahl: [ ]
+Notiz: Was beweist am klarsten "Model learned the Cascade"?
+```
+
+---
+
 ## Visual Asset Planning
 
-**README** (nach Badges-Zeile)
+**README** (nach Badges, 1 Visual für Scan-Ebene)
 ```
 Slot: 1 Key Visual
-Größe: ~600px Breite
-Format: PNG oder interaktive Plotly-HTML
-Kandidaten:
-  - network-hotspots.png (geografisch, zeigt Problem)
-  - spatial-stop-delay-map.png (Detail-Haltestellen)
-  - target-otp.png (Problem-Statement: 87 % vs. 95 %)
-  - temporal-hour-of-day.png (Temporal Pattern)
-Status: [ ] Ausgewählt
+Größe: ~600px
+Format: PNG (klein, schnell laden)
+
+AUSWAHL #52:
+  A) network-hotspots.png           — "Das ist das Problem" (Blasen = Delays)
+  B) spatial-top-delay-stops.png    — "Hier passiert's" (Top 10 Haltestellen)
+  C) target-otp.png                 — "Das ist die Gap" (87% vs 95%)
+
+Status: [ ] Entscheidung: A / B / C
 ```
 
-**public/overview.html** (Scan-Ebene, Hiring Manager)
+**public/overview.html** (Executive Summary, 4 visuals für 100% Coverage)
 ```
-Slots: 3–5 Charts (max 150–200 KB)
-Fokus: KPIs + Überblick Dimensionen
-Kandidaten:
-  - [ ] target-otp.png (OTP Overview)
-  - [ ] spatial-district-analysis.png (Geo-Muster)
-  - [ ] temporal-hour-of-day.png (Temporal-Muster)
-  - [ ] meteo-weather-overview.png (Wetter-Impact)
-  - [ ] spatial-cascade-effect.png (Cascade-Effekt visualisiert)
-Status: [ ] Finalisiert
+Slots: 4 Charts (Scan-Ebene Finale: KPI + 3 Dimensionen)
+Fokus: F1 + F2 + F3 + F4 (Struktur + Geo + Temporal + Wetter)
+
+AUSWAHL #53a — Pro Finding:
+  F1 (Puffer):        [ ] spatial-dwell-time.png
+  F2 (Geo-Hotspots):  [ ] network-hotspots.png oder spatial-top-delay-stops.png
+  F3 (Peak 21h):      [ ] temporal-hour-of-day.png
+  F4 (Schnee):        [ ] meteo-weather-overview.png
+
+Status: [ ] Entscheidung pro Finding getroffen
 ```
 
-**public/techview.html** (Tech Deep-Dive)
+**public/techview.html** (Tech Deep-Dive, 5–6 visuals für Model-Story)
 ```
-Slots: 5–7 Charts (Max 250 KB)
-Fokus: Data Engineering + Model Evaluation
-Kandidaten:
-  - [ ] network-einlaufzeit.png (Feature: Laufzeit)
-  - [ ] spatial-line-hour-heatmap.png (Feature Interaction)
-  - [ ] target-delay-distribution-comparison.png (Target-Distribution)
-  - [ ] meteo-multicollinearity-matrix.png (Feature Correlation)
-  - [ ] spatial-stop-delay-map.html (interaktive Karte)
-  - [ ] target-trip-level-validation.png (Data Quality)
-Status: [ ] Finalisiert
+Slots: 5–6 Charts (Focus: Datenqualität + Feature-Interaction + Model-Eval)
+Fokus: F1 + F6 + Model (Dwell-Muster + Kaskade-Mechanismus + Modell-Beweis)
+
+AUSWAHL #53b — Pro Punkt:
+  F1 (Puffer):        [ ] spatial-dwell-time.png
+  F6 (Kaskade):       [ ] spatial-cascade-effect.png oder spatial-line-delay-profile-map.html
+  Model Eval:         [ ] target-delay-distribution-comparison.png
+  Feature-Inter:      [ ] spatial-line-hour-heatmap.png (Linie × Stunde)
+  QA-Check:           [ ] target-trip-level-validation.png
+  + 1 bonus:          [ ] meteo-snow-structural-interaction.png (zeigt complex Pattern)
+
+Status: [ ] 5–6 Charts gewählt
 ```
 
-**public/storyview.html** (Narrative Story)
+**public/storyview.html** (Narrative 4-Schritt-Beweiskette, 7 visuals)
 ```
-Slots: 6–8 Charts (Max 300 KB)
-Fokus: Beweiskette (Anomalie → Gradient → Mechanismus → Kaskade)
-Kandidaten:
-  - [ ] spatial-stop-delay-map.html (Anomalie: Peripherie)
-  - [ ] spatial-line-delay-profile-map.html (Gradient entlang Strecke)
-  - [ ] spatial-dwell-time.png (Mechanismus: 0s dwell)
-  - [ ] spatial-cascade-effect.png (Cascade visualisiert)
-  - [ ] meteo-snow-structural-interaction.png (Wetter-Feedback)
-  - [ ] target-delay-per-line-timeline.png (Temporal Trend)
-  - [ ] events-daily-delay-timeline.png (Events & Kaskade)
-Status: [ ] Finalisiert
+Slots: 7 Charts (Complete Story: Anomalie → Gradient → Mechanismus → Kaskade → Lösung)
+Fokus: F1–F6 + Model (Jedes Finding + Modell-Bestätigung)
+
+AUSWAHL #53c — Reihenfolge folgt Beweiskette:
+  Anomalie:           [ ] spatial-top-delay-stops.png (F2: Wo? Peripherie)
+  Wetter-Context:     [ ] meteo-weather-overview.png (F4: Regen/Schnee)
+  Temporal-Context:   [ ] temporal-hour-of-day.png (F3: Wann? 21h)
+  Events-Context:     [ ] events-event-type-hourly-profile.png (F5: Event-Kategorien)
+  Mechanismus:        [ ] spatial-dwell-time.png (F1: Warum? 0s dwell)
+  Kaskade-Effekt:     [ ] spatial-cascade-effect.png (F6: Propagation)
+  Model-Beweis:       [ ] target-delay-distribution-comparison.png (v1 vs v2)
+
+Status: [ ] Alle 7 Charts gewählt
 ```
 
-**public/socialview.html** (1-Pager, Social/LinkedIn)
+**public/socialview.html** (LinkedIn 1-Pager, 2–3 visuals kompakt)
 ```
-Slots: 2–3 Charts (Max 100 KB)
-Fokus: Impact-Story, compact
-Kandidaten:
-  - [ ] spatial-stop-delay-map.png (Problem visualisiert)
-  - [ ] spatial-cascade-effect.png (Root Cause)
-  - [ ] target-otp.png (Performance Gap)
-Status: [ ] Finalisiert
+Slots: 2–3 Charts (Sehr compact: Problem + Root Cause, ggf. + Result)
+Fokus: F2 (Geo) + F6 (Kaskade-Effekt) + optional Model
+
+AUSWAHL #53d — Kernaussage:
+  Problem:      [ ] spatial-top-delay-stops.png oder network-hotspots.png (F2)
+  Root Cause:   [ ] spatial-cascade-effect.png (F6: Warum breitet sich aus)
+  Optional:     [ ] target-delay-distribution-comparison.png (Model bestätigt)
+
+Status: [ ] 2–3 Charts gewählt
 ```
 
 ---
