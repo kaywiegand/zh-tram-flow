@@ -142,8 +142,10 @@ def route_for_line(line: str) -> pd.DataFrame:
     r = (
         route_df
         .filter(pl.col("line_name").cast(pl.String) == str(line))
+        .with_columns(pl.col("stop_name").cast(pl.Utf8))
         .join(
-            stop_df.select(["stop_name", "lat", "lon", "otp_pct", "dwell_time_median"]),
+            stop_df.select(["stop_name", "lat", "lon", "otp_pct", "dwell_time_median"])
+                .with_columns(pl.col("stop_name").cast(pl.Utf8)),
             on="stop_name", how="left",
         )
         .sort("mean_delay", descending=True)
@@ -156,7 +158,9 @@ def worst_stops_for_line(line: str, n: int = 5) -> pd.DataFrame:
     return (
         lookup_df
         .filter(pl.col("line_name").cast(pl.String) == str(line))
-        .join(stop_df.select(["stop_name", "mean_delay", "otp_pct", "dwell_time_median"]),
+        .with_columns(pl.col("stop_name").cast(pl.Utf8))
+        .join(stop_df.select(["stop_name", "mean_delay", "otp_pct", "dwell_time_median"])
+                .with_columns(pl.col("stop_name").cast(pl.Utf8)),
               on="stop_name", how="left")
         .sort("mean_delay", descending=True)
         .head(n)
