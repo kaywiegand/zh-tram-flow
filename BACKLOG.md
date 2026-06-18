@@ -361,11 +361,149 @@ Status: [ ] 2–3 Charts gewählt
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 67 | **Fahrtrichtungs-Filter im Dashboard** — "Delay pro Haltestelle" mit Switch: Alle · Fahrtrichtung 1 · Fahrtrichtung 2. Erfordert: Raw-Daten Prüfung ob `direction` vorhanden, `precompute.py` Neuaggregierung, Dashboard UI-Switch. | 2 |
+| 67 | **✅ Fahrtrichtungs-Filter im Dashboard (2026-06-18)** — Implementiert: Selectbox mit Gesamt/Richtung A/B auf "Linie erkunden". Direction ID aus GTFS (authentische Fahrtrichtungen, nicht geografische Varianten). Alle Stops gehören zu beiden Richtungen. Karte, Charts, Stats nutzen Filter. | 1 |
+| 68 | **Direction ID Architecture Overhaul (DEFERRED)** — Ganzheitlicher Umbau: train_raw + test_final mit direction_id als Dimension. Neue Aggregationen: stop×direction, line×direction. Model v3 Retraining. Analysen: Asymmetrische Verspätung. **Plan dokumentiert, aktuell not-critical, später evaluieren ob signifikante Unterschiede (~10s bei L11) das Refactoring rechtfertigen.** → Siehe `## Research Opportunities` #OP-1. | 3 |
 
 ---
 
-## Tools
+## 🔬 Research Opportunities — Dashboard Discovery
+
+**Kontext:** Beim interaktiven Erkunden der Linien im Dashboard fallen weitere Faktoren auf, die systematische Analysen rechtfertigen könnten. Diese Sektion sammelt:
+1. **Beobachtungen** beim manuellen Durchklicken aller Linien
+2. **Hypothesen** die sich aus den Daten abzeichnen
+3. **Priorisierung**: Welche sind am interessantesten?
+
+---
+
+### OP-1: Fahrtrichtungs-Asymmetrie (Direction Deltas)
+
+**Beobachtung:** Linie 11 zeigt ~10s Unterschied zwischen Richtung A und B im Durchschnitt.
+
+**Fragen:**
+- Ist das ein systematisches Phänomen (alle Linien) oder Linie-spezifisch?
+- Welche Linien sind am asymmetrischsten? (Ranking)
+- Geografische Erklärung? (z.B. Stadtzentrumrichtung fährt öfter in Stop-and-Go, Peripherie flüssiger)
+- Zeitlich unterschiedlich? (Peak vs. Off-Peak)
+
+**Nächster Schritt:** Neue Analyse-Notebook `03_analysis_8-direction.ipynb` — Direction-spezifische Hotspots.
+
+**Implementation Path:** 
+- Quick: Vergleich-Tabellen in Notebook ohne Pipeline-Änderung
+- Deep: Siehe BACKLOG #68 (Direction ID Architecture Overhaul)
+
+**Prio:** 2 (interessant, aber nicht blockierend)
+
+---
+
+### OP-2: Stop-Spezifische Events (lokale Hotspot-Variabilität)
+
+**Beobachtung:** Manche Stops (z.B. "Bahnhof Oerlikon") haben extrem variable Delays (std > 100s), andere sind stabil (std < 20s).
+
+**Hypothese:** Manche Stops sind "Puffer-Stops" (höhere Variabilität OK), andere sind "zeitkritisch" (geringe Toleranz).
+
+**Fragen:**
+- Gibt es Stop-Typen basierend auf Varianz-Profil? (Cluster-Analyse)
+- Korrelieren Start/End-Stops mit höherer/niedrigerer Variabilität?
+- Können wir "Puffer-Index pro Stop" definieren? → Scheduling-Vorschlag.
+
+**Nächster Schritt:** Neue Notebook-Sektion in `03_analysis_4-spatial.ipynb` — "Stop Variability Fingerprint".
+
+**Prio:** 3 (theoretisch interessant, praktisches Potenzial unklar)
+
+---
+
+### OP-3: Linienlänge × Delay-Akkumulation Curve
+
+**Beobachtung:** Lange Linien (L8: 21 Stops) haben tendenziell höhere Delays als kurze (L4: 8 Stops), aber nicht linear.
+
+**Hypothese:** Es gibt eine "sweet spot" Linienlänge. Zu lange → Delay akkumuliert. Zu kurz → nicht genug Puffer-Stops.
+
+**Fragen:**
+- Ist die Beziehung Linienlänge ↔ Delay-Mittelwert tatsächlich nicht-linear?
+- Wo ist der Kippunkt? (z.B. > 15 Stops = schnell schlechter?)
+- Kaskaden-Effekt stärker auf langen Linien? (prev_trip_delay Correlation)
+
+**Nächster Schritt:** Scatter-Plot in `03_analysis_0-overview.ipynb` — Linienlänge vs. OTP.
+
+**Prio:** 2 (könnte Netzwerk-Design-Implikationen haben)
+
+---
+
+### OP-4: Tagestyp × Line Interaction (Weekend != Weekday)
+
+**Beobachtung:** Manche Linien sind am Wochenende überraschend BESSER (z.B. L2), andere SCHLECHTER (z.B. L9).
+
+**Hypothese:** Netzwerk-Effekt — Sonntags fahren manche Linien zu unterschiedlichen Zeiten oder haben andere Fahrgast-Muster.
+
+**Fragen:**
+- Welche Linien profitieren von weniger Verkehr? (Ranking)
+- Welche Linien leiden? → Spezialverkehr? Event-Linien?
+- Kann man "Verkehrs-Typ pro Linie" definieren? (Commuter vs. Freizeit vs. Airport)
+
+**Nächster Schritt:** Neue Heatmap `03_analysis_0-overview` — Line × DayType Matrix.
+
+**Prio:** 2 (actionable für Scheduling)
+
+---
+
+### OP-5: Wetter-Empfindlichkeit nach Linie
+
+**Beobachtung:** Linie 11 ist im Schnee besonders empfindlich (Höhenlage?), Linie 2 weniger.
+
+**Hypothese:** Topografische Profile unterscheiden sich. Höher liegende Linien → mehr Schnee-Empfindlichkeit.
+
+**Fragen:**
+- Kann man Linien nach Topografie klassifizieren?
+- Korreliert Höhenprofil mit Schnee-Sensitivity?
+- Regen-Empfindlichkeit anders verteilt? (Täler vs. Höhen)
+
+**Nächster Schritt:** Neue Sektion `03_analysis_6-meteo.ipynb` — "Topographic Weather Stratification".
+
+**Prio:** 3 (schön zu wissen, aber schwer actionable ohne Netzwerk-Änderungen)
+
+---
+
+### OP-6: Schedule Compliance pro Linie (Planned vs. Observed)
+
+**Beobachtung:** Manche Linien halten ihre Zeiten besser als andere. Z.B. L13 immer early, L7 immer late.
+
+**Hypothese:** Scheduling-Problem oder systematische Underestimation von Fahrtzeiten?
+
+**Fragen:**
+- Können wir `actual_travel_time - scheduled_travel_time` berechnen?
+- Gibt es systematische Biases per Linie?
+- Kann man "Schedule Adjustment Factors" pro Linie definieren?
+
+**Nächster Schritt:** Neue Notebook-Sektion `05_feature_engineering.ipynb` — "Schedule Margin Analysis".
+
+**Prio:** 2 (könnte zu Fahrplan-Überarbeitung führen)
+
+---
+
+### OP-7: Kaskaden-Mechanismus Variabilität (Verstärken vs. Dämpfen)
+
+**Beobachtung:** Nicht alle Linien verstärken Delays gleich. Manche absorbieren Verspätung, andere multiplizieren sie.
+
+**Hypothese:** Stop-Struktur (Durchgangshalte vs. Terminal) und Dwell-Time Management beeinflussen Kaskadeneffekt.
+
+**Fragen:**
+- Können wir pro Linie einen "Kaskaden-Verstärkungsfaktor" berechnen?
+- Welche Stops sind "Absorberstops" (Delay wird kleiner)? Welche "Multiplizierer"?
+- Gibt es Interventions-Punkte um Kaskaden zu durchbrechen?
+
+**Nächster Schritt:** Neue Notebook `03_analysis_9-cascade_mechanics.ipynb`.
+
+**Prio:** 1 (könnte Top-Maßnahmen direkt motivieren)
+
+---
+
+### Sammlung nach Session (Ad-hoc Observations)
+
+**2026-06-18:** Direction-Asymmetrie bei L11 (~10s Unterschied beobachtet, aber Implementierung noch nicht vollständig korrekt; TODO: Phase 1 Umbau evaluieren)
+
+---
+
+
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
