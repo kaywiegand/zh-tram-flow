@@ -515,7 +515,6 @@ if page == "Linie erkunden":
     line_directions_df = (
         route_dir_df
         .filter(pl.col("line_name").cast(pl.String) == str(sel_line))
-        .collect()
     )
     available_directions = sorted(line_directions_df["direction_id"].unique().to_list())
 
