@@ -8,13 +8,13 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 ---
 
-## Visual Selection & Integration
+## Visual Selection & Integration (STORY-KRITISCH)
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 52 | **README Key Visual Selection** — Wähle 1 Grafik für die Scan-Ebene (nach Badges, vor TL;DR). Kandidaten: `network-hotspots.png` · `spatial-stop-delay-map.png` · `target-otp.png`. Entscheidung: Was erzählt die stärkste Story in 1 Bild? | 2 |
-| 53 | **View-HTML Visuals Inventory** — Für jede View (overview/techview/storyview/socialview) die Top 3–5 Chart-Kandidaten identifizieren. Pro View eine Zeile in dieser Tabelle (unten). | 1 |
-| 54 | **Visuals einpflegen** — Nach #52/#53 entschieden, die ausgewählten PNGs/interaktiven HTMLs in die View-HTMLs embedden. | 2 |
+| 52 | **README Key Visual** — 1 Grafik (nach Badges). Optionen: `network-hotspots.png` (Hotspots) · `spatial-top-delay-stops.png` (Top Stops) · `target-otp.png` (OTP-Gap). **Entscheidung: Welche erzählt Scan-Ebene beste Story?** | 2 |
+| 53 | **Findings → Visuals Mapping** — Für jedes der 6 Findings (F1–F6) + Model Progression die BESTE Grafik aus verfügbaren 64 PNGs wählen. Siehe Kandidaten-Tabelle unten. | 1 |
+| 54 | **Visuals in Views einpflegen** — Nach #53 Auswahl, die 15–20 gewählten Charts in die 4 Views (overview/techview/storyview/socialview) einbetten. | 2 |
 
 ---
 
