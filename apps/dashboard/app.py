@@ -15,12 +15,14 @@ import plotly.express as px
 import plotly.graph_objects as go
 import polars as pl
 import streamlit as st
+import numpy as np
 
 # ─── Pfade ────────────────────────────────────────────────────────────────────
 
 ROOT   = Path(__file__).resolve().parent.parent.parent
 AGG    = Path(__file__).resolve().parent / "data"
 MODELS = ROOT / "data" / "models"
+GTFS_DIR = ROOT / "data" / "raw" / "gtfs"
 
 # ─── Konstanten ───────────────────────────────────────────────────────────────
 
@@ -150,6 +152,145 @@ def line_color(ln: str) -> str:
 def otp_delta_str(otp: float) -> str:
     gap = otp - OTP_TARGET
     return f"{gap:+.1f} PP zum Ziel"
+
+@st.cache_data(show_spinner=False)
+def load_gtfs_shapes(line: str) -> pd.DataFrame:
+    """Load GTFS shape (track geometry) for a line.
+
+    Returns: DataFrame with columns [lat, lon] in sequence order.
+    Falls back to empty DataFrame if GTFS files not found.
+    """
+    try:
+        trips = pl.read_parquet(GTFS_DIR / "gtfs_tram_trips.parquet")
+        routes = pl.read_parquet(GTFS_DIR / "gtfs_tram_routes.parquet")
+        shapes = pl.read_parquet(GTFS_DIR / "gtfs_tram_shapes.parquet")
+    except FileNotFoundError:
+        return pd.DataFrame(columns=["lat", "lon"])
+
+    # Dominant shape per line: most trips, direction=1, latest year
+    dominant = (
+        trips
+        .join(routes.select(["route_id", "route_short_name", "year"]),
+              on=["route_id", "year"])
+        .filter(pl.col("route_short_name") == str(line))
+        .filter(pl.col("direction_id") == 1)
+        .group_by(["route_short_name", "shape_id"])
+        .agg(pl.len().alias("n_trips"))
+        .sort("n_trips", descending=True)
+        .select("shape_id")
+        .head(1)
+        .collect()
+    )
+
+    if len(dominant) == 0:
+        return pd.DataFrame(columns=["lat", "lon"])
+
+    shape_id = dominant["shape_id"][0]
+
+    return (
+        shapes
+        .filter(pl.col("shape_id") == shape_id)
+        .sort("shape_pt_sequence")
+        .select([
+            pl.col("shape_pt_lat").alias("lat"),
+            pl.col("shape_pt_lon").alias("lon"),
+        ])
+        .collect()
+        .to_pandas()
+    )
+
+def plot_line_map_with_geometry(line: str, route: pd.DataFrame) -> go.Figure:
+    """Karte mit echtem Linienzug (GTFS Shape) + gefilterten Haltestellen.
+
+    Logik:
+    1. GTFS Shapes laden (echte Gleisgeometrie mit hunderten Zwischenpunkten)
+    2. Route stops filtern: nur ≥5% der Hauptroute-Frequenz (entfernt Varianten)
+    3. Bubble-Größe power-skaliert (2-24px, nicht linear)
+    4. Zwei Layer: Linienzug (Tramfarbe) + Blasen (Delay-Farbcodierung)
+    """
+    # Layer 1: GTFS Shape (echte Gleisgeometrie)
+    shapes = load_gtfs_shapes(line)
+
+    # Layer 2: Stops filtern (nur Hauptroute, ≥5% der häufigsten)
+    if len(route) > 0:
+        route_copy = route.copy()
+        max_n = route_copy["n_obs"].max() if "n_obs" in route_copy.columns else 1
+        route_copy = route_copy[route_copy.get("n_obs", 1) >= max_n * 0.05].copy()
+
+        # Bubble-Größe: power-scaled (nicht linear)
+        if len(route_copy) > 0 and "mean_delay" in route_copy.columns:
+            delays = route_copy["mean_delay"].values
+            d_min, d_max = float(np.nanmin(delays)), float(np.nanmax(delays))
+            norm = (delays - d_min) / (d_max - d_min + 1e-9)
+            route_copy["bubble"] = 2 + (norm ** 1.7) * 22  # power-scaled, 2-24px
+        else:
+            route_copy["bubble"] = 10
+    else:
+        route_copy = pd.DataFrame()
+
+    # Erstelle Figure
+    fig = go.Figure()
+    line_color_val = line_color(line)
+
+    # Layer 1: Linienzug (GTFS Shape)
+    if len(shapes) > 0:
+        fig.add_trace(go.Scattermapbox(
+            lat=shapes["lat"],
+            lon=shapes["lon"],
+            mode="lines",
+            line=dict(width=3, color=line_color_val),
+            hoverinfo="skip",
+            showlegend=False,
+        ))
+
+    # Layer 2: Haltestellen-Blasen (gefiltert + power-scaled)
+    if len(route_copy) > 0:
+        fig.add_trace(go.Scattermapbox(
+            lat=route_copy["lat"],
+            lon=route_copy["lon"],
+            mode="markers",
+            marker=dict(
+                size=route_copy["bubble"],
+                color=route_copy.get("mean_delay", 0),
+                colorscale=[[0, GREEN], [0.4, AMBER], [1, RED]],
+                colorbar=dict(title="Delay (s)", thickness=12),
+            ),
+            text=[
+                f"<b>{stop}</b><br>Ø Delay: {delay:.1f}s<br>OTP: {otp:.1f}%"
+                for stop, delay, otp in zip(
+                    route_copy.get("stop_name", []),
+                    route_copy.get("mean_delay", []),
+                    route_copy.get("otp_pct", []),
+                )
+            ],
+            hovertemplate="%{text}<extra></extra>",
+            showlegend=False,
+        ))
+
+    # Configure map
+    center_lat = (
+        shapes["lat"].mean() if len(shapes) > 0
+        else route_copy["lat"].mean() if len(route_copy) > 0
+        else 47.37
+    )
+    center_lon = (
+        shapes["lon"].mean() if len(shapes) > 0
+        else route_copy["lon"].mean() if len(route_copy) > 0
+        else 8.54
+    )
+
+    fig.update_layout(
+        mapbox=dict(
+            style="carto-positron",
+            center=dict(lat=center_lat, lon=center_lon),
+            zoom=11.5,
+        ),
+        margin=dict(r=0, t=0, l=0, b=0),
+        height=440,
+        hovermode="closest",
+    )
+
+    return fig
 
 def route_for_line(line: str) -> pd.DataFrame:
     """Route-Profil einer Linie — geografisch sortiert mit OTP + dwell_time.
@@ -404,68 +545,12 @@ if page == "Linie erkunden":
     )
     st.plotly_chart(fig_route, use_container_width=True)
 
-    # ── Karte: Linienzug + Delay-Blasen ──
+    # ── Karte: Echte Linienzug-Geometrie (GTFS) + gefilterte Blasen ──
     st.markdown("---")
     section_label("Karte — Linienzug mit Verspätungen")
 
-    map_data = route.dropna(subset=["lat", "lon"]).copy()
-    if len(map_data) > 0:
-        # Calculate marker sizes (clipped to prevent negative values)
-        map_data["marker_size"] = map_data["mean_delay"].clip(lower=1)
-
-        # Create figure with line + markers
-        fig_map = go.Figure()
-
-        line_color = line_color(sel_line)
-
-        # Layer 1: Line (Linienzug) in Tramfarbe
-        fig_map.add_trace(go.Scattermapbox(
-            lat=map_data["lat"],
-            lon=map_data["lon"],
-            mode="lines",
-            line=dict(width=3, color=line_color),
-            hoverinfo="skip",
-            showlegend=False,
-        ))
-
-        # Layer 2: Markers (Haltestellen) mit Delay-Farbcodierung
-        fig_map.add_trace(go.Scattermapbox(
-            lat=map_data["lat"],
-            lon=map_data["lon"],
-            mode="markers",
-            marker=dict(
-                size=map_data["marker_size"],
-                color=map_data["mean_delay"],
-                colorscale=[[0, GREEN], [0.4, AMBER], [1, RED]],
-                colorbar=dict(title="Delay (s)", thickness=12),
-            ),
-            text=[
-                f"<b>{stop}</b><br>"
-                f"Ø Delay: {delay:.1f}s<br>"
-                f"OTP: {otp:.1f}%"
-                for stop, delay, otp in zip(
-                    map_data["stop_name"],
-                    map_data["mean_delay"],
-                    map_data["otp_pct"],
-                )
-            ],
-            hovertemplate="%{text}<extra></extra>",
-            showlegend=False,
-        ))
-
-        # Configure map
-        fig_map.update_layout(
-            mapbox=dict(
-                style="carto-positron",
-                center=dict(lat=map_data["lat"].mean(), lon=map_data["lon"].mean()),
-                zoom=11.5,
-            ),
-            margin=dict(r=0, t=0, l=0, b=0),
-            height=440,
-            hovermode="closest",
-        )
-
-        st.plotly_chart(fig_map, use_container_width=True)
+    fig_map = plot_line_map_with_geometry(sel_line, route)
+    st.plotly_chart(fig_map, use_container_width=True)
 
     # ── Top-5 Problemhaltestellen ──
     st.markdown("---")
