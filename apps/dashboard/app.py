@@ -133,15 +133,18 @@ def section_label(text: str) -> None:
 def line_color(ln: str) -> str:
     return LINE_COLORS.get(str(ln), BLUE)
 
-def otp_box_color(otp: float) -> str:
-    """Bestimmt Farbklasse für OTP-Box basierend auf Lücke zum Ziel."""
+def otp_delta_str(otp: float) -> str:
+    """Erzeugt delta-String mit Emoji-Farbcode für OTP-Gap."""
     gap = OTP_TARGET - otp
+
     if gap <= 0:
-        return "pred-green"      # OTP >= 95% — Ziel erreicht
+        emoji = "🟢"  # OTP >= 95% — Ziel erreicht
     elif gap < 10:
-        return "pred-amber"      # OTP 85–95% — Gelb
+        emoji = "🟡"  # OTP 85–95% — Gelb (unter Ziel, aber OK)
     else:
-        return "pred-red"        # OTP < 85% — Rot
+        emoji = "🔴"  # OTP < 85% — Rot (hoher Bedarf)
+
+    return f"{emoji} {gap:+.1f} PP zum Ziel"
 
 def route_for_line(line: str) -> pd.DataFrame:
     """Route-Profil einer Linie, angereichert mit Stop-Koordinaten."""
@@ -336,18 +339,12 @@ if page == "🔍 Linie erkunden":
     n_stops = stats["n_stops_line"]
 
     c1, c2, c3 = st.columns(3)
-
-    # OTP-Box mit farbcodierter Lücke
-    gap = OTP_TARGET - otp
-    css_class = otp_box_color(otp)
-    c1.markdown(f"""
-    <div class="pred-box {css_class}">
-        <div style="font-size: 0.85rem; color: #718096; margin-bottom: 0.3rem;">Pünktlichkeit (OTP)</div>
-        <div class="pred-val">{otp:.1f}%</div>
-        <div class="pred-lbl">{gap:+.1f} PP zum Ziel</div>
-    </div>
-    """, unsafe_allow_html=True)
-
+    c1.metric(
+        "Pünktlichkeit (OTP)",
+        f"{otp:.1f}%",
+        delta=otp_delta_str(otp),
+        delta_color="off",
+    )
     c2.metric("Ø Verspätung", f"{delay:.0f}s")
     c3.metric("Haltestellen", int(n_stops))
 
