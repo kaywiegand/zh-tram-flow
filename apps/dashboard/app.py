@@ -199,6 +199,18 @@ def load_gtfs_shapes(line: str) -> pd.DataFrame:
         .to_pandas()
     )
 
+def filter_route_for_display(route: pd.DataFrame, threshold_pct: float = 0.05) -> pd.DataFrame:
+    """Filter stops to main route (≥threshold% of max frequency).
+
+    Removes variant stops that appear in <5% of main-route trips.
+    Used consistently in both map and bar chart.
+    """
+    if len(route) == 0 or "n_obs" not in route.columns:
+        return route
+
+    max_n = route["n_obs"].max()
+    return route[route["n_obs"] >= max_n * threshold_pct].copy()
+
 def plot_line_map_with_geometry(line: str, route: pd.DataFrame) -> go.Figure:
     """Karte mit echtem Linienzug (GTFS Shape) + gefilterten Haltestellen.
 
@@ -211,11 +223,9 @@ def plot_line_map_with_geometry(line: str, route: pd.DataFrame) -> go.Figure:
     # Layer 1: GTFS Shape (echte Gleisgeometrie)
     shapes = load_gtfs_shapes(line)
 
-    # Layer 2: Stops filtern (nur Hauptroute, ≥5% der häufigsten)
+    # Layer 2: Filter route to main stops (consistent with bar chart)
     if len(route) > 0:
-        route_copy = route.copy()
-        max_n = route_copy["n_obs"].max() if "n_obs" in route_copy.columns else 1
-        route_copy = route_copy[route_copy.get("n_obs", 1) >= max_n * 0.05].copy()
+        route_copy = filter_route_for_display(route)
 
         # Bubble-Größe: power-scaled (nicht linear)
         if len(route_copy) > 0 and "mean_delay" in route_copy.columns:
@@ -502,12 +512,15 @@ if page == "Linie erkunden":
     # ── Delay-Profil: Plotly Bar (nach Delay sortiert) ──
     section_label("Delay pro Haltestelle")
 
+    # Filter route to main stops (≥5% of frequency) — consistent with map
+    route_filtered = filter_route_for_display(route)
+
     color = line_color(sel_line)
-    bar_colors = [RED if d > 70 else AMBER if d > 40 else color for d in route["mean_delay"]]
+    bar_colors = [RED if d > 70 else AMBER if d > 40 else color for d in route_filtered["mean_delay"]]
 
     fig_route = go.Figure(go.Bar(
-        x=route["stop_short"],
-        y=route["mean_delay"].round(1),
+        x=route_filtered["stop_short"],
+        y=route_filtered["mean_delay"].round(1),
         marker_color=bar_colors,
         marker_line_width=0,
         text=route["mean_delay"].round(0).astype(int).astype(str) + "s",
@@ -520,9 +533,9 @@ if page == "Linie erkunden":
             "<extra></extra>"
         ),
         customdata=list(zip(
-            route["stop_name"],
-            route["otp_pct"].fillna(0),
-            route["dwell_time_median"].fillna(0),
+            route_filtered["stop_name"],
+            route_filtered["otp_pct"].fillna(0),
+            route_filtered["dwell_time_median"].fillna(0),
         )),
     ))
     fig_route.add_hline(
