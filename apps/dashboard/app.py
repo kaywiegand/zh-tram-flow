@@ -134,17 +134,8 @@ def line_color(ln: str) -> str:
     return LINE_COLORS.get(str(ln), BLUE)
 
 def otp_delta_str(otp: float) -> str:
-    """Erzeugt delta-String mit Emoji-Farbcode für OTP-Gap."""
-    gap = OTP_TARGET - otp
-
-    if gap <= 0:
-        emoji = "🟢"  # OTP >= 95% — Ziel erreicht
-    elif gap < 10:
-        emoji = "🟡"  # OTP 85–95% — Gelb (unter Ziel, aber OK)
-    else:
-        emoji = "🔴"  # OTP < 85% — Rot (hoher Bedarf)
-
-    return f"{emoji} {gap:+.1f} PP zum Ziel"
+    gap = otp - OTP_TARGET
+    return f"{gap:+.1f} PP zum Ziel"
 
 def route_for_line(line: str) -> pd.DataFrame:
     """Route-Profil einer Linie, angereichert mit Stop-Koordinaten."""
@@ -343,7 +334,7 @@ if page == "🔍 Linie erkunden":
         "Pünktlichkeit (OTP)",
         f"{otp:.1f}%",
         delta=otp_delta_str(otp),
-        delta_color="off",
+        delta_color="normal",
     )
     c2.metric("Ø Verspätung", f"{delay:.0f}s")
     c3.metric("Haltestellen", int(n_stops))
