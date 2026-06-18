@@ -282,7 +282,7 @@ with st.sidebar:
 
     page = st.radio(
         "Tool",
-        ["🔍 Linie erkunden", "⚡ Linien vergleichen", "🎯 Delay vorhersagen"],
+        ["Linie erkunden", "Linien vergleichen", "Verspätung vorhersagen"],
         label_visibility="collapsed",
     )
 
@@ -301,7 +301,7 @@ with st.sidebar:
 # SEITE 1 — LINIE ERKUNDEN
 # ══════════════════════════════════════════════════════════════════════════════
 
-if page == "🔍 Linie erkunden":
+if page == "Linie erkunden":
     st.markdown('<div class="page-title">Linie erkunden</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="page-sub">Wähle eine Linie — sieh wo der Delay entsteht '
@@ -452,7 +452,7 @@ if page == "🔍 Linie erkunden":
 # SEITE 2 — LINIEN VERGLEICHEN
 # ══════════════════════════════════════════════════════════════════════════════
 
-elif page == "⚡ Linien vergleichen":
+elif page == "Linien vergleichen":
     st.markdown('<div class="page-title">Linien vergleichen</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="page-sub">Zwei Linien direkt gegenüberstellen — '
@@ -585,7 +585,7 @@ elif page == "⚡ Linien vergleichen":
 # SEITE 3 — DELAY VORHERSAGEN
 # ══════════════════════════════════════════════════════════════════════════════
 
-elif page == "🎯 Delay vorhersagen":
+elif page == "Verspätung vorhersagen":
     st.markdown('<div class="page-title">Delay vorhersagen</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="page-sub">'
