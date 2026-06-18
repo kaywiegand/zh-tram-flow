@@ -536,6 +536,7 @@ if page == "Linie erkunden":
         y=route_filtered["mean_delay"].round(1),
         marker_color=bar_colors,
         marker_line_width=0,
+        marker_line_color="rgba(0,0,0,0)",  # Transparent outline
         text=route_filtered["mean_delay"].round(0).astype(int).astype(str) + "s",
         textposition="outside",
         hovertemplate=(
@@ -565,9 +566,10 @@ if page == "Linie erkunden":
         height=360,
         margin=dict(t=30, b=10),
         plot_bgcolor="white", paper_bgcolor="white",
-        xaxis=dict(tickangle=-40, tickfont=dict(size=10)),
-        yaxis=dict(gridcolor="#eee", title="Ø Verspätung (s)"),
+        xaxis=dict(tickangle=-40, tickfont=dict(size=10), showgrid=False),
+        yaxis=dict(gridcolor="#eee", title="Ø Verspätung (s)", zeroline=False),
         showlegend=False,
+        hovermode="x unified",
     )
     st.plotly_chart(fig_route, use_container_width=True)
 
@@ -639,17 +641,31 @@ elif page == "Linien vergleichen":
             key="cmp_b",
         )
 
-    stats_a = line_stats(line_a)
-    stats_b = line_stats(line_b)
+    # Get routes and filter to main-route stops
     route_a = route_for_line(line_a)
     route_b = route_for_line(line_b)
-    worst_a = worst_stops_for_line(line_a, n=5)
-    worst_b = worst_stops_for_line(line_b, n=5)
+    route_a_filtered = filter_route_for_display(route_a)
+    route_b_filtered = filter_route_for_display(route_b)
+
+    # Calculate stats from filtered routes only
+    def calc_stats(route_filtered):
+        """Calculate OTP, delays, stop count from route."""
+        if len(route_filtered) == 0:
+            return {"otp_pct": 0, "mean_delay": 0, "p90_delay": 0, "n_stops_line": 0}
+        return {
+            "otp_pct": route_filtered["otp_pct"].mean(),
+            "mean_delay": route_filtered["mean_delay"].mean(),
+            "p90_delay": route_filtered["mean_delay"].quantile(0.9),
+            "n_stops_line": len(route_filtered),
+        }
+
+    stats_a = calc_stats(route_a_filtered)
+    stats_b = calc_stats(route_b_filtered)
 
     st.markdown("---")
 
     # ── KPI-Vergleich ──
-    section_label("Kennzahlen im Vergleich")
+    section_label("Kennzahlen im Vergleich (Hauptroute)")
 
     kpi_cols = st.columns(4)
     def kpi_pair(col, label, val_a, val_b, fmt="{:.1f}", suffix="", inverse=False):
@@ -669,29 +685,31 @@ elif page == "Linien vergleichen":
         col.caption(f"Besser: Linie {winner}")
 
     kpi_pair(kpi_cols[0], "OTP",
-             stats_a.get("otp_pct", 0), stats_b.get("otp_pct", 0), suffix="%")
+             stats_a["otp_pct"], stats_b["otp_pct"], suffix="%")
     kpi_pair(kpi_cols[1], "Ø Delay",
-             stats_a.get("mean_delay", 0), stats_b.get("mean_delay", 0),
+             stats_a["mean_delay"], stats_b["mean_delay"],
              fmt="{:.0f}", suffix="s", inverse=True)
     kpi_pair(kpi_cols[2], "P90 Delay",
-             stats_a.get("p90_delay", 0), stats_b.get("p90_delay", 0),
+             stats_a["p90_delay"], stats_b["p90_delay"],
              fmt="{:.0f}", suffix="s", inverse=True)
     kpi_pair(kpi_cols[3], "Haltestellen",
-             stats_a.get("n_stops_line", 0), stats_b.get("n_stops_line", 0),
+             stats_a["n_stops_line"], stats_b["n_stops_line"],
              fmt="{:.0f}", inverse=True)
 
     st.markdown("---")
 
     # ── Overlapping Bar Chart ──
-    section_label("Delay-Verteilung — alle Haltestellen beider Linien")
+    section_label("Delay-Verteilung — Hauptroute beider Linien")
 
     fig_cmp = go.Figure()
-    for route, ln, opacity in [(route_a, line_a, 0.85), (route_b, line_b, 0.55)]:
+    for route, ln, opacity in [(route_a_filtered, line_a, 0.85), (route_b_filtered, line_b, 0.55)]:
         fig_cmp.add_trace(go.Bar(
             name=f"Linie {ln}",
             x=list(range(len(route))),
             y=route["mean_delay"].round(1),
             marker_color=line_color(ln),
+            marker_line_width=0,
+            marker_line_color="rgba(0,0,0,0)",  # Transparent outline
             opacity=opacity,
             hovertemplate=(
                 f"<b>Linie {ln}</b><br>%{{customdata}}<br>"
@@ -707,9 +725,13 @@ elif page == "Linien vergleichen":
         height=340,
         margin=dict(t=10, b=10),
         plot_bgcolor="white", paper_bgcolor="white",
-        xaxis=dict(title="Haltestellen (nach Delay sortiert)", showticklabels=False),
-        yaxis=dict(gridcolor="#eee", title="Ø Verspätung (s)"),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0),
+        xaxis=dict(title="Haltestellen (nach Delay sortiert)", showticklabels=False, showgrid=False),
+        yaxis=dict(gridcolor="#eee", title="Ø Verspätung (s)", zeroline=False),
+        legend=dict(
+            orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
+            bgcolor="rgba(255,255,255,0.8)", bordercolor="#ccc", borderwidth=1
+        ),
+        hovermode="x unified",
     )
     st.plotly_chart(fig_cmp, use_container_width=True)
 
