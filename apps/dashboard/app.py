@@ -79,6 +79,11 @@ section[data-testid="stSidebar"] .stRadio label { font-size: 1rem; padding: 0.35
     padding: 0.9rem 1.3rem; border-radius: 6px;
     font-size: 0.95rem; color: #7d4e0f; margin: 1rem 0;
 }
+.error-box {
+    background: #fff5f5; border-left: 5px solid #e74c3c;
+    padding: 0.9rem 1.3rem; border-radius: 6px;
+    font-size: 0.95rem; color: #7d2a1f; margin: 1rem 0;
+}
 .pred-box { padding: 1.4rem 2rem; border-radius: 8px; margin: 0.8rem 0; text-align: center; }
 .pred-green { background: #f0fff4; border: 2px solid #27ae60; }
 .pred-amber { background: #fffbeb; border: 2px solid #e67e22; }
@@ -124,8 +129,17 @@ ALL_LINES = sorted(
 # ─── Hilfsfunktionen ─────────────────────────────────────────────────────────
 
 def box(text: str, kind: str = "insight") -> None:
-    css = {"insight": "insight-box", "rec": "rec-box", "warn": "warn-box"}[kind]
+    css = {"insight": "insight-box", "rec": "rec-box", "warn": "warn-box", "error": "error-box"}[kind]
     st.markdown(f'<div class="{css}">{text}</div>', unsafe_allow_html=True)
+
+def recommendation_box_color(otp: float) -> str:
+    """Bestimmt Box-Klasse für Handlungsempfehlung basierend auf OTP."""
+    if otp >= 92:
+        return "rec"      # Grün — über Netzschnitt
+    elif otp >= 87:
+        return "warn"     # Orange — moderater Handlungsbedarf
+    else:
+        return "error"    # Rot — hoher Handlungsbedarf
 
 def section_label(text: str) -> None:
     st.markdown(f'<div class="section-label">{text}</div>', unsafe_allow_html=True)
@@ -439,7 +453,7 @@ if page == "Linie erkunden":
 
     with col_rec:
         rec_text = recommendation_text(sel_line, stats, worst)
-        box(rec_text, kind="rec")
+        box(rec_text, kind=recommendation_box_color(stats["otp_pct"]))
 
     box(
         f"Tipp: Im Tab <strong>«Delay vorhersagen»</strong> kannst du für jede Haltestelle "
@@ -567,7 +581,7 @@ elif page == "Linien vergleichen":
                          "Puffer (s)": st.column_config.NumberColumn(format="%d s"),
                      })
         rec_a = recommendation_text(line_a, stats_a, worst_a)
-        box(rec_a, kind="rec")
+        box(rec_a, kind=recommendation_box_color(stats_a["otp_pct"]))
 
     with col_wb:
         st.caption(f"Linie {line_b}")
@@ -578,7 +592,7 @@ elif page == "Linien vergleichen":
                          "Puffer (s)": st.column_config.NumberColumn(format="%d s"),
                      })
         rec_b = recommendation_text(line_b, stats_b, worst_b)
-        box(rec_b, kind="rec")
+        box(rec_b, kind=recommendation_box_color(stats_b["otp_pct"]))
 
 
 # ══════════════════════════════════════════════════════════════════════════════
