@@ -512,19 +512,30 @@ if page == "Linie erkunden":
     )
 
     # Determine available directions for selected line
-    available_directions = (
+    line_directions_df = (
         route_dir_df
         .filter(pl.col("line_name").cast(pl.String) == str(sel_line))
-        .select(pl.col("direction_id").unique())
-        .collect()["direction_id"].to_list()
+        .collect()
     )
-    available_directions = sorted([d for d in available_directions if d is not None])
+    available_directions = sorted(line_directions_df["direction_id"].unique().to_list())
 
-    # Direction selector
-    direction_labels = {
-        0: "Richtung A (Süd)",
-        1: "Richtung B (Nord)",
-    }
+    # Build direction labels with start/end stop names
+    direction_labels = {}
+    for dir_id in available_directions:
+        if dir_id is not None:
+            dir_stops = (
+                line_directions_df
+                .filter(pl.col("direction_id") == dir_id)
+                .sort("lat")
+                .to_pandas()
+            )
+            if len(dir_stops) > 0:
+                start_stop = dir_stops["stop_name"].iloc[0].replace("Zürich, ", "")
+                end_stop = dir_stops["stop_name"].iloc[-1].replace("Zürich, ", "")
+                direction_labels[dir_id] = f"Richtung {chr(65 + dir_id)}: {start_stop} → {end_stop}"
+            else:
+                direction_labels[dir_id] = f"Richtung {chr(65 + dir_id)}"
+
     if len(available_directions) > 0:
         sel_direction = st.selectbox(
             "Fahrtrichtung",
