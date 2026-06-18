@@ -177,9 +177,9 @@ def load_gtfs_shapes(line: str) -> pd.DataFrame:
         .group_by(["route_short_name", "shape_id"])
         .agg(pl.len().alias("n_trips"))
         .sort("n_trips", descending=True)
+        .collect()
         .select("shape_id")
         .head(1)
-        .collect()
     )
 
     if len(dominant) == 0:
