@@ -148,13 +148,11 @@ stop_line_lookup = (
 stop_line_lookup.write_parquet(DATA_DIR / "stop_line_lookup.parquet")
 print(f"  → stop_line_lookup: {len(stop_line_lookup)} rows")
 
-# ─── 6. Route delay profile (for cascade finding) ────────────────────────────
-print("Computing route_profile ...")
+# ─── 6. Route delay profile with stop_sequence (for line geometry) ──────────
+print("Computing route_profile with stop_sequence...")
 
-# Per line: stops ordered by geographic position (lat → lon)
-# This ensures the map shows stops in geographic sequence, not scrambled by delay
-# (stop_sequence was lost in feature engineering, so we approximate via lat/lon)
-route_profile = (
+# Step 1: Aggregate delays + coordinates from test_final
+delay_data = (
     lf.group_by(["line_name", "stop_name"])
     .agg(
         pl.mean("arrival_delay").alias("mean_delay"),
@@ -169,7 +167,36 @@ route_profile = (
         pl.col("stop_name").cast(pl.String),
         pl.col("line_name").cast(pl.String),
     )
-    .sort(["line_name", "lat", "lon"])  # Geographic sort: latitude first, then longitude
+)
+
+# Step 2: Get stop_sequence from raw data (mode per line+stop)
+# This gives us the typical sequencing for each stop on each line
+raw_path = ROOT / "data" / "interim" / "train_raw.parquet"
+raw_lf = pl.scan_parquet(raw_path)
+
+sequence_lookup = (
+    raw_lf
+    .with_columns(pl.col("line_name").cast(pl.String), pl.col("stop_name").cast(pl.String))
+    .group_by(["line_name", "stop_name"])
+    .agg(pl.col("stop_sequence").mode().first().alias("stop_sequence"))
+    .collect()
+    .with_columns(
+        pl.col("stop_name").cast(pl.String),
+        pl.col("line_name").cast(pl.String),
+    )
+)
+
+# Step 3: Merge and sort by sequence
+# LEFT join: keep all stops from delay_data, match sequence if available
+route_profile = (
+    delay_data
+    .join(sequence_lookup, on=["line_name", "stop_name"], how="left")
+    .with_columns(
+        # Replace NULL sequences with 9999 so they sort to the end
+        pl.coalesce("stop_sequence", pl.lit(9999)).alias("_sort_seq"),
+    )
+    .sort(["line_name", "_sort_seq", "lat"])  # Primary: sequence; fallback: latitude
+    .drop("_sort_seq")
 )
 
 route_profile.write_parquet(DATA_DIR / "route_profile.parquet")

@@ -404,36 +404,68 @@ if page == "Linie erkunden":
     )
     st.plotly_chart(fig_route, use_container_width=True)
 
-    # ── Karte: Stopps auf Plotly Map ──
+    # ── Karte: Linienzug + Delay-Blasen ──
     st.markdown("---")
-    section_label("Karte — Haltestellen dieser Linie")
+    section_label("Karte — Linienzug mit Verspätungen")
 
     map_data = route.dropna(subset=["lat", "lon"]).copy()
-    map_data["marker_size"] = map_data["mean_delay"].clip(lower=1)  # Keine negativen Werte für Plotly
     if len(map_data) > 0:
-        fig_map = px.scatter_mapbox(
-            map_data,
-            lat="lat", lon="lon",
-            color="mean_delay",
-            size="marker_size",
-            size_max=20,
-            hover_name="stop_name",
-            hover_data={
-                "lat": False, "lon": False,
-                "mean_delay": ":.1f",
-                "otp_pct": ":.1f",
-            },
-            color_continuous_scale=[[0, GREEN], [0.4, AMBER], [1, RED]],
-            zoom=11.5,
-            center={"lat": map_data["lat"].mean(), "lon": map_data["lon"].mean()},
-            mapbox_style="carto-positron",
-            labels={"mean_delay": "Ø Delay (s)", "otp_pct": "OTP (%)"},
-            height=440,
-        )
+        # Calculate marker sizes (clipped to prevent negative values)
+        map_data["marker_size"] = map_data["mean_delay"].clip(lower=1)
+
+        # Create figure with line + markers
+        fig_map = go.Figure()
+
+        line_color = line_color(sel_line)
+
+        # Layer 1: Line (Linienzug) in Tramfarbe
+        fig_map.add_trace(go.Scattermapbox(
+            lat=map_data["lat"],
+            lon=map_data["lon"],
+            mode="lines",
+            line=dict(width=3, color=line_color),
+            hoverinfo="skip",
+            showlegend=False,
+        ))
+
+        # Layer 2: Markers (Haltestellen) mit Delay-Farbcodierung
+        fig_map.add_trace(go.Scattermapbox(
+            lat=map_data["lat"],
+            lon=map_data["lon"],
+            mode="markers",
+            marker=dict(
+                size=map_data["marker_size"],
+                color=map_data["mean_delay"],
+                colorscale=[[0, GREEN], [0.4, AMBER], [1, RED]],
+                colorbar=dict(title="Delay (s)", thickness=12),
+                line=dict(width=1, color="white"),
+            ),
+            text=[
+                f"<b>{stop}</b><br>"
+                f"Ø Delay: {delay:.1f}s<br>"
+                f"OTP: {otp:.1f}%"
+                for stop, delay, otp in zip(
+                    map_data["stop_name"],
+                    map_data["mean_delay"],
+                    map_data["otp_pct"],
+                )
+            ],
+            hovertemplate="%{text}<extra></extra>",
+            showlegend=False,
+        ))
+
+        # Configure map
         fig_map.update_layout(
+            mapbox=dict(
+                style="carto-positron",
+                center=dict(lat=map_data["lat"].mean(), lon=map_data["lon"].mean()),
+                zoom=11.5,
+            ),
             margin=dict(r=0, t=0, l=0, b=0),
-            coloraxis_colorbar=dict(title="Delay (s)", thickness=12),
+            height=440,
+            hovermode="closest",
         )
+
         st.plotly_chart(fig_map, use_container_width=True)
 
     # ── Top-5 Problemhaltestellen ──
