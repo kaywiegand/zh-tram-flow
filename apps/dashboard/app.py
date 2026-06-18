@@ -644,11 +644,14 @@ if page == "Linie erkunden":
 
     # Info: Stops can shift over time
     st.markdown("""
-    <div class="insight-box" style="font-size: 0.85rem; color: #555;">
-    <strong>💡 Hinweis:</strong> Haltestellen können sich im Analysezeitraum verschieben — durch Umplanung, Baustellen oder Netzänderungen.
-    Daher sind manche Blasen nicht exakt auf der gezeichneten Linie. Siehe
-    <a href="network-map.html" target="_blank" style="color: #2E86AB; font-weight: 600;">Network-Map</a>
-    für Abweichungen nach Datum.
+    <div class="insight-box" style="font-size: 0.9rem; color: #555; line-height: 1.6;">
+    <strong>💡 Hinweis zu Haltestellen-Positionen:</strong><br>
+    Während des Analysezeitraums wurden Haltestellen umgeplant, versetzt oder durch Baustellen verlagert.
+    Deshalb sind manche <strong>Blasen nicht exakt auf der gezeichneten Linie</strong> — die Linie zeigt den aktuellen Zustand,
+    aber manche Verspätungen stammen von früheren Positionen der gleichen Haltestelle.<br><br>
+    <strong style="color: #2E86AB;">→</strong>
+    <a href="network-map.html" target="_blank" style="color: #2E86AB; font-weight: 600; text-decoration: underline;">Network-Map öffnen</a>
+    um zu sehen, <strong>wo und wann</strong> die Linie sich verändert hat.
     </div>
     """, unsafe_allow_html=True)
 
