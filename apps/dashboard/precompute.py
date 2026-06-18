@@ -26,6 +26,7 @@ import polars as pl
 ROOT = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = Path(__file__).resolve().parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
+GTFS_DIR = ROOT / "data" / "raw" / "gtfs"
 
 SRC = ROOT / "data" / "processed" / "test_final.parquet"
 
@@ -205,40 +206,89 @@ print(f"  → route_profile: {len(route_profile)} rows")
 # ─── 7. Route profile by direction (for dashboard direction filtering) ───────
 print("Computing route_profile_by_direction...")
 
-# Load test_final for delay metrics (has is_start_stop, is_end_stop)
-test_lf = pl.scan_parquet(ROOT / "data" / "processed" / "test_final.parquet")
+# Strategy: Use GTFS direction_id for authentic route directions
+# Approach:
+#   1. Get all unique (line_name, stop_name) pairs from test_final
+#   2. Load GTFS trips and routes to find direction_id
+#   3. Map direction_id back to our data
 
-# Step 1: For each line, assign direction_id based on geographic split (latitude)
-# Direction 0 = southern half (lower latitude), Direction 1 = northern half (higher latitude)
-line_direction_mapping = []
+# First: Build mapping from route_short_name (line_name) to GTFS route_id
+gtfs_routes_path = GTFS_DIR / "gtfs_tram_routes.parquet"
+gtfs_trips_path = GTFS_DIR / "gtfs_tram_trips.parquet"
 
-for line in sorted(lf.select(pl.col("line_name").unique()).collect()["line_name"].to_list()):
-    # Get all unique stops for this line, sorted by latitude
-    stops_for_line = (
-        test_lf
-        .filter(pl.col("line_name") == line)
-        .select(["stop_name", "stop_lat"])
+if gtfs_routes_path.exists() and gtfs_trips_path.exists():
+    gtfs_routes_lf = pl.scan_parquet(gtfs_routes_path)
+    routes_map = (
+        gtfs_routes_lf
+        .with_columns(pl.col("route_short_name").cast(pl.String))
+        .select(["route_id", "route_short_name"])
+        .collect()
+        .to_dict(as_series=False)
+    )
+    route_short_to_id = {name: rid for name, rid in zip(routes_map["route_short_name"], routes_map["route_id"])}
+
+    # Load GTFS trips to get direction_id per route_id
+    gtfs_trips_lf = pl.scan_parquet(gtfs_trips_path)
+    trips_directions = (
+        gtfs_trips_lf
+        .select(["route_id", "direction_id"])
         .unique()
         .collect()
-        .sort("stop_lat")
     )
 
-    n_stops = len(stops_for_line)
-    if n_stops == 0:
-        continue
+    # Build direction mapping: (line_name → [0, 1])
+    available_directions_per_line = {}
+    for row in trips_directions.iter_rows(named=True):
+        route_id = row["route_id"]
+        direction_id = row["direction_id"]
 
-    # Split at midpoint: first half = direction 0, second half = direction 1
-    mid = n_stops // 2
+        # Find which line_name this route_id belongs to
+        for line_name, rid in route_short_to_id.items():
+            if rid == route_id:
+                if line_name not in available_directions_per_line:
+                    available_directions_per_line[line_name] = []
+                if direction_id not in available_directions_per_line[line_name]:
+                    available_directions_per_line[line_name].append(direction_id)
 
-    # Direction 0: southern stops (indices 0 to mid-1)
-    dir0_stops = stops_for_line.slice(0, mid)["stop_name"].to_list()
-    for stop_name in dir0_stops:
-        line_direction_mapping.append((line, stop_name, 0))
+    # Now assign direction_id to all (line, stop) pairs
+    line_direction_mapping = []
+    test_lf = pl.scan_parquet(ROOT / "data" / "processed" / "test_final.parquet")
 
-    # Direction 1: northern stops (indices mid to end)
-    dir1_stops = stops_for_line.slice(mid)["stop_name"].to_list()
-    for stop_name in dir1_stops:
-        line_direction_mapping.append((line, stop_name, 1))
+    for line_name in available_directions_per_line.keys():
+        # Get all stops for this line
+        stops_for_line = (
+            test_lf
+            .filter(pl.col("line_name") == line_name)
+            .select("stop_name")
+            .unique()
+            .collect()["stop_name"].to_list()
+        )
+
+        # Each stop gets both directions (same stops, two directions)
+        for direction_id in available_directions_per_line[line_name]:
+            for stop_name in stops_for_line:
+                line_direction_mapping.append((line_name, stop_name, direction_id))
+else:
+    # Fallback if GTFS not available: use simple sequence-based split
+    print("  ⚠ GTFS routes not found, using fallback sequence-based directions")
+    raw_lf = pl.scan_parquet(ROOT / "data" / "interim" / "train_raw.parquet")
+
+    sequence_lookup = (
+        raw_lf
+        .with_columns(pl.col("line_name").cast(pl.String), pl.col("stop_name").cast(pl.String))
+        .group_by(["line_name", "stop_name"])
+        .agg(pl.col("stop_sequence").mode().first().alias("stop_sequence"))
+        .collect()
+    )
+
+    line_direction_mapping = []
+    for line_name, group in sequence_lookup.group_by("line_name"):
+        sequences = group["stop_sequence"].to_list()
+        if sequences:
+            seq_mid = (min(sequences) + max(sequences)) / 2
+            for row in group.iter_rows(named=True):
+                dir_id = 1 if row["stop_sequence"] > seq_mid else 0
+                line_direction_mapping.append((line_name, row["stop_name"], dir_id))
 
 # Convert to DataFrame
 direction_df = pl.DataFrame(
