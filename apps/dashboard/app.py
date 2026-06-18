@@ -47,7 +47,7 @@ OTP_TARGET = 95.0
 
 st.set_page_config(
     page_title="Zurich Tram Flow — Explorer",
-    page_icon="🚋",
+    page_icon="▪",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -229,7 +229,7 @@ def recommendation_text(line: str, stats: dict, worst: pd.DataFrame) -> str:
         worst_stop = worst.iloc[0]["Haltestelle"] if len(worst) > 0 else "—"
         worst_stop_short = str(worst_stop).replace("Zürich, ", "")
         return (
-            f"🔴 <strong>Linie {line} — hoher Handlungsbedarf.</strong> "
+            f"<strong>Linie {line} — hoher Handlungsbedarf.</strong> "
             f"OTP {otp:.1f}% · Ø Delay {delay:.0f}s · Lücke {gap:.1f} PP zum Ziel. "
             f"Schlechteste Haltestelle: <em>{worst_stop_short}</em>. "
             f"{n_no_buf} Haltestellen ohne eingebauten Puffer. "
@@ -290,7 +290,7 @@ def build_feature_row(line_name, stop_name, hour, weekday, month,
 with st.sidebar:
     st.markdown("""
     <div style="padding:1rem 0 0.5rem">
-        <div style="font-size:1.3rem;font-weight:800">🚋 Zurich Tram Flow</div>
+        <div style="font-size:1.3rem;font-weight:800">Zurich Tram Flow</div>
         <div style="font-size:0.78rem;opacity:0.6;margin-top:0.3rem">
             Netz-Explorer · VBZ 2023–2025
         </div>
@@ -309,7 +309,6 @@ with st.sidebar:
     <div style="font-size:0.75rem;opacity:0.55;line-height:1.8">
         OTP netzweit: <strong>87,0%</strong><br>
         Ziel: 95% · Lücke −8 PP<br>
-        Ø Delay: ~56s<br>
         16 Linien · 94,4 Mio. Datenpunkte
     </div>
     """, unsafe_allow_html=True)
