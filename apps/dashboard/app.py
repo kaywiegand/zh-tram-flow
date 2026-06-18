@@ -569,11 +569,14 @@ if page == "Linie erkunden":
     st.markdown("---")
     section_label("Top 5 Problemhaltestellen")
 
+    # Filter worst stops to only those in main route (consistent with bar chart + map)
+    worst_filtered = worst[worst["Haltestelle"].isin(route_filtered["stop_name"])].head(5)
+
     col_tbl, col_rec = st.columns([3, 2], gap="large")
 
     with col_tbl:
         st.dataframe(
-            worst,
+            worst_filtered,
             hide_index=True,
             use_container_width=True,
             column_config={
@@ -584,7 +587,7 @@ if page == "Linie erkunden":
         )
 
     with col_rec:
-        rec_text = recommendation_text(sel_line, stats, worst)
+        rec_text = recommendation_text(sel_line, stats, worst_filtered)
         box(rec_text, kind=recommendation_box_color(stats["otp_pct"]))
 
     box(
