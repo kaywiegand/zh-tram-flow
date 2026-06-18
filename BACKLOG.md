@@ -362,11 +362,261 @@ Status: [ ] 2–3 Charts gewählt
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
 | 67 | **✅ Fahrtrichtungs-Filter im Dashboard (2026-06-18)** — Implementiert: Selectbox mit Gesamt/Richtung A/B auf "Linie erkunden". Direction ID aus GTFS (authentische Fahrtrichtungen, nicht geografische Varianten). Alle Stops gehören zu beiden Richtungen. Karte, Charts, Stats nutzen Filter. | 1 |
-| 68 | **Direction ID Architecture Overhaul (DEFERRED)** — Ganzheitlicher Umbau: train_raw + test_final mit direction_id als Dimension. Neue Aggregationen: stop×direction, line×direction. Model v3 Retraining. Analysen: Asymmetrische Verspätung. **Plan dokumentiert, aktuell not-critical, später evaluieren ob signifikante Unterschiede (~10s bei L11) das Refactoring rechtfertigen.** → Siehe `## Research Opportunities` #OP-1. | 3 |
+| 68 | **Direction ID Architecture Overhaul (DEFERRED → Siehe Details unten)** — Ganzheitlicher Umbau: train_raw + test_final mit direction_id als Dimension. Neue Aggregationen: stop×direction, line×direction. Model v3 Retraining. Analysen: Asymmetrische Verspätung. **Aktuell not-critical, später evaluieren ob signifikante Unterschiede (~10s bei L11, siehe OP-1) das Refactoring rechtfertigen.** Trigger: Nach OP-1 Dashboard-Analyse Entscheidung treffen. | 3 |
 
 ---
 
-## 🔬 Research Opportunities — Dashboard Discovery
+---
+
+## BACKLOG #68 — Direction ID Architecture Plan (Details)
+
+**Status:** DEFERRED | **Trigger:** Nach OP-1 Analyse Entscheidung treffen  
+**Zeitaufwand:** ~2 Wochen (9 Sessions) | **Risiko:** MITTEL
+
+### Context: Why This Matters
+
+Aktuell hat das System einen **oberflächlichen Direction-Filter** (UI-Level), aber die zugrundeliegenden Daten unterscheiden nicht zwischen den Fahrtrichtungen. Das führt zu:
+- ❌ Filterung zeigt keine Datenmäßigen Unterschiede (nur UI-Unterschiede)
+- ❌ Modell nutzt `direction_id` nicht als Feature
+- ❌ Richtungs-spezifische Analysen unmöglich
+
+Dieser Plan beschreibt einen **vollständigen Daten-Pipeline-Umbau** um echte Richtungs-Dimensionalität einzuführen.
+
+---
+
+### PHASE 1: CRITICAL PATH — Raw-Daten anreichern (4–5 Sessions)
+
+#### 1.1 Direction ID in Raw-Daten einführen
+
+**Ziel:** Jede Zeile in `train_raw` + `test_raw` bekommt `direction_id` (0 oder 1) via GTFS join
+
+**Wie:**
+```
+1. GTFS Lookup: trip_id → direction_id aus gtfs_tram_trips.parquet
+2. Join: train_raw.trip_id LEFT JOIN gtfs_trips.trip_id
+3. Output: train_raw_with_direction.parquet + test_raw_with_direction.parquet
+4. Handling: NULLs dokumentieren (sollten < 0.5% sein)
+```
+
+**Validation:**
+```python
+assert direction_id.isin([0, 1]).all()  # Nur 0 oder 1
+assert direction_id.notna().sum() / len(df) > 0.995  # < 0.5% NULLs
+```
+
+**Dateien zu ändern:**
+- `notebooks/02_preparation.ipynb` — neue Sektion "Add Direction ID"
+- `src/zh_tram_flow/data/loader.py` — Trip-ID Mapping Funktion
+
+---
+
+#### 1.2 Feature-Engineering Pipeline anpassen
+
+**Ziel:** Alle aggregierten Features nutzen `direction_id` als zusätzliche Dimension
+
+**Wie:**
+```python
+# Bisherig:
+.group_by(["stop_name", "line_name"])
+
+# Neu:
+.group_by(["stop_name", "line_name", "direction_id"])
+```
+
+**Dateien zu ändern:**
+- `src/zh_tram_flow/features/network.py` — `compute_network_stats()` + `apply_network_features()`
+- `src/zh_tram_flow/data/export.py` — `run_export()` Parameter
+
+**Output:** 
+- `train_features.parquet` (39 → 40 Spalten: +`direction_id`)
+- `test_features.parquet` (identisch)
+
+---
+
+#### 1.3 Train/Test Split neu aggregieren
+
+**Ziel:** Komplette Re-Aggregation mit Direction-Dimension
+
+**Wie:**
+1. Nach 1.1 + 1.2: Raw-Files durch gesamten Cleaning & Preprocessing
+2. `run_export()` aufrufen (updated durch 1.2)
+3. Neue Features-Parquets speichern
+
+**Dateien zu ändern:**
+- `notebooks/02_preparation.ipynb` — Zellen nach Direction-ID hinzufügen
+
+---
+
+#### 1.4 Final Datasets neu erzeugen
+
+**Ziel:** `train_final.parquet` + `test_final.parquet` mit `direction_id`
+
+**Output:** 
+- `train_final.parquet` (39 → 40 Spalten)
+- `test_final.parquet` (39 → 40 Spalten)
+
+**Dateien zu ändern:**
+- `notebooks/05_feature_engineering.ipynb`
+- `notebooks/06_prediction_*.ipynb`
+
+---
+
+### PHASE 2: HIGH IMPACT — Dashboard & Modell (2–3 Sessions)
+
+#### 2.1 Dashboard Aggregationen
+
+**Neue Parquet-Dateien:**
+```
+stop_direction_agg.parquet          (2× Zeilen von stop_agg)
+line_direction_agg.parquet          (2× Zeilen von line_agg)
+route_profile_with_direction.parquet (with direction as dimension)
+```
+
+**Dateien zu ändern:**
+- `apps/dashboard/precompute.py` — neue Aggregations-Blöcke
+
+---
+
+#### 2.2 Dashboard UI — Richtungs-Filter optimieren
+
+Filter nutzt jetzt echte Datenunterschiede statt nur UI-Unterschiede.
+
+**Dateien zu ändern:**
+- `apps/dashboard/app.py` — Regler nutzt neue `line_direction_agg` Daten
+
+---
+
+#### 2.3 Modell v3 — Retraining mit Direction Feature
+
+**Wie:**
+```
+1. train_final.parquet mit direction_id laden
+2. Feature-Set: v2 (34) + direction_id (1) = 35 Features
+3. LightGBM trainieren (gleiche Hyperparameter wie v2)
+4. Test MAE v3 vs. v2 vergleichen
+5. Feature Importance prüfen: ist direction_id Top-10?
+```
+
+**Output:** 
+- `lgbm_v3.pkl` (trainiertes Modell)
+- Updated Model Progression Tabelle
+
+**Dateien zu ändern:**
+- Neues Notebook: `06_prediction_4a-model_v3.ipynb`
+
+---
+
+### PHASE 3: NICE-TO-HAVE — Analysen (3–4 Sessions)
+
+#### 3.1 Analyse-Notebook: Direction-spezifische Hotspots
+
+**Neu:** `03_analysis_8-direction.ipynb`
+
+**Inhalte:**
+1. Sind Hotspots richtungsspezifisch?
+2. Kaskaden-Effekt unterschiedlich pro Richtung?
+3. Wetter-Effekt asymmetrisch?
+4. Linienlänge × Richtung Interaktion?
+
+**Output:** 4–5 neue Charts + 10–15 Findings (F-DIR-01–N)
+
+---
+
+#### 3.2 Neue Dashboard-Seite: "Direction Insights"
+
+**Mit:** Heatmaps, Asymmetrie-Ranking, Empfehlungen pro Richtung
+
+---
+
+#### 3.3 Report aktualisieren
+
+**Updates in `public/index.html`:**
+- Neue Sektion: "Direction Asymmetry Analysis"
+- 2–3 Key Charts
+- Links zu Dashboard Insights
+
+---
+
+### PHASE 4: Dokumentation (1–2 Sessions)
+
+#### 4.1 DATA_DICTIONARY.md
+```
+direction_id | Int64
+  GTFS Direction ID (0=Outbound, 1=Return)
+  Source: gtfs_tram_trips.parquet join via trip_id
+  Range: {0, 1}
+  Nulls: < 0.5% (acceptable)
+```
+
+#### 4.2 BACKLOG.md / ROADMAP.md
+- Task #67 → completed
+- Task #68 → decision log
+
+#### 4.3 README + CLAUDE.md
+- Sektion über Direction Dimension
+
+---
+
+### Implementation Sequence
+
+| Phase | Day | Tasks | Output |
+|:---|:---|:---|:---|
+| 1.1–1.2 | 1–2 | Raw enrichment + Cleanup | train_raw_with_direction ✅ |
+| 1.3–1.4 | 3 | Pipeline re-aggregate | train_final + test_final ✅ |
+| 2.1–2.2 | 4–5 | Dashboard + UI | Live Direction Filter ✅ |
+| 2.3 | 6 | Model v3 | lgbm_v3.pkl ✅ |
+| 3.1–3.2 | 7–8 | Analysen + Insights | 03_analysis_8 + neue Dashboard-Seite ✅ |
+| 4.0 | 9 | Doku + Review | Alle MDfiles updated ✅ |
+
+---
+
+### Risk Assessment & Mitigation
+
+| Risiko | Mitigation |
+|:---|:---|
+| Trip-ID Join Mismatch (nicht alle Trips in GTFS) | Sample-Join vorab testen; 0.5%-Schwelle akzeptieren; fehlende als NULL flaggen |
+| Aggregations-Explosion (2× so viele Zeilen) | Ist beabsichtigt; Memory-Check durchführen |
+| Modell-Regression (v3 schlechter als v2) | v2 behalten, v3 optional; Feature-Importance dokumentieren |
+| Dashboard-Performance | Precomputes klein (<10MB), sollte schnell sein; Index auf direction_id |
+
+---
+
+### Success Criteria
+
+**Phase 1 ✅:**
+- train_raw + test_raw haben direction_id (< 0.5% NULLs)
+- test_final.parquet 40 Spalten
+- Zeilen-Count konsistent über alle Stages
+
+**Phase 2 ✅:**
+- Dashboard lädt mit echten Direction-Unterschieden
+- Model v3 trainiert; MAE vs. v2 dokumentiert
+- Stop × Direction Hotspots sichtbar
+
+**Phase 3 ✅:**
+- Analyse-Notebook mit 5+ Direction-Findings
+- Direction-Insights-Seite verfügbar
+- Report aktualisiert
+
+---
+
+### Decision Tree
+
+**Starten wenn:**
+- OP-1 Analyse zeigt: Direction-Unterschiede **systematisch + signifikant** (>5% OTP-Gap, >15s Delay-Delta)
+- Mehrere Linien betroffen (nicht nur L11)
+- Zeit-Budget: 2 Wochen verfügbar
+
+**Defer wenn:**
+- Unterschiede sind Noise (<5% Varianz erklären)
+- Nur einzelne Linien betroffen
+- Andere Priorities höher (z.B. OP-7 Cascade Mechanics)
+
+**Decision Point:** Nach OP-1 Analyse (diese Woche) → BACKLOG #68 aktualisieren mit Freigabe
+
+---
+
+
 
 **Kontext:** Beim interaktiven Erkunden der Linien im Dashboard fallen weitere Faktoren auf, die systematische Analysen rechtfertigen könnten. Diese Sektion sammelt:
 1. **Beobachtungen** beim manuellen Durchklicken aller Linien
