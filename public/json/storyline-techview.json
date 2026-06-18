@@ -9,9 +9,7 @@
     "project": "Zurich Tram Flow",
     "period": "2023–2025"
   },
-
   "chapters": [
-
     {
       "nav_label": "Einstieg",
       "slides": [
@@ -26,10 +24,26 @@
             {
               "type": "figures",
               "items": [
-                { "value": "94,4 M", "label": "Halt-Ereignisse, 4 Datenquellen", "sentiment": "neutral" },
-                { "value": "50,0 s", "label": "Baseline MAE (Stop Mean)",         "sentiment": "neutral" },
-                { "value": "18,56 s", "label": "LightGBM v2 MAE (Test 2025)",     "sentiment": "positive" },
-                { "value": "−63 %",  "label": "Verbesserung vs. Baseline",        "sentiment": "positive" }
+                {
+                  "value": "94,4 M",
+                  "label": "Halt-Ereignisse, 4 Datenquellen",
+                  "sentiment": "neutral"
+                },
+                {
+                  "value": "50,0 s",
+                  "label": "Baseline MAE (Stop Mean)",
+                  "sentiment": "neutral"
+                },
+                {
+                  "value": "18,56 s",
+                  "label": "LightGBM v2 MAE (Test 2025)",
+                  "sentiment": "positive"
+                },
+                {
+                  "value": "−63 %",
+                  "label": "Verbesserung vs. Baseline",
+                  "sentiment": "positive"
+                }
               ]
             }
           ]
@@ -44,27 +58,43 @@
               "items": [
                 {
                   "section": "Ausgangssituation",
-                  "slides": ["OTP-Lücke und Datenlage"]
+                  "slides": [
+                    "OTP-Lücke und Datenlage"
+                  ]
                 },
                 {
                   "section": "Datenstrategie",
-                  "slides": ["Datenquellen und Integration", "Cleaning-Entscheidungen"]
+                  "slides": [
+                    "Datenquellen und Integration",
+                    "Cleaning-Entscheidungen"
+                  ]
                 },
                 {
                   "section": "Baseline",
-                  "slides": ["Stop Mean als Benchmark"]
+                  "slides": [
+                    "Stop Mean als Benchmark"
+                  ]
                 },
                 {
                   "section": "Feature Engineering",
-                  "slides": ["34 Features v1 · Kaskadenindikator v2"]
+                  "slides": [
+                    "34 Features v1 · Kaskadenindikator v2"
+                  ]
                 },
                 {
                   "section": "Modellauswahl",
-                  "slides": ["Warum LightGBM", "v1 · v2 · Robustheits-Check"]
+                  "slides": [
+                    "Warum LightGBM",
+                    "v1 · v2 · Robustheits-Check"
+                  ]
                 },
                 {
                   "section": "Evaluation & Ausblick",
-                  "slides": ["Feature Importance", "Produktionsreife & Reflexion", "Handlungsempfehlungen"]
+                  "slides": [
+                    "Feature Importance",
+                    "Produktionsreife & Reflexion",
+                    "Handlungsempfehlungen"
+                  ]
                 }
               ]
             }
@@ -72,7 +102,6 @@
         }
       ]
     },
-
     {
       "nav_label": "Ausgangssituation",
       "slides": [
@@ -83,10 +112,26 @@
             {
               "type": "figures",
               "items": [
-                { "value": "87 %",   "label": "OTP netzweit 2023–2025",       "sentiment": "negative" },
-                { "value": "−8 PP",   "label": "Lücke zum VBZ-Ziel 95 %",       "sentiment": "negative" },
-                { "value": "56,3 s",   "label": "Ø Ankunftsverspätung",          "sentiment": "warning" },
-                { "value": "71,5 %",   "label": "Halte akkumulieren Delay",      "sentiment": "warning" }
+                {
+                  "value": "87 %",
+                  "label": "OTP netzweit 2023–2025",
+                  "sentiment": "negative"
+                },
+                {
+                  "value": "−8 PP",
+                  "label": "Lücke zum VBZ-Ziel 95 %",
+                  "sentiment": "negative"
+                },
+                {
+                  "value": "56,3 s",
+                  "label": "Ø Ankunftsverspätung",
+                  "sentiment": "warning"
+                },
+                {
+                  "value": "71,5 %",
+                  "label": "Halte akkumulieren Delay",
+                  "sentiment": "warning"
+                }
               ]
             },
             {
@@ -108,7 +153,6 @@
         }
       ]
     },
-
     {
       "nav_label": "Datenstrategie",
       "slides": [
@@ -184,7 +228,6 @@
         }
       ]
     },
-
     {
       "nav_label": "Baseline",
       "slides": [
@@ -194,12 +237,44 @@
           "content": [
             {
               "type": "comparison_table",
-              "columns": ["Ansatz", "Logik", "MAE (Test)"],
+              "columns": [
+                "Ansatz",
+                "Logik",
+                "MAE (Test)"
+              ],
               "rows": [
-                { "cells": ["Grand Mean",  "Immer Netz-Ø vorhersagen (56,3 s)",    "50,6 s"], "highlight": false },
-                { "cells": ["Hour Mean",   "Ø nach Tagesstunde",                   "50,5 s"], "highlight": false },
-                { "cells": ["Line Mean",   "Ø nach Linie",                         "50,4 s"], "highlight": false },
-                { "cells": ["Stop Mean",   "Ø nach Haltestelle (stärkste naive Baseline)", "50,0 s"], "highlight": true }
+                {
+                  "cells": [
+                    "Grand Mean",
+                    "Immer Netz-Ø vorhersagen (56,3 s)",
+                    "50,6 s"
+                  ],
+                  "highlight": false
+                },
+                {
+                  "cells": [
+                    "Hour Mean",
+                    "Ø nach Tagesstunde",
+                    "50,5 s"
+                  ],
+                  "highlight": false
+                },
+                {
+                  "cells": [
+                    "Line Mean",
+                    "Ø nach Linie",
+                    "50,4 s"
+                  ],
+                  "highlight": false
+                },
+                {
+                  "cells": [
+                    "Stop Mean",
+                    "Ø nach Haltestelle (stärkste naive Baseline)",
+                    "50,0 s"
+                  ],
+                  "highlight": true
+                }
               ]
             },
             {
@@ -211,7 +286,6 @@
         }
       ]
     },
-
     {
       "nav_label": "Feature Engineering",
       "slides": [
@@ -260,7 +334,6 @@
         }
       ]
     },
-
     {
       "nav_label": "Modellauswahl",
       "slides": [
@@ -297,11 +370,44 @@
           "content": [
             {
               "type": "comparison_table",
-              "columns": ["Version", "Neue Features", "MAE (Test)", "MBE (Test)", "OTP-Verbesserung"],
+              "columns": [
+                "Version",
+                "Neue Features",
+                "MAE (Test)",
+                "MBE (Test)",
+                "OTP-Verbesserung"
+              ],
               "rows": [
-                { "cells": ["Baseline (Stop Mean)", "—",                                        "50,0 s", "—",      "—"],        "highlight": false },
-                { "cells": ["LightGBM v1",          "34 Features (Zeit · Wetter · Netz)",       "45,7 s", "+8,3 s",  "71,9 % → 77,5 %"], "highlight": false },
-                { "cells": ["LightGBM v2",          "+prev_trip_delay, +stop_sequence_pct",     "18,56 s", "−0,69 s", "→ kalibriert"], "highlight": true }
+                {
+                  "cells": [
+                    "Baseline (Stop Mean)",
+                    "—",
+                    "50,0 s",
+                    "—",
+                    "—"
+                  ],
+                  "highlight": false
+                },
+                {
+                  "cells": [
+                    "LightGBM v1",
+                    "34 Features (Zeit · Wetter · Netz)",
+                    "45,7 s",
+                    "+8,3 s",
+                    "71,9 % → 77,5 %"
+                  ],
+                  "highlight": false
+                },
+                {
+                  "cells": [
+                    "LightGBM v2",
+                    "+prev_trip_delay, +stop_sequence_pct",
+                    "18,56 s",
+                    "−0,69 s",
+                    "→ kalibriert"
+                  ],
+                  "highlight": true
+                }
               ]
             },
             {
@@ -318,10 +424,26 @@
             {
               "type": "figures",
               "items": [
-                { "value": "~21,4 s", "label": "XGBoost val MAE (150 Runden)", "sentiment": "warning" },
-                { "value": "90+ Min", "label": "XGBoost Trainingszeit auf 85M Zeilen", "sentiment": "negative" },
-                { "value": "18 Min",  "label": "LightGBM v2 Trainingszeit", "sentiment": "positive" },
-                { "value": "18,56 s",  "label": "LightGBM v2 Test MAE (2025)", "sentiment": "positive" }
+                {
+                  "value": "~21,4 s",
+                  "label": "XGBoost val MAE (150 Runden)",
+                  "sentiment": "warning"
+                },
+                {
+                  "value": "90+ Min",
+                  "label": "XGBoost Trainingszeit auf 85M Zeilen",
+                  "sentiment": "negative"
+                },
+                {
+                  "value": "18 Min",
+                  "label": "LightGBM v2 Trainingszeit",
+                  "sentiment": "positive"
+                },
+                {
+                  "value": "18,56 s",
+                  "label": "LightGBM v2 Test MAE (2025)",
+                  "sentiment": "positive"
+                }
               ]
             },
             {
@@ -333,7 +455,6 @@
         }
       ]
     },
-
     {
       "nav_label": "Evaluation",
       "slides": [
@@ -387,7 +508,6 @@
         }
       ]
     },
-
     {
       "nav_label": "Empfehlungen",
       "slides": [
@@ -439,6 +559,35 @@
           ]
         },
         {
+          "nav_label": "Weitere Potenziale",
+          "slides": [
+            {
+              "title": "Was noch zu erforschen ist",
+              "subtitle": "Dashboard-Exploration offenbarte 7 systematische Forschungsmöglichkeiten",
+              "content": [
+                {
+                  "type": "statement",
+                  "text": "Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie? Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale.",
+                  "sentiment": "neutral"
+                },
+                {
+                  "type": "findings",
+                  "items": [
+                    "OP-1: Direction-Asymmetrie (~10s Delta)",
+                    "OP-2: Stop-Variabilität (Puffer-Stops)",
+                    "OP-3: Linienlänge ↔ Delay nicht-linear",
+                    "OP-7: Kaskaden-Verstärker vs. -Dämpfer"
+                  ]
+                },
+                {
+                  "type": "note",
+                  "text": "Detaillierte Hypothesen → BACKLOG.md Research Opportunities Section"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "role": "abbinder",
           "title": "Zurich Tram Flow",
           "subtitle": "Kay Wiegand · 2023–2025",
@@ -446,27 +595,59 @@
             {
               "type": "figures",
               "items": [
-                { "value": "94,4 M",  "label": "Halt-Ereignisse",    "sentiment": "neutral" },
-                { "value": "41.2M",  "label": "Trainings-Fahrten",  "sentiment": "neutral" },
-                { "value": "~29M",   "label": "Test-Fahrten (2025)", "sentiment": "neutral" },
-                { "value": "36",     "label": "Features (v2)",       "sentiment": "neutral" },
-                { "value": "18,56 s",  "label": "MAE · LightGBM v2",  "sentiment": "positive" },
-                { "value": "−63 %",   "label": "vs. Baseline",        "sentiment": "positive" }
+                {
+                  "value": "94,4 M",
+                  "label": "Halt-Ereignisse",
+                  "sentiment": "neutral"
+                },
+                {
+                  "value": "41.2M",
+                  "label": "Trainings-Fahrten",
+                  "sentiment": "neutral"
+                },
+                {
+                  "value": "~29M",
+                  "label": "Test-Fahrten (2025)",
+                  "sentiment": "neutral"
+                },
+                {
+                  "value": "36",
+                  "label": "Features (v2)",
+                  "sentiment": "neutral"
+                },
+                {
+                  "value": "18,56 s",
+                  "label": "MAE · LightGBM v2",
+                  "sentiment": "positive"
+                },
+                {
+                  "value": "−63 %",
+                  "label": "vs. Baseline",
+                  "sentiment": "positive"
+                }
               ]
             },
             {
               "type": "links",
               "primary": "https://github.com/kaywiegand/zh-tram-flow",
               "items": [
-                { "label": "Ergebnisübersicht (HR/Business)", "href": "overview.html" },
-                { "label": "Projektverlauf (Portfolio)",       "href": "storyview.html" },
-                { "label": "Live-App",                         "href": "https://zh-tram-flow.streamlit.app" }
+                {
+                  "label": "Ergebnisübersicht (HR/Business)",
+                  "href": "overview.html"
+                },
+                {
+                  "label": "Projektverlauf (Portfolio)",
+                  "href": "storyview.html"
+                },
+                {
+                  "label": "Live-App",
+                  "href": "https://zh-tram-flow.streamlit.app"
+                }
               ]
             }
           ]
         }
       ]
     }
-
   ]
 }

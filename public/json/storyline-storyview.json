@@ -516,6 +516,36 @@
           ]
         },
         {
+          "nav_label": "Weitere Potenziale",
+          "slides": [
+            {
+              "title": "Was noch zu erforschen ist",
+              "subtitle": "Dashboard-Exploration offenbarte 7 systematische Forschungsmöglichkeiten",
+              "content": [
+                {
+                  "type": "statement",
+                  "text": "Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie? Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale.",
+                  "sentiment": "neutral"
+                },
+                {
+                  "type": "findings",
+                  "items": [
+                    "OP-1: Direction-Asymmetrie (~10s Delta zwischen Richtung A/B)",
+                    "OP-2: Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)",
+                    "OP-3: Linienlänge ↔ Delay nicht-linear",
+                    "OP-7: Kaskaden-Verstärker vs. -Dämpfer pro Linie"
+                  ]
+                },
+                {
+                  "type": "note",
+                  "text": "Detaillierte Hypothesen, Implementation Paths und Prioritäten → BACKLOG.md Research Opportunities Section",
+                  "link": "../BACKLOG.md#-research-opportunities--dashboard-discovery"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "role": "abbinder",
           "title": "Zurich Tram Flow",
           "subtitle": "Kay Wiegand · 2023–2025",
