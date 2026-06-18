@@ -391,13 +391,14 @@ if page == "🔍 Linie erkunden":
     st.markdown("---")
     section_label("Karte — Haltestellen dieser Linie")
 
-    map_data = route.dropna(subset=["lat", "lon"])
+    map_data = route.dropna(subset=["lat", "lon"]).copy()
+    map_data["marker_size"] = map_data["mean_delay"].clip(lower=1)  # Keine negativen Werte für Plotly
     if len(map_data) > 0:
         fig_map = px.scatter_mapbox(
             map_data,
             lat="lat", lon="lon",
             color="mean_delay",
-            size="mean_delay",
+            size="marker_size",
             size_max=20,
             hover_name="stop_name",
             hover_data={
