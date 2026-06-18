@@ -1370,3 +1370,37 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - `wgnd-workspace/skills/project-review/project-review.md`: Schritt 3.7 "Cross-Artefakt-Konsistenzcheck" ergänzt (Kapitelbezeichnungen · Kernbefunde · Projektlogik · KPI-Drift). Committed + gepusht → `wgnd-workspace` main.
 
 **Nächster Schritt:** Inhaltlicher Review der Views durch Kay · Styling-Runde · `/project-case check`
+
+---
+
+### 2026-06-18 — Content-Konsolidierung, Zahlenformat, Skill-Updates
+
+**Was passiert ist:**
+
+*Content & Konsistenz:*
+- Alle 4 Views + JSONs + MDs: Ausgangssituation-Kapitel vereinheitlicht, Zwei-Schritt-Logik eingeführt, 3 Kernbefunde konsolidiert ("Kernfindungen" → "Kernbefunde", 3. Befund war Modell-Ergebnis → ersetzt durch "Verspätungen entstehen systematisch an der Peripherie")
+- Finding-Count 63 → 66 in allen Artefakten (public/, README, PROCESS_LOG, Notebook)
+- `06_prediction_7-recommendations.ipynb`: 63 → 66 korrigiert
+
+*Zahlenformat (Deutsch):*
+- Dezimaltrennzeichen: `.` → `,` in allen deutschen Artefakten
+- Leerzeichen vor Einheit: `87%` → `87 %`, `18,56s` → `18,56 s`, `94,4M` → `94,4 M`
+- `pp` → `%` (Prozentpunkte)
+- `r ≥ 0.85` → `r ≥ 0,85`
+- CSS-Werte (Transitions, em-Größen) explizit ausgenommen
+- Regel dokumentiert in `docs/CONVENTIONS.md`
+
+*Skill-Updates (wgnd-workspace):*
+- `/project-review` Schritt 3.7: Cross-Artefakt-Konsistenzcheck + Schritt E Zahlenformat
+- `/project-case check`: Web-Root auto-detect (`public/` oder `reports/`)
+- `docs/CONVENTIONS.md`: Zahlenformat nach Sprache (DE/EN) dokumentiert
+
+*Notebook:*
+- `06_prediction_0-overview.ipynb`: Known Limitations Abschnitt ergänzt (7 Punkte: prev_trip_delay Live-Signal, is_windy NaN, Nov-Dez 2025 Maske, canceled-Flag-Änderung, L12 Baustellen, dwell_time-Konfundierung, kein Retraining-Pipeline)
+
+*Artefakt-Struktur:*
+- `_archive/` gelöscht, #60/#61 geschlossen — ersetzt durch 4-View-System
+- index.html: Slide-Counts korrigiert (12/12/15), "AI-Workflow" → "End-to-End"
+- BACKLOG #66: Prozess-Story als Portfolio-Artefakt geplant
+
+**Nächster Schritt:** Visuals in Views einpflegen (#52–54) → dann `/project-case check` nochmals
