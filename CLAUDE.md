@@ -1,4 +1,4 @@
-# CLAUDE.md — Zürich Tram Flow
+# CLAUDE.md — Zurich Tram Flow
 
 > Projektspezifische Anweisungen für Claude Code.
 > Ergänzt die globale CLAUDE.md aus dem Workspace-Root.

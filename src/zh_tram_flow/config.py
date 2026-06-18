@@ -10,7 +10,7 @@ Importiere dieses Modul in Notebooks oder Scripts:
 from pathlib import Path
 
 # ─── Projektname ───────────────────────────────────────────────────────────
-PROJECT_NAME = "Zürich Tram Flow"
+PROJECT_NAME = "Zurich Tram Flow"
 RANDOM_SEED = 42
 
 # ─── Verzeichnisse ─────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-# Portfolio Summary — Zürich Tram Flow
+# Portfolio Summary — Zurich Tram Flow
 <!-- Interface-Datei: Befüllt von /portfolio story (2026-05-28).
      Einzige Zahlenquelle für /portfolio report und /portfolio slides.
      KEINE Inhalte aus Notebooks kopieren — nur kuratierte Kernaussagen.
@@ -9,7 +9,7 @@
 ## Project
 
 ```
-name:       Zürich Tram Flow
+name:       Zurich Tram Flow
 slug:       zh-tram-flow
 type:       DANSC
 stage:      Phase 4 abgeschlossen — LightGBM v2 trainiert, Evaluation + Vergleich fertig

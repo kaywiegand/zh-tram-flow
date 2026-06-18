@@ -101,7 +101,7 @@ if PORTFOLIO_MD.exists():
     portfolio_content = PORTFOLIO_MD.read_text(encoding="utf-8")
 
 obsidian_content = f"""---
-project: Zürich Tram Flow
+project: Zurich Tram Flow
 slug: zh-tram-flow
 type: DANSC
 status: phase-4-complete
@@ -126,7 +126,7 @@ notebooks-pdf: docs/exports/notebooks/
 reports-pdf: docs/exports/reports/
 ---
 
-# Zürich Tram Flow
+# Zurich Tram Flow
 
 {portfolio_content}
 
@@ -166,7 +166,7 @@ print(f"  ✓ {obsidian_md.name} created")
 print("\n📋 Creating project metadata JSON...")
 
 project_meta = {
-    "project": "Zürich Tram Flow",
+    "project": "Zurich Tram Flow",
     "slug": "zh-tram-flow",
     "type": "DANSC",
     "status": "phase-4-complete",

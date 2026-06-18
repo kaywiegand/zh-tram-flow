@@ -1,4 +1,4 @@
-# PROCESS_LOG.md – Zürich Tram Flow
+# PROCESS_LOG.md – Zurich Tram Flow
 
 > Projektverlauf und AI-Kontext-Einstieg.
 > Dieses File ist der Einstiegspunkt für neue Claude-Sessions.
@@ -9,7 +9,7 @@
 
 | Feld | Inhalt |
 | :--- | :--- |
-| Projektname | Zürich Tram Flow |
+| Projektname | Zurich Tram Flow |
 | Repo | `zh-tram-flow` |
 | Typ | DANSC — Data Analysis + Data Science |
 | Erstellt | 2026-05-11 |

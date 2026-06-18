@@ -1,4 +1,4 @@
-# Setup & Deployment — Zürich Tram Flow
+# Setup & Deployment — Zurich Tram Flow
 
 ---
 

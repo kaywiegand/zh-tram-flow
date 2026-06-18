@@ -1,4 +1,4 @@
-# Zürich Tram Flow
+# Zurich Tram Flow
 
 **Delay analysis and prediction across Zürich's tram network — 94.4M stop events, 3 years, 16 lines.**
 
@@ -328,7 +328,7 @@ Built with [wgnd-toolkit](https://github.com/kaywiegand/wgnd-toolkit) and [wgnd-
 ---
 
 
-# ROADMAP.md – Zürich Tram Flow
+# ROADMAP.md – Zurich Tram Flow
 
 ---
 
@@ -537,7 +537,7 @@ Built with [wgnd-toolkit](https://github.com/kaywiegand/wgnd-toolkit) and [wgnd-
 ---
 
 
-# PROCESS_LOG.md – Zürich Tram Flow
+# PROCESS_LOG.md – Zurich Tram Flow
 
 > Projektverlauf und AI-Kontext-Einstieg.
 > Dieses File ist der Einstiegspunkt für neue Claude-Sessions.
@@ -548,7 +548,7 @@ Built with [wgnd-toolkit](https://github.com/kaywiegand/wgnd-toolkit) and [wgnd-
 
 | Feld | Inhalt |
 | :--- | :--- |
-| Projektname | Zürich Tram Flow |
+| Projektname | Zurich Tram Flow |
 | Repo | `zh-tram-flow` |
 | Typ | DANSC — Data Analysis + Data Science |
 | Erstellt | 2026-05-11 |
@@ -1687,7 +1687,7 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 ---
 
 
-# Portfolio Summary — Zürich Tram Flow
+# Portfolio Summary — Zurich Tram Flow
 <!-- Interface-Datei: Befüllt von /portfolio story (2026-05-28).
      Einzige Zahlenquelle für /portfolio report und /portfolio slides.
      KEINE Inhalte aus Notebooks kopieren — nur kuratierte Kernaussagen.
@@ -1698,7 +1698,7 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 ## Project
 
 ```
-name:       Zürich Tram Flow
+name:       Zurich Tram Flow
 slug:       zh-tram-flow
 type:       DANSC
 stage:      Phase 4 abgeschlossen — LightGBM v2 trainiert, Evaluation + Vergleich fertig

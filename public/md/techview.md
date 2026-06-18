@@ -1,6 +1,6 @@
-# Zürich Tram Flow
+# Zurich Tram Flow
 
-**Projekt:** Zürich Tram Flow
+**Projekt:** Zurich Tram Flow
 **Beschreibung:** Technischer Deep Dive
 **Autor:** Kay Wiegand
 **Zielgruppe:** Data Scientists · Tech Leads · Interviewer
@@ -15,7 +15,7 @@
 
 ### Einstieg
 
-# Zürich Tram Flow
+# Zurich Tram Flow
 
 **Das Projekt als End-to-End ML Case**
 **Data Engineering · EDA · Feature Engineering · LightGBM**
@@ -169,7 +169,7 @@
 *Vier Empfehlungen, jede direkt durch Modell oder Analyse gedeckt*
 
 
-## Zürich Tram Flow
+## Zurich Tram Flow
 *Kay Wiegand · 2023–2025*
 
 * **94,4 M** — Halt-Ereignisse

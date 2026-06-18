@@ -1,6 +1,6 @@
 {
   "project": {
-    "name": "Zürich Tram Flow",
+    "name": "Zurich Tram Flow",
     "slug": "zh-tram-flow",
     "type": "DANSC",
     "description": "Delay analysis and prediction across Zürich's tram network — 94.4M stop events, 3 years, 16 lines.",

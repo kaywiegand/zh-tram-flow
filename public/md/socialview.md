@@ -1,6 +1,6 @@
-# Zürich Tram Flow
+# Zurich Tram Flow
 
-**Projekt:** Zürich Tram Flow
+**Projekt:** Zurich Tram Flow
 **Beschreibung:** One-Pager für Social/LinkedIn
 **Autor:** Kay Wiegand
 **Zielgruppe:** LinkedIn · Twitter · Social Media

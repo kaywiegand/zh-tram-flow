@@ -6,7 +6,7 @@
     "duration_minutes": 20,
     "author": "Kay Wiegand",
     "github": "kaywiegand/zh-tram-flow",
-    "project": "Zürich Tram Flow",
+    "project": "Zurich Tram Flow",
     "period": "2023–2025"
   },
 
@@ -17,7 +17,7 @@
       "slides": [
         {
           "role": "title",
-          "title": "Zürich Tram Flow",
+          "title": "Zurich Tram Flow",
           "subtitle": [
             "Das Projekt als End-to-End ML Case",
             "Data Engineering · EDA · Feature Engineering · LightGBM"
@@ -440,7 +440,7 @@
         },
         {
           "role": "abbinder",
-          "title": "Zürich Tram Flow",
+          "title": "Zurich Tram Flow",
           "subtitle": "Kay Wiegand · 2023–2025",
           "content": [
             {

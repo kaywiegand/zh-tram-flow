@@ -1,5 +1,5 @@
 ---
-title: Zürich Tram Flow
+title: Zurich Tram Flow
 slug: zh-tram-flow
 type: DANSC
 tags: [data-science, data-analysis, time-series, gradient-boosting, lightgbm, polars, open-data, transit, portfolio]
@@ -15,7 +15,7 @@ links:
   dashboard: https://zh-tram-flow.streamlit.app
 ---
 
-# Zürich Tram Flow
+# Zurich Tram Flow
 
 **Delay analysis and prediction across Zürich's tram network — 94.4M stop events, 3 years, 16 lines.**
 

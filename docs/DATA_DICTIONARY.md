@@ -1,4 +1,4 @@
-# Data Dictionary — Zürich Tram Flow
+# Data Dictionary — Zurich Tram Flow
 
 **File:** `data/raw/zh-tram-data-master.parquet`
 **Rows:** ~94.4M · **Columns:** 26 · **Period:** 2023–2025

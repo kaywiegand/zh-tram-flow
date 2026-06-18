@@ -1,5 +1,5 @@
 """
-Zürich Tram Flow — Explorer Dashboard v2
+Zurich Tram Flow — Explorer Dashboard v2
 Drei interaktive Tools für Stakeholder nach der Präsentation.
 Starten: uv run streamlit run apps/dashboard/app_v2.py
 """
@@ -46,7 +46,7 @@ OTP_TARGET = 95.0
 # ─── Page Config ─────────────────────────────────────────────────────────────
 
 st.set_page_config(
-    page_title="Zürich Tram Flow — Explorer",
+    page_title="Zurich Tram Flow — Explorer",
     page_icon="🚋",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -272,7 +272,7 @@ def build_feature_row(line_name, stop_name, hour, weekday, month,
 with st.sidebar:
     st.markdown("""
     <div style="padding:1rem 0 0.5rem">
-        <div style="font-size:1.3rem;font-weight:800">🚋 Zürich Tram Flow</div>
+        <div style="font-size:1.3rem;font-weight:800">🚋 Zurich Tram Flow</div>
         <div style="font-size:0.78rem;opacity:0.6;margin-top:0.3rem">
             Netz-Explorer · VBZ 2023–2025
         </div>

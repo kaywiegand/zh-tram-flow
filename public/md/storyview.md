@@ -1,6 +1,6 @@
-# Zürich Tram Flow
+# Zurich Tram Flow
 
-**Projekt:** Zürich Tram Flow
+**Projekt:** Zurich Tram Flow
 **Beschreibung:** Der gesamte Daten-Lifecycle
 **Autor:** Kay Wiegand
 **Zielgruppe:** Portfolio · Konferenz · Vollbild
@@ -15,7 +15,7 @@
 
 ### Einstieg
 
-# Zürich Tram Flow
+# Zurich Tram Flow
 
 **Von der Frage bis zur Empfehlung**
 **Data Engineering · EDA · Machine Learning · Dashboard**
@@ -185,7 +185,7 @@
 * **87 %** — OTP heute
 * **95 %** — VBZ-Ziel 2028
 
-## Zürich Tram Flow
+## Zurich Tram Flow
 *Kay Wiegand · 2023–2025*
 
 * **94,4 M** — Halt-Ereignisse

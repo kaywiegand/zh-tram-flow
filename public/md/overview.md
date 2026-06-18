@@ -1,6 +1,6 @@
-# Zürich Tram Flow
+# Zurich Tram Flow
 
-**Projekt:** Zürich Tram Flow
+**Projekt:** Zurich Tram Flow
 **Beschreibung:** Ergebnisse & Handlungsempfehlungen
 **Autor:** Kay Wiegand
 **Zielgruppe:** HR · Business · Hiring Manager
