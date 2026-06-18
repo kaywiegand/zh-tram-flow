@@ -227,12 +227,12 @@ def plot_line_map_with_geometry(line: str, route: pd.DataFrame) -> go.Figure:
     if len(route) > 0:
         route_copy = filter_route_for_display(route)
 
-        # Bubble-Größe: power-scaled (nicht linear)
+        # Bubble-Größe: power-scaled mit Mindestgröße für Sichtbarkeit
         if len(route_copy) > 0 and "mean_delay" in route_copy.columns:
             delays = route_copy["mean_delay"].values
             d_min, d_max = float(np.nanmin(delays)), float(np.nanmax(delays))
             norm = (delays - d_min) / (d_max - d_min + 1e-9)
-            route_copy["bubble"] = 2 + (norm ** 1.7) * 22  # power-scaled, 2-24px
+            route_copy["bubble"] = 8 + (norm ** 1.5) * 18  # power-scaled, 8-26px (min visible)
         else:
             route_copy["bubble"] = 10
     else:
