@@ -519,7 +519,7 @@ if page == "Linie erkunden":
     available_directions = sorted(line_directions_df["direction_id"].unique().to_list())
 
     # Build direction labels with start/end stop names
-    direction_labels = {}
+    direction_labels = {None: "Gesamt (beide Richtungen)"}
     for dir_id in available_directions:
         if dir_id is not None:
             dir_stops = (
@@ -535,15 +535,14 @@ if page == "Linie erkunden":
             else:
                 direction_labels[dir_id] = f"Richtung {chr(65 + dir_id)}"
 
-    if len(available_directions) > 0:
-        sel_direction = st.selectbox(
-            "Fahrtrichtung",
-            available_directions,
-            format_func=lambda d: direction_labels.get(d, f"Richtung {d}"),
-        )
-    else:
-        sel_direction = None
-        st.warning("Keine Fahrtrichtungs-Daten verfügbar.")
+    # Selectbox: Gesamt (default) + individual directions
+    direction_options = [None] + available_directions
+    sel_direction = st.selectbox(
+        "Fahrtrichtung",
+        direction_options,
+        index=0,  # Default to "Gesamt"
+        format_func=lambda d: direction_labels.get(d, f"Richtung {d}"),
+    )
 
     route = route_for_line_and_direction(sel_line, direction_id=sel_direction)
 
