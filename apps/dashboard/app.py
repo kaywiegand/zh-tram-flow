@@ -161,16 +161,16 @@ def load_gtfs_shapes(line: str) -> pd.DataFrame:
     Falls back to empty DataFrame if GTFS files not found.
     """
     try:
-        trips = pl.read_parquet(GTFS_DIR / "gtfs_tram_trips.parquet")
-        routes = pl.read_parquet(GTFS_DIR / "gtfs_tram_routes.parquet")
-        shapes = pl.read_parquet(GTFS_DIR / "gtfs_tram_shapes.parquet")
+        trips_lf = pl.scan_parquet(GTFS_DIR / "gtfs_tram_trips.parquet")
+        routes_lf = pl.scan_parquet(GTFS_DIR / "gtfs_tram_routes.parquet")
+        shapes_lf = pl.scan_parquet(GTFS_DIR / "gtfs_tram_shapes.parquet")
     except FileNotFoundError:
         return pd.DataFrame(columns=["lat", "lon"])
 
     # Dominant shape per line: most trips, direction=1, latest year
     dominant = (
-        trips
-        .join(routes.select(["route_id", "route_short_name", "year"]),
+        trips_lf
+        .join(routes_lf.select(["route_id", "route_short_name", "year"]),
               on=["route_id", "year"])
         .filter(pl.col("route_short_name") == str(line))
         .filter(pl.col("direction_id") == 1)
@@ -188,7 +188,7 @@ def load_gtfs_shapes(line: str) -> pd.DataFrame:
     shape_id = dominant["shape_id"][0]
 
     return (
-        shapes
+        shapes_lf
         .filter(pl.col("shape_id") == shape_id)
         .sort("shape_pt_sequence")
         .select([
