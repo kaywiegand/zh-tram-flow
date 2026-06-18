@@ -110,8 +110,9 @@ def load_data():
     stop   = pl.read_parquet(AGG / "stop_agg.parquet")
     line   = pl.read_parquet(AGG / "line_agg.parquet")
     route  = pl.read_parquet(AGG / "route_profile.parquet")
+    route_dir = pl.read_parquet(AGG / "route_profile_by_direction.parquet")
     lookup = pl.read_parquet(AGG / "stop_line_lookup.parquet")
-    return stop, line, route, lookup
+    return stop, line, route, route_dir, lookup
 
 @st.cache_resource(show_spinner=False)
 def load_model():
@@ -120,7 +121,7 @@ def load_model():
         meta = json.load(f)
     return m, meta
 
-stop_df, line_df, route_df, lookup_df = load_data()
+stop_df, line_df, route_df, route_dir_df, lookup_df = load_data()
 
 # Hilfslisten
 ALL_LINES = sorted(
@@ -301,6 +302,32 @@ def plot_line_map_with_geometry(line: str, route: pd.DataFrame) -> go.Figure:
     )
 
     return fig
+
+def route_for_line_and_direction(line: str, direction_id: int | None = None) -> pd.DataFrame:
+    """Route-Profil einer Linie und Fahrtrichtung.
+
+    Nutzt route_profile_by_direction für Richtungs-Filterung.
+    Falls direction_id=None, werden beide Richtungen kombiniert.
+    """
+    r = route_dir_df.filter(pl.col("line_name").cast(pl.String) == str(line))
+
+    if direction_id is not None:
+        r = r.filter(pl.col("direction_id") == direction_id)
+
+    r = (
+        r
+        .with_columns(pl.col("stop_name").cast(pl.Utf8))
+        .join(
+            stop_df.select(["stop_name", "otp_pct", "dwell_time_median"])
+                .with_columns(pl.col("stop_name").cast(pl.Utf8)),
+            on="stop_name", how="left",
+        )
+        # Keep geographic order (lat/lon)
+        .sort(["direction_id", "lat"])
+        .to_pandas()
+    )
+    r["stop_short"] = r["stop_name"].str.replace(r"Zürich, ?", "", regex=True)
+    return r
 
 def route_for_line(line: str) -> pd.DataFrame:
     """Route-Profil einer Linie — geografisch sortiert mit OTP + dwell_time.
@@ -484,7 +511,31 @@ if page == "Linie erkunden":
         format_func=lambda x: f"Linie {x}",
     )
 
-    route = route_for_line(sel_line)
+    # Determine available directions for selected line
+    available_directions = (
+        route_dir_df
+        .filter(pl.col("line_name").cast(pl.String) == str(sel_line))
+        .select(pl.col("direction_id").unique())
+        .collect()["direction_id"].to_list()
+    )
+    available_directions = sorted([d for d in available_directions if d is not None])
+
+    # Direction selector
+    direction_labels = {
+        0: "Richtung A (Süd)",
+        1: "Richtung B (Nord)",
+    }
+    if len(available_directions) > 0:
+        sel_direction = st.selectbox(
+            "Fahrtrichtung",
+            available_directions,
+            format_func=lambda d: direction_labels.get(d, f"Richtung {d}"),
+        )
+    else:
+        sel_direction = None
+        st.warning("Keine Fahrtrichtungs-Daten verfügbar.")
+
+    route = route_for_line_and_direction(sel_line, direction_id=sel_direction)
 
     if len(route) == 0:
         st.warning("Keine Daten für diese Linie.")
@@ -579,6 +630,16 @@ if page == "Linie erkunden":
 
     fig_map = plot_line_map_with_geometry(sel_line, route)
     st.plotly_chart(fig_map, use_container_width=True)
+
+    # Info: Stops can shift over time
+    st.markdown("""
+    <div class="insight-box" style="font-size: 0.85rem; color: #555;">
+    <strong>💡 Hinweis:</strong> Haltestellen können sich im Analysezeitraum verschieben — durch Umplanung, Baustellen oder Netzänderungen.
+    Daher sind manche Blasen nicht exakt auf der gezeichneten Linie. Siehe
+    <a href="network-map.html" target="_blank" style="color: #2E86AB; font-weight: 600;">Network-Map</a>
+    für Abweichungen nach Datum.
+    </div>
+    """, unsafe_allow_html=True)
 
     # ── Top-5 Problemhaltestellen ──
     st.markdown("---")

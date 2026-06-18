@@ -202,9 +202,82 @@ route_profile = (
 route_profile.write_parquet(DATA_DIR / "route_profile.parquet")
 print(f"  → route_profile: {len(route_profile)} rows")
 
+# ─── 7. Route profile by direction (for dashboard direction filtering) ───────
+print("Computing route_profile_by_direction...")
+
+# Load test_final for delay metrics (has is_start_stop, is_end_stop)
+test_lf = pl.scan_parquet(ROOT / "data" / "processed" / "test_final.parquet")
+
+# Step 1: For each line, assign direction_id based on geographic split (latitude)
+# Direction 0 = southern half (lower latitude), Direction 1 = northern half (higher latitude)
+line_direction_mapping = []
+
+for line in sorted(lf.select(pl.col("line_name").unique()).collect()["line_name"].to_list()):
+    # Get all unique stops for this line, sorted by latitude
+    stops_for_line = (
+        test_lf
+        .filter(pl.col("line_name") == line)
+        .select(["stop_name", "stop_lat"])
+        .unique()
+        .collect()
+        .sort("stop_lat")
+    )
+
+    n_stops = len(stops_for_line)
+    if n_stops == 0:
+        continue
+
+    # Split at midpoint: first half = direction 0, second half = direction 1
+    mid = n_stops // 2
+
+    # Direction 0: southern stops (indices 0 to mid-1)
+    dir0_stops = stops_for_line.slice(0, mid)["stop_name"].to_list()
+    for stop_name in dir0_stops:
+        line_direction_mapping.append((line, stop_name, 0))
+
+    # Direction 1: northern stops (indices mid to end)
+    dir1_stops = stops_for_line.slice(mid)["stop_name"].to_list()
+    for stop_name in dir1_stops:
+        line_direction_mapping.append((line, stop_name, 1))
+
+# Convert to DataFrame
+direction_df = pl.DataFrame(
+    line_direction_mapping,
+    schema=["line_name", "stop_name", "direction_id"],
+    orient="row"
+).with_columns(
+    pl.col("line_name").cast(pl.Categorical),
+    pl.col("stop_name").cast(pl.Categorical),
+)
+
+# Step 2: Aggregate delays + coordinates by [line_name, direction_id, stop_name]
+route_by_direction = (
+    lf
+    .join(direction_df.lazy(), on=["line_name", "stop_name"], how="inner")
+    .group_by(["line_name", "direction_id", "stop_name"])
+    .agg(
+        pl.mean("arrival_delay").alias("mean_delay"),
+        pl.quantile("arrival_delay", 0.9).alias("p90_delay"),
+        (pl.col("arrival_delay").le(120).mean() * 100).alias("otp_pct"),
+        pl.first("stop_lat").alias("lat"),
+        pl.first("stop_lon").alias("lon"),
+        pl.count().alias("n_obs"),
+    )
+    .collect()
+    .with_columns(
+        pl.col("stop_name").cast(pl.String),
+        pl.col("line_name").cast(pl.String),
+    )
+    .sort(["line_name", "direction_id", "lat"])
+)
+
+route_by_direction.write_parquet(DATA_DIR / "route_profile_by_direction.parquet")
+print(f"  → route_profile_by_direction: {len(route_by_direction)} rows")
+
 print("\n✅ Precompute done. All files written to apps/dashboard/data/")
 total_rows = (
     len(stop_agg) + len(hourly_agg) + len(weather_agg)
     + len(line_agg) + len(stop_line_lookup) + len(route_profile)
+    + len(route_by_direction)
 )
 print(f"   Total rows loaded at dashboard startup: ~{total_rows:,} (vs. 29M raw)")
