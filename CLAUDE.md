@@ -76,12 +76,11 @@ DEPLOYMENT.md ← Lese das für Production Setup + Troubleshooting
 
 ## Public-Artefakte — Portfolio Pipeline (mechanisiert ab 2026-06-19)
 
-⚠️ **→ Lese `PORTFOLIO_PIPELINE.md` für komplette Dokumentation** ← 
+⚠️ **→ Für komplette Dokumentation: `/project-case` Skill dokumentation lesen** ← 
 
-Hier nur Kurzübersicht. Alles andere (Workflow, Troubleshooting, FAQ, Details):
-
+Hier nur Kurzübersicht. Alles andere (Workflow, Troubleshooting, FAQ, Details) in:
 ```
-/PORTFOLIO_PIPELINE.md ← Klick hier für vollständige Anleitung
+/Users/kaywiegand/Workspace/skills/project-case/PORTFOLIO_PIPELINE.md
 ```
 
 ### Single Source of Truth: portfolio.md
