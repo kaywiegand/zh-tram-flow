@@ -55,6 +55,25 @@ from zh_tram_flow.settings import setup_plotting, logger
   - `public/mds/` ← Portfolio-Docs
   - Hinweis: Dieses Projekt nutzt `public/` statt `reports/` — GitHub Pages Deployment-Anforderung
 
+---
+
+## Deployment & Production
+
+→ **`DEPLOYMENT.md`** (GitHub OSS Standard)
+
+Alle Deployment-Informationen (Setup, GitHub Pages, Streamlit Cloud, Retraining, Monitoring):
+```
+git@github.com:kaywiegand/zh-tram-flow.git
+DEPLOYMENT.md ← Lese das für Production Setup + Troubleshooting
+```
+
+**Übersicht:**
+- **Local:** `uv sync && jupyter lab`
+- **GitHub Pages (static):** Auto-deploy `/public` auf main-Push
+- **Streamlit Cloud (dashboard):** Auto-deploy `apps/dashboard/app.py` auf main-Push
+- **Model Retraining:** Manual via Notebooks oder später via GitHub Actions
+- **Monitoring:** Manual health checks oder via Logs
+
 ## Public-Artefakte — Portfolio Pipeline (mechanisiert ab 2026-06-19)
 
 ### Single Source of Truth: portfolio.md

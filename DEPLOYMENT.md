@@ -85,122 +85,208 @@ git push origin main
 
 ---
 
-## Streamlit Cloud (Dashboard)
+## 2. Streamlit Dashboard (Interactive App)
 
-### Prerequisites
+### Setup (One-time)
 
-The dashboard uses pre-computed aggregation tables to avoid loading 29M rows at startup:
-
-```bash
-# Run once (whenever raw data changes)
-make precompute
-
-# This creates apps/dashboard/data/*.parquet files
-# Commit them to git
-git add apps/dashboard/data/
-git commit -m "data: update dashboard aggregations"
-git push origin main
-```
-
-### One-Time Setup
-
-1. **Go to https://share.streamlit.io**
-2. **Sign in with GitHub** (connect account if needed)
-3. **Click "New app"**
-4. **Fill in:**
+1. Go to https://share.streamlit.io — sign in with GitHub
+2. Click **New app**:
    - Repository: `kaywiegand/zh-tram-flow`
    - Branch: `main`
    - File: `apps/dashboard/app.py`
-5. **Click Deploy**
+3. Click **Deploy**
 
-Streamlit builds and deploys automatically. Your app will be live at **https://zh-tram-flow.streamlit.app**.
+App live at **https://zh-tram-flow.streamlit.app**
 
-### How to Update
+### Pre-requisite: Precomputed Aggregations
 
-Push changes to `main` branch:
+Dashboard loads fast via pre-computed Parquet aggregations. **Must be committed:**
 
 ```bash
-# Make changes to apps/dashboard/app.py
-git add apps/dashboard/
-git commit -m "feat(dashboard): add new section"
-git push origin main
+# Generate (after updating data)
+uv run python apps/dashboard/precompute.py
+
+# Commit
+git add apps/dashboard/data/*.parquet
+git commit -m "chore: update dashboard aggregations"
+git push
 ```
 
-Streamlit auto-rebuilds within 1–2 minutes. Watch the build logs at:
-https://share.streamlit.io/kaywiegand/zh-tram-flow/main/apps/dashboard/app.py
+**Aggregations in `apps/dashboard/data/`:**
+| File | Rows | Purpose |
+| :--- | :---: | :--- |
+| `stop_agg.parquet` | 190 | Per-Stop KPIs: mean_delay, p90_delay, otp_pct |
+| `line_agg.parquet` | 14 | Per-Line: mean_delay, otp_pct |
+| `hourly_agg.parquet` | 168 | Temporal: delay by hour×weekday |
+| `weather_agg.parquet` | ~9 | Weather sensitivity |
+| `stop_line_lookup.parquet` | 1170 | Predictor features per Stop×Line |
+| `route_profile.parquet` | 190 | Spatial delay profile |
+| `route_profile_by_direction.parquet` | ~380 | Direction-specific (A/B) |
+
+### Deploy
+
+Push to trigger auto-deployment (1–2 min rebuild):
+
+```bash
+git add apps/dashboard/
+git commit -m "feat(dashboard): new section"
+git push origin main
+# → Live at https://zh-tram-flow.streamlit.app (1–2 min)
+```
+
+### Local Testing
+
+```bash
+# Pre-compute (one-time)
+uv run python apps/dashboard/precompute.py
+
+# Run locally
+uv run streamlit run apps/dashboard/app.py
+# → http://localhost:8501
+```
 
 ### Troubleshooting
 
-**"ModuleNotFoundError"**
-- Streamlit automatically installs from `requirements.txt`
-- Ensure `apps/dashboard/requirements.txt` is up-to-date
-
-**Dashboard loads slowly**
-- Check if `apps/dashboard/data/*.parquet` files exist and are committed
-- Run `make precompute` locally to regenerate them
-
-**Charts don't render**
-- Ensure Plotly is installed: check `apps/dashboard/requirements.txt`
-- Clear browser cache
+| Problem | Fix |
+| :--- | :--- |
+| ModuleNotFoundError | Dependencies auto-installed from `pyproject.toml` · commit any changes |
+| Dashboard loads slowly (>2s) | Check `apps/dashboard/data/` files exist and are committed · re-run `precompute.py` |
+| Charts don't render | Clear browser cache · verify Plotly in `pyproject.toml` |
+| Streamlit cache stale | Run: `streamlit run --client.caching=false` |
 
 ---
 
-## Local Testing
+## 3. Model Retraining
 
-Before pushing to production, test locally:
+### When to Retrain
 
-### Dashboard
+- **Weekly:** New VBZ data for previous week
+- **Monthly:** Full recalculation if OTP drift > 1pp
+- **On-demand:** After feature engineering code changes
+
+### How to Retrain (Manual)
 
 ```bash
-# Setup (one-time)
-make precompute
+# 1. Get new data
+# Download from sf_data-research or VBZ API
+# → data/raw/zh-tram-data-master.parquet
 
-# Run
-make dashboard
-# Opens http://localhost:8501
+# 2. Run feature engineering
+jupyter lab notebooks/05_feature_engineering.ipynb
+# Outputs: data/processed/train_final_v2.parquet, test_final_v2.parquet
+
+# 3. Train model
+jupyter lab notebooks/06_prediction_4-model_v2.ipynb
+# Outputs: data/models/lgbm_v2.txt, lgbm_v2_meta.json
+
+# 4. Verify MAE on holdout 2025
+# ✅ If MAE < 25s: safe to deploy
+# ❌ If MAE > 25s: investigate before pushing
 ```
 
-### Static Pages
+### Commit & Deploy
 
-Open in browser:
 ```bash
-open public/index.html
-open public/landingpage.html
-open public/report.html
-open public/presentation.html
+git add data/models/lgbm_v2.txt lgbm_v2_meta.json
+git commit -m "chore: retrain model v2 on $(date +%Y-%m-%d), MAE 18.56s"
+git push origin main
+# Dashboard auto-reloads on next Streamlit restart
 ```
 
-Or run a simple server:
+### Version Tracking
+
+Keep all trained models:
+
+```
+data/models/
+├── lgbm_v1.txt (45.7s MAE) — baseline
+├── lgbm_v2.txt (18.56s MAE) — current
+└── VERSIONS.md ← Document each
+```
+
+**VERSIONS.md:**
+```markdown
+## v2 (2026-06-19)
+- MAE: 18.56s
+- Features: 36 (+ prev_trip_delay, stop_sequence_pct)
+- Training: 41.2M rows (2023–Jun 2024)
+- Test: 2025 (~29M rows)
+
+## v1 (2026-05-20)
+- MAE: 45.7s
+- Status: ARCHIVED
+```
+
+### Rollback
+
+If v2 fails (MAE > 25s):
+
 ```bash
-cd public
-python -m http.server 8000
-# Open http://localhost:8000
+git checkout HEAD~1 -- data/models/lgbm_v2.txt
+git push origin main
+# Investigate what changed, retrain, redeploy
 ```
 
 ---
 
-## Makefile Shortcuts
+## 4. Production Notes
+
+### `prev_trip_delay` Feature
+
+Drives main improvement (45.7s → 18.56s). Requires **real-time trip tracking in live inference:**
+
+| Scenario | Feasibility |
+| :--- | :--- |
+| Dashboard (batch) | ✅ Aggregate previous run's delay |
+| Live API | ⚠️ Requires live trip feed from VBZ |
+| Fallback | LightGBM v1 (45.7s) or Stop Mean (50.0s) |
+
+### Monitoring
 
 ```bash
-make deploy-pages      # Shows GitHub Pages setup instructions
-make deploy-streamlit  # Shows Streamlit Cloud setup instructions
-make precompute        # Pre-compute dashboard data aggregations
-make dashboard         # Run dashboard locally
+# Manual health check
+python scripts/model_health_check.py
+# ✅ Model loaded: lgbm_v2.txt
+# ✅ MAE: 18.56s
+# ✅ Aggregations fresh (today)
 ```
+
+**Red flags:**
+- MAE > 25s for 3+ days → Retrain urgently
+- Dashboard loads > 2s → Re-run `precompute.py`
+- Missing aggregations → Commit `apps/dashboard/data/*.parquet`
 
 ---
 
-## Notes
+## 5. Troubleshooting
 
-- **All HTML files are static** — no server needed for Pages
-- **Dashboard uses Streamlit** — needs Python environment
-- **Aggregations are cached** — `@st.cache_data` means dashboard startup is fast (< 1 second with pre-computed data)
-- **URLs are permanent** — share them widely, they won't change
+| Problem | Symptom | Fix |
+| :--- | :--- | :--- |
+| Stale GitHub Pages | Old HTML still showing | Hard refresh: `Cmd+Shift+R` |
+| Slow Streamlit | Loads > 5s | Check aggregations exist · run `precompute.py` |
+| Model file corrupted | `load_model()` fails | `git checkout HEAD~5 -- data/models/` |
+| `prev_trip_delay` missing | KeyError in inference | Retrain: run `05_feature_engineering.ipynb` |
+| Charts not rendering | Blank Plotly area | Clear browser cache |
+
+---
+
+## Summary
+
+**Local:** `jupyter lab` for notebooks  
+**Testing:** `streamlit run apps/dashboard/app.py`  
+**Production:** GitHub Pages (auto on push) + Streamlit Cloud (auto on push) + weekly retraining  
+
+Every `git push main`:
+- GitHub Pages deploys (~30s)
+- Streamlit Cloud deploys (~1-2 min)
+- All artifacts live
+
+**Next:** Set up GitHub Actions for automated weekly retraining (see section 3 comments for skeleton)
 
 ---
 
 ## URLs to Share
 
 - **General overview:** https://kaywiegand.github.io/zh-tram-flow/
-- **Try the dashboard:** https://zh-tram-flow.streamlit.app
-- **GitHub:** https://github.com/kaywiegand/zh-tram-flow
+- **Dashboard (live):** https://zh-tram-flow.streamlit.app
+- **GitHub repo:** https://github.com/kaywiegand/zh-tram-flow
