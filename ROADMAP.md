@@ -194,12 +194,40 @@
 
 ---
 
-## Offene Entscheidungen
+## Phase 6 — Future Research & Opportunities
+
+Nach Abschluss der Kernphase (0–4) wurden **7 systematische Forschungsmöglichkeiten** identifiziert.
+Diese Phase dokumentiert offene Fragen und Entscheidungen für zukünftige Iterationen.
+
+> **Kontext:** OP-1 bis OP-7 entstanden während interaktiver Dashboard-Exploration.
+> Sie sind keine Fehler sondern strukturierte Potenziale für vertiefende Analysen.
+
+---
+
+### Research Opportunities (OP-1 bis OP-7)
+
+| OP # | Beobachtung | Priorität | Nächster Schritt |
+|:---|:---|:---:|:---|
+| **OP-1** | Direction-Asymmetrie (unterschiedliche Delays Richtung A vs. B) | 2 | Neue Notebook: Direction-spezifische Hotspots |
+| **OP-2** | Stop-Variabilität (manche Haltestellen chaotisch, manche stabil) | 3 | Cluster-Analyse: Stop-Typen nach Varianz-Profil |
+| **OP-3** | Linienlänge × Delay nicht-linear (längere Linien schlechter, aber nicht proportional) | 2 | Scatter-Plot: n_stops vs. Ø Delay pro Linie |
+| **OP-4** | Weekday × Line Interaktion (Wochenende != Wochentag pro Linie) | 2 | Heatmap: Line × DayType Matrix |
+| **OP-5** | Wetter-Empfindlichkeit unterschiedlich je Linie (L11 Schnee-sensitiv, L2 nicht) | 3 | Topografie-Analyse: Höhenprofil × Weather-Sensitivity |
+| **OP-6** | Schedule Compliance pro Linie (L13 immer early, L7 immer late) | 2 | Analyse: Schedule Margin Calculation per Line |
+| **OP-7** | Kaskaden-Verstärker vs. -Dämpfer (Linien verhalten sich unterschiedlich) | 1 | Neue Notebook: Cascade Mechanics Stratification |
+
+→ **Detailliert:** `BACKLOG.md` — Sektion "🔬 Research Opportunities & Future Questions"
+
+---
+
+### Offene Entscheidungen (aus Phase 0–5)
 
 | Entscheidung | Status | Notiz |
 | :--- | :--- | :--- |
 | Split-Strategie | ✅ entschieden | 2025 als Test-Jahr — temporal, kein Shuffle |
 | Geo-Bibliothek | ✅ entschieden | Plotly Mapbox (Folium verworfen) |
-| Modell-Kandidat | ✅ Richtung klar | LightGBM / GradientBoosting — Interaktionen wichtig |
+| Modell-Kandidat | ✅ entschieden | LightGBM — native Categorical, schnell, gut |
 | Target-Encoding für `stop_name` | offen | n-Threshold festlegen, Overfitting-Risiko prüfen |
-| Dashboard-Tooling | offen | Dash + Plotly vs. Streamlit — Entscheidung in Phase 5 |
+| Dashboard-Tooling | ✅ entschieden | Streamlit (Phase 5 completed) |
+| Direction-ID Architecture | offen | Blockiert durch OP-1 Signifikanz-Check (Phase 6) |
+| JSON → HTML Build-Automation | offen | Deferred zu `/project-prepare` Skill (Priority 2) |
