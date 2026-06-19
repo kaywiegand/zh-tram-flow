@@ -1404,3 +1404,61 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - BACKLOG #66: Prozess-Story als Portfolio-Artefakt geplant
 
 **Nächster Schritt:** Visuals in Views einpflegen (#52–54) → dann `/project-case check` nochmals
+
+---
+
+### 2026-06-19 — Research Opportunities dokumentiert · `/project-case` Skill-Gap erkannt
+
+**Was passiert ist:**
+
+*Research Opportunities Dokumentation (7 systematische Forschungsmöglichkeiten):*
+- **BACKLOG.md**: Neue Sektion "🔬 Research Opportunities & Future Questions" hinzugefügt
+  - OP-1 Direction-Asymmetrie (Priority 1 — warum unterscheiden sich die beiden Fahrtrichtungen?)
+  - OP-2 Stop-Variabilität (Priority 2 — Halte-Cluster-Effekte)
+  - OP-3 Linienlänge-Curve (Priority 1 — längere Linien = mehr Delay-Akkumulation)
+  - OP-4 Weekday×Line-Interaktion (Priority 1 — tagesabhängige Linienperfomance)
+  - OP-5 Wetter-Empfindlichkeit (Priority 2 — differenzierte Wetter-Response je Linie)
+  - OP-6 Schedule Bias (Priority 2 — Fahrplan-Design-Fehler nach Typ)
+  - OP-7 Kaskaden-Mechanik (Priority 1 — welche Haltestellen brechen den Loop?)
+  - Jede OP mit: Observation · Hypothesis · Questions · Implementation Path · Priority
+
+- **CLAUDE.md (Projekt)**: Neue Sektion "Research Opportunities — wichtiger Hinweis" hinzugefügt
+  - Dokumentiert wo OPs zu finden sind: BACKLOG.md, public/json/storyline-*.json, public/*.html, notebooks/03_analysis_0-overview.ipynb
+  - Warnt vor Drift: "beim Ändern der Opportunities: immer JSON → dann HTML nachziehen"
+  - Erklärt Portfolio-Wert: "zeigt nicht nur fertig, sondern lebendig und iterativ"
+
+- **public/json/storyline-*.json** (4 Files): Neue Kapitel "Weitere Potenziale" hinzugefügt
+  - Positioned vor Closing-Slide
+  - Content: "Weitere Potenziale erkannt", Dashboard-Discovery-Hinweis, 4 Priority-1 Topics genannt
+  - Link zu BACKLOG Research Opportunities Sektion
+
+- **public/*.html** (4 Views): "Weitere Potenziale" Sektion hinzugefügt
+  - `overview.html`: Slide mit Reveal.js-Stil (data-chapter="7")
+  - `techview.html`: Slide mit Reveal.js-Stil
+  - `storyview.html`: Slide mit Reveal.js-Stil
+  - `socialview.html`: HTML-Section (keine Slides)
+  - Alle: gleicher Content wie JSONs (4 Priority Topics, Link zu BACKLOG)
+
+- **notebooks/03_analysis_0-overview.ipynb**: Neue Markdown-Sektion "🔬 Research Opportunities & Future Questions"
+  - Erklärt warum Dashboard-Exploration neue Fragen generiert
+  - Tabelle mit 7 OPs, Prioritäten, nächsten Schritten
+  - Link zu BACKLOG für Details
+  - Decision Framework für OP-Priorisierung nach Projekt-Archivierung
+
+*Skill-Design-Gap erkannt — BACKLOG #70:*
+- `/project-case` Skill passt nicht zu diesem Projekt: Naming unklar, Single Point of Truth unklar, zu viele Audience-Routing-Varianten
+- Bewusste Entscheidung: Manueller Ansatz für jetzt (JSON → HTML)
+- Deferred: Komplette Skill-Neudesign basierend auf zh-tram-flow Learnings (BACKLOG #70, Priorität 2)
+
+*Commits gepusht:*
+- `docs: document Research Opportunities and project-case skill gap` (CLAUDE.md, BACKLOG #70, storyview.html)
+- `docs: add Research Opportunities to all public HTML views` (overview.html, techview.html, socialview.html)
+- Git: `git push origin main` erfolgreich
+
+**Architektur-Update — Single Source of Truth:**
+- JSONs in `public/json/storyline-*.json`: inhaltliche Quelle
+- HTMLs: Manuell synchronisiert (kein Build-Script)
+- MDs: Via `python convert_json_to_md.py` generiert
+- **Konsistenzregel:** JSON ↔ HTML Drift wird nie toleriert. CLAUDE.md dokumentiert Prozess.
+
+**Nächster Schritt:** Optional: Dashboard-Seiten testen auf Fahrtrichtung-Filter (all 3 pages + all visualizations) · Dann Phase 5 abschliessen
