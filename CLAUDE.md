@@ -76,6 +76,14 @@ DEPLOYMENT.md ← Lese das für Production Setup + Troubleshooting
 
 ## Public-Artefakte — Portfolio Pipeline (mechanisiert ab 2026-06-19)
 
+⚠️ **→ Lese `PORTFOLIO_PIPELINE.md` für komplette Dokumentation** ← 
+
+Hier nur Kurzübersicht. Alles andere (Workflow, Troubleshooting, FAQ, Details):
+
+```
+/PORTFOLIO_PIPELINE.md ← Klick hier für vollständige Anleitung
+```
+
 ### Single Source of Truth: portfolio.md
 
 ```
