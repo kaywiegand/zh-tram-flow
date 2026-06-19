@@ -1,54 +1,87 @@
 # Deployment Guide
 
-This document describes how to deploy all artifacts of this project publicly.
+Zurich Tram Flow — Production deployment for GitHub Pages (static artifacts), Streamlit Cloud (dashboard), and model retraining.
 
 ---
 
-## Overview
+## Quick Start
 
-| Artifact | Platform | URL | Files |
-|:---------|:---------|:----|:------|
-| Landing Page | GitHub Pages | https://kaywiegand.github.io/zh-tram-flow/landingpage.html | `public/landingpage.html` |
+### Local Development
+
+```bash
+git clone https://github.com/kaywiegand/zh-tram-flow.git
+cd zh-tram-flow
+
+# Install dependencies (analysis + ML)
+uv sync --extra dan --extra dsc
+
+# Launch Jupyter
+jupyter lab
+```
+
+**Prerequisites:** Python 3.10+, [uv](https://docs.astral.sh/uv/)
+
+> **Note:** Raw data not included (541 MB). Data engineering in [`sf_data-research`](https://github.com/kaywiegand/sf_data-research). To run prediction notebooks, download `train_final_v2.parquet` and `test_final_v2.parquet` from release assets.
+
+---
+
+## Overview — Public Artifacts
+
+| Artifact | Platform | URL | Location |
+|:---------|:---------|:----|:---------|
 | Artifact Hub | GitHub Pages | https://kaywiegand.github.io/zh-tram-flow/ | `public/index.html` |
-| Full Report | GitHub Pages | https://kaywiegand.github.io/zh-tram-flow/report.html | `public/report.html` |
-| Presentation | GitHub Pages | https://kaywiegand.github.io/zh-tram-flow/presentation.html | `public/presentation.html` |
-| Dashboard | Streamlit Cloud | https://zh-tram-flow.streamlit.app | `apps/dashboard/app.py` + `apps/dashboard/data/` |
+| Executive Summary | GitHub Pages | https://kaywiegand.github.io/zh-tram-flow/overview.html | `public/overview.html` |
+| Narrative Story | GitHub Pages | https://kaywiegand.github.io/zh-tram-flow/storyview.html | `public/storyview.html` |
+| Technical Deep-Dive | GitHub Pages | https://kaywiegand.github.io/zh-tram-flow/techview.html | `public/techview.html` |
+| LinkedIn 1-Pager | GitHub Pages | https://kaywiegand.github.io/zh-tram-flow/socialview.html | `public/socialview.html` |
+| Interactive Map | GitHub Pages | https://kaywiegand.github.io/zh-tram-flow/network-map.html | `public/network-map.html` |
+| Dashboard (Live) | Streamlit Cloud | https://zh-tram-flow.streamlit.app | `apps/dashboard/app.py` |
 
 ---
 
-## GitHub Pages (HTML Static Files)
+## 1. GitHub Pages (Static Artifacts)
 
 ### One-Time Setup
 
-1. **Go to Repo Settings → Pages**
-2. **Configure:**
-   - Source: **Deploy from a branch**
-   - Branch: **main**
-   - Folder: **/public**
-3. **Click Save**
+1. Go to **Settings → Pages**
+2. **Source:** Deploy from a branch · **Branch:** `main` · **Folder:** `/public`
+3. Click **Save**
 
-GitHub will automatically build and deploy whenever you push to `main`.
+GitHub auto-deploys whenever you push to `main`.
 
 ### Files Deployed
 
-Everything in `/public/` is published:
-- `index.html` → https://kaywiegand.github.io/zh-tram-flow/
-- `landingpage.html` → https://kaywiegand.github.io/zh-tram-flow/landingpage.html
-- `report.html` → https://kaywiegand.github.io/zh-tram-flow/report.html
-- `presentation.html` → https://kaywiegand.github.io/zh-tram-flow/presentation.html
-- `img/` → all images and interactive HTML maps
+Everything in `/public/`:
+- `index.html` → Hub (4-View System)
+- `overview.html` → Executive summary
+- `storyview.html` → Narrative 4-step proof chain
+- `techview.html` → Technical deep-dive
+- `socialview.html` → LinkedIn compact
+- `network-map.html` → Interactive Plotly map (663KB)
+- `img/` → Exported charts (PNG)
+- `json/storyline-*.json` → **Single source of truth** for content
+- `md/` → Markdown exports (auto-generated from JSON)
 
-### How to Update
+### Deploy
 
-Simply push changes to `main` branch:
+Push to trigger auto-deployment:
 
 ```bash
 git add public/
-git commit -m "docs: update landing page copy"
+git commit -m "docs: update reports"
 git push origin main
+# → Live at https://kaywiegand.github.io/zh-tram-flow/ (30s)
 ```
 
-GitHub deploys automatically within seconds.
+### Important: JSON ↔ HTML Sync
+
+`public/json/storyline-*.json` are single source of truth. Manually sync HTML if needed.
+
+**Consistency check (run before commit):**
+```bash
+# Verifies JSON/HTML/MD are in sync
+/project-review  # Schritt 3.7 cross-artefact consistency check
+```
 
 ---
 
