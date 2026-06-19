@@ -72,6 +72,43 @@ PROCESS_LOG Session-Notes verwenden ab dieser Sektion Pointer auf Notebooks — 
 
 ## Verlauf
 
+### 2026-06-19 — Portfolio Pipeline mechanisiert
+
+**Kontext:** Klare Single Source of Truth für Portfolio-Artefakte fehlte. JSONs waren de-facto-Quelle, aber manual gesynct mit HTMLs. portfolio.md existierte nur als Template.
+
+**Was wurde gemacht:**
+- ✅ portfolio.md erweitert: Research Opportunities-Sektion (Nennung + OP-1 Beispiel) + Status aktualisiert
+- ✅ `scripts/generate_json_from_portfolio.py` geschrieben: portfolio.md → JSON (4 Views)
+- ✅ `scripts/generate_html_from_json.py` geschrieben: JSON → reveal.js HTML
+- ✅ `scripts/convert_json_to_md.py` verifiziert: funktioniert mit neuen JSONs
+- ✅ Backups erstellt: `public/json-backup/`, `public/html-backup/` (Git-ignored)
+- ✅ project-case Skill dokumentiert: Neue Modi `json`, `report` erklärt
+- ✅ CLAUDE.md aktualisiert: Portfolio Pipeline als Single Source of Truth dokumentiert
+- ✅ MIGRATION_CHECKLIST.md erstellt: Validierungs-Checkliste für Prozess
+
+**Technisch:**
+```
+portfolio.md (Autorität) 
+    ↓
+generate_json_from_portfolio.py
+    ↓
+public/json/storyline-*.json
+    ↓
+generate_html_from_json.py  +  convert_json_to_md.py
+    ↓
+public/*.html + public/md/*.md
+```
+
+**Status nach Session:** 🟢 Mechanisierte Pipeline funkionsfähig
+- Alle Scripts getestet und funktional
+- portfolio.md ist Single Source of Truth
+- JSON-Generierung arbeitet (leichte Whitespace-Unterschiede zu Backups, aber Struktur erhalten)
+- HTML-Generierung mit Fallback-Template, kann mit richtigem Template erweitert werden
+
+**Nächster Schritt:** `/project-case full` auf zh-tram-flow ausführen um Pipeline live zu testen
+
+---
+
 ### 2026-05-11 — Projekt aufgesetzt (wgnd-scaffolding)
 
 - Projektstruktur mit `wgnd-scaffolding` generiert (`--slug zh-tram-flow --type DAN`)

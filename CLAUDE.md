@@ -55,22 +55,37 @@ from zh_tram_flow.settings import setup_plotting, logger
   - `public/mds/` ← Portfolio-Docs
   - Hinweis: Dieses Projekt nutzt `public/` statt `reports/` — GitHub Pages Deployment-Anforderung
 
-## Public-Artefakte — Architektur und Reproduzierbarkeit
+## Public-Artefakte — Portfolio Pipeline (mechanisiert ab 2026-06-19)
 
-### Übersicht: Wie JSON, HTML und MD zusammenhängen
+### Single Source of Truth: portfolio.md
 
 ```
-public/json/storyline-*.json   ← SINGLE SOURCE OF TRUTH für Inhalt
-        │
-        ├── manuell synchronisiert → public/*.html  (View-Präsentationen)
-        │
-        └── automatisch generiert → public/md/*.md  (Gamma / Markdown-Export)
-                via: python convert_json_to_md.py
+public/md/portfolio.md  (Single Source of Truth — umfassend + detailliert)
+        ↓
+scripts/generate_json_from_portfolio.py
+        ↓
+public/json/storyline-*.json  (4 strukturierte Extrakte)
+        ↓
+scripts/generate_html_from_json.py
+        ↓
+public/{overview,storyview,techview,socialview}.html
+        ↓
+scripts/convert_json_to_md.py
+        ↓
+public/md/{overview,storyview,techview,socialview}.md
 ```
 
-**Wichtig:** Es gibt kein Build-Script das HTML aus JSON generiert.
-Die HTMLs wurden manuell gebaut und werden manuell mit den JSONs synchron gehalten.
-Die JSONs sind die inhaltliche Referenz — bei Widersprüchen gilt immer der JSON.
+**WICHTIG:** `portfolio.md` ist jetzt die **Autorität für alle Inhalte**.
+- Alle Zahlen, Findings, Recommendations stehen in portfolio.md
+- JSONs werden **generiert** aus portfolio.md (nicht manuell editiert)
+- HTMLs werden **generiert** aus JSONs
+- MDs werden **generiert** aus JSONs
+
+**Änderungen machen:**
+1. Immer zuerst in `portfolio.md` ändern
+2. Dann `/project-case json` ausführen (generiert JSONs)
+3. Dann `/project-case report` ausführen (generiert HTMLs + MDs)
+4. Oder `/project-case full` für komplette Pipeline
 
 ---
 
@@ -79,57 +94,42 @@ Die JSONs sind die inhaltliche Referenz — bei Widersprüchen gilt immer der JS
 Dieses Projekt dokumentiert nicht nur Kernfindings sondern auch **7 systematische Forschungsmöglichkeiten (OP-1 bis OP-7)** die durch interaktive Dashboard-Exploration identifiziert wurden:
 
 - **Dokumentiert in:**
-  - `BACKLOG.md` → Sektion "Research Opportunities" (detaillierte Hypothesen + Prioritäten)
-  - `public/json/storyline-*.json` → Neue Sektion "Weitere Potenziale" vor Closing-Slide
-  - `public/*.html` → Manuell synchron mit JSON-Content halten
-  - `notebooks/03_analysis_0-overview.ipynb` → Sektion "Analysis Gaps & Open Research Questions"
+  - `BACKLOG.md` → Sektion "Research Opportunities" (detaillierte Hypothesen + Prioritäten) — **Autorität**
+  - `public/md/portfolio.md` → Sektion "Research Opportunities" (minimal: Nennung + OP-1 Beispiel)
+  - Generiert in JSONs und HTMLs aus portfolio.md
 
 - **Warum wichtig:** Portfolio zeigt nicht nur "fertig" sondern auch "lebendig" und "iterativ"
-- **Fehler:** Research Opportunities-Sektion in JSONs/HTMLs vergessen = Inconsistency
-
-Beim Ändern der Opportunities: immer JSON → dann HTML manuell nachziehen.
+- **Änderungen:** Immer zuerst `portfolio.md` aktualisieren, dann `/project-case full` ausführen
 
 ---
 
-### Schritt-für-Schritt: Änderungen reproduzieren
+### Workflow: Änderungen durchführen
 
-**1. Inhalt ändern → immer zuerst im JSON**
-
-```
-public/json/storyline-overview.json   → overview.html
-public/json/storyline-techview.json   → techview.html
-public/json/storyline-storyview.json  → storyview.html
-public/json/storyline-socialview.json → socialview.html
-```
-
-Felder im JSON:
-- `nav_label` → Kapitelname in der Nav-Leiste des HTML
-- `title` → `<h2>` im Slide
-- `subtitle` → `.subline` im Slide
-- `content[].type` → steuert den Inhaltsblock (figures / steps / sections / statement / table)
-- `content[].items` → die konkreten Inhalte
-
-**2. Änderung in HTML übertragen**
-
-Manuell: die entsprechende Slide-Section im HTML anpassen.
-Nach jeder Änderung: `/project-review` Schritt 3.7 ausführen → prüft Drift zwischen JSON und HTML.
-
-**3. MD-Files regenerieren (nach JSON-Änderung)**
-
+**Kompletter Workflow (empfohlen):**
 ```bash
-python scripts/convert_json_to_md.py
+# 1. portfolio.md editieren (einzige Quelle)
+# 2. Komplette Pipeline ausführen
+/project-case full
+# → generiert JSON, HTML, MD automatisch
 ```
 
-Schreibt alle vier `public/md/*.md` neu aus den JSONs.
-Wird für Gamma-Import und andere Markdown-basierte Tools genutzt.
+**Einzelne Schritte (wenn nötig):**
+```bash
+# Nur JSONs regenerieren
+/project-case json
+# → scripts/generate_json_from_portfolio.py
 
-**4. Zahlenformat-Regel (Deutsch)**
+# Nur HTMLs + MDs regenerieren
+/project-case report
+# → scripts/generate_html_from_json.py
+# → scripts/convert_json_to_md.py
+```
 
-Alle Zahlen in deutschen Artefakten (HTML/JSON/MD):
+**Zahlenformat-Regel (Deutsch):**
+Alle Zahlen in portfolio.md (und damit in allen generierten Artefakten):
 - Dezimaltrennzeichen: Komma → `18,56 s`, `71,5 %`, `r ≥ 0,85`
 - Leerzeichen vor Einheit → `87 %`, `94,4 M`, `18,56 s`
 - Kein `pp` → immer `%`
-- CSS-Werte (`0.18s`, `0.85em`) nie anfassen
 
 ---
 
