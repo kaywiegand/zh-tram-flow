@@ -74,6 +74,23 @@ Die JSONs sind die inhaltliche Referenz — bei Widersprüchen gilt immer der JS
 
 ---
 
+### Research Opportunities — wichtiger Hinweis
+
+Dieses Projekt dokumentiert nicht nur Kernfindings sondern auch **7 systematische Forschungsmöglichkeiten (OP-1 bis OP-7)** die durch interaktive Dashboard-Exploration identifiziert wurden:
+
+- **Dokumentiert in:**
+  - `BACKLOG.md` → Sektion "Research Opportunities" (detaillierte Hypothesen + Prioritäten)
+  - `public/json/storyline-*.json` → Neue Sektion "Weitere Potenziale" vor Closing-Slide
+  - `public/*.html` → Manuell synchron mit JSON-Content halten
+  - `notebooks/03_analysis_0-overview.ipynb` → Sektion "Analysis Gaps & Open Research Questions"
+
+- **Warum wichtig:** Portfolio zeigt nicht nur "fertig" sondern auch "lebendig" und "iterativ"
+- **Fehler:** Research Opportunities-Sektion in JSONs/HTMLs vergessen = Inconsistency
+
+Beim Ändern der Opportunities: immer JSON → dann HTML manuell nachziehen.
+
+---
+
 ### Schritt-für-Schritt: Änderungen reproduzieren
 
 **1. Inhalt ändern → immer zuerst im JSON**

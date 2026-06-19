@@ -366,6 +366,14 @@ Status: [ ] 2–3 Charts gewählt
 
 ---
 
+## Skill & Tooling
+
+| # | Beschreibung | Prio |
+| :--- | :--- | :--- |
+| 70 | **`/project-case` Skill überarbeiten** — Aktueller Skill passt NICHT für unser Projekt. Probleme: Confusing Namings · Unklar "Single Point of Truth" · Zu komplex für Different Audiences. Strukturiert für generische Projekte. **Heute:** Manuell für dieses Projekt arbeiten (JSON + HTML direkt). **Später:** Anhand von zh-tram-flow komplett neu bauen — dann mit klarer Architektur (Input/Output pro Modus definiert, keine Mehrdeutigkeit). | 2 |
+
+---
+
 ---
 
 ## BACKLOG #68 — Direction ID Architecture Plan (Details)
