@@ -1,321 +1,253 @@
 <!DOCTYPE html>
-<!--
-  SLIDES TEMPLATE — Workspace Portfolio
-  ======================================
-  Basis für /project-case slides.
-  Enthält: CSS-Klassen · Reveal.js CDN · JavaScript-Handler
-  KEIN Projektinhalt — wird von /project-case slides befüllt.
-
-  Farbpalette:
-    Dunkelblau:  #1a3a5c  (Titel, starke Texte)
-    Hellblau:    #2E86AB  (Akzent, Links, h3)
-    Grün:        #27ae60  (gut, done, positiv)
-    Orange:      #e67e22  (aktiv, Warnung)
-    Rot:         #c0392b  (Problem, schlecht)
-
-  CSS-Klassen (vollständig):
-    Layout:       .cols .w40 .w45 .w55 .w60
-    Boxen:        .box .box-green .box-orange
-    Metriken:     .metric-row .metric .metric.good .metric.warn .metric.bad
-    Pipeline:     .pipe-step .pipe-step.done .pipe-step.active .pipe-step.planned
-    DE-Steps:     .step .step.join .step.target
-    Evidence:     .ev-chain .ev-step .ev-circle .ev-body .ev-arrow .ev-step.climax
-    Modell:       .model-card .model-card.card-green .card-badge .card-mae .card-note
-    Empf.:        .reco .reco-num .reco-text
-    Charts:       .chart-tile .chart-tile-html
-    Vorhersage:   .prediction-card .pred-grid .pred-field .pred-btn .pred-result
-    Slides:       .title-slide .thesis-slide .slide-sub
-    Tabellen:     tr.hl tr.hl-green tr.pending
-    Progress:     .progress-marker .progress-label
--->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><!-- PROJECT TITLE --></title>
-
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
-
+  <meta property="og:title" content="Zurich Tram Flow — Predictive Analytics für VBZ">
+  <meta property="og:description" content="94,4 M Halt-Ereignisse. −63 % MAE. Vier Handlungsfelder aus den Daten.">
+  <meta property="og:type" content="website">
+  <title>Zurich Tram Flow — One-Pager</title>
   <style>
-    /* === Basis === */
-    .reveal { font-size: 22px; }
-    .reveal h1 { font-size: 2.4em; color: #1a3a5c; letter-spacing: -0.01em; text-align: left; }
-    .reveal h2 { font-size: 1.4em; color: #1a3a5c; border-bottom: 2px solid #2E86AB; padding-bottom: 6px; margin-bottom: 0.85em; text-align: left; }
-    .reveal h3 { font-size: 1.0em; color: #2E86AB; margin: 0.65em 0 0.25em; text-align: left; }
-    .reveal p, .reveal li { color: #333; line-height: 1.55; text-align: left; }
-    .reveal ul { margin: 0; padding-left: 1em; }
-    .reveal li { margin-bottom: 4px; }
-    .reveal strong { color: #1a3a5c; }
-    .reveal .slide-number { font-size: 0.8em; color: #aaa; right: auto !important; left: 8px !important; bottom: 24px !important; }
-    .reveal img { max-width: 100%; border-radius: 5px; }
-    .slide-sub { font-size: 0.58em; color: #888; font-weight: 400; }
-
-    /* === Title Slides (section dividers + main title) === */
-    .reveal section.title-slide { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-    .title-slide h1 { color: #fff; font-size: 2.6em; letter-spacing: 0.01em; margin-bottom: 0.3em; text-align: center; }
-    .title-slide .sub { color: #b8d8ea; font-size: 1.0em; line-height: 1.8; text-align: center; }
-    .title-slide .meta { color: rgba(255,255,255,0.48); font-size: 0.75em; margin-top: 1.6em; text-align: center; }
-
-    /* === Kernthese Slide === */
-    .reveal section.thesis-slide { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-    .thesis-label { font-size: 0.68em; letter-spacing: 0.16em; text-transform: uppercase; color: #2E86AB; font-weight: 700; margin-bottom: 0.9em; }
-    .thesis-main { font-size: 1.55em; color: #1a3a5c; line-height: 1.4; font-weight: 700; max-width: 800px; text-align: center; }
-    .thesis-sub { font-size: 0.84em; color: #555; margin-top: 1em; line-height: 1.75; max-width: 660px; text-align: center; }
-    .thesis-punch { font-size: 1.1em; color: #2E86AB; font-weight: 700; margin-top: 1.3em; border-top: 1px solid #d0e8f5; padding-top: 1em; text-align: center; }
-
-    /* === Layout === */
-    .cols { display: flex; gap: 32px; align-items: flex-start; }
-    .cols > div { flex: 1; }
-    .cols > div.w55 { flex: 1.22; }
-    .cols > div.w45 { flex: 0.82; }
-    .cols > div.w60 { flex: 1.5; }
-    .cols > div.w40 { flex: 0.67; }
-
-    /* === Boxen === */
-    .box { border-left: 4px solid #2E86AB; background: #f0f7fb; padding: 9px 13px; border-radius: 0 6px 6px 0; margin: 6px 0; font-size: 0.86em; }
-    .box-green { border-left-color: #27ae60; background: #f2faf5; }
-    .box-orange { border-left-color: #e67e22; background: #fef9f0; }
-
-    /* === Metriken === */
-    .metric-row { display: flex; gap: 10px; margin: 8px 0; }
-    .metric { text-align: center; background: #f5f9fc; border-radius: 8px; padding: 11px 12px; flex: 1; border: 1px solid #d0e8f5; }
-    .metric .val { font-size: 1.8em; font-weight: 700; color: #1a3a5c; line-height: 1.05; }
-    .metric .lbl { font-size: 0.65em; color: #777; margin-top: 4px; }
-    .metric.good .val { color: #27ae60; }
-    .metric.warn .val { color: #e67e22; }
-    .metric.bad  .val { color: #c0392b; }
-
-    /* === Tabellen === */
-    .reveal table { width: 100%; border-collapse: collapse; font-size: 0.82em; margin: 0.3em 0; }
-    .reveal table th { background: #1a3a5c; color: #fff; padding: 7px 10px; text-align: left; font-weight: 600; }
-    .reveal table td { padding: 6px 10px; border-bottom: 1px solid #e8e8e8; vertical-align: middle; text-align: left; }
-    .reveal table tr:nth-child(even) td { background: #f7fafb; }
-    tr.hl td { background: #e8f4fb !important; font-weight: 600; }
-    tr.hl-green td { background: #e5f5ec !important; font-weight: 700; }
-    tr.pending td { color: #aaa; font-style: italic; }
-
-    /* === Pipeline (Process Slide) === */
-    .pipe-step { padding: 5px 14px; font-size: 0.78em; font-weight: 700; border-radius: 4px; color: #fff; text-align: center; }
-    .pipe-step.done { background: #27ae60; }
-    .pipe-step.active { background: #e67e22; }
-    .pipe-step.planned { background: #aaa; }
-
-    /* === Steps (Data Engineering Pipeline) === */
-    .step { background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 6px; padding: 5px 12px; margin: 3px 0; display: flex; align-items: center; gap: 12px; }
-    .step strong { font-size: 0.84em; color: #1a3a5c; white-space: nowrap; min-width: 100px; }
-    .step .details { font-size: 0.78em; color: #555; }
-    .step.join { background: #e8f4fb; border-color: #2E86AB; border-left: 3px solid #2E86AB; }
-    .step.join strong { color: #2E86AB; }
-    .step.target { background: #f2faf5; border-color: #27ae60; border-left: 3px solid #27ae60; }
-    .step.target strong { color: #27ae60; }
-
-    /* === Evidence Chain === */
-    .ev-chain { display: flex; flex-direction: column; }
-    .ev-step { display: flex; align-items: flex-start; gap: 12px; padding: 9px 12px; background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 8px; }
-    .ev-circle { width: 26px; height: 26px; border-radius: 50%; background: #2E86AB; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85em; flex-shrink: 0; margin-top: 1px; }
-    .ev-body strong { display: block; color: #1a3a5c; font-size: 0.9em; margin-bottom: 2px; }
-    .ev-body span { font-size: 0.77em; color: #555; line-height: 1.4; }
-    .ev-arrow { padding: 1px 0 1px 13px; color: #b0c8d8; font-size: 0.95em; line-height: 1; }
-    .ev-step.climax { background: #edf7f2; border-color: #27ae60; }
-    .ev-step.climax .ev-circle { background: #27ae60; }
-    .ev-step.climax .ev-body strong { color: #1e7a45; }
-
-    /* === Model Cards === */
-    .model-card { border-radius: 10px; padding: 14px 16px; border: 2px solid #d0e8f5; background: #f8fbfe; }
-    .model-card .card-badge { display: inline-block; font-size: 0.66em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: #2E86AB; color: #fff; padding: 2px 10px; border-radius: 12px; margin-bottom: 8px; }
-    .model-card h3 { margin: 0 0 6px; color: #1a3a5c !important; font-size: 0.95em !important; }
-    .model-card .card-mae { font-size: 2.2em; font-weight: 700; color: #1a3a5c; line-height: 1.1; margin: 4px 0 8px; }
-    .model-card ul { font-size: 0.80em; margin-top: 6px; }
-    .model-card .card-note { font-size: 0.76em; color: #666; margin-top: 8px; font-style: italic; border-top: 1px solid #e0ecf5; padding-top: 7px; }
-    .model-card.card-green { border-color: #27ae60; background: #f3fbf6; }
-    .model-card.card-green .card-badge { background: #27ae60; }
-    .model-card.card-green .card-mae { color: #1e7a45; }
-
-    /* === Recommendations === */
-    .reco { display: flex; align-items: flex-start; gap: 12px; background: #fff; border: 1px solid #d0e8f5; border-radius: 8px; padding: 10px 14px; margin: 5px 0; }
-    .reco-num { font-size: 1.45em; font-weight: 700; color: #2E86AB; line-height: 1; min-width: 26px; }
-    .reco-text strong { display: block; color: #1a3a5c; font-size: 0.92em; margin-bottom: 2px; }
-    .reco-text span { font-size: 0.78em; color: #555; }
-
-    /* === Chart Tiles === */
-    .chart-tile { display: block; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.12); text-decoration: none; cursor: pointer; }
-    .chart-tile img { width: 100%; display: block; }
-    .chart-tile-html { display: flex; align-items: center; justify-content: center; gap: 6px; background: #f0f7fb; border: 1px solid #d0e8f5; border-radius: 6px; padding: 13px 10px; text-decoration: none; color: #2E86AB; font-size: 0.78em; font-weight: 700; }
-
-    /* === Live Prediction Card === */
-    .prediction-card { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 20px 24px; max-width: 540px; margin: 0 auto; }
-    .pred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-    .pred-field label { display: block; font-size: 0.66em; color: #888; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
-    .pred-field select { width: 100%; border: 1px solid #cde; border-radius: 5px; padding: 6px 8px; background: #f5f9fc; color: #1a3a5c; font-size: 0.86em; cursor: not-allowed; }
-    .pred-btn { width: 100%; padding: 9px; background: #2E86AB; color: #fff; border: none; border-radius: 7px; font-size: 0.9em; font-weight: 700; cursor: default; margin-bottom: 12px; }
-    .pred-result { background: linear-gradient(135deg, #1a3a5c, #2E86AB); border-radius: 9px; padding: 14px 20px; text-align: center; color: #fff; }
-    .pred-result .res-val { font-size: 2.9em; font-weight: 700; line-height: 1; }
-    .pred-result .res-lbl { font-size: 0.78em; opacity: 0.82; margin-top: 4px; }
-
-    /* === Progress Bar === */
-    .reveal .progress { height: 16px !important; }
-    .progress-marker { position: absolute; top: 0; height: 16px; width: 2px; background: rgba(255,255,255,0.85); z-index: 10; pointer-events: none; }
-    .progress-label { position: absolute; top: 50%; transform: translateY(-50%); font-size: 8px; color: rgba(255,255,255,0.9); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; padding-left: 3px; pointer-events: none; z-index: 11; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", sans-serif; color: #333; line-height: 1.6; background: #fff; }
+    .hero { background: linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%); color: #fff; padding: 60px 40px; text-align: center; }
+    .hero h1 { font-size: 2.8em; margin-bottom: 10px; letter-spacing: -0.02em; }
+    .hero .sub { font-size: 1.1em; color: rgba(255,255,255,0.75); margin-bottom: 30px; }
+    .kpi-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+    .kpi { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; padding: 20px 24px; text-align: center; min-width: 160px; }
+    .kpi .v { font-size: 2.2em; font-weight: 700; line-height: 1.1; }
+    .kpi .l { font-size: 0.75em; color: rgba(255,255,255,0.65); margin-top: 8px; }
+    .kpi.green .v { color: #4cd98a; }
+    .kpi.red .v { color: #ff7a7a; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 60px 40px; }
+    section { margin-bottom: 60px; }
+    h2 { font-size: 1.8em; color: #1a3a5c; margin-bottom: 8px; border-bottom: 2px solid #2E86AB; padding-bottom: 10px; }
+    .subline { font-size: 0.95em; color: #2E86AB; font-weight: 600; margin-bottom: 20px; display: block; }
+    p { font-size: 1em; margin-bottom: 12px; }
+    strong { color: #1a3a5c; font-weight: 600; }
+    em { color: #2E86AB; font-style: normal; }
+    .findings { display: grid; grid-template-columns: 1fr; gap: 20px; }
+    .finding { background: #f0f7fb; border-left: 4px solid #2E86AB; padding: 18px 20px; border-radius: 0 6px 6px 0; }
+    .finding strong { display: block; font-size: 1.08em; margin-bottom: 10px; }
+    .finding p { margin-bottom: 8px; font-size: 0.95em; }
+    .finding.green { background: #f2faf5; border-left-color: #27ae60; }
+    .finding.red { background: #fdf3f2; border-left-color: #c0392b; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .metric { background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 8px; padding: 16px 12px; text-align: center; }
+    .metric .v { font-size: 2em; font-weight: 700; color: #1a3a5c; }
+    .metric .l { font-size: 0.8em; color: #777; margin-top: 6px; }
+    .metric.green .v { color: #27ae60; }
+    .metric.red .v { color: #c0392b; }
+    .reco-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+    .reco { background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 8px; padding: 18px 20px; border-left: 4px solid #2E86AB; }
+    .reco-title { font-size: 0.7em; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #2E86AB; margin-bottom: 8px; }
+    .reco strong { display: block; font-size: 1em; margin-bottom: 10px; }
+    .reco ul { padding-left: 1.2em; margin: 0; }
+    .reco li { font-size: 0.92em; color: #444; margin-bottom: 6px; }
+    .priority { display: inline-block; background: #1a3a5c; color: #fff; font-size: 0.68em; font-weight: 700; padding: 2px 8px; border-radius: 3px; margin-left: 6px; }
+    .priority.p2 { background: #2E86AB; }
+    .data-section { background: #f5f9fc; border: 1px solid #d0e8f5; border-radius: 8px; padding: 20px; margin: 20px 0; }
+    .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+    .data-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px; }
+    .data-item strong { display: block; font-size: 0.85em; color: #2E86AB; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .data-item p { margin: 0; font-size: 0.92em; }
+    .cta-row { display: flex; gap: 14px; margin-top: 24px; flex-wrap: wrap; }
+    a.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: #1a3a5c; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.95em; transition: background 0.2s; border: 1px solid #1a3a5c; }
+    a.btn:hover { background: #0f2642; }
+    a.btn.outline { background: transparent; color: #1a3a5c; border: 1px solid #1a3a5c; }
+    a.btn.outline:hover { background: #f5f9fc; }
+    footer { background: #1a3a5c; color: #fff; text-align: center; padding: 40px; font-size: 0.9em; }
+    footer a { color: rgba(255,255,255,0.7); text-decoration: none; margin: 0 8px; }
+    footer a:hover { color: #fff; }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2em; }
+      .hero .sub { font-size: 1em; }
+      .kpi-row { flex-direction: column; align-items: center; }
+      .kpi { min-width: 100%; }
+      .metrics { grid-template-columns: 1fr; }
+      .reco-grid { grid-template-columns: 1fr; }
+      .data-grid { grid-template-columns: 1fr; }
+      .container { padding: 40px 24px; }
+    }
   </style>
 </head>
 <body>
-<div class="reveal">
-<div class="slides">
+<div class="hero">
+  <h1>Zurich Tram Flow</h1>
+  <div class="sub">Predictive Analytics für das Zürcher Tramnetz</div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="v">94,4 M</div><div class="l">Halt-Ereignisse<br>2023–2025</div></div>
+    <div class="kpi red"><div class="v">87 %</div><div class="l">OTP Status Quo<br>vs. 95 % Ziel</div></div>
+    <div class="kpi green"><div class="v">18,56 s</div><div class="l">LightGBM MAE<br>Vorhersagegenauigkeit</div></div>
+    <div class="kpi green"><div class="v">−63 %</div><div class="l">Verbesserung<br>vs. Baseline</div></div>
+  </div>
+</div>
 
-<!-- ══════════════════════════════════════
-     SLIDE CONTENT HERE
-     See: /Users/kaywiegand/Workspace/docs/portfolio/templates/portfolio_summary_template.md
-     for the data structure that drives this presentation.
-══════════════════════════════════════ -->
-
-<!--
-SLIDE TYPES REFERENCE:
-
-── Title Slide (gradient background) ──────────────────────────
-<section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)">
-  <h1>[Project Name]</h1>
-  <div class="sub">[Tagline]<br>[Period · Rows · Stack]</div>
-  <div class="meta">github.com/[user]/[repo]</div>
-</section>
-
-── Kernthese Slide ──────────────────────────────────────────────
-<section class="thesis-slide">
-  <div class="thesis-label">Kernthese</div>
-  <div class="thesis-main">[Thesis statement]</div>
-  <div class="thesis-sub">[Supporting explanation]</div>
-  <div class="thesis-punch">[Call to action / so what]</div>
-</section>
-
-── Section Divider ──────────────────────────────────────────────
-<section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)">
-  <h1>[Section Name]</h1>
-</section>
-
-── Two-Column Content Slide ─────────────────────────────────────
+<div class="container">
 <section>
-  <h2>[Slide Title] <span class="slide-sub">— [Subtitle]</span></h2>
-  <div class="cols">
-    <div class="w55"> ... </div>
-    <div class="w45"> ... </div>
+  <h2>Ausgangssituation</h2>
+  <span class="subline">OTP 87 %, Ziel 95 % — Verstehen, dann Vorhersagen</span>
+  <p>Das Zürcher Tramnetz liegt dauerhaft 8 Prozentpunkte unter dem selbstgesteckten VBZ-Zielwert. Das Projekt geht in zwei Schritten vor:</p>
+  <ul style="padding-left: 1.4em; margin: 12px 0;">
+    <li><strong>Analyse der Entstehungsmuster und Einflussfaktoren</strong> — Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition</li>
+    <li><strong>Verspätungen vorhersagen</strong> — LightGBM, MAE 18,56 s, −63 % vs. naive Baseline</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Drei Kernbefunde</h2>
+  <span class="subline">Was die Daten zeigen</span>
+  <div class="findings">
+    <div class="finding green">
+      <strong>✓ Kaskadeneffekt: Verspätungen breiten sich aus</strong>
+      <p>Halt n+1 verzögert sich proportional zu Halt n. Pearson r ≥ 0,85 über alle 16 Linien. Nicht Zufall — systematisches Muster.</p>
+      <p><em>Bedeutung:</em> Eine Kettenreaktion. Wenn wir die Kette unterbrechen, stabilisiert sich das Gesamtsystem.</p>
+    </div>
+    <div class="finding green">
+      <strong>✓ Das System hat keinen Puffer eingebaut</strong>
+      <p>71,3 % aller Halte haben dwell_time = 0s — keine geplante Standzeit, keine Möglichkeit zur Selbstkorrektur. Linie 11 an Koppelstellen am stärksten betroffen.</p>
+      <p><em>Bedeutung:</em> Fahrplan-Design ist die Ursache. Und damit auch der Hebel.</p>
+    </div>
+    <div class="finding green">
+      <strong>✓ Verspätungen entstehen systematisch an der Peripherie — nicht im Zentrum</strong>
+      <p>Hotspots konzentrieren sich auf Kreise 11 & 12 — Schwamendingen, Oerlikon, Altstetten. Central und Paradeplatz performen gut. Die Lücke ist geografisch klar abgegrenzt.</p>
+      <p><em>Bedeutung:</em> Gezielte Eingriffe sind möglich — das Problem ist lokalisierbar.</p>
+    </div>
   </div>
 </section>
 
-── Metric Row ───────────────────────────────────────────────────
-<div class="metric-row">
-  <div class="metric bad"><div class="val">[Value]</div><div class="lbl">[Label]</div></div>
-  <div class="metric"><div class="val">[Value]</div><div class="lbl">[Label]</div></div>
-  <div class="metric good"><div class="val">[Value]</div><div class="lbl">[Label]</div></div>
-</div>
-
-── Evidence Chain ───────────────────────────────────────────────
-<div class="ev-chain">
-  <div class="ev-step">
-    <div class="ev-circle">①</div>
-    <div class="ev-body"><strong>[Step title]</strong><span>[Detail]</span></div>
+<section>
+  <h2>Die Datenbasis</h2>
+  <span class="subline">94,4 Millionen Halt-Ereignisse, vier Datenquellen, ein konsistentes Dataset</span>
+  <div class="data-section">
+    <div class="data-grid">
+      <div class="data-item"><strong>VBZ IST-Daten</strong><p>Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025. Trip × Stop × Zeitstempel Granularität.</p></div>
+      <div class="data-item"><strong>GTFS Fahrplan</strong><p>Geplante Zeiten, dwell_time, stop_sequence. Ermöglicht arrival_delay = IST − SOLL Berechnung.</p></div>
+      <div class="data-item"><strong>Meteo Schweiz</strong><p>Stündliche Messwerte: Temperatur, Niederschlag, Wind. Flags: has_rain, has_heavy_rain, is_hot.</p></div>
+      <div class="data-item"><strong>Event-Kalender</strong><p>Großveranstaltungen, Feiertage, Messen 2023–2025. Kategorisiert nach Typ und Größe.</p></div>
+    </div>
   </div>
-  <div class="ev-arrow">↓</div>
-  <div class="ev-step climax"> ... </div>
-</div>
-
-── Model Cards (side by side) ───────────────────────────────────
-<div class="model-card">
-  <span class="card-badge">[Label]</span>
-  <h3>[Title]</h3>
-  <div class="card-mae">[MAE value]</div>
-  <ul><li>...</li></ul>
-  <div class="card-note">[Note]</div>
-</div>
-
-── Recommendations ──────────────────────────────────────────────
-<div class="reco">
-  <div class="reco-num">①</div>
-  <div class="reco-text">
-    <strong>[Title]</strong>
-    <span>[Detail]</span>
+  <div class="metrics">
+    <div class="metric"><div class="v">94,4 M</div><div class="l">Halt-Ereignisse</div></div>
+    <div class="metric"><div class="v">36</div><div class="l">Features (LightGBM v2)</div></div>
+    <div class="metric"><div class="v">541 MB</div><div class="l">Parquet (komprimiert)</div></div>
   </div>
+</section>
+
+<section>
+  <h2>Vier Empfehlungen</h2>
+  <span class="subline">Direkt durch Analyse und Modell begründet</span>
+  <div class="reco-grid">
+    <div class="reco">
+      <div class="reco-title">R1 · Fahrplan-Design <span class="priority">Priorität 1</span></div>
+      <strong>Standzeit-Puffer L11 an Koppelstellen</strong>
+      <ul>
+        <li>dwell_time = 0s ist Root Cause</li>
+        <li>L11 zeigt stärksten Kaskadeneffekt</li>
+        <li>+10s Puffer unterbricht Feedback-Loop</li>
+      </ul>
+    </div>
+    <div class="reco">
+      <div class="reco-title">R2 · Real-Time Dispatch <span class="priority">Priorität 1</span></div>
+      <strong>prev_trip_delay als Echtzeit-Signal</strong>
+      <ul>
+        <li>Stärkstes Feature, echtzeit-verfügbar</li>
+        <li>LightGBM v2 Inferenz: Millisekunden</li>
+        <li>MAE 18,56 s nachgewiesen</li>
+      </ul>
+    </div>
+    <div class="reco">
+      <div class="reco-title">R3 · Kapazitätsplanung <span class="priority p2">Priorität 2</span></div>
+      <strong>Taktanpassung 20–22 Uhr</strong>
+      <ul>
+        <li>hour = 21 stärkstes Temporal-Feature</li>
+        <li>Spätschicht kritisch</li>
+        <li>L11 & L8 zeigen erhöhtes Delay</li>
+      </ul>
+    </div>
+    <div class="reco">
+      <div class="reco-title">R4 · Monitoring <span class="priority p2">Priorität 2</span></div>
+      <strong>OTP-Fokus Kreise 11 & 12</strong>
+      <ul>
+        <li>Höchste Delay-Level, niedrigste OTP</li>
+        <li>district_nr gehört zu Top-Features</li>
+        <li>Kombination mit Modell für Prognose</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Technologie und Robustheit</h2>
+  <span class="subline">Keine Black-Box — interpretierbar, reproduzierbar, produktionsreif</span>
+  <div class="finding">
+    <strong>Algorithmus:</strong> LightGBM Gradient Boosting. Warum? 5× schneller als XGBoost, native Kategoricals, Feature Importance direkt interpretierbar. Nein zu Neural Networks: hier braucht es Transparenz.
+  </div>
+  <div class="finding" style="margin-top: 12px;">
+    <strong>Aufteilung:</strong> Temporal Split (kein Shuffle). Train 2023–Jun 2024 · Val Jul–Dez 2024 · Test 2025. Zukunft darf Vergangenheit nicht kennen. Verhindert Data Leakage.
+  </div>
+  <div class="finding" style="margin-top: 12px;">
+    <strong>Validierung:</strong> 18,56 s MAE auf ~29 M Test-Fahrten (ein ganzes Jahr). XGBoost-Vergleich bestätigt Robustheit. Isotonic Regression Kalibrierung senkt MBE von +8,3 s auf −0,69 s.
+  </div>
+</section>
+
+<section>
+  <h2>Portfolio-Wert</h2>
+  <span class="subline">Warum dieses Projekt zählt</span>
+  <p>Das ist nicht Kaggle. Nicht eine akademische Übung. Das ist ein echtes ML-Projekt mit:</p>
+  <ul style="padding-left: 1.4em; margin: 12px 0;">
+    <li><strong>Echtem Problem:</strong> Verspätungen im öffentlichen Verkehr, strukturelles Defizit, klarer Business Case</li>
+    <li><strong>Echten Daten:</strong> 94,4 M Zeilen, vier Quellen, temporale Struktur, keine Toy-Datasets</li>
+    <li><strong>Echtem Impact:</strong> Vier Handlungsfelder direkt aus der Analyse. Nicht spekulative Features, sondern gedeckte Empfehlungen</li>
+    <li><strong>Echtem Workflow:</strong> Exploration → Hypothesen → Feature Engineering → Modellierung → Validierung → Handlung</li>
+  </ul>
+  <p style="margin-top: 16px;"><em>"Ich habe ein ML-Projekt von Grund auf gebaut. Mit echten Stakeholder-Fragen, echter Datenqualitäts-Arbeit, echter Produktion. Die Kaskadenentdeckung war das, was alles transformiert hat. Das ist nicht der Algorithmus — das ist die Arbeit davor."</em></p>
+</section>
+
+<section>
+  <h2>Was noch zu erforschen ist</h2>
+  <span class="subline">Dashboard-Exploration offenbarte 7 systematische Forschungsmöglichkeiten</span>
+  <div style="margin-top:1.4em; padding:18px; background:#f3f0ff; border:1px solid #d5ccf5; border-radius:8px;">
+    <p style="color:#2d1b69; font-size:0.95em; line-height:1.7; margin-bottom:12px;"><strong>🔬 Potenziale erkannt:</strong> Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie?</p>
+    <p style="color:#2d1b69; font-size:0.95em; line-height:1.7; margin-bottom:12px;"><strong>4 Priority-1 Topics:</strong> OP-1 Direction-Asymmetrie · OP-3 Linienlänge-Curve · OP-7 Kaskaden-Mechanik · OP-4 Weekday×Line-Interaktion</p>
+    <p style="color:#2d1b69; font-size:0.95em; line-height:1.7;"><strong>Detailliert in:</strong> <a href="https://github.com/kaywiegand/zh-tram-flow/blob/main/BACKLOG.md#-research-opportunities--dashboard-discovery" style="color:#6c5ce7; font-weight:600; text-decoration:none;">GitHub BACKLOG.md Research Opportunities</a></p>
+  </div>
+</section>
+
+<div class="cta-row" style="margin-top: 40px; margin-bottom: 40px;">
+  <a href="https://github.com/kaywiegand/zh-tram-flow" class="btn">
+    <span>→</span> GitHub Repository
+  </a>
+  <a href="overview.html" class="btn outline">
+    Ergebnisübersicht
+  </a>
+  <a href="techview.html" class="btn outline">
+    Technischer Deep Dive
+  </a>
+  <a href="storyview.html" class="btn outline">
+    Kompletter Workflow
+  </a>
+  <a href="https://zh-tram-flow.streamlit.app" class="btn outline">
+    Live-App (Streamlit)
+  </a>
 </div>
 
-── Chart Tile (image) ───────────────────────────────────────────
-<a href="figures/[name].png" target="_blank" class="chart-tile">
-  <img src="figures/[name].png" alt="[Description]">
-</a>
+</div>
 
-── Chart Tile (interactive HTML) ────────────────────────────────
-<a href="figures/[name].html" target="_blank" class="chart-tile-html">
-  🗺 [Link label] →
-</a>
-
-── Box variants ─────────────────────────────────────────────────
-<div class="box">[neutral info]</div>
-<div class="box box-green">[positive / done]</div>
-<div class="box box-orange">[recommendation / warning]</div>
--->
-
-</div><!-- /slides -->
-</div><!-- /reveal -->
-
-<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
-<script>
-  Reveal.initialize({
-    hash: true,
-    slideNumber: 'c/t',
-    transition: 'slide',
-    transitionSpeed: 'default',
-    controls: true,
-    progress: true,
-    center: true,
-    plugins: [RevealNotes]
-  });
-
-  // Section markers in progress bar
-  Reveal.on('ready', () => {
-    const allSlides = Array.from(document.querySelectorAll('.slides > section'));
-    const total = allSlides.length;
-    const progressEl = document.querySelector('.reveal .progress');
-    if (!progressEl) return;
-
-    allSlides.forEach((slide, index) => {
-      if (index === 0) return;
-      if (!slide.classList.contains('title-slide')) return;
-      const pct = (index / total) * 100;
-
-      const marker = document.createElement('div');
-      marker.className = 'progress-marker';
-      marker.style.left = pct + '%';
-      progressEl.appendChild(marker);
-
-      const h1 = slide.querySelector('h1');
-      const label = document.createElement('div');
-      label.className = 'progress-label';
-      label.textContent = h1 ? h1.textContent.trim() : '';
-      label.style.left = 'calc(' + pct + '% + 3px)';
-      progressEl.appendChild(label);
-    });
-  });
-
-  // Chart tile click handlers — open images in clean new window
-  document.querySelectorAll('a.chart-tile').forEach(function(a) {
-    a.addEventListener('click', function(e) {
-      e.preventDefault();
-      var img = a.querySelector('img');
-      if (!img) return;
-      var w = window.open('', '_blank');
-      w.document.write('<!DOCTYPE html><html><head><style>*{margin:0;padding:0}body{background:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}</style></head><body><img src="' + img.src + '" style="max-width:100vw;max-height:100vh;object-fit:contain"></body></html>');
-      w.document.close();
-      w.focus();
-    });
-  });
-
-  // Chart tile HTML — open in new tab
-  document.querySelectorAll('a.chart-tile-html').forEach(function(a) {
-    a.addEventListener('click', function(e) {
-      e.preventDefault();
-      var w = window.open(a.href, '_blank');
-      if (w) w.focus();
-    });
-  });
-</script>
+<footer>
+  <div style="margin-bottom: 16px;">
+    <strong>Zurich Tram Flow</strong><br>
+    Kay Wiegand · Data Scientist & ML Engineer
+  </div>
+  <div>
+    <a href="https://github.com/kaywiegand/zh-tram-flow">GitHub</a> ·
+    <a href="https://zh-tram-flow.streamlit.app">App</a> ·
+    <a href="overview.html">Presentations</a>
+  </div>
+  <div style="margin-top: 20px; font-size: 0.85em; color: rgba(255,255,255,0.6);">
+    2023–2025 · Data Engineering · EDA · Feature Engineering · LightGBM<br>
+    Temporal Split Validation · 18,56 s MAE · −63 % vs. Baseline
+  </div>
+</footer>
 </body>
 </html>

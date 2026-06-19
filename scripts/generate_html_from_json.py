@@ -231,9 +231,15 @@ def main():
 
     print("Loading template...")
     if not template_path.exists():
-        print(f"❌ Template not found: {template_path}")
-        print("Using fallback template (basic reveal.js)")
-        template = get_fallback_template()
+        print(f"⚠️  Template not found: {template_path}")
+        # Use the slides-template.html from the workspace docs
+        workspace_template = Path("/Users/kaywiegand/Workspace/docs/portfolio/templates/slides-template.html")
+        if workspace_template.exists():
+            template = load_slides_template(workspace_template)
+            print(f"✅ Loaded workspace template: {workspace_template}")
+        else:
+            print("Using fallback template (basic reveal.js)")
+            template = get_fallback_template()
     else:
         template = load_slides_template(template_path)
         print(f"✅ Loaded template: {template_path}")
