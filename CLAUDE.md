@@ -117,7 +117,7 @@ Nach jeder Änderung: `/project-review` Schritt 3.7 ausführen → prüft Drift 
 **3. MD-Files regenerieren (nach JSON-Änderung)**
 
 ```bash
-python convert_json_to_md.py
+python scripts/convert_json_to_md.py
 ```
 
 Schreibt alle vier `public/md/*.md` neu aus den JSONs.
@@ -139,7 +139,7 @@ Alle Zahlen in deutschen Artefakten (HTML/JSON/MD):
 | :--- | :--- | :--- |
 | `public/json/storyline-*.json` | Content Source of Truth | Manuell |
 | `public/*.html` | Präsentations-Views (Reveal.js) | Manuell (aus JSON) |
-| `public/md/*.md` | Markdown-Export (Gamma, etc.) | `python convert_json_to_md.py` |
+| `public/md/*.md` | Markdown-Export (Gamma, etc.) | `python scripts/convert_json_to_md.py` |
 | `public/index.html` | Navigation-Hub | Manuell |
 | `public/img/` | Charts (PNG + interaktive HTML) | Notebook Export-Cells |
 
