@@ -55,6 +55,79 @@ from zh_tram_flow.settings import setup_plotting, logger
   - `public/mds/` ← Portfolio-Docs
   - Hinweis: Dieses Projekt nutzt `public/` statt `reports/` — GitHub Pages Deployment-Anforderung
 
+## Public-Artefakte — Architektur und Reproduzierbarkeit
+
+### Übersicht: Wie JSON, HTML und MD zusammenhängen
+
+```
+public/json/storyline-*.json   ← SINGLE SOURCE OF TRUTH für Inhalt
+        │
+        ├── manuell synchronisiert → public/*.html  (View-Präsentationen)
+        │
+        └── automatisch generiert → public/md/*.md  (Gamma / Markdown-Export)
+                via: python convert_json_to_md.py
+```
+
+**Wichtig:** Es gibt kein Build-Script das HTML aus JSON generiert.
+Die HTMLs wurden manuell gebaut und werden manuell mit den JSONs synchron gehalten.
+Die JSONs sind die inhaltliche Referenz — bei Widersprüchen gilt immer der JSON.
+
+---
+
+### Schritt-für-Schritt: Änderungen reproduzieren
+
+**1. Inhalt ändern → immer zuerst im JSON**
+
+```
+public/json/storyline-overview.json   → overview.html
+public/json/storyline-techview.json   → techview.html
+public/json/storyline-storyview.json  → storyview.html
+public/json/storyline-socialview.json → socialview.html
+```
+
+Felder im JSON:
+- `nav_label` → Kapitelname in der Nav-Leiste des HTML
+- `title` → `<h2>` im Slide
+- `subtitle` → `.subline` im Slide
+- `content[].type` → steuert den Inhaltsblock (figures / steps / sections / statement / table)
+- `content[].items` → die konkreten Inhalte
+
+**2. Änderung in HTML übertragen**
+
+Manuell: die entsprechende Slide-Section im HTML anpassen.
+Nach jeder Änderung: `/project-review` Schritt 3.7 ausführen → prüft Drift zwischen JSON und HTML.
+
+**3. MD-Files regenerieren (nach JSON-Änderung)**
+
+```bash
+python convert_json_to_md.py
+```
+
+Schreibt alle vier `public/md/*.md` neu aus den JSONs.
+Wird für Gamma-Import und andere Markdown-basierte Tools genutzt.
+
+**4. Zahlenformat-Regel (Deutsch)**
+
+Alle Zahlen in deutschen Artefakten (HTML/JSON/MD):
+- Dezimaltrennzeichen: Komma → `18,56 s`, `71,5 %`, `r ≥ 0,85`
+- Leerzeichen vor Einheit → `87 %`, `94,4 M`, `18,56 s`
+- Kein `pp` → immer `%`
+- CSS-Werte (`0.18s`, `0.85em`) nie anfassen
+
+---
+
+### Dateien im Überblick
+
+| Datei | Rolle | Geändert durch |
+| :--- | :--- | :--- |
+| `public/json/storyline-*.json` | Content Source of Truth | Manuell |
+| `public/*.html` | Präsentations-Views (Reveal.js) | Manuell (aus JSON) |
+| `public/md/*.md` | Markdown-Export (Gamma, etc.) | `python convert_json_to_md.py` |
+| `public/index.html` | Navigation-Hub | Manuell |
+| `public/img/` | Charts (PNG + interaktive HTML) | Notebook Export-Cells |
+
+---
+
 ## Style-Gate — automatisch aktiv
 
 `scripts/check_style.py` läuft via PostToolUse-Hook automatisch nach jedem Edit an
