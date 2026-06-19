@@ -47,6 +47,12 @@ build/
 .ipynb_checkpoints/
 *.ipynb_metadata
 
+# ── Portfolio Pipeline (Migration) ────────────────────────────────────────
+# Backup directories created during portfolio pipeline setup (2026-06-19)
+# Used for validation, not part of final artifacts
+public/json-backup/
+public/html-backup/
+
 # ── IDE & OS ───────────────────────────────────────────────────────────────
 .vscode/settings.json
 .idea/
