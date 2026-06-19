@@ -1467,6 +1467,55 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - **public/json/storyline-*.json** (4 Files): Neue Kapitel "Weitere Potenziale" hinzugefügt
   - Positioned vor Closing-Slide
   - Content: "Weitere Potenziale erkannt", Dashboard-Discovery-Hinweis, 4 Priority-1 Topics genannt
+
+---
+
+### 2026-06-19 — Projekt-Audit + OSS-Standard: DEPLOYMENT.md + docs/ Cleanup
+
+**Was wurde gemacht:**
+
+**1. Vollständiger Projekt-Audit via `/project-review` durchgeführt:**
+- Struktur & Files: ✅ Vollständig (21 Notebooks, 4-View HTML System, Models)
+- README-Qualität: ⚠️ Exzellent, aber Key Visual (PNG) fehlt
+- Public Artifacts: ✅ Alle Zahlen validiert (18,56s, 87%, −63%, 94,4M)
+- MD-Kohärenz: ✅ ROADMAP/PROCESS_LOG/BACKLOG synchron
+- Git-Hygiene: ✅ Sauber (Post-Commit-Protokoll eingehalten)
+- **Fazit:** Bereit für `/project-case check` (5 kleine Polierungen ausstehend)
+
+**2. DEPLOYMENT.md — OSS-Standard etabliert:**
+- **Gelöscht:** `docs/SETUP.md` (redundant)
+- **Konsolidiert:** `DEPLOYMENT.md` (root) jetzt comprehensive:
+  - GitHub Pages (static artifacts)
+  - Streamlit Cloud (dashboard auto-deploy)
+  - Model Retraining Workflow (manual + future automation)
+  - Production Notes (prev_trip_delay live-feasibility)
+  - Monitoring & Health Checks
+  - Troubleshooting Matrix
+- **Begründung:** OSS-Standard für datengetriebene Projekte (Data Science + ML + Portfolio)
+- **Projekt CLAUDE.md:** Updated mit Pointer zu DEPLOYMENT.md
+
+**3. Workspace-Standard dokumentiert:**
+- **Globale CLAUDE.md:** Neue Sektion "Deployment & Production — OSS Standard"
+- **Konvention:** Data Projects (typ=data) nutzen `DEPLOYMENT.md` (root)
+- **Muster:** `zh-tram-flow/DEPLOYMENT.md` für neue Data-Projekte
+- **Referenz:** `/project-init` bleibt ungeändert — Data Projects kopieren DEPLOYMENT.md nach Init
+
+**4. docs/ aufgeräumt — Temporäre Exports entfernt:**
+- **Gelöscht:** `docs/exports/` (generierte Dateien für Tool-Exploration — NotebookLM, Obsidian, PDF)
+- **Konsolidiert zu Root:**
+  - `docs/DATA_DICTIONARY.md` → `DATA_DICTIONARY.md`
+  - `docs/ZAHLENFORMAT.md` → `NUMBER_FORMAT.md` (English naming OSS-Standard)
+- **Gelöscht:** `PORTFOLIO_PIPELINE.md` (redundant — Skill-Version ist Quelle)
+- **Result:** Repo-Struktur sauber, keine `docs/`-Ordner mehr nötig
+
+**Git-Commits dieser Session:**
+- `a1d50b8` docs: consolidate setup into DEPLOYMENT.md (OSS standard)
+- `62729a9` docs: add OSS standard for DEPLOYMENT.md in data projects  
+- `bd5781b` chore: clean up docs/ — remove temporary exports and consolidate to root
+
+**Nächste Schritte:**
+1. README: 1 PNG Key Visual (z.B. spatial-top-delay-stops.png) einfügen → `/project-case check`
+2. Danach: `/project-case report` für finale Portfolio-Aufbereitung
   - Link zu BACKLOG Research Opportunities Sektion
 
 - **public/*.html** (4 Views): "Weitere Potenziale" Sektion hinzugefügt
