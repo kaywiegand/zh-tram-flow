@@ -8,11 +8,13 @@ Run once before starting the dashboard:
     uv run python apps/dashboard/precompute.py
 
 Output files (all in apps/dashboard/data/):
-    stop_agg.parquet        190 rows  — per-stop metrics
-    hourly_agg.parquet      168 rows  — hour × weekday delay
-    weather_agg.parquet      ~9 rows  — weather type × delay
-    line_agg.parquet         14 rows  — per-line metrics
-    stop_line_lookup.parquet 1170 rows — stop × line prediction features
+    stop_agg.parquet                 190 rows  — per-stop metrics
+    hourly_agg.parquet               168 rows  — hour × weekday delay
+    weather_agg.parquet               ~9 rows  — weather type × delay
+    line_agg.parquet                  14 rows  — per-line metrics
+    stop_line_lookup.parquet        1170 rows  — stop × line prediction features
+    route_profile.parquet             190 rows  — spatial delay profile (line × stop)
+    route_profile_by_direction.parquet ~380 rows — direction-specific profile (line × direction × stop) [NEW]
 """
 
 from __future__ import annotations

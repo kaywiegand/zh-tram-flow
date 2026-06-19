@@ -161,6 +161,50 @@ source .venv/bin/activate && python scripts/check_style.py
 ```
 Regeln: TITLE_KW, plotly_title(), LEGEND_KW_RIGHT, English labels, ylim-Parameter, keine Nulllinien.
 
+## Dashboard — Precomputed Aggregations
+
+Das Streamlit-Dashboard (`apps/dashboard/app.py`) nutzt vorberechnete Aggregationen für Performance.
+
+**Generierung:**
+```bash
+uv run python apps/dashboard/precompute.py
+```
+
+Diese Datei muss einmalig vor Dashboard-Start ausgeführt werden. Sie liest `data/processed/test_final.parquet` (~29M rows) und schreibt 7 kleine Parquet-Dateien nach `apps/dashboard/data/`.
+
+**Output-Dateien — Dimensionen und Zweck:**
+
+| Datei | Zeilen | Dimensionen | Zweck |
+|:------|:-------|:-----------|:------|
+| `stop_agg.parquet` | 190 | `stop_name` | Per-Stop KPIs: mean_delay, p90_delay, otp_pct, dwell_time_median |
+| `line_agg.parquet` | 14 | `line_name` | Per-Linie Aggregates: mean_delay, otp_pct, n_stops, n_obs |
+| `hourly_agg.parquet` | 168 | `hour × weekday` | Temporal pattern: mean_delay nach Tageszeit und Wochentag |
+| `weather_agg.parquet` | ~9 | `weather_condition` | Weather sensitivity: delay-Impact von Rain/Snow/Hot |
+| `stop_line_lookup.parquet` | 1170 | `stop_name × line_name` | Vorhersage-Features per Stop-Line-Paar (für Streamlit-Predictor) |
+| `route_profile.parquet` | 190 | `line_name × stop_name` | Räumliches Delay-Profil: lat/lon + mean_delay je Haltestelle auf jeder Linie |
+| **`route_profile_by_direction.parquet`** | **~380** | **`line_name × direction_id × stop_name`** | **Richtungs-spezifisches Profil: Split nach Fahrtrichtung A/B (neu für Direction-Filter)** |
+
+**`route_profile_by_direction.parquet` — neu ab Phase 5:**
+- Enthält die gleiche Struktur wie `route_profile`, aber pro Fahrtrichtung (`direction_id` 0 oder 1)
+- Geographic Split: Jede Linie wird an der Latitude in zwei Richtungen aufgespaltet
+- Dienen dem Dashboard-Filter "Fahrtrichtung A" / "Fahrtrichtung B"
+- Labels zeigen tatsächliche Start/End-Stop-Namen (z. B. "Richtung A: Wollishofen → Central")
+- **Erforderlich** für die Direction-Filter-Implementierung auf allen 3 Dashboard-Seiten
+
+**Workflow nach Code-Änderungen:**
+1. Code ändern (z. B. neue Aggregation hinzufügen)
+2. `precompute.py` anpassen
+3. `uv run python apps/dashboard/precompute.py` ausführen (dauert ~10–30 Sekunden)
+4. Neue Parquet-Dateien entstehen in `apps/dashboard/data/`
+5. Dashboard mit `streamlit run app.py` starten — liest die neuen Dateien
+
+**Git-Behandlung:**
+- Alle Parquet-Dateien sind in `.gitignore` NICHT eingetragen (sind im Repo)
+- Grund: Dashboard lädt sie direkt aus `apps/dashboard/data/` — keine zusätzliche Berechnung
+- Größe: ~150 KB (mit Kompression) — vertretbar für schnelles Onboarding
+
+---
+
 ## Qualitätssicherung — Pflicht nach jeder Code-Änderung
 
 Nach jeder nicht-trivialen Änderung an Python-Files **vor** der Fertigmeldung:
