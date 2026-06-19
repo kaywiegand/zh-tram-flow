@@ -245,13 +245,34 @@ r4:
 
 ---
 
+## Research Opportunities
+
+<!-- VIEWS: storyview, techview -->
+
+Das Interactive Dashboard-Experiment offenbarte systematische Erkenntnislücken, die
+durch weitere Exploration zugänglich wären. Das Portfolio demonstriert damit nicht
+nur "fertig", sondern auch "lebendig und iterativ":
+
+**Beispiel OP-1: Direction-Asymmetrie**
+```
+observation:   Geografische Splitting nach Direction-ID zeigt ~10s Delta zwischen
+               Fahrtrichtung A und B auf derselben Linie (z.B. L2 Wollishofen ↔ Central)
+hypothesis:    Nicht-lineare Topologie: Peripherie→Zentrum vs. Zentrum→Peripherie
+               = unterschiedliche Kaskadenprofile
+               
+trigger:       Dashboard-Filter "Fahrtrichtung" offenbarte diese systematische Varianz
+next_step:     Detailliert in BACKLOG.md (→ OP-1 bis OP-7 mit Implementation Paths)
+```
+
+---
+
 ## Status
 
 ```
-generated_by:    /portfolio story
-generated_at:    2026-05-28
-summary_version: 1
-portfolio_check: ⚠️ partial (Notebook-Outputs ausgeführt, Feature-Importance-Export ausstehend)
-report_html:     ❌ pending
-slides_html:     ✅ vorhanden (presentation-v3.html — 21 Slides, manuell erstellt)
+generated_by:    /portfolio story (2026-05-28) + mechanisiert (2026-06-19)
+generated_at:    2026-06-19
+summary_version: 2 (mechanisiert mit View-Markern + Research Opportunities)
+portfolio_check: ✅ complete (alle Findings, Recommendations, Research Opportunities dokumentiert)
+report_html:     ✅ mechanisiert (aus portfolio.md generiert)
+slides_html:     ✅ mechanisiert (4 Views: overview, storyview, techview, socialview)
 ```

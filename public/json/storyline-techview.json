@@ -649,5 +649,77 @@
         }
       ]
     }
-  ]
+  ],
+  "_extracted": {
+    "findings": [
+      {
+        "id": "F1",
+        "title": "Struktur: Kein Puffer eingebaut",
+        "finding": "71,5 % aller Halte akkumulieren Delay (delay_delta > 0) — weil\n           71,3 % der Haltestellen 0s dwell_time haben. Das Netz hat keinen\n           Erholungsmechanismus eingebaut.",
+        "number": "71,3 % dwell_time = 0s",
+        "source": "03_analysis_1-target.ipynb · 03_analysis_4-spatial.ipynb"
+      },
+      {
+        "id": "F2",
+        "title": "Geo: Hotspots an der Peripherie",
+        "finding": "Die schlimmsten Haltestellen sind periphere Aussenkorridore —\n           Friedhof Enzenbühl (93,8 s), Balgrist (85,2 s), Leutschenbach (82,7 s).\n           Zentrale Knotenpunkte (Central, Paradeplatz) liegen unter Netzschnitt.\n           0 Overlap zwischen höchster Liniendichte und höchstem Delay.",
+        "number": "0 Overlap Top-Dichte × Top-Delay",
+        "source": "03_analysis_4-spatial.ipynb"
+      },
+      {
+        "id": "F3",
+        "title": "Zeit: Kein Morgenrush — Peak um 21h",
+        "finding": "7h liegt mit 48,9 s unter dem Netzschnitt. Der echte Peak ist 21h (67,9 s)\n           durch Events-Abreisewellen. Donnerstag ist der schlechteste Wochentag\n           (60,4 s, P95=194s) — nicht Freitag. November jeweils Jahreshöchstwert.",
+        "number": "+11,7 s um 21h vs. Netzschnitt",
+        "source": "03_analysis_3-temporal.ipynb"
+      },
+      {
+        "id": "F4",
+        "title": "Wetter: Schnee geografisch trennbar von Regen",
+        "finding": "Schnee ist der stärkste Einzeleffekt (+54s, OTP −10,9 %). Geografisch\n           klar trennbar: Schnee trifft Höhenlagen (K10/K4/K12), Regen trifft\n           Flusstäler (K5 / Limmat). Linien reagieren komplett unterschiedlich:\n           L9 Schnee +75,9 s vs. Regen +10,0 s — L17 umgekehrt.",
+        "number": "Schnee +54s · Regen +23,3 s",
+        "source": "03_analysis_5-meteo.ipynb"
+      },
+      {
+        "id": "F5",
+        "title": "Events: Feiertage beste Tage, Fachmessen schlechteste Kategorie",
+        "finding": "Feiertage sind mit 46,3 s (−9,9 s vs. Normal) der beste Tagestyp —\n           der MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist\n           ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied.\n           Fachmessen (66,0 s) schlagen Taylor Swift (75,4 s) in der Rangliste.",
+        "number": "Feiertage −9,9 s · Fachmessen 66,0 s",
+        "source": "03_analysis_6-events.ipynb"
+      },
+      {
+        "id": "F6",
+        "title": "Kaskade: Pearson r ≥ 0,85 auf allen 16 Linien",
+        "finding": "Der Delay an einem Halt überträgt sich mit r ≥ 0.85 auf den nächsten\n           Halt desselben Trips — auf allen 16 Linien. Das ist kein statistisches\n           Artefakt, sondern ein lernbares Signal: prev_trip_delay ist in LightGBM v2\n           das stärkste neue Feature und erklärt den Sprung von 45,7 s auf 18,56 s MAE.",
+        "number": "Pearson r ≥ 0,85 (alle 16 Linien)",
+        "source": "03_analysis_4-spatial.ipynb · 06_prediction_4-model_v2.ipynb"
+      }
+    ],
+    "recommendations": [
+      {
+        "id": "R1",
+        "title": "Fahrplan-Redesign L11 — gezielter Puffer einbauen",
+        "detail": "71,3 % aller Haltestellen haben 0s dwell_time — kein Erholungsmechanismus.\n          L11 (68,7 s, OTP 82 %) und ihre Endstationen zeigen die stärkste Akkumulation.\n          Selbst +10s Puffer an 3–5 kritischen Koppelstellen würde den Kaskadeneffekt\n          unterbrechen (Hebel #1, direkt durch dwell_time=0 und Pearson r ≥ 0,85 gedeckt)."
+      },
+      {
+        "id": "R2",
+        "title": "Real-Time Dispatch — Kaskadenmodell operativ nutzen",
+        "detail": "LightGBM v2 mit prev_trip_delay erreicht MAE 18,56 s (−63 % vs. Baseline).\n          Das Signal ist echtzeit-verfügbar (Vorgänger-Halt als Input). Dispatchsystem\n          könnte automatisch Taktlücken schließen bevor der Kaskadeneffekt entsteht."
+      },
+      {
+        "id": "R3",
+        "title": "Kapazitätsmanagement 20–22h — Event-Abreisewelle abfedern",
+        "detail": "Peak ist 21h (+11,7 s vs. Netzschnitt) durch Abreisewellen.\n          Donnerstag + Freitag mit Grossevents ist die kritischste Kombination.\n          Takterhöhung 20–22h auf L11/L8 (beide dauerhaft erhöhtes Grundniveau)\n          wäre durch Daten direkt begründbar."
+      }
+    ],
+    "problem": {},
+    "storyline": {
+      "thesis": "Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im\n            Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.",
+      "hook": "Der Hauptpeak liegt um 21h (Abreisewelle nach Events) — nicht um 8h\n            (Morgenrush). Und alle 16 Tramlinien zeigen Pearson r ≥ 0,85 zwischen\n            aufeinanderfolgenden Halten: Der Delay kaskadiert systematisch.",
+      "proof": "4-Schritt-Beweiskette:\n            1. Anomalie — periphere Hotspots, nicht zentrale Knotenpunkte\n            2. Gradient — Delay wächst entlang der Strecke (L11 vs. L6 als Kontrast)\n            3. Mechanismus — 71,3 % dwell_time = 0s: kein Puffer, keine Erholung möglich\n            4. Kaskade — Pearson r ≥ 0,85 netzweit: systematisch, kein Einzelfall\n\nso_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse:\n            prev_trip_delay (Kaskadenindikator) ist das stärkste neue Feature in v2\n            — MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.",
+      "so_what": "Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse:\n            prev_trip_delay (Kaskadenindikator) ist das stärkste neue Feature in v2\n            — MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel."
+    },
+    "updated_at": "2026-06-19",
+    "source": "portfolio.md"
+  }
 }

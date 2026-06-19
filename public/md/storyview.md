@@ -34,7 +34,7 @@
 ## Inhalt
 *Sieben Kapitel, ein durchgehender Datenpfad*
 
-1. Die Ausgangsfrage
+1. Ausgangssituation
 2. Data Engineering
 3. Exploration
 4. Die Erkenntnis
@@ -45,13 +45,12 @@
 
 ---
 
-### Ausgangsfrage
+### Ausgangssituation
 
-## Die Ausgangsfrage
-*Eine einfache Beobachtung, eine konkrete Frage*
+## Ausgangssituation
+*OTP 87 %, Ziel 95 % — das Projekt folgt einer sequenziellen Logik*
 
-> Das Zürcher Tramnetz operiert mit 87 % OTP systemisch unter dem VBZ-Zielwert von 95 %. An 71,5 % aller Halte akkumulieren Trams Verspätung. Das ist kein Wetter- und kein Event-Problem. Die Frage: Wo entsteht die Verspätung wirklich — und ist sie vorhersagbar?
-* *87 %* — OTP netzweit 2023–2025
+* **87 %** — OTP netzweit 2023–2025
 * **95 %** — VBZ-Ziel bis 2028
 * **−8 PP** — Strukturelle Lücke
 * **56,3 s** — Ø Ankunftsverspätung
@@ -184,6 +183,8 @@
 
 * **87 %** — OTP heute
 * **95 %** — VBZ-Ziel 2028
+
+
 
 ## Zurich Tram Flow
 *Kay Wiegand · 2023–2025*

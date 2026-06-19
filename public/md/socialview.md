@@ -13,7 +13,7 @@
 
 ---
 
-### Headline
+### Einstieg
 
 # Zurich Tram Flow
 
@@ -28,12 +28,15 @@
 
 ---
 
-### Die Frage
+### Ausgangssituation
 
-## Die Frage
-*Sind Tramverspätungen vorhersagbar? Welche Muster stecken in den Daten?*
+## Ausgangssituation
+*OTP 87 %, Ziel 95 % — Verstehen, dann Vorhersagen*
 
-Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87 %, Ziel 95 % bis 2028. Wenn Verspätungen Mustern folgen, können wir:
+* **87 %** — OTP Status Quo
+* **95 %** — VBZ-Ziel bis 2028
+* **18,56 s** — Vorhersage-MAE
+* **−63 %** — vs. naive Baseline
 
 
 ---
@@ -125,14 +128,14 @@ Das Zürcher Tramnetz hat ein strukturelles Pünktlichkeitsproblem. OTP 87 %, Zi
   - Train 2023–Jun 2024 · Val Jul–Dez 2024 · Test 2025
   - Zukunft darf Vergangenheit nicht kennen — verhindert Data Leakage
 * **Validierung**
-  - 18,56 s MAE auf ~29 M Test-Fahrten (ein ganzes Jahr)
+  - 18,56 s MAE auf ~29M Test-Fahrten (ein ganzes Jahr)
   - XGBoost-Vergleich bestätigt Robustheit
   - Isotonic Regression Kalibrierung senkt MBE von +8,3 s auf −0,69 s
 
 
 ---
 
-### Portfolio-Wert
+### Abschluss
 
 ## Portfolio-Wert
 *Warum dieses Projekt zählt*

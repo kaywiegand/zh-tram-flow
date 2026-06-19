@@ -41,23 +41,23 @@
 
 ### Ausgangssituation
 
-## Die Ausgangssituation
-*8 Prozentpunkte unter dem selbstgesteckten Ziel des VBZ*
+## Ausgangssituation
+*OTP liegt dauerhaft unter dem VBZ-Ziel — das Projekt folgt drei Schritten*
 
+* **87 %** — OTP 2023–2025
+(netzweit)
+  - Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.
 * **95 %** — VBZ-Ziel
 bis 2028
   - VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)
-* *87 %* — OTP 2023–2025
-(netzweit)
-  - Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.
+* **−8 PP** — Strukturelle
+Lücke
+  - Der Rückstand ist systemisch, nicht episodisch — er taucht in jedem Jahr, auf jeder Linie auf.
 * **56,3 s** — Ø Ankunfts-
 verspätung
-  - Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Der Wert ist über alle drei Betriebsjahre stabil, 2023, 2024 und 2025 ohne erkennbaren Aufwärtstrend.
-* **16** — Tramlinien
-analysiert
-  - Der Rückstand ist systemisch, nicht episodisch. Er taucht in jedem Jahr, auf jeder Linie auf.
+  - Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre.
 
-## Die Ausgangssituation
+## Ausgangssituation
 *OTP-Lücke in der Breite: alle 16 Linien, drei Jahre*
 
 
@@ -106,7 +106,7 @@ analysiert
 * **41 Mio.** — Trainings-Fahrten 2023 bis Mitte 2024
 * **~29 Mio.** — Test-Fahrten, vollständiges Jahr 2025
 * **−63 %** — Verbesserung vs. Baseline (Stop Mean)
-> Kalibrierter Bias: −0,69 Sekunden, nahezu verzerrungsfrei. Trainiert auf Consumer-Hardware in ca. 18 Minuten.
+> Kalibrierter Bias: −0.69 Sekunden, nahezu verzerrungsfrei. Trainiert auf Consumer-Hardware in ca. 18 Minuten.
 
 ## Das Modell
 *Konkrete Vorhersagen für reale Betriebssituationen*

@@ -51,13 +51,12 @@
 ### Ausgangssituation
 
 ## Ausgangssituation
-*OTP 87 % netzweit, Ziel 95 % bis 2028, strukturelles Defizit*
+*OTP 87 % netzweit, Ziel 95 % bis 2028 — Analyse vor Modellierung*
 
-* *87 %* — OTP netzweit 2023–2025
+* **87 %** — OTP netzweit 2023–2025
 * **−8 PP** — Lücke zum VBZ-Ziel 95 %
 * **56,3 s** — Ø Ankunftsverspätung
 * **71,5 %** — Halte akkumulieren Delay
-> Ziel: arrival_delay in Sekunden vorhersagen — direkt kommunizierbar, kein Schwellwert-Bias. Split: temporal (kein Shuffle). Train 2023–Jun 2024 / Val Jul–Dez 2024 / Test 2025.
 
 
 ---
@@ -169,12 +168,14 @@
 *Vier Empfehlungen, jede direkt durch Modell oder Analyse gedeckt*
 
 
+
+
 ## Zurich Tram Flow
 *Kay Wiegand · 2023–2025*
 
 * **94,4 M** — Halt-Ereignisse
 * **41.2M** — Trainings-Fahrten
-* **~29 M** — Test-Fahrten (2025)
+* **~29M** — Test-Fahrten (2025)
 * **36** — Features (v2)
 * **18,56 s** — MAE · LightGBM v2
 * **−63 %** — vs. Baseline
