@@ -308,6 +308,9 @@ def route_for_line_and_direction(line: str, direction_id: int | None = None) -> 
 
     Falls direction_id ist int (0 oder 1): nur diese Richtung
     Falls direction_id=None (Gesamt): Halte von Richtung 0, aber Metriken aus stop_df (alle Richtungen kombiniert)
+
+    Wichtig: Richtung 0 = Start→Ende (lat ASC)
+             Richtung 1 = Ende→Start (lat DESC — umgekehrte geografische Reihenfolge)
     """
     r = route_dir_df.filter(pl.col("line_name").cast(pl.String) == str(line))
 
@@ -325,10 +328,15 @@ def route_for_line_and_direction(line: str, direction_id: int | None = None) -> 
                 .with_columns(pl.col("stop_name").cast(pl.Utf8)),
             on="stop_name", how="left",
         )
-        # Keep geographic order (lat/lon)
-        .sort("lat")
-        .to_pandas()
     )
+
+    # Sort by lat, but reverse for direction 1 (Ende→Start)
+    if direction_id == 1:
+        r = r.sort("lat", descending=True)
+    else:
+        r = r.sort("lat", descending=False)
+
+    r = r.to_pandas()
     r["stop_short"] = r["stop_name"].str.replace(r"Zürich, ?", "", regex=True)
     return r
 
