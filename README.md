@@ -98,25 +98,6 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 
 ---
 
-## Key Story Visuals
-
-![Dwell Time Distribution](public/img/story-1-dwell-binary.png)
-![Delay Delta Growth](public/img/story-1-dwell-delta.png)
-![Peripheral Delay Hotspots](public/img/story-2-peripherie-delay-overview1.png)
-![District Perspective](public/img/story-2-peripherie-delay-overview2.png)
-![Hourly Delay Profile](public/img/story-3-temporal-hour-of-day.png)
-![Snow Impact Map](public/img/story-4-snow-map.png)
-![Rain Impact Map](public/img/story-4-rain-map.png)
-![Event Hourly Profile](public/img/story-5-event-delays-hours.png)
-![Event Categories Ranked](public/img/story-5-event-delays-types.png)
-![General Line Delay Profile](public/img/story-6-line-delay.png)
-![L2 Detail](public/img/story-6-line-delay-L2.png)
-![L7 Detail](public/img/story-6-line-delay-L7.png)
-![L8 Detail](public/img/story-6-line-delay-L8.png)
-![Model Progression](public/img/story-7-model-progression.png)
-
----
-
 ## Dataset
 
 **Final dataset:** `data/raw/zh-tram-data-master.parquet` — produced by [`sf_data-research`](https://github.com/kaywiegand/sf_data-research)
