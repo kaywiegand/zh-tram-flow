@@ -643,13 +643,13 @@ if page == "Linie erkunden":
     # Info: Stops can shift over time
     st.markdown("""
     <div class="insight-box" style="font-size: 0.9rem; color: #555; line-height: 1.6;">
-    <strong>💡 Hinweis zu Haltestellen-Positionen:</strong><br>
-    Während des Analysezeitraums wurden Haltestellen umgeplant, versetzt oder durch Baustellen verlagert.
-    Deshalb sind manche <strong>Blasen nicht exakt auf der gezeichneten Linie</strong> — die Linie zeigt den aktuellen Zustand,
-    aber manche Verspätungen stammen von früheren Positionen der gleichen Haltestelle.<br><br>
-    <strong style="color: #2E86AB;">→</strong>
-    <a href="https://kaywiegand.github.io/zh-tram-flow/network-map.html" target="_blank" style="color: #2E86AB; font-weight: 600; text-decoration: underline;">Network-Map öffnen</a>
-    um zu sehen, <strong>wo und wann</strong> die Linie sich verändert hat.
+    <strong>Hinweis: Linienstrecken-Änderungen im Analysezeitraum</strong><br>
+    <strong>Fahrplanwechsel:</strong> Im Dezember 2023 und 2024 hat VBZ mehrere Linienführungen fundamental umgebaut.
+    Die Linie auf der Karte zeigt den aktuellen j25-Zustand. Verspätungen aus 2023–2024 stammen teilweise von
+    früheren Linienstrecken — daher sind manche Blasen nicht exakt auf der gezeichneten Linie positioniert.<br><br>
+    <strong>Für Details:</strong>
+    <a href="https://kaywiegand.github.io/zh-tram-flow/network-map.html" target="_blank" style="color: #2E86AB; font-weight: 600; text-decoration: underline;">Interaktive Network-Map öffnen</a>
+    — zeigt die genauen Linienstrecken-Änderungen pro Jahr und Fahrplanwechsel.
     </div>
     """, unsafe_allow_html=True)
 
