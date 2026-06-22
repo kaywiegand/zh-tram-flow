@@ -20,8 +20,6 @@
 - **Snow is the strongest single factor:** +54s average delay, OTP −10.9pp — geographically separable from rain.
 - **LightGBM v2: MAE 18.56s — 63% below the Stop Mean baseline (50.0s).** Adding `prev_trip_delay` (cascade feature, derived from analysis finding F-NET-07) drove the main improvement. The model confirms the analysis: delay is predictable because it's structural.
 
-![Zurich Tram Flow Dashboard](public/img/screenshot-map.png)
-
 ---
 
 ## Where to start
@@ -39,7 +37,6 @@
 
 - [Project Overview](#project-overview)
 - [Problem Statement](#problem-statement)
-- [Key Story Visuals](#key-story-visuals)
 - [Dataset](#dataset)
 - [Approach](#approach)
   - [Data Engineering](#data-engineering)
@@ -103,67 +100,19 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 
 ## Key Story Visuals
 
-### F1 — Structure: No Built-In Recovery Buffer
-
-71.3% of all stops have **0s dwell time** — no recovery mechanism. Result: 71.5% of all stops *accumulate* delay.
-
 ![Dwell Time Distribution](public/img/story-1-dwell-binary.png)
 ![Delay Delta Growth](public/img/story-1-dwell-delta.png)
-
----
-
-### F2 — Geography: Hotspots at the Periphery
-
-The worst delays are in **peripheral corridors** (Friedhof Enzenbühl 93.8s, Balgrist 85.2s), not central hubs. 0 overlap between highest line density and highest delay.
-
 ![Peripheral Delay Hotspots](public/img/story-2-peripherie-delay-overview1.png)
 ![District Perspective](public/img/story-2-peripherie-delay-overview2.png)
-
----
-
-### F3 — Time: No Morning Rush — Peak at 21h
-
-The real peak is **21h** (+11.7s vs. network mean) from event departure waves. 7am is actually *below* average.
-
 ![Hourly Delay Profile](public/img/story-3-temporal-hour-of-day.png)
-
----
-
-### F4 — Weather: Snow Geographically Separable from Rain
-
-**Snow (+54s)** hits high elevations (K10, K4, K12). **Rain (+23.3s)** hits river valleys (K5 Limmat). Same line reacts completely differently depending on geography and weather type.
-
 ![Snow Impact Map](public/img/story-4-snow-map.png)
 ![Rain Impact Map](public/img/story-4-rain-map.png)
-
----
-
-### F5 — Events: Holidays Best Days, Trade Fairs Worst Category
-
-Holidays are **−9.9s below normal** (traffic reduction outweighs event effect). Event impact is **evening-only (18–22h)**. Trade fairs (66.0s) beat Taylor Swift (75.4s) in rankings.
-
 ![Event Hourly Profile](public/img/story-5-event-delays-hours.png)
 ![Event Categories Ranked](public/img/story-5-event-delays-types.png)
-
----
-
-### F6 — Cascade: Pearson r ≥ 0.85 on All 16 Lines
-
-Delay at stop N transfers with r ≥ 0.85 to stop N+1 — on all 16 lines. This learnable signal powers LightGBM v2: `prev_trip_delay` alone drives MAE from 45.7s down to 18.56s.
-
 ![General Line Delay Profile](public/img/story-6-line-delay.png)
 ![L2 Detail](public/img/story-6-line-delay-L2.png)
 ![L7 Detail](public/img/story-6-line-delay-L7.png)
 ![L8 Detail](public/img/story-6-line-delay-L8.png)
-
----
-
-### Model Progression: Predictability Confirmed
-
-Baseline 50.0s MAE → **LightGBM v2: 18.56s MAE (−63%)**
-
-The model proves the analysis: delay is structural, not random.
-
 ![Model Progression](public/img/story-7-model-progression.png)
 
 ---
