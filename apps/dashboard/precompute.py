@@ -279,7 +279,15 @@ trip_direction = (
     .collect()
 )
 
-# Aggregate from test_final with direction mapping
+# Get stop_sequence from raw data (test_final doesn't have it)
+stop_sequence_lookup = (
+    lf_raw
+    .select(["trip_id", "stop_name", "stop_sequence"])
+    .unique()
+    .collect()
+)
+
+# Aggregate from test_final with direction mapping + stop_sequence
 route_by_direction = (
     lf
     .with_columns(
@@ -292,6 +300,11 @@ route_by_direction = (
         how="left"
     )
     .filter(pl.col("direction_id").is_not_null())  # Only keep rows with mapped direction
+    .join(
+        stop_sequence_lookup.lazy(),
+        on=["trip_id", "stop_name"],
+        how="left"
+    )
     .group_by(["line_name", "direction_id", "stop_name"])
     .agg(
         pl.mean("arrival_delay").alias("mean_delay"),
@@ -299,18 +312,8 @@ route_by_direction = (
         (pl.col("arrival_delay").le(120).mean() * 100).alias("otp_pct"),
         pl.first("stop_lat").alias("lat"),
         pl.first("stop_lon").alias("lon"),
+        pl.col("stop_sequence").mean().alias("stop_sequence"),  # ← Average per direction!
         pl.count().alias("n_obs"),
-    )
-    .join(
-        # Get stop_sequence from route_profile for correct ordering per direction
-        route_profile.select(["line_name", "stop_name", "stop_sequence"])
-            .with_columns(
-                pl.col("line_name").cast(pl.Categorical),
-                pl.col("stop_name").cast(pl.Categorical),
-            )
-            .lazy(),
-        on=["line_name", "stop_name"],
-        how="left",
     )
     .collect()
     .with_columns(
