@@ -306,33 +306,22 @@ def plot_line_map_with_geometry(line: str, route: pd.DataFrame) -> go.Figure:
 def route_for_line_and_direction(line: str, direction_id: int | None = None) -> pd.DataFrame:
     """Route-Profil einer Linie und Fahrtrichtung.
 
-    Falls direction_id ist int: nur diese Richtung
-    Falls direction_id=None (Gesamt): aggregiere beide Richtungen nach stop_name
-    → Halte-Anzahl bleibt gleich, aber Metriken kombinieren beide Fahrtrichtungen
+    Falls direction_id ist int (0 oder 1): nur diese Richtung
+    Falls direction_id=None (Gesamt): Halte von Richtung 0, aber Metriken aus stop_df (alle Richtungen kombiniert)
     """
     r = route_dir_df.filter(pl.col("line_name").cast(pl.String) == str(line))
 
     if direction_id is not None:
         r = r.filter(pl.col("direction_id") == direction_id)
     else:
-        # Beide Richtungen aggregieren: Halte sind identisch, nur Metriken kombinieren
-        r = (
-            r
-            .group_by("stop_name")
-            .agg(
-                pl.first("line_name"),
-                pl.first("lat"),
-                pl.first("lon"),
-                pl.mean("mean_delay"),  # Durchschnitt beider Richtungen
-                pl.mean("n_obs"),
-            )
-        )
+        # Gesamt: Nutze Richtung 0 als Basis-Reihenfolge (Start→Ende)
+        r = r.filter(pl.col("direction_id") == 0)
 
     r = (
         r
         .with_columns(pl.col("stop_name").cast(pl.Utf8))
         .join(
-            stop_df.select(["stop_name", "otp_pct", "dwell_time_median"])
+            stop_df.select(["stop_name", "mean_delay", "otp_pct", "dwell_time_median"])
                 .with_columns(pl.col("stop_name").cast(pl.Utf8)),
             on="stop_name", how="left",
         )
