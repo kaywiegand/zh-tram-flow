@@ -155,60 +155,21 @@
 
 <main>
 
-  <!-- ─── About ─────────────────────── -->
+  <!-- ─── Project Context ─────────────────────── -->
   <section>
-    <div class="section-label">Kurzbeschreibung</div>
-    <h2>Kernfrage</h2>
+    <div class="section-label">Motivation & Ansatz</div>
+    <h2>Das Projekt</h2>
     <p class="section-intro">
-      <strong>Sind Verspätungen im Zürcher Tramnetz vorhersagbar?</strong>
+      <strong>Motivation:</strong> Öffentliche Verkehrsmittel sind Alltagserlebnis. Verspätungen lassen sich nicht abstrakt erklären — sondern direkt erleben. Das macht sie zum idealen Subject für datengesteuerte Analyse und Vorhersage.
     </p>
     <p class="section-intro">
-      <strong>Antwort:</strong> Ja — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.
-      Der Delay kaskadiert systematisch (Pearson r ≥ 0,85 auf allen 16 Linien).
-      Ein Machine-Learning-Modell (LightGBM v2) erreicht 18,56 s MAE — eine 63 %-Verbesserung gegenüber dem Stop-Mean-Baseline.
+      <strong>Kernfrage:</strong> Sind Verspätungen im Zürcher Tramnetz vorhersagbar? <strong>Ja</strong> — weil sie im Fahrplan-Design verankert sind. 71,3% aller Haltestellen haben 0s dwell_time (keinen Puffer). Das ist kein Wetter- oder Event-Problem, sondern ein strukturelles Design-Problem.
     </p>
     <p class="section-intro">
-      <strong>Die zentrale Erkenntnis:</strong> 71,3 % aller Haltestellen haben 0s dwell_time (keinen Puffer).
-      Das ist ein Fahrplan-Design-Problem, nicht ein Wetter- oder Event-Problem.
-    </p>
-  </section>
-
-  <!-- ─── Project Overview ─────────────────────── -->
-  <section>
-    <div class="section-label">Datenbeschaffung & Kontext</div>
-    <h2>Project Overview</h2>
-    <p class="section-intro">
-      <strong>4 integrierte Datenquellen:</strong> Echtzeit-Fahrtdaten (IST) von opentransportdata.swiss · GTFS-Fahrplandaten der ZVV · Wetterdaten der Stadt Zürich · Manuelle Event-Katalogisierung (301 Einträge).
+      <strong>Ergebnisse:</strong> 6 Analysedimensionen, 66 strukturierte Findings. LightGBM v2 erreicht 18,56 s MAE (−63% vs. Baseline). 4 Datenquellen (IST, GTFS, Weather, Events) über 94,4M Halt-Ereignisse (2023–2025).
     </p>
     <p class="section-intro">
-      Ein umfassendes Datenset aus 94,4 Millionen Halt-Ereignissen (3 Jahre, 2023–2025) bildet die Grundlage für tiefgreifende Analyse und verlässliche Vorhersagen.
-    </p>
-  </section>
-
-  <!-- ─── Problem Analysis ─────────────────────── -->
-  <section>
-    <div class="section-label">6 Analysedimensionen · 66 strukturierte Findings</div>
-    <h2>Problem Statement</h2>
-    <p class="section-intro">
-      <strong>Analyse der Verspätungsmuster über 6 Dimensionen:</strong> Zeitlich (Stunde, Wochentag, Saison) · Räumlich (Haltestelle, Distrikt, Linie) · Netzwerk (Linienumlauf, Koppelpunkte) · Meteorologisch (Schnee, Regen, Temperatur) · Events (Feiertage, Konzerte, Fußball) · Zielverteilung.
-    </p>
-    <p class="section-intro">
-      Die Analyse identifiziert: Verspätungen sind nicht zufällig, sondern strukturell im Fahrplan-Design verankert. 71,5% aller Halte akkumulieren Delay; 71,3% der Haltestellen haben 0s dwell_time (keinen Puffer).
-    </p>
-  </section>
-
-  <!-- ─── Data Cycle ─────────────────────── -->
-  <section>
-    <div class="section-label">End-to-End Data Lifecycle</div>
-    <h2>Data Cycle</h2>
-    <p class="section-intro">
-      <strong>4 durchgehende Phasen:</strong>
-    </p>
-    <p class="section-intro">
-      1. <strong>Data Engineering</strong> — Ingestion, Validierung und Join von 4 Quellen (in sf_data-research) ·
-      2. <strong>Data Analysis</strong> — EDA und strukturierte Findings über 6 Dimensionen (03_analysis Notebooks) ·
-      3. <strong>Data Science</strong> — Feature Engineering, LightGBM v1 + v2, Evaluation (06_prediction Notebooks) ·
-      4. <strong>Data Storytelling</strong> — Report, Presentation, Dashboard, Landing Page (public/).
+      <strong>Data Cycle:</strong> Data Engineering (4 Quellen) → Data Analysis (6 Dimensionen) → Data Science (Modell) → Data Storytelling (Report, Dashboard, Insights).
     </p>
   </section>
 
