@@ -306,13 +306,27 @@ def plot_line_map_with_geometry(line: str, route: pd.DataFrame) -> go.Figure:
 def route_for_line_and_direction(line: str, direction_id: int | None = None) -> pd.DataFrame:
     """Route-Profil einer Linie und Fahrtrichtung.
 
-    Nutzt route_profile_by_direction für Richtungs-Filterung.
-    Falls direction_id=None, werden beide Richtungen kombiniert.
+    Falls direction_id ist int: nur diese Richtung
+    Falls direction_id=None (Gesamt): aggregiere beide Richtungen nach stop_name
+    → Halte-Anzahl bleibt gleich, aber Metriken kombinieren beide Fahrtrichtungen
     """
     r = route_dir_df.filter(pl.col("line_name").cast(pl.String) == str(line))
 
     if direction_id is not None:
         r = r.filter(pl.col("direction_id") == direction_id)
+    else:
+        # Beide Richtungen aggregieren: Halte sind identisch, nur Metriken kombinieren
+        r = (
+            r
+            .group_by("stop_name")
+            .agg(
+                pl.first("line_name"),
+                pl.first("lat"),
+                pl.first("lon"),
+                pl.mean("mean_delay"),  # Durchschnitt beider Richtungen
+                pl.mean("n_obs"),
+            )
+        )
 
     r = (
         r
@@ -323,7 +337,7 @@ def route_for_line_and_direction(line: str, direction_id: int | None = None) -> 
             on="stop_name", how="left",
         )
         # Keep geographic order (lat/lon)
-        .sort(["direction_id", "lat"])
+        .sort("lat")
         .to_pandas()
     )
     r["stop_short"] = r["stop_name"].str.replace(r"Zürich, ?", "", regex=True)
