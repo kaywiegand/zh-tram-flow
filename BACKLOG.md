@@ -8,6 +8,14 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 ---
 
+## Critical Fixes
+
+| # | Beschreibung | Prio |
+| :--- | :--- | :--- |
+| 51 | **README Reports & Artifacts Links aktualisieren** — Veraltete Links (report.html, presentation.html, landingpage.html existieren nicht). Korrekte Links: Overview/StoryView/TechView/SocialView (in public/), Network Map, Artifact Hub, Dashboard. Table in README.md Zeile ~250 korrigieren. | 1 |
+
+---
+
 ## Visual Selection & Integration (STORY-KRITISCH)
 
 | # | Beschreibung | Prio |
