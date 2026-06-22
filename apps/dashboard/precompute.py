@@ -30,10 +30,58 @@ DATA_DIR = Path(__file__).resolve().parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
 GTFS_DIR = ROOT / "data" / "raw" / "gtfs"
 
-SRC = ROOT / "data" / "processed" / "test_final.parquet"
+# Use test_final for most aggregations (has all calculated features)
+SRC_TEST = ROOT / "data" / "processed" / "test_final.parquet"
+# But also load train_raw for direction mapping via terminus
+SRC_RAW = ROOT / "data" / "interim" / "train_raw.parquet"
 
-print(f"Reading {SRC} ...")
-lf = pl.scan_parquet(SRC)
+print(f"Reading {SRC_TEST} (for aggregations)...")
+lf = pl.scan_parquet(SRC_TEST)
+
+print(f"Reading {SRC_RAW} (for direction mapping)...")
+lf_raw = pl.scan_parquet(SRC_RAW)
+
+# ─── Direction mapping (via terminus: last stop of each trip) ────────────────
+print("Building direction mapping from trip termini...")
+
+# Step 1: Get terminus (last stop) per trip from raw data
+terminus_mapping = (
+    lf_raw
+    .with_columns(pl.col("line_name").cast(pl.String))
+    .group_by(["trip_id", "line_name"])
+    .agg(
+        pl.col("stop_name").last().alias("terminus"),  # Last stop = direction indicator
+    )
+    .collect()
+)
+
+# Step 2: For each line, find the 2 most common termini (= the 2 directions)
+direction_mapping = []
+for line_name in terminus_mapping["line_name"].unique().to_list():
+    line_termini = terminus_mapping.filter(pl.col("line_name") == line_name)
+    # Count frequency of each terminus
+    terminus_freq = (
+        line_termini
+        .group_by("terminus")
+        .agg(pl.len().alias("count"))
+        .sort("count", descending=True)
+        .head(2)
+        .to_dicts()
+    )
+
+    for direction_id, term_dict in enumerate(terminus_freq):
+        direction_mapping.append((line_name, term_dict["terminus"], direction_id))
+
+direction_df_final = pl.DataFrame(
+    direction_mapping,
+    schema=["line_name", "terminus", "direction_id"],
+    orient="row"
+).with_columns(
+    pl.col("line_name").cast(pl.Categorical),
+    pl.col("terminus").cast(pl.Categorical),
+)
+
+print(f"  → Direction mapping: {len(direction_df_final)} terminus-direction pairs")
 
 # ─── 1. Stop aggregation ─────────────────────────────────────────────────────
 print("Computing stop_agg ...")
@@ -205,108 +253,45 @@ route_profile = (
 route_profile.write_parquet(DATA_DIR / "route_profile.parquet")
 print(f"  → route_profile: {len(route_profile)} rows")
 
-# ─── 7. Route profile by direction (for dashboard direction filtering) ───────
 print("Computing route_profile_by_direction...")
 
-# Strategy: Use GTFS direction_id for authentic route directions
-# Approach:
-#   1. Get all unique (line_name, stop_name) pairs from test_final
-#   2. Load GTFS trips and routes to find direction_id
-#   3. Map direction_id back to our data
+# Step: Aggregate delays by [line_name, direction_id, stop_name] using terminus-based directions
+# Strategy:
+#   1. From raw data: Get last stop (terminus) per trip
+#   2. Map terminus to direction (0 or 1) via direction_df_final
+#   3. Join back to test_final to get all delays per (trip, stop, direction)
+#   4. Group by (line_name, direction_id, stop_name) and aggregate
 
-# First: Build mapping from route_short_name (line_name) to GTFS route_id
-gtfs_routes_path = GTFS_DIR / "gtfs_tram_routes.parquet"
-gtfs_trips_path = GTFS_DIR / "gtfs_tram_trips.parquet"
-
-if gtfs_routes_path.exists() and gtfs_trips_path.exists():
-    gtfs_routes_lf = pl.scan_parquet(gtfs_routes_path)
-    routes_map = (
-        gtfs_routes_lf
-        .with_columns(pl.col("route_short_name").cast(pl.String))
-        .select(["route_id", "route_short_name"])
-        .collect()
-        .to_dict(as_series=False)
+# Get terminus per trip from raw data
+trip_direction = (
+    lf_raw
+    .with_columns(pl.col("line_name").cast(pl.Categorical))
+    .group_by("trip_id", "line_name")
+    .agg(
+        pl.col("stop_name").last().alias("terminus"),
     )
-    route_short_to_id = {name: rid for name, rid in zip(routes_map["route_short_name"], routes_map["route_id"])}
-
-    # Load GTFS trips to get direction_id per route_id
-    gtfs_trips_lf = pl.scan_parquet(gtfs_trips_path)
-    trips_directions = (
-        gtfs_trips_lf
-        .select(["route_id", "direction_id"])
-        .unique()
-        .collect()
+    .join(
+        direction_df_final.lazy(),
+        on=["line_name", "terminus"],
+        how="left"
     )
-
-    # Build direction mapping: (line_name → [0, 1])
-    available_directions_per_line = {}
-    for row in trips_directions.iter_rows(named=True):
-        route_id = row["route_id"]
-        direction_id = row["direction_id"]
-
-        # Find which line_name this route_id belongs to
-        for line_name, rid in route_short_to_id.items():
-            if rid == route_id:
-                if line_name not in available_directions_per_line:
-                    available_directions_per_line[line_name] = []
-                if direction_id not in available_directions_per_line[line_name]:
-                    available_directions_per_line[line_name].append(direction_id)
-
-    # Now assign direction_id to all (line, stop) pairs
-    line_direction_mapping = []
-    test_lf = pl.scan_parquet(ROOT / "data" / "processed" / "test_final.parquet")
-
-    for line_name in available_directions_per_line.keys():
-        # Get all stops for this line
-        stops_for_line = (
-            test_lf
-            .filter(pl.col("line_name") == line_name)
-            .select("stop_name")
-            .unique()
-            .collect()["stop_name"].to_list()
-        )
-
-        # Each stop gets both directions (same stops, two directions)
-        for direction_id in available_directions_per_line[line_name]:
-            for stop_name in stops_for_line:
-                line_direction_mapping.append((line_name, stop_name, direction_id))
-else:
-    # Fallback if GTFS not available: use simple sequence-based split
-    print("  ⚠ GTFS routes not found, using fallback sequence-based directions")
-    raw_lf = pl.scan_parquet(ROOT / "data" / "interim" / "train_raw.parquet")
-
-    sequence_lookup = (
-        raw_lf
-        .with_columns(pl.col("line_name").cast(pl.String), pl.col("stop_name").cast(pl.String))
-        .group_by(["line_name", "stop_name"])
-        .agg(pl.col("stop_sequence").mode().first().alias("stop_sequence"))
-        .collect()
-    )
-
-    line_direction_mapping = []
-    for line_name, group in sequence_lookup.group_by("line_name"):
-        sequences = group["stop_sequence"].to_list()
-        if sequences:
-            seq_mid = (min(sequences) + max(sequences)) / 2
-            for row in group.iter_rows(named=True):
-                dir_id = 1 if row["stop_sequence"] > seq_mid else 0
-                line_direction_mapping.append((line_name, row["stop_name"], dir_id))
-
-# Convert to DataFrame
-direction_df = pl.DataFrame(
-    line_direction_mapping,
-    schema=["line_name", "stop_name", "direction_id"],
-    orient="row"
-).with_columns(
-    pl.col("line_name").cast(pl.Categorical),
-    pl.col("stop_name").cast(pl.Categorical),
+    .drop("terminus")
+    .collect()
 )
 
-# Step 2: Aggregate delays + coordinates by [line_name, direction_id, stop_name]
-# Important: Join with route_profile to get stop_sequence for correct ordering per direction
+# Aggregate from test_final with direction mapping
 route_by_direction = (
     lf
-    .join(direction_df.lazy(), on=["line_name", "stop_name"], how="inner")
+    .with_columns(
+        pl.col("line_name").cast(pl.Categorical),
+        pl.col("stop_name").cast(pl.Categorical),
+    )
+    .join(
+        trip_direction.lazy(),
+        on="trip_id",
+        how="left"
+    )
+    .filter(pl.col("direction_id").is_not_null())  # Only keep rows with mapped direction
     .group_by(["line_name", "direction_id", "stop_name"])
     .agg(
         pl.mean("arrival_delay").alias("mean_delay"),
