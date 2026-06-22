@@ -166,7 +166,10 @@
       <strong>Kernfrage:</strong> Sind Verspätungen im Zürcher Tramnetz vorhersagbar? <strong>Ja</strong> — weil sie im Fahrplan-Design verankert sind. 71,3% aller Haltestellen haben 0s dwell_time (keinen Puffer). Das ist kein Wetter- oder Event-Problem, sondern ein strukturelles Design-Problem.
     </p>
     <p class="section-intro">
-      <strong>Ergebnisse:</strong> 6 Analysedimensionen, 66 strukturierte Findings. LightGBM v2 erreicht 18,56 s MAE (−63% vs. Baseline). 4 Datenquellen (IST, GTFS, Weather, Events) über 94,4M Halt-Ereignisse (2023–2025).
+      <strong>Identifikation & Ursachen:</strong> 6 Analysedimensionen (Temporal · Spatial · Network · Meteorology · Events · Target) offenbaren die Struktur: Periphere Korridore mit höchsten Delays · Pearson r ≥ 0,85 Delay-Kaskade zwischen aufeinanderfolgenden Halten · Schnee +54s Effekt geografisch separierbar von Regen. 66 strukturierte Findings dokumentieren Patterns und Hebel.
+    </p>
+    <p class="section-intro">
+      <strong>Ergebnisse:</strong> LightGBM v2 erreicht 18,56 s MAE (−63% vs. Baseline). Das Modell bestätigt die Analyse: Delay ist vorhersagbar, weil es strukturell ist. 4 Datenquellen über 94,4M Halt-Ereignisse (2023–2025).
     </p>
     <p class="section-intro">
       <strong>Data Cycle:</strong> Data Engineering (4 Quellen) → Data Analysis (6 Dimensionen) → Data Science (Modell) → Data Storytelling (Report, Dashboard, Insights).
