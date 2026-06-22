@@ -1,7 +1,7 @@
 """
 Zurich Tram Flow — Explorer Dashboard v2
 Drei interaktive Tools für Stakeholder nach der Präsentation.
-Starten: uv run streamlit run apps/dashboard/app_v2.py
+Starten: uv run streamlit run apps/dashboard/app.py
 """
 
 from __future__ import annotations
@@ -648,7 +648,7 @@ if page == "Linie erkunden":
     Deshalb sind manche <strong>Blasen nicht exakt auf der gezeichneten Linie</strong> — die Linie zeigt den aktuellen Zustand,
     aber manche Verspätungen stammen von früheren Positionen der gleichen Haltestelle.<br><br>
     <strong style="color: #2E86AB;">→</strong>
-    <a href="network-map.html" target="_blank" style="color: #2E86AB; font-weight: 600; text-decoration: underline;">Network-Map öffnen</a>
+    <a href="https://kaywiegand.github.io/zh-tram-flow/network-map.html" target="_blank" style="color: #2E86AB; font-weight: 600; text-decoration: underline;">Network-Map öffnen</a>
     um zu sehen, <strong>wo und wann</strong> die Linie sich verändert hat.
     </div>
     """, unsafe_allow_html=True)
@@ -735,6 +735,25 @@ elif page == "Linien vergleichen":
     stats_a = calc_stats(route_a_filtered)
     stats_b = calc_stats(route_b_filtered)
 
+    # Calculate worst stops for both lines (filtered to main route)
+    worst_a = route_a_filtered.nlargest(5, "mean_delay") if len(route_a_filtered) > 0 else pd.DataFrame()
+    worst_b = route_b_filtered.nlargest(5, "mean_delay") if len(route_b_filtered) > 0 else pd.DataFrame()
+
+    # Prepare display format for both
+    if len(worst_a) > 0:
+        worst_a_display = worst_a[["stop_name", "mean_delay", "otp_pct", "dwell_time_median"]].copy()
+        worst_a_display.columns = ["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"]
+        worst_a = worst_a_display
+    else:
+        worst_a = pd.DataFrame(columns=["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"])
+
+    if len(worst_b) > 0:
+        worst_b_display = worst_b[["stop_name", "mean_delay", "otp_pct", "dwell_time_median"]].copy()
+        worst_b_display.columns = ["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"]
+        worst_b = worst_b_display
+    else:
+        worst_b = pd.DataFrame(columns=["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"])
+
     st.markdown("---")
 
     # ── KPI-Vergleich ──
@@ -771,34 +790,35 @@ elif page == "Linien vergleichen":
 
     st.markdown("---")
 
-    # ── Overlapping Bar Chart ──
+    # ── Overlapping Bar Chart — normalized width ──
     section_label("Delay-Verteilung — Hauptroute beider Linien")
 
     fig_cmp = go.Figure()
-    for route, ln, opacity in [(route_a_filtered, line_a, 0.85), (route_b_filtered, line_b, 0.55)]:
-        fig_cmp.add_trace(go.Bar(
-            name=f"Linie {ln}",
-            x=list(range(len(route))),
-            y=route["mean_delay"].round(1),
-            marker_color=line_color(ln),
-            marker_line_width=0,
-            marker_line_color="rgba(0,0,0,0)",  # Transparent outline
-            opacity=opacity,
-            hovertemplate=(
-                f"<b>Linie {ln}</b><br>%{{customdata}}<br>"
-                "Ø Delay: %{y:.1f}s<extra></extra>"
-            ),
-            customdata=route["stop_short"],
-        ))
+    for route, ln, lw in [(route_a_filtered, line_a, 3.0), (route_b_filtered, line_b, 2.0)]:
+        if len(route) > 0:
+            # Normalize x positions to [0, 100] for comparable visual width
+            x_norm = np.linspace(0, 100, len(route))
+            fig_cmp.add_trace(go.Scatter(
+                name=f"Linie {ln}",
+                x=x_norm,
+                y=route["mean_delay"].round(1),
+                mode="lines+markers",
+                line=dict(color=line_color(ln), width=lw),
+                marker=dict(size=6, color=line_color(ln)),
+                hovertemplate=(
+                    f"<b>Linie {ln}</b><br>%{{customdata}}<br>"
+                    "Ø Delay: %{y:.1f}s<extra></extra>"
+                ),
+                customdata=route["stop_short"],
+            ))
 
     fig_cmp.add_hline(y=56, line_dash="dot", line_color="#aaa",
                       annotation_text="Netz-Ø 56s", annotation_position="top left")
     fig_cmp.update_layout(
-        barmode="overlay",
         height=340,
         margin=dict(t=10, b=10),
         plot_bgcolor="white", paper_bgcolor="white",
-        xaxis=dict(title="Haltestellen (nach Delay sortiert)", showticklabels=False, showgrid=False),
+        xaxis=dict(title="Strecke (normalisiert von Start zu Ende)", showgrid=False, zeroline=False),
         yaxis=dict(gridcolor="#eee", title="Ø Verspätung (s)", zeroline=False),
         legend=dict(
             orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0,
@@ -875,7 +895,10 @@ elif page == "Verspätung vorhersagen":
             line_stops = sorted(
                 lookup_df
                 .filter(pl.col("line_name").cast(pl.String) == str(s_line))
-                ["stop_name"].cast(pl.String).unique().to_list()
+                .select("stop_name")
+                .to_series()
+                .unique()
+                .to_list()
             )
             s_stop = st.selectbox(
                 "Haltestelle", line_stops,
