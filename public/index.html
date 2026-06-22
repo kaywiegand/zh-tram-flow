@@ -153,6 +153,24 @@
 
 <main>
 
+  <!-- ─── About ─────────────────────── -->
+  <section>
+    <div class="section-label">Über dieses Projekt</div>
+    <h2>Kernfrage</h2>
+    <p class="section-intro">
+      <strong>Sind Verspätungen im Zürcher Tramnetz vorhersagbar?</strong>
+    </p>
+    <p class="section-intro">
+      <strong>Antwort:</strong> Ja — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.
+      Der Delay kaskadiert systematisch (Pearson r ≥ 0,85 auf allen 16 Linien).
+      Ein Machine-Learning-Modell (LightGBM v2) erreicht 18,56 s MAE — eine 63 %-Verbesserung gegenüber dem Stop-Mean-Baseline.
+    </p>
+    <p class="section-intro">
+      <strong>Die zentrale Erkenntnis:</strong> 71,3 % aller Haltestellen haben 0s dwell_time (keinen Puffer).
+      Das ist ein Fahrplan-Design-Problem, nicht ein Wetter- oder Event-Problem.
+    </p>
+  </section>
+
   <!-- ─── Vier Portfolio-Views ─────────────────────── -->
   <section>
     <div class="section-label">Portfolio-Präsentationen</div>
@@ -221,24 +239,6 @@
         <a href="network-map.html" class="quick-link">Netzwerk-Karte</a>
       </div>
     </div>
-  </section>
-
-  <!-- ─── About ─────────────────────── -->
-  <section>
-    <div class="section-label">Über dieses Projekt</div>
-    <h2>Kernfrage</h2>
-    <p class="section-intro">
-      <strong>Sind Verspätungen im Zürcher Tramnetz vorhersagbar?</strong>
-    </p>
-    <p class="section-intro">
-      <strong>Antwort:</strong> Ja — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.
-      Der Delay kaskadiert systematisch (Pearson r ≥ 0,85 auf allen 16 Linien).
-      Ein Machine-Learning-Modell (LightGBM v2) erreicht 18,56 s MAE — eine 63 %-Verbesserung gegenüber dem Stop-Mean-Baseline.
-    </p>
-    <p class="section-intro">
-      <strong>Die zentrale Erkenntnis:</strong> 71,3 % aller Haltestellen haben 0s dwell_time (keinen Puffer).
-      Das ist ein Fahrplan-Design-Problem, nicht ein Wetter- oder Event-Problem.
-    </p>
   </section>
 
 </main>
