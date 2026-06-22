@@ -173,6 +173,45 @@
     </p>
   </section>
 
+  <!-- ─── Project Overview ─────────────────────── -->
+  <section>
+    <div class="section-label">Datenbeschaffung & Kontext</div>
+    <h2>Project Overview</h2>
+    <p class="section-intro">
+      <strong>4 integrierte Datenquellen:</strong> Echtzeit-Fahrtdaten (IST) von opentransportdata.swiss · GTFS-Fahrplandaten der ZVV · Wetterdaten der Stadt Zürich · Manuelle Event-Katalogisierung (301 Einträge).
+    </p>
+    <p class="section-intro">
+      Ein umfassendes Datenset aus 94,4 Millionen Halt-Ereignissen (3 Jahre, 2023–2025) bildet die Grundlage für tiefgreifende Analyse und verlässliche Vorhersagen.
+    </p>
+  </section>
+
+  <!-- ─── Problem Analysis ─────────────────────── -->
+  <section>
+    <div class="section-label">6 Analysedimensionen · 66 strukturierte Findings</div>
+    <h2>Problem Statement</h2>
+    <p class="section-intro">
+      <strong>Analyse der Verspätungsmuster über 6 Dimensionen:</strong> Zeitlich (Stunde, Wochentag, Saison) · Räumlich (Haltestelle, Distrikt, Linie) · Netzwerk (Linienumlauf, Koppelpunkte) · Meteorologisch (Schnee, Regen, Temperatur) · Events (Feiertage, Konzerte, Fußball) · Zielverteilung.
+    </p>
+    <p class="section-intro">
+      Die Analyse identifiziert: Verspätungen sind nicht zufällig, sondern strukturell im Fahrplan-Design verankert. 71,5% aller Halte akkumulieren Delay; 71,3% der Haltestellen haben 0s dwell_time (keinen Puffer).
+    </p>
+  </section>
+
+  <!-- ─── Data Cycle ─────────────────────── -->
+  <section>
+    <div class="section-label">End-to-End Data Lifecycle</div>
+    <h2>Data Cycle</h2>
+    <p class="section-intro">
+      <strong>4 durchgehende Phasen:</strong>
+    </p>
+    <p class="section-intro">
+      1. <strong>Data Engineering</strong> — Ingestion, Validierung und Join von 4 Quellen (in sf_data-research) ·
+      2. <strong>Data Analysis</strong> — EDA und strukturierte Findings über 6 Dimensionen (03_analysis Notebooks) ·
+      3. <strong>Data Science</strong> — Feature Engineering, LightGBM v1 + v2, Evaluation (06_prediction Notebooks) ·
+      4. <strong>Data Storytelling</strong> — Report, Presentation, Dashboard, Landing Page (public/).
+    </p>
+  </section>
+
   <!-- ─── Vier Portfolio-Views ─────────────────────── -->
   <section>
     <div class="section-label">Wähle deine Perspektive</div>
