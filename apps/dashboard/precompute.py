@@ -50,7 +50,7 @@ terminus_mapping = (
     .with_columns(pl.col("line_name").cast(pl.String))
     .group_by(["trip_id", "line_name"])
     .agg(
-        pl.col("stop_name").last().alias("terminus"),  # Last stop = direction indicator
+        pl.col("stop_name").sort_by("stop_sequence").last().alias("terminus"),  # ← MUST sort by sequence first!
     )
     .collect()
 )
