@@ -20,6 +20,8 @@
 - **Snow is the strongest single factor:** +54s average delay, OTP −10.9pp — geographically separable from rain.
 - **LightGBM v2: MAE 18.56s — 63% below the Stop Mean baseline (50.0s).** Adding `prev_trip_delay` (cascade feature, derived from analysis finding F-NET-07) drove the main improvement. The model confirms the analysis: delay is predictable because it's structural.
 
+![Zurich Tram Flow Dashboard](public/img/screenshot-map.png)
+
 ---
 
 ## Where to start
