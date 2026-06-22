@@ -318,7 +318,12 @@ route_by_direction = (
     )
     .join(
         # Get stop_sequence from route_profile for correct ordering per direction
-        route_profile.select(["line_name", "stop_name", "stop_sequence"]).lazy(),
+        route_profile.select(["line_name", "stop_name", "stop_sequence"])
+            .with_columns(
+                pl.col("line_name").cast(pl.Categorical),
+                pl.col("stop_name").cast(pl.Categorical),
+            )
+            .lazy(),
         on=["line_name", "stop_name"],
         how="left",
     )
