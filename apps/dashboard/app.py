@@ -309,8 +309,10 @@ def route_for_line_and_direction(line: str, direction_id: int | None = None) -> 
     Falls direction_id ist int (0 oder 1): nur diese Richtung
     Falls direction_id=None (Gesamt): Halte von Richtung 0, aber Metriken aus stop_df (alle Richtungen kombiniert)
 
-    Wichtig: Richtung 0 = Start→Ende (lat ASC)
-             Richtung 1 = Ende→Start (lat DESC — umgekehrte geografische Reihenfolge)
+    Wichtig: Sortierung nach stop_sequence pro Richtung:
+      - Richtung 0: ASC (Start→Ende)
+      - Richtung 1: DESC (Ende→Start — umgekehrte Sequenz)
+      - Gesamt: ASC (Richtung 0 Reihenfolge)
     """
     r = route_dir_df.filter(pl.col("line_name").cast(pl.String) == str(line))
 
@@ -330,11 +332,12 @@ def route_for_line_and_direction(line: str, direction_id: int | None = None) -> 
         )
     )
 
-    # Sort by lat, but reverse for direction 1 (Ende→Start)
+    # Sort by stop_sequence (primary) with fallback to lat if NULL
+    # For direction 1, reverse the sequence (Ende→Start)
     if direction_id == 1:
-        r = r.sort("lat", descending=True)
+        r = r.sort(pl.coalesce("stop_sequence", pl.lit(9999)), descending=True)
     else:
-        r = r.sort("lat", descending=False)
+        r = r.sort(pl.coalesce("stop_sequence", pl.lit(9999)), descending=False)
 
     r = r.to_pandas()
     r["stop_short"] = r["stop_name"].str.replace(r"Zürich, ?", "", regex=True)
@@ -536,7 +539,7 @@ if page == "Linie erkunden":
             dir_stops = (
                 line_directions_df
                 .filter(pl.col("direction_id") == dir_id)
-                .sort("lat")
+                .sort(pl.coalesce("stop_sequence", pl.lit(9999)))  # Primary: sequence; fallback: lat
                 .to_pandas()
             )
             if len(dir_stops) > 0:

@@ -303,6 +303,7 @@ direction_df = pl.DataFrame(
 )
 
 # Step 2: Aggregate delays + coordinates by [line_name, direction_id, stop_name]
+# Important: Join with route_profile to get stop_sequence for correct ordering per direction
 route_by_direction = (
     lf
     .join(direction_df.lazy(), on=["line_name", "stop_name"], how="inner")
@@ -315,12 +316,18 @@ route_by_direction = (
         pl.first("stop_lon").alias("lon"),
         pl.count().alias("n_obs"),
     )
+    .join(
+        # Get stop_sequence from route_profile for correct ordering per direction
+        route_profile.select(["line_name", "stop_name", "stop_sequence"]).lazy(),
+        on=["line_name", "stop_name"],
+        how="left",
+    )
     .collect()
     .with_columns(
         pl.col("stop_name").cast(pl.String),
         pl.col("line_name").cast(pl.String),
     )
-    .sort(["line_name", "direction_id", "lat"])
+    .sort(["line_name", "direction_id", pl.coalesce("stop_sequence", pl.lit(9999))])
 )
 
 route_by_direction.write_parquet(DATA_DIR / "route_profile_by_direction.parquet")
