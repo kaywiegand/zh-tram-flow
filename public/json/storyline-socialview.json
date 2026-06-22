@@ -346,42 +346,106 @@
         "title": "Struktur: Kein Puffer eingebaut",
         "finding": "71,5 % aller Halte akkumulieren Delay (delay_delta > 0) — weil\n           71,3 % der Haltestellen 0s dwell_time haben. Das Netz hat keinen\n           Erholungsmechanismus eingebaut.",
         "number": "71,3 % dwell_time = 0s",
-        "source": "03_analysis_1-target.ipynb · 03_analysis_4-spatial.ipynb"
+        "source": "03_analysis_1-target.ipynb · 03_analysis_4-spatial.ipynb",
+        "images": [
+          {
+            "alt": "Dwell Time Distribution: 71,3% haben 0s Puffer",
+            "url": "../img/story-1-dwell-binary.png"
+          },
+          {
+            "alt": "Delay Delta: 71,4% der Halte zeigen wachsende Verspätung",
+            "url": "../img/story-1-dwell-delta.png"
+          }
+        ]
       },
       {
         "id": "F2",
         "title": "Geo: Hotspots an der Peripherie",
         "finding": "Die schlimmsten Haltestellen sind periphere Aussenkorridore —\n           Friedhof Enzenbühl (93,8 s), Balgrist (85,2 s), Leutschenbach (82,7 s).\n           Zentrale Knotenpunkte (Central, Paradeplatz) liegen unter Netzschnitt.\n           0 Overlap zwischen höchster Liniendichte und höchstem Delay.",
         "number": "0 Overlap Top-Dichte × Top-Delay",
-        "source": "03_analysis_4-spatial.ipynb"
+        "source": "03_analysis_4-spatial.ipynb",
+        "images": [
+          {
+            "alt": "Periphere Hotspots — durchschnittliche Verspätung pro Haltestelle",
+            "url": "../img/story-2-peripherie-delay-overview1.png"
+          },
+          {
+            "alt": "Distrikts-Perspektive: Strukturelles Muster der Peripherie-Nachteile",
+            "url": "../img/story-2-peripherie-delay-overview2.png"
+          }
+        ]
       },
       {
         "id": "F3",
         "title": "Zeit: Kein Morgenrush — Peak um 21h",
         "finding": "7h liegt mit 48,9 s unter dem Netzschnitt. Der echte Peak ist 21h (67,9 s)\n           durch Events-Abreisewellen. Donnerstag ist der schlechteste Wochentag\n           (60,4 s, P95=194s) — nicht Freitag. November jeweils Jahreshöchstwert.",
         "number": "+11,7 s um 21h vs. Netzschnitt",
-        "source": "03_analysis_3-temporal.ipynb"
+        "source": "03_analysis_3-temporal.ipynb",
+        "images": [
+          {
+            "alt": "Hourly Delay Profile: Peak um 21h durch Abreisewellen, nicht um 8h",
+            "url": "../img/story-3-temporal-hour-of-day.png"
+          }
+        ]
       },
       {
         "id": "F4",
         "title": "Wetter: Schnee geografisch trennbar von Regen",
         "finding": "Schnee ist der stärkste Einzeleffekt (+54s, OTP −10,9 %). Geografisch\n           klar trennbar: Schnee trifft Höhenlagen (K10/K4/K12), Regen trifft\n           Flusstäler (K5 / Limmat). Linien reagieren komplett unterschiedlich:\n           L9 Schnee +75,9 s vs. Regen +10,0 s — L17 umgekehrt.",
         "number": "Schnee +54s · Regen +23,3 s",
-        "source": "03_analysis_5-meteo.ipynb"
+        "source": "03_analysis_5-meteo.ipynb",
+        "images": [
+          {
+            "alt": "Schnee-Effekt: +54s in Höhenlagen (K10, K4, K12)",
+            "url": "../img/story-4-snow-map.png"
+          },
+          {
+            "alt": "Regen-Effekt: +23,3s in Flusstälern (K5 Limmat-Region)",
+            "url": "../img/story-4-rain-map.png"
+          }
+        ]
       },
       {
         "id": "F5",
         "title": "Events: Feiertage beste Tage, Fachmessen schlechteste Kategorie",
         "finding": "Feiertage sind mit 46,3 s (−9,9 s vs. Normal) der beste Tagestyp —\n           der MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist\n           ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied.\n           Fachmessen (66,0 s) schlagen Taylor Swift (75,4 s) in der Rangliste.",
         "number": "Feiertage −9,9 s · Fachmessen 66,0 s",
-        "source": "03_analysis_6-events.ipynb"
+        "source": "03_analysis_6-events.ipynb",
+        "images": [
+          {
+            "alt": "Event-Effekt ist Abend-only (18–22h), nicht tagsüber",
+            "url": "../img/story-5-event-delays-hours.png"
+          },
+          {
+            "alt": "Event-Kategorien: Fachmesse (65s) schlägt Taylor Swift (75s)",
+            "url": "../img/story-5-event-delays-types.png"
+          }
+        ]
       },
       {
         "id": "F6",
         "title": "Kaskade: Pearson r ≥ 0,85 auf allen 16 Linien",
         "finding": "Der Delay an einem Halt überträgt sich mit r ≥ 0.85 auf den nächsten\n           Halt desselben Trips — auf allen 16 Linien. Das ist kein statistisches\n           Artefakt, sondern ein lernbares Signal: prev_trip_delay ist in LightGBM v2\n           das stärkste neue Feature und erklärt den Sprung von 45,7 s auf 18,56 s MAE.",
         "number": "Pearson r ≥ 0,85 (alle 16 Linien)",
-        "source": "03_analysis_4-spatial.ipynb · 06_prediction_4-model_v2.ipynb"
+        "source": "03_analysis_4-spatial.ipynb · 06_prediction_4-model_v2.ipynb",
+        "images": [
+          {
+            "alt": "Allgemeine Linienkarte: Delay-Gradient von Start (rot) zu Ende (grün)",
+            "url": "../img/story-6-line-delay.png"
+          },
+          {
+            "alt": "L2 Detail: Periphere Start mit hohem Delay, zentrale Endhaltestelle besser",
+            "url": "../img/story-6-line-delay-L2.png"
+          },
+          {
+            "alt": "L7 Detail: Kaskadeneffekt über die gesamte Route",
+            "url": "../img/story-6-line-delay-L7.png"
+          },
+          {
+            "alt": "L8 Detail: Event-Peak-Linie mit strukturellem Akkumulationsmuster",
+            "url": "../img/story-6-line-delay-L8.png"
+          }
+        ]
       }
     ],
     "recommendations": [
@@ -408,7 +472,13 @@
       "proof": "4-Schritt-Beweiskette:\n            1. Anomalie — periphere Hotspots, nicht zentrale Knotenpunkte\n            2. Gradient — Delay wächst entlang der Strecke (L11 vs. L6 als Kontrast)\n            3. Mechanismus — 71,3 % dwell_time = 0s: kein Puffer, keine Erholung möglich\n            4. Kaskade — Pearson r ≥ 0,85 netzweit: systematisch, kein Einzelfall\n\nso_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse:\n            prev_trip_delay (Kaskadenindikator) ist das stärkste neue Feature in v2\n            — MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.",
       "so_what": "Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse:\n            prev_trip_delay (Kaskadenindikator) ist das stärkste neue Feature in v2\n            — MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel."
     },
-    "updated_at": "2026-06-19",
+    "model_images": [
+      {
+        "alt": "Model Progression: v2 MAE 18,56s (−63% vs. Baseline 50,0s)",
+        "url": "../img/story-7-model-progression.png"
+      }
+    ],
+    "updated_at": "2026-06-22",
     "source": "portfolio.md"
   }
 }

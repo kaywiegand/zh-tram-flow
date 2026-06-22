@@ -41,19 +41,36 @@ def extract_section(content: str, section_name: str) -> str:
 
 
 def extract_findings_table(content: str) -> List[Dict[str, str]]:
-    """Extract Key Findings (F1-F6) from portfolio.md."""
+    """Extract Key Findings (F1-F6) from portfolio.md with associated images."""
     findings = []
-    pattern = r"### F(\d+) — (.+?)\n```\nfinding:\s*(.+?)\nnumber:\s*(.+?)\nsource:\s*(.+?)\n```"
+    # Updated pattern to capture content after the closing ```
+    pattern = r"### F(\d+) — (.+?)\n```\nfinding:\s*(.+?)\nnumber:\s*(.+?)\nsource:\s*(.+?)\n```(.*?)(?=###|\Z)"
 
     for match in re.finditer(pattern, content, re.DOTALL):
-        num, title, finding, number, source = match.groups()
-        findings.append({
+        num, title, finding, number, source, trailing_content = match.groups()
+
+        # Extract images from trailing content (Markdown image syntax: ![alt](url))
+        image_pattern = r"!\[([^\]]+)\]\(([^\)]+)\)"
+        images = []
+        for img_match in re.finditer(image_pattern, trailing_content):
+            alt_text, img_url = img_match.groups()
+            images.append({
+                "alt": alt_text.strip(),
+                "url": img_url.strip(),
+            })
+
+        finding_dict = {
             "id": f"F{num}",
             "title": title.strip(),
             "finding": finding.strip(),
             "number": number.strip(),
             "source": source.strip(),
-        })
+        }
+
+        if images:
+            finding_dict["images"] = images
+
+        findings.append(finding_dict)
 
     return findings
 
@@ -103,6 +120,22 @@ def extract_storyline(content: str) -> Dict[str, str]:
     return storyline
 
 
+def extract_model_images(content: str) -> List[Dict[str, str]]:
+    """Extract images from Model Results section."""
+    section = extract_section(content, "Model Results")
+
+    images = []
+    image_pattern = r"!\[([^\]]+)\]\(([^\)]+)\)"
+    for match in re.finditer(image_pattern, section):
+        alt_text, img_url = match.groups()
+        images.append({
+            "alt": alt_text.strip(),
+            "url": img_url.strip(),
+        })
+
+    return images
+
+
 def update_json_content(json_data: Dict[str, Any], portfolio_content: str, storyline: str) -> Dict[str, Any]:
     """
     Update JSON data with content from portfolio.md.
@@ -115,6 +148,7 @@ def update_json_content(json_data: Dict[str, Any], portfolio_content: str, story
     recommendations = extract_recommendations(portfolio_content)
     problem = extract_problem_statement(portfolio_content)
     storyline_data = extract_storyline(portfolio_content)
+    model_images = extract_model_images(portfolio_content)
 
     # Store extracted data in meta for reference
     if "meta" not in json_data:
@@ -125,7 +159,8 @@ def update_json_content(json_data: Dict[str, Any], portfolio_content: str, story
         "recommendations": recommendations,
         "problem": problem,
         "storyline": storyline_data,
-        "updated_at": "2026-06-19",
+        "model_images": model_images,
+        "updated_at": "2026-06-22",
         "source": "portfolio.md",
     }
 

@@ -75,6 +75,9 @@ number:    71,3 % dwell_time = 0s
 source:    03_analysis_1-target.ipynb · 03_analysis_4-spatial.ipynb
 ```
 
+![Dwell Time Distribution: 71,3% haben 0s Puffer](../img/story-1-dwell-binary.png)
+![Delay Delta: 71,4% der Halte zeigen wachsende Verspätung](../img/story-1-dwell-delta.png)
+
 ### F2 — Geo: Hotspots an der Peripherie
 ```
 finding:   Die schlimmsten Haltestellen sind periphere Aussenkorridore —
@@ -85,6 +88,9 @@ number:    0 Overlap Top-Dichte × Top-Delay
 source:    03_analysis_4-spatial.ipynb
 ```
 
+![Periphere Hotspots — durchschnittliche Verspätung pro Haltestelle](../img/story-2-peripherie-delay-overview1.png)
+![Distrikts-Perspektive: Strukturelles Muster der Peripherie-Nachteile](../img/story-2-peripherie-delay-overview2.png)
+
 ### F3 — Zeit: Kein Morgenrush — Peak um 21h
 ```
 finding:   7h liegt mit 48,9 s unter dem Netzschnitt. Der echte Peak ist 21h (67,9 s)
@@ -93,6 +99,8 @@ finding:   7h liegt mit 48,9 s unter dem Netzschnitt. Der echte Peak ist 21h (67
 number:    +11,7 s um 21h vs. Netzschnitt
 source:    03_analysis_3-temporal.ipynb
 ```
+
+![Hourly Delay Profile: Peak um 21h durch Abreisewellen, nicht um 8h](../img/story-3-temporal-hour-of-day.png)
 
 ### F4 — Wetter: Schnee geografisch trennbar von Regen
 ```
@@ -104,6 +112,9 @@ number:    Schnee +54s · Regen +23,3 s
 source:    03_analysis_5-meteo.ipynb
 ```
 
+![Schnee-Effekt: +54s in Höhenlagen (K10, K4, K12)](../img/story-4-snow-map.png)
+![Regen-Effekt: +23,3s in Flusstälern (K5 Limmat-Region)](../img/story-4-rain-map.png)
+
 ### F5 — Events: Feiertage beste Tage, Fachmessen schlechteste Kategorie
 ```
 finding:   Feiertage sind mit 46,3 s (−9,9 s vs. Normal) der beste Tagestyp —
@@ -114,6 +125,9 @@ number:    Feiertage −9,9 s · Fachmessen 66,0 s
 source:    03_analysis_6-events.ipynb
 ```
 
+![Event-Effekt ist Abend-only (18–22h), nicht tagsüber](../img/story-5-event-delays-hours.png)
+![Event-Kategorien: Fachmesse (65s) schlägt Taylor Swift (75s)](../img/story-5-event-delays-types.png)
+
 ### F6 — Kaskade: Pearson r ≥ 0,85 auf allen 16 Linien
 ```
 finding:   Der Delay an einem Halt überträgt sich mit r ≥ 0.85 auf den nächsten
@@ -123,6 +137,11 @@ finding:   Der Delay an einem Halt überträgt sich mit r ≥ 0.85 auf den näch
 number:    Pearson r ≥ 0,85 (alle 16 Linien)
 source:    03_analysis_4-spatial.ipynb · 06_prediction_4-model_v2.ipynb
 ```
+
+![Allgemeine Linienkarte: Delay-Gradient von Start (rot) zu Ende (grün)](../img/story-6-line-delay.png)
+![L2 Detail: Periphere Start mit hohem Delay, zentrale Endhaltestelle besser](../img/story-6-line-delay-L2.png)
+![L7 Detail: Kaskadeneffekt über die gesamte Route](../img/story-6-line-delay-L7.png)
+![L8 Detail: Event-Peak-Linie mit strukturellem Akkumulationsmuster](../img/story-6-line-delay-L8.png)
 
 ---
 
@@ -155,6 +174,8 @@ test_rows:      ~29 M (inkl. Nov/Dez 2025 — vorher ausgeschlossen, nach Maskie
 | Stop Mean Baseline | — | 50,0 s | — | Historical stop mean |
 | LightGBM v1 | 34 (Zeit · Wetter · Events · Linie · Stop) | 45,7 s | −4,3 s | Schedule + Weather + Events |
 | LightGBM v2 | 36 (+prev_trip_delay, +stop_sequence_pct) | **18,56 s** | **−31,4 s (−63 %)** | + Live-Signal (Vorgänger-Halt) |
+
+![Model Progression: v2 MAE 18,56s (−63% vs. Baseline 50,0s)](../img/story-7-model-progression.png)
 
 ```
 best_model:     LightGBM v2
