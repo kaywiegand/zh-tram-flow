@@ -40,22 +40,23 @@
   <style>
     /* === Basis === */
     .reveal { font-size: 22px; }
-    .reveal h1 { font-size: 2.4em; color: #1a3a5c; letter-spacing: -0.01em; text-align: left; }
-    .reveal h2 { font-size: 1.4em; color: #1a3a5c; border-bottom: 2px solid #2E86AB; padding-bottom: 6px; margin-bottom: 0.85em; text-align: left; }
-    .reveal h3 { font-size: 1.0em; color: #2E86AB; margin: 0.65em 0 0.25em; text-align: left; }
-    .reveal p, .reveal li { color: #333; line-height: 1.55; text-align: left; }
+    .reveal h1 { font-size: 2.4em; color: #1a3a5c !important; letter-spacing: -0.01em; text-align: left; }
+    .reveal h2 { font-size: 1.4em; color: #1a3a5c !important; border-bottom: 2px solid #2E86AB; padding-bottom: 6px; margin-bottom: 0.85em; text-align: left; }
+    .reveal h3 { font-size: 1.0em; color: #2E86AB !important; margin: 0.65em 0 0.25em; text-align: left; }
+    .reveal p, .reveal li { color: #333 !important; line-height: 1.55; text-align: left; }
     .reveal ul { margin: 0; padding-left: 1em; }
     .reveal li { margin-bottom: 4px; }
-    .reveal strong { color: #1a3a5c; }
+    .reveal strong { color: #1a3a5c !important; }
     .reveal .slide-number { font-size: 0.8em; color: #aaa; right: auto !important; left: 8px !important; bottom: 24px !important; }
     .reveal img { max-width: 100%; border-radius: 5px; }
     .slide-sub { font-size: 0.58em; color: #888; font-weight: 400; }
 
     /* === Title Slides (section dividers + main title) === */
-    .reveal section.title-slide { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-    .title-slide h1 { color: #fff; font-size: 2.6em; letter-spacing: 0.01em; margin-bottom: 0.3em; text-align: center; }
-    .title-slide .sub { color: #b8d8ea; font-size: 1.0em; line-height: 1.8; text-align: center; }
-    .title-slide .meta { color: rgba(255,255,255,0.48); font-size: 0.75em; margin-top: 1.6em; text-align: center; }
+    .reveal section.title-slide { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%) !important; }
+    .reveal .title-slide h1 { color: #fff !important; font-size: 2.6em; letter-spacing: 0.01em; margin-bottom: 0.3em; text-align: center; font-weight: 700 !important; }
+    .reveal .title-slide p { color: #b8d8ea !important; font-size: 1.2em !important; line-height: 1.8; text-align: center; }
+    .reveal .title-slide .sub { color: #b8d8ea !important; font-size: 1.0em; line-height: 1.8; text-align: center; }
+    .reveal .title-slide .meta { color: rgba(255,255,255,0.48); font-size: 0.75em; margin-top: 1.6em; text-align: center; }
 
     /* === Kernthese Slide === */
     .reveal section.thesis-slide { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
@@ -80,11 +81,25 @@
     /* === Metriken === */
     .metric-row { display: flex; gap: 10px; margin: 8px 0; }
     .metric { text-align: center; background: #f5f9fc; border-radius: 8px; padding: 11px 12px; flex: 1; border: 1px solid #d0e8f5; }
-    .metric .val { font-size: 1.8em; font-weight: 700; color: #1a3a5c; line-height: 1.05; }
-    .metric .lbl { font-size: 0.65em; color: #777; margin-top: 4px; }
-    .metric.good .val { color: #27ae60; }
-    .metric.warn .val { color: #e67e22; }
-    .metric.bad  .val { color: #c0392b; }
+    .metric .val { font-size: 1.8em; font-weight: 700; color: #1a3a5c !important; line-height: 1.05; }
+    .metric .lbl { font-size: 0.65em; color: #777 !important; margin-top: 4px; }
+    .metric.good .val { color: #27ae60 !important; font-weight: 700 !important; }
+    .metric.warn .val { color: #e67e22 !important; font-weight: 700 !important; }
+    .metric.bad .val { color: #c0392b !important; font-weight: 700 !important; }
+    .metric.positive .val { color: #27ae60 !important; font-weight: 700 !important; }
+    .metric.negative .val { color: #c0392b !important; font-weight: 700 !important; }
+    .metric.warning .val { color: #e67e22 !important; font-weight: 700 !important; }
+
+    /* === Figures (Metrics in Title Slides) === */
+    .figure .value { font-size: 1.8em !important; font-weight: 700 !important; line-height: 1.05; }
+    .figure .label { font-size: 0.85em !important; line-height: 1.4; }
+    .figure.positive .value { color: #27ae60 !important; }
+    .figure.negative .value { color: #c0392b !important; }
+    .figure.warning .value { color: #e67e22 !important; }
+    .figure.neutral .value { color: #555 !important; }
+    .figure-item.positive .figure-value { color: #27ae60 !important; font-weight: 700 !important; }
+    .figure-item.negative .figure-value { color: #c0392b !important; font-weight: 700 !important; }
+    .figure-item.warning .figure-value { color: #e67e22 !important; font-weight: 700 !important; }
 
     /* === Tabellen === */
     .reveal table { width: 100%; border-collapse: collapse; font-size: 0.82em; margin: 0.3em 0; }
@@ -163,7 +178,7 @@
 <div class="reveal">
 <div class="slides">
 <!-- Chapter: Einstieg -->
-<section><section class="title-slide"><h1>Zurich Tram Flow</h1><p class="subtitle">Von der Frage bis zur Empfehlung</p><p class="subtitle">Data Engineering · EDA · Machine Learning · Dashboard</p><div class="figures">
+<section><section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)"><h1>Zurich Tram Flow</h1><p class="subtitle">Von der Frage bis zur Empfehlung</p><p class="subtitle">Data Engineering · EDA · Machine Learning · Dashboard</p><div class="figures">
 <div class="figure neutral">
 <div class="value">94,4 M</div>
 <div class="label">Halt-Ereignisse</div>

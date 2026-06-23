@@ -36,7 +36,9 @@ def render_content_item(item: Dict[str, Any]) -> str:
             value = fig.get("value", "")
             label = fig.get("label", "")
             sentiment = fig.get("sentiment", "neutral")
-            lines.append(f'<div class="figure {sentiment}">')
+            # Map sentiment to CSS classes for color-coding
+            sentiment_class = sentiment if sentiment in ["positive", "negative", "warning"] else "neutral"
+            lines.append(f'<div class="figure {sentiment_class}">')
             lines.append(f'<div class="value">{value}</div>')
             lines.append(f'<div class="label">{label}</div>')
             lines.append('</div>')
@@ -83,7 +85,9 @@ def render_content_item(item: Dict[str, Any]) -> str:
             value = fig.get("value", "")
             label = fig.get("label", "")
             context = fig.get("context", "")
-            html += f'<div class="figure-item">'
+            sentiment = fig.get("sentiment", "neutral")
+            sentiment_class = sentiment if sentiment in ["positive", "negative", "warning"] else "neutral"
+            html += f'<div class="figure-item {sentiment_class}">'
             html += f'<div class="figure-value">{value}</div>'
             html += f'<div class="figure-label">{label}</div>'
             if context:
@@ -152,8 +156,8 @@ def render_slide(slide: Dict[str, Any]) -> str:
     content = slide.get("content", [])
 
     if role == "title":
-        # Title slide
-        html = f'<section class="title-slide">'
+        # Title slide with gradient background
+        html = f'<section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)">'
         html += f'<h1>{title}</h1>'
         if isinstance(subtitle, list):
             for sub in subtitle:

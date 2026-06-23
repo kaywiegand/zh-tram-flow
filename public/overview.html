@@ -40,22 +40,23 @@
   <style>
     /* === Basis === */
     .reveal { font-size: 22px; }
-    .reveal h1 { font-size: 2.4em; color: #1a3a5c; letter-spacing: -0.01em; text-align: left; }
-    .reveal h2 { font-size: 1.4em; color: #1a3a5c; border-bottom: 2px solid #2E86AB; padding-bottom: 6px; margin-bottom: 0.85em; text-align: left; }
-    .reveal h3 { font-size: 1.0em; color: #2E86AB; margin: 0.65em 0 0.25em; text-align: left; }
-    .reveal p, .reveal li { color: #333; line-height: 1.55; text-align: left; }
+    .reveal h1 { font-size: 2.4em; color: #1a3a5c !important; letter-spacing: -0.01em; text-align: left; }
+    .reveal h2 { font-size: 1.4em; color: #1a3a5c !important; border-bottom: 2px solid #2E86AB; padding-bottom: 6px; margin-bottom: 0.85em; text-align: left; }
+    .reveal h3 { font-size: 1.0em; color: #2E86AB !important; margin: 0.65em 0 0.25em; text-align: left; }
+    .reveal p, .reveal li { color: #333 !important; line-height: 1.55; text-align: left; }
     .reveal ul { margin: 0; padding-left: 1em; }
     .reveal li { margin-bottom: 4px; }
-    .reveal strong { color: #1a3a5c; }
+    .reveal strong { color: #1a3a5c !important; }
     .reveal .slide-number { font-size: 0.8em; color: #aaa; right: auto !important; left: 8px !important; bottom: 24px !important; }
     .reveal img { max-width: 100%; border-radius: 5px; }
     .slide-sub { font-size: 0.58em; color: #888; font-weight: 400; }
 
     /* === Title Slides (section dividers + main title) === */
-    .reveal section.title-slide { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-    .title-slide h1 { color: #fff; font-size: 2.6em; letter-spacing: 0.01em; margin-bottom: 0.3em; text-align: center; }
-    .title-slide .sub { color: #b8d8ea; font-size: 1.0em; line-height: 1.8; text-align: center; }
-    .title-slide .meta { color: rgba(255,255,255,0.48); font-size: 0.75em; margin-top: 1.6em; text-align: center; }
+    .reveal section.title-slide { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%) !important; }
+    .reveal .title-slide h1 { color: #fff !important; font-size: 2.6em; letter-spacing: 0.01em; margin-bottom: 0.3em; text-align: center; font-weight: 700 !important; }
+    .reveal .title-slide p { color: #b8d8ea !important; font-size: 1.2em !important; line-height: 1.8; text-align: center; }
+    .reveal .title-slide .sub { color: #b8d8ea !important; font-size: 1.0em; line-height: 1.8; text-align: center; }
+    .reveal .title-slide .meta { color: rgba(255,255,255,0.48); font-size: 0.75em; margin-top: 1.6em; text-align: center; }
 
     /* === Kernthese Slide === */
     .reveal section.thesis-slide { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
@@ -80,11 +81,25 @@
     /* === Metriken === */
     .metric-row { display: flex; gap: 10px; margin: 8px 0; }
     .metric { text-align: center; background: #f5f9fc; border-radius: 8px; padding: 11px 12px; flex: 1; border: 1px solid #d0e8f5; }
-    .metric .val { font-size: 1.8em; font-weight: 700; color: #1a3a5c; line-height: 1.05; }
-    .metric .lbl { font-size: 0.65em; color: #777; margin-top: 4px; }
-    .metric.good .val { color: #27ae60; }
-    .metric.warn .val { color: #e67e22; }
-    .metric.bad  .val { color: #c0392b; }
+    .metric .val { font-size: 1.8em; font-weight: 700; color: #1a3a5c !important; line-height: 1.05; }
+    .metric .lbl { font-size: 0.65em; color: #777 !important; margin-top: 4px; }
+    .metric.good .val { color: #27ae60 !important; font-weight: 700 !important; }
+    .metric.warn .val { color: #e67e22 !important; font-weight: 700 !important; }
+    .metric.bad .val { color: #c0392b !important; font-weight: 700 !important; }
+    .metric.positive .val { color: #27ae60 !important; font-weight: 700 !important; }
+    .metric.negative .val { color: #c0392b !important; font-weight: 700 !important; }
+    .metric.warning .val { color: #e67e22 !important; font-weight: 700 !important; }
+
+    /* === Figures (Metrics in Title Slides) === */
+    .figure .value { font-size: 1.8em !important; font-weight: 700 !important; line-height: 1.05; }
+    .figure .label { font-size: 0.85em !important; line-height: 1.4; }
+    .figure.positive .value { color: #27ae60 !important; }
+    .figure.negative .value { color: #c0392b !important; }
+    .figure.warning .value { color: #e67e22 !important; }
+    .figure.neutral .value { color: #555 !important; }
+    .figure-item.positive .figure-value { color: #27ae60 !important; font-weight: 700 !important; }
+    .figure-item.negative .figure-value { color: #c0392b !important; font-weight: 700 !important; }
+    .figure-item.warning .figure-value { color: #e67e22 !important; font-weight: 700 !important; }
 
     /* === Tabellen === */
     .reveal table { width: 100%; border-collapse: collapse; font-size: 0.82em; margin: 0.3em 0; }
@@ -163,7 +178,7 @@
 <div class="reveal">
 <div class="slides">
 <!-- Chapter: Einstieg -->
-<section><section class="title-slide"><h1>Zurich Tram Flow</h1><p class="subtitle">Verspätungsvorhersage im Zürcher Tramnetz</p><p class="subtitle">Datengetriebenes Analyse- und ML-Projekt</p><div class="figures">
+<section><section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)"><h1>Zurich Tram Flow</h1><p class="subtitle">Verspätungsvorhersage im Zürcher Tramnetz</p><p class="subtitle">Datengetriebenes Analyse- und ML-Projekt</p><div class="figures">
 <div class="figure neutral">
 <div class="value">94,4 M</div>
 <div class="label">Halt-Ereignisse 2023–2025</div>
@@ -181,10 +196,10 @@
 <div class="label">Vorhersage-MAE LightGBM v2</div>
 </div>
 </div></section><section><h2>Inhalt</h2><p class="subline">Diese Präsentation auf einen Blick</p><ol class="agenda"><li>Die Ausgangssituation</li><li>Die Überraschungen</li><li>Die Erkenntnis</li><li>Das Modell</li><li>Die Handlungsempfehlungen</li><li>Das Resultat</li><li>Der Projektrahmen</li></ol></section></section><!-- Chapter: Ausgangssituation -->
-<section><section><h2>Ausgangssituation</h2><p class="subline">OTP liegt dauerhaft unter dem VBZ-Ziel — das Projekt folgt drei Schritten</p><div class="figures-with-context"><div class="figure-item"><div class="figure-value">87 %</div><div class="figure-label">OTP 2023–2025
-(netzweit)</div><div class="figure-context">Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.</div></div><div class="figure-item"><div class="figure-value">95 %</div><div class="figure-label">VBZ-Ziel
-bis 2028</div><div class="figure-context">VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)</div></div><div class="figure-item"><div class="figure-value">−8 PP</div><div class="figure-label">Strukturelle
-Lücke</div><div class="figure-context">Der Rückstand ist systemisch, nicht episodisch — er taucht in jedem Jahr, auf jeder Linie auf.</div></div><div class="figure-item"><div class="figure-value">56,3 s</div><div class="figure-label">Ø Ankunfts-
+<section><section><h2>Ausgangssituation</h2><p class="subline">OTP liegt dauerhaft unter dem VBZ-Ziel — das Projekt folgt drei Schritten</p><div class="figures-with-context"><div class="figure-item negative"><div class="figure-value">87 %</div><div class="figure-label">OTP 2023–2025
+(netzweit)</div><div class="figure-context">Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.</div></div><div class="figure-item positive"><div class="figure-value">95 %</div><div class="figure-label">VBZ-Ziel
+bis 2028</div><div class="figure-context">VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)</div></div><div class="figure-item negative"><div class="figure-value">−8 PP</div><div class="figure-label">Strukturelle
+Lücke</div><div class="figure-context">Der Rückstand ist systemisch, nicht episodisch — er taucht in jedem Jahr, auf jeder Linie auf.</div></div><div class="figure-item warning"><div class="figure-value">56,3 s</div><div class="figure-label">Ø Ankunfts-
 verspätung</div><div class="figure-context">Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre.</div></div></div><div class="steps"><div class="step"><strong>Schritt 1:</strong> Analyse der Entstehungsmuster und Einflussfaktoren<br><small>Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition</small></div><div class="step"><strong>Schritt 2:</strong> Verspätungen vorhersagen<br><small>Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s, −63 % vs. Baseline</small></div><div class="step"><strong>Schritt 3:</strong> Handlungsempfehlungen<br><small>Was folgt daraus konkret? — 4 Empfehlungen, jede direkt durch Befunde gedeckt</small></div></div></section><section><h2>Ausgangssituation</h2><p class="subline">OTP-Lücke in der Breite: alle 16 Linien, drei Jahre</p><div class="chart-refs"><div class="chart-ref"><div class="chart-label">OTP nach Tramlinien</div><div class="chart-image" data-src="../img/target-otp-per-line"></div><div class="chart-caption">OTP nach Tramlinien, 2023–2025. Alle 16 Linien liegen unter dem 95 %-Ziel.</div></div><div class="chart-ref"><div class="chart-label">OTP Jahresverlauf</div><div class="chart-image" data-src="../img/target-otp"></div><div class="chart-caption">OTP-Jahresverlauf netzweit. Die Lücke zum VBZ-Ziel ist konstant und zeigt keinen Aufwärtstrend.</div></div></div></section></section><!-- Chapter: Überraschungen -->
 <section><section><h2>Die Überraschungen</h2><p class="subline">Drei Annahmen, die die Daten widerlegen</p><div class="contrasts"><div class="contrast"><div class="assumption"><em>Annahme:</em> Die Innenstadt ist der Verspätungs-Hotspot</div><div class="finding"><strong>Befund:</strong> Central (48,3 s) und Paradeplatz (48,2 s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93,8 s, Balgrist 85,2 s</div></div><div class="contrast"><div class="assumption"><em>Annahme:</em> Der Morgenrush ist das grösste Zeitproblem</div><div class="finding"><strong>Befund:</strong> 7h liegt mit 48,9 s unter Netzschnitt. Echter Peak: 21h (67,9 s) durch Abreisewellen nach Veranstaltungen</div></div><div class="contrast"><div class="assumption"><em>Annahme:</em> Schlechtes Wetter ist die Hauptursache</div><div class="finding"><strong>Befund:</strong> Schnee ist ein Verstärker (+54s). Die Grundursache liegt im Fahrplan-Design, wetterunabhängig und netzweit messbar</div></div></div></section><section><h2>Die Überraschungen</h2><p class="subline">Hotspots an der Peripherie, Peak am Abend</p><div class="chart-refs"><div class="chart-ref"><div class="chart-label">Verspätungshotspots</div><div class="chart-image" data-src="../img/spatial-stop-delay-map"></div><div class="chart-caption">Ø Ankunftsverspätung pro Haltestelle. Hotspots ausschliesslich in den peripheren Stadtkreisen 7, 11 und 12.</div></div><div class="chart-ref"><div class="chart-label">Delay nach Tageszeit</div><div class="chart-image" data-src="../img/temporal-hour-of-day"></div><div class="chart-caption">Ø Delay nach Tageszeit. Peak 21h, nicht am Morgen. Abend-Effekt durch Veranstaltungs-Abreisewellen.</div></div></div></section></section><!-- Chapter: Erkenntnis -->
 <section><section><h2>Die Erkenntnis</h2><p class="subline">Kein Puffer im Fahrplan, die Verspätung kaskadiert</p><div class="figures">
@@ -231,7 +246,7 @@ verspätung</div><div class="figure-context">Jede achte Tramfahrt überschreitet
 </div>
 </div></section></section><!-- Chapter: Projektrahmen -->
 <section><section><h2>Der Projektrahmen</h2><p class="subline">Open Data, reproduzierbar und vollständig dokumentiert</p><div class="sections"><div class="section"><strong>Datenbasis</strong><ul><li>VBZ IST-Daten: reale Ankunfts- und Abfahrtszeiten aller Tramhalte</li><li>GTFS: Fahrplandaten, Haltestellen-Koordinaten, Liniengeometrien</li><li>Meteo Schweiz: stündliche Messwerte (Temperatur, Niederschlag, Schnee)</li><li>Event-Kalender: Grossveranstaltungen Zürich 2023–2025</li><li>Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet</li></ul></div><div class="section"><strong>Umfang und Zeitaufwand</strong><ul><li>Zeitraum: 3 vollständige Betriebsjahre (2023, 2024, 2025)</li><li>16 Tramlinien, ca. 190 Haltestellen im Netz</li><li>66 dokumentierte Analyse-Befunde in 12 Notebooks</li><li>Ca. 3 Wochen: 1 Woche Data Engineering, 2 Wochen Analyse und Modellierung</li></ul></div><div class="section"><strong>Technologie-Stack</strong><ul><li>Python · Polars (85 Mio. Zeilen, lazy evaluation) · Jupyter · uv</li><li>LightGBM (Modellierung) · Plotly (Visualisierung) · Streamlit (Dashboard)</li><li>Trainingszeit LightGBM v2: ca. 18 Minuten auf Consumer-Hardware</li></ul></div><div class="section"><strong>Reproduzierbarkeit</strong><ul><li>Vollständiger Code auf GitHub veröffentlicht</li><li>Data Engineering vollständig reproduzierbar via Polars-Pipeline</li><li>Alle Datenquellen öffentlich: VBZ Open Data · Meteo Schweiz · GTFS</li><li>12 Jupyter-Notebooks, vollständig ausgeführt und dokumentiert</li><li>Alle Befunde rückverfolgbar auf Finding-IDs in den Notebooks</li></ul></div></div></section></section><!-- Chapter: Ende -->
-<section><section class="title-slide"><h1>Zurich Tram Flow</h1><p class="subtitle">Verspätungsvorhersage im Zürcher Tramnetz</p><p class="subtitle">Datengetriebenes Analyse- und ML-Projekt</p><div class="figures">
+<section><section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)"><h1>Zurich Tram Flow</h1><p class="subtitle">Verspätungsvorhersage im Zürcher Tramnetz</p><p class="subtitle">Datengetriebenes Analyse- und ML-Projekt</p><div class="figures">
 <div class="figure neutral">
 <div class="value">94,4 M</div>
 <div class="label">Halt-Ereignisse 2023–2025</div>
