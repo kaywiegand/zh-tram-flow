@@ -86,19 +86,16 @@ def get_line_profile(
     if len(route_stops) == 0:
         raise ValueError(f"Keine Halte gefunden für L{line_name} Richtung {direction_id}")
 
-    # Sort nach stop_sequence (aufsteigend für Richtung 0, absteigend für Richtung 1)
-    if direction_id == 1:
-        route_stops = route_stops.sort(pl.coalesce("stop_sequence", pl.lit(9999)), descending=True)
-    else:
-        route_stops = route_stops.sort(pl.coalesce("stop_sequence", pl.lit(9999)), descending=False)
+    # Daten aus route_profile_by_direction.parquet sind bereits geografisch geordnet
+    # Keine zusätzliche Sortierung nötig
 
     # Konvertiere zu Pandas (für Dashboard-Kompatibilität)
-    stops_df = route_stops.select([
-        "stop_sequence",
-        "stop_name",
-        "lat",
-        "lon",
-    ]).to_pandas()
+    # Wähle nur verfügbare Spalten — stop_sequence ist optional
+    available_cols = ["stop_name", "lat", "lon"]
+    if "stop_sequence" in route_stops.columns:
+        available_cols.insert(0, "stop_sequence")
+
+    stops_df = route_stops.select(available_cols).to_pandas()
 
     # Join mit stop_df für Metriken (mean_delay, otp_pct, n_obs)
     stop_metrics = stop_df.select([
@@ -186,21 +183,19 @@ def get_direction_choices(
     choices = []
     for dir_id in sorted(directions["direction_id"].unique()):
         # Finde Start und End Stop für diese Richtung
-        dir_df = directions[directions["direction_id"] == dir_id].copy()
+        dir_id_int = int(dir_id)  # Ensure Python int, not numpy type
         dir_df_sorted = route_dir_df.filter(
             (pl.col("line_name").cast(pl.String) == str(line_name)) &
-            (pl.col("direction_id") == int(dir_id))
-        ).sort(
-            pl.coalesce("stop_sequence", pl.lit(9999)),
-            descending=(dir_id == 1)
+            (pl.col("direction_id") == dir_id_int)
         ).to_pandas()
 
         if len(dir_df_sorted) > 0:
+            # Daten sind bereits in geografischer Reihenfolge aus precompute.py
             start_stop = dir_df_sorted["stop_name"].iloc[0].replace("Zürich, ", "")
             end_stop = dir_df_sorted["stop_name"].iloc[-1].replace("Zürich, ", "")
-            dir_letter = chr(65 + int(dir_id))
+            dir_letter = chr(65 + int(dir_id_int))
             label = f"Richtung {dir_letter}: {start_stop} → {end_stop}"
-            choices.append((int(dir_id), label))
+            choices.append((int(dir_id_int), label))
 
     return choices
 
@@ -233,13 +228,13 @@ def _load_shape_geometry(line_name: str, direction_id: int = 0, year: str = "202
         .group_by("shape_id")
         .agg(pl.len().alias("n_trips"))
         .sort("n_trips", descending=True)
-        .first()
+        .head(1)
     )
 
-    if dominant is None:
+    if len(dominant) == 0:
         return pd.DataFrame(columns=["lat", "lon"])
 
-    shape_id = dominant["shape_id"].item()
+    shape_id = dominant["shape_id"][0]
 
     return (
         shapes
