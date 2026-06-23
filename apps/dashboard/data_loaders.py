@@ -115,6 +115,9 @@ def get_line_profile(
     # n_obs aus dem Datensatz — wird nicht mehr verwendet, aber keep für Compatibility
     stops_df["n_obs"] = len(stops_df)
 
+    # Erstelle stop_short für Dashboard-Kompatibilität (entfernt "Zürich, " Prefix)
+    stops_df["stop_short"] = stops_df["stop_name"].str.replace(r"Zürich, ?", "", regex=True)
+
     # ─────────────────────────────────────────────────────────────────
     # 2. Lade Shape-Geometrie (für Karte) — GTFS
     # ─────────────────────────────────────────────────────────────────
