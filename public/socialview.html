@@ -162,12 +162,61 @@
 <body>
 <div class="reveal">
 <div class="slides">
-
-<!-- ══════════════════════════════════════
-     SLIDE CONTENT HERE
-     See: /Users/kaywiegand/Workspace/docs/portfolio/templates/portfolio_summary_template.md
-     for the data structure that drives this presentation.
-══════════════════════════════════════ -->
+<!-- Chapter: Einstieg -->
+<section><section class="title-slide"><h1>Zurich Tram Flow</h1><p class="subtitle">Predictive Analytics für das Zürcher Tramnetz</p><p class="subtitle">94,4 M Halt-Ereignisse · −63 % MAE · Vier Handlungsfelder</p><div class="figures">
+<div class="figure neutral">
+<div class="value">94,4 M</div>
+<div class="label">Halt-Ereignisse 2023–2025</div>
+</div>
+<div class="figure negative">
+<div class="value">87 %</div>
+<div class="label">OTP Status Quo vs. 95 % Ziel</div>
+</div>
+<div class="figure positive">
+<div class="value">18,56 s</div>
+<div class="label">LightGBM MAE Vorhersagegenauigkeit</div>
+</div>
+<div class="figure positive">
+<div class="value">−63 %</div>
+<div class="label">Verbesserung vs. Baseline</div>
+</div>
+</div></section></section><!-- Chapter: Ausgangssituation -->
+<section><section><h2>Ausgangssituation</h2><p class="subline">OTP 87 %, Ziel 95 % — Verstehen, dann Vorhersagen</p><div class="figures">
+<div class="figure negative">
+<div class="value">87 %</div>
+<div class="label">OTP Status Quo</div>
+</div>
+<div class="figure positive">
+<div class="value">95 %</div>
+<div class="label">VBZ-Ziel bis 2028</div>
+</div>
+<div class="figure positive">
+<div class="value">18,56 s</div>
+<div class="label">Vorhersage-MAE</div>
+</div>
+<div class="figure positive">
+<div class="value">−63 %</div>
+<div class="label">vs. naive Baseline</div>
+</div>
+</div><div class="steps"><div class="step"><strong>Schritt 1:</strong> Analyse der Entstehungsmuster und Einflussfaktoren<br><small>Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition</small></div><div class="step"><strong>Schritt 2:</strong> Verspätungen vorhersagen<br><small>LightGBM, MAE 18,56 s — −63 % gegenüber naiver Baseline</small></div></div></section></section><!-- Chapter: Drei Kernbefunde -->
+<section><section><h2>Drei Kernbefunde</h2><p class="subline">Was die Daten zeigen</p><div class="sections"><div class="section"><strong>✓ Kaskadeneffekt: Verspätungen breiten sich aus</strong><ul><li>Halt n+1 verzögert sich proportional zu Halt n</li><li>Pearson r ≥ 0,85 über alle 16 Linien — nicht Zufall</li><li>Bedeutung: Wenn wir die Kette unterbrechen, stabilisiert sich das Gesamtsystem</li></ul></div><div class="section"><strong>✓ Das System hat keinen Puffer eingebaut</strong><ul><li>71,3 % aller Halte haben dwell_time = 0s — keine Möglichkeit zur Selbstkorrektur</li><li>Linie 11 an Koppelstellen am stärksten betroffen</li><li>Bedeutung: Fahrplan-Design ist die Ursache — und damit der Hebel</li></ul></div><div class="section"><strong>✓ Verspätungen entstehen systematisch an der Peripherie — nicht im Zentrum</strong><ul><li>Hotspots konzentrieren sich auf Kreise 11 & 12 — Schwamendingen, Oerlikon, Altstetten</li><li>Central und Paradeplatz performen gut — die Lücke ist geografisch klar abgegrenzt</li><li>Bedeutung: Gezielte Eingriffe sind möglich — das Problem ist lokalisierbar</li></ul></div></div></section></section><!-- Chapter: Die Datenbasis -->
+<section><section><h2>Die Datenbasis</h2><p class="subline">94,4 Millionen Halt-Ereignisse, vier Datenquellen, ein konsistentes Dataset</p><div class="sections"><div class="section"><strong>VBZ IST-Daten</strong><ul><li>Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025</li><li>Trip × Stop × Zeitstempel Granularität</li></ul></div><div class="section"><strong>GTFS Fahrplan</strong><ul><li>Geplante Zeiten, dwell_time, stop_sequence</li><li>Ermöglicht arrival_delay = IST − SOLL Berechnung</li></ul></div><div class="section"><strong>Meteo Schweiz</strong><ul><li>Stündliche Messwerte: Temperatur, Niederschlag, Wind</li><li>Flags: has_rain, has_heavy_rain, is_hot</li></ul></div><div class="section"><strong>Event-Kalender</strong><ul><li>Großveranstaltungen, Feiertage, Messen 2023–2025</li><li>Kategorisiert nach Typ und Größe</li></ul></div></div></section><section><h2>Dataset-Metriken</h2><div class="figures">
+<div class="figure neutral">
+<div class="value">94,4 M</div>
+<div class="label">Halt-Ereignisse</div>
+</div>
+<div class="figure neutral">
+<div class="value">36</div>
+<div class="label">Features (LightGBM v2)</div>
+</div>
+<div class="figure neutral">
+<div class="value">541 MB</div>
+<div class="label">Parquet (komprimiert)</div>
+</div>
+</div></section></section><!-- Chapter: Vier Empfehlungen -->
+<section><section><h2>Vier Empfehlungen</h2><p class="subline">Direkt durch Analyse und Modell begründet</p><div class="sections"><div class="section"><strong>R1 · Fahrplan-Design [Priorität 1]</strong><ul><li>Standzeit-Puffer L11 an Koppelstellen</li><li>dwell_time = 0s ist Root Cause</li><li>+10s Puffer unterbricht Feedback-Loop</li></ul></div><div class="section"><strong>R2 · Real-Time Dispatch [Priorität 1]</strong><ul><li>prev_trip_delay als Echtzeit-Signal nutzen</li><li>LightGBM v2 Inferenz: Millisekunden</li><li>MAE 18,56 s nachgewiesen</li></ul></div><div class="section"><strong>R3 · Kapazitätsplanung [Priorität 2]</strong><ul><li>Taktanpassung 20–22 Uhr</li><li>hour = 21 stärkstes Temporal-Feature</li><li>L11 & L8 zeigen erhöhtes Delay</li></ul></div><div class="section"><strong>R4 · Monitoring [Priorität 2]</strong><ul><li>OTP-Fokus Kreise 11 & 12</li><li>Höchste Delay-Level, niedrigste OTP</li><li>Kombination mit Modell für Prognose</li></ul></div></div></section></section><!-- Chapter: Technologie & Robustheit -->
+<section><section><h2>Technologie & Robustheit</h2><p class="subline">Keine Black-Box — interpretierbar, reproduzierbar, produktionsreif</p><div class="sections"><div class="section"><strong>Algorithmus</strong><ul><li>LightGBM Gradient Boosting</li><li>5× schneller als XGBoost, native Kategoricals</li><li>Feature Importance direkt interpretierbar</li></ul></div><div class="section"><strong>Aufteilung</strong><ul><li>Temporal Split (kein Shuffle)</li><li>Train 2023–Jun 2024 · Val Jul–Dez 2024 · Test 2025</li><li>Zukunft darf Vergangenheit nicht kennen — verhindert Data Leakage</li></ul></div><div class="section"><strong>Validierung</strong><ul><li>18,56 s MAE auf ~29M Test-Fahrten (ein ganzes Jahr)</li><li>XGBoost-Vergleich bestätigt Robustheit</li><li>Isotonic Regression Kalibrierung senkt MBE von +8,3 s auf −0,69 s</li></ul></div></div></section></section><!-- Chapter: Abschluss -->
+<section><section><h2>Portfolio-Wert</h2><p class="subline">Warum dieses Projekt zählt</p><p><em>Unknown content type: text</em></p><div class="sections"><div class="section"><strong></strong><ul><li>Echtem Problem: Verspätungen im öffentlichen Verkehr, strukturelles Defizit, klarer Business Case</li><li>Echten Daten: 94,4 M Zeilen, vier Quellen, temporale Struktur</li><li>Echtem Impact: Vier Handlungsfelder direkt aus der Analyse</li><li>Echtem Workflow: Exploration → Hypothesen → Feature Engineering → Modellierung → Validierung → Handlung</li></ul></div></div></section><section><h2>Das Fazit</h2><blockquote class="statement">Ich habe ein ML-Projekt von Grund auf gebaut — mit echten Stakeholder-Fragen, echter Datenqualitäts-Arbeit, echter Produktion. Die Kaskadenentdeckung war das, was alles transformiert hat. Das ist nicht der Algorithmus — das ist die Arbeit davor.</blockquote></section></section>
 
 <!--
 SLIDE TYPES REFERENCE:

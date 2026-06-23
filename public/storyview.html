@@ -162,12 +162,130 @@
 <body>
 <div class="reveal">
 <div class="slides">
-
-<!-- ══════════════════════════════════════
-     SLIDE CONTENT HERE
-     See: /Users/kaywiegand/Workspace/docs/portfolio/templates/portfolio_summary_template.md
-     for the data structure that drives this presentation.
-══════════════════════════════════════ -->
+<!-- Chapter: Einstieg -->
+<section><section class="title-slide"><h1>Zurich Tram Flow</h1><p class="subtitle">Von der Frage bis zur Empfehlung</p><p class="subtitle">Data Engineering · EDA · Machine Learning · Dashboard</p><div class="figures">
+<div class="figure neutral">
+<div class="value">94,4 M</div>
+<div class="label">Halt-Ereignisse</div>
+</div>
+<div class="figure negative">
+<div class="value">87 %</div>
+<div class="label">OTP heute · Ziel: 95 %</div>
+</div>
+<div class="figure positive">
+<div class="value">18,56 s</div>
+<div class="label">MAE LightGBM v2</div>
+</div>
+<div class="figure positive">
+<div class="value">−63 %</div>
+<div class="label">vs. Baseline</div>
+</div>
+</div></section><section><h2>Die These</h2><p class="subline">Ein Satz, der das gesamte Projekt trägt</p><blockquote class="statement">Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.</blockquote><blockquote class="statement">Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.</blockquote></section><section><h2>Inhalt</h2><p class="subline">Sieben Kapitel, ein durchgehender Datenpfad</p><ol class="agenda"><li>Ausgangssituation</li><li>Data Engineering</li><li>Exploration</li><li>Die Erkenntnis</li><li>Machine Learning</li><li>Die Handlungsempfehlungen</li><li>Projektrahmen und Workflow</li></ol></section></section><!-- Chapter: Ausgangssituation -->
+<section><section><h2>Ausgangssituation</h2><p class="subline">OTP 87 %, Ziel 95 % — das Projekt folgt einer sequenziellen Logik</p><div class="figures">
+<div class="figure negative">
+<div class="value">87 %</div>
+<div class="label">OTP netzweit 2023–2025</div>
+</div>
+<div class="figure positive">
+<div class="value">95 %</div>
+<div class="label">VBZ-Ziel bis 2028</div>
+</div>
+<div class="figure negative">
+<div class="value">−8 PP</div>
+<div class="label">Strukturelle Lücke</div>
+</div>
+<div class="figure warning">
+<div class="value">56,3 s</div>
+<div class="label">Ø Ankunftsverspätung</div>
+</div>
+</div><div class="steps"><div class="step"><strong>Schritt 1:</strong> Analyse der Entstehungsmuster und Einflussfaktoren<br><small>Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition</small></div><div class="step"><strong>Schritt 2:</strong> Verspätungen vorhersagen<br><small>Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s, −63 % vs. Baseline</small></div></div></section></section><!-- Chapter: Data Engineering -->
+<section><section><h2>Data Engineering</h2><p class="subline">Vier Quellen, ein reproduzierbarer Pipeline</p><div class="sections"><div class="section"><strong>Primärquelle: VBZ IST-Daten</strong><ul><li>Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025</li><li>Granularität: jede Fahrt, jede Haltestelle, jeder Zeitstempel</li><li>94,4 Mio. Zeilen — verarbeitet mit Polars (lazy evaluation)</li></ul></div><div class="section"><strong>Fahrplandaten: GTFS</strong><ul><li>Geplante Zeiten, dwell_time, stop_sequence, Liniengeometrien</li><li>Ermöglicht Berechnung von arrival_delay = IST − SOLL</li></ul></div><div class="section"><strong>Wetterdaten: Meteo Schweiz</strong><ul><li>Stündliche Messwerte: Temperatur, Niederschlag, Windgeschwindigkeit</li><li>Flags: has_rain, has_snow, is_hot — für Modell und EDA</li></ul></div><div class="section"><strong>Event-Kalender</strong><ul><li>Grossveranstaltungen Zürich 2023–2025: Konzerte, Messen, Sport, Feiertage</li><li>Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet</li></ul></div></div></section><section><h2>Data Engineering</h2><p class="subline">Cleaning als Forschungsentscheidung, nicht als Routine</p><div class="contrasts"><div class="contrast"><div class="assumption"><em>Annahme:</em> Canceled-Fahrten entfernen</div><div class="finding"><strong>Befund:</strong> Bewusst behalten: canceled = True Fahrten sind Extremfälle, die das Modell kennen muss. Entfernen würde die Realität des Netzes verfälschen.</div></div><div class="contrast"><div class="assumption"><em>Annahme:</em> Shuffle-Split für mehr Trainingsdaten</div><div class="finding"><strong>Befund:</strong> Temporal Split (kein Shuffle): Train 2023–Jun 2024 / Val Jul–Dez 2024 / Test 2025. Data Leakage wäre sonst unvermeidbar.</div></div><div class="contrast"><div class="assumption"><em>Annahme:</em> Haltestellen über One-Hot Encoding</div><div class="finding"><strong>Befund:</strong> Native Categoricals in LightGBM: stop_name, line_name, event_type direkt als Kategorie. Kein Dimensionsproblem, schnelleres Training.</div></div></div></section></section><!-- Chapter: Exploration -->
+<section><section><h2>Exploration</h2><p class="subline">Drei Überraschungen und ein Muster</p><div class="contrasts"><div class="contrast"><div class="assumption"><em>Annahme:</em> Die Innenstadt ist der Hotspot</div><div class="finding"><strong>Befund:</strong> Central (48,3 s) und Paradeplatz (48,2 s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93,8 s, Balgrist 85,2 s — periphere Aussenkorridore</div></div><div class="contrast"><div class="assumption"><em>Annahme:</em> Der Morgenrush ist das Problem</div><div class="finding"><strong>Befund:</strong> 7h: 48,9 s unter Netzschnitt. Echter Peak: 21h (67,9 s) durch Abreisewellen nach Veranstaltungen. Donnerstag ist der schlechteste Wochentag.</div></div><div class="contrast"><div class="assumption"><em>Annahme:</em> Wetter ist die Hauptursache</div><div class="finding"><strong>Befund:</strong> Schnee: +54s, Regen: +23,3 s. Geografisch trennbar: Schnee trifft Höhenlagen (K10/K12), Regen Flusstäler (K5). Grundrauschen bleibt wetterunabhängig.</div></div></div></section><section><h2>Exploration</h2><p class="subline">Hotspots an der Peripherie, Peak am Abend</p><div class="chart-refs"><div class="chart-ref"><div class="chart-label">Verspätungshotspots nach Haltestelle</div><div class="chart-image" data-src="../img/spatial-stop-delay-map"></div><div class="chart-caption">Ø Ankunftsverspätung pro Haltestelle. Hotspots ausschliesslich in peripheren Stadtkreisen 7, 11 und 12. Null Überschneidung mit höchster Liniendichte.</div></div><div class="chart-ref"><div class="chart-label">Delay nach Tageszeit</div><div class="chart-image" data-src="../img/temporal-hour-of-day"></div><div class="chart-caption">Ø Delay nach Tageszeit (0–23h). Peak 21h, nicht 7h. Abend-Effekt durch Veranstaltungs-Abreisewellen.</div></div></div></section><section><h2>Exploration</h2><p class="subline">Wetter: Schnee und Regen treffen unterschiedliche Stadtteile</p><div class="figures">
+<div class="figure negative">
+<div class="value">+54s</div>
+<div class="label">Schnee-Effekt netzweit</div>
+</div>
+<div class="figure warning">
+<div class="value">+23,3 s</div>
+<div class="label">Regen-Effekt netzweit</div>
+</div>
+<div class="figure positive">
+<div class="value">−9,9 s</div>
+<div class="label">Feiertage vs. Normal</div>
+</div>
+<div class="figure negative">
+<div class="value">66,0 s</div>
+<div class="label">Fachmessen (schlechteste Event-Kategorie)</div>
+</div>
+</div><blockquote class="statement">Feiertage sind der beste Tagestyp: −9,9 s vs. Normal. Der MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied.</blockquote></section></section><!-- Chapter: Erkenntnis -->
+<section><section><h2>Die Erkenntnis</h2><p class="subline">Kein Puffer im Fahrplan, die Verspätung kaskadiert — in vier Schritten bewiesen</p><div class="figures">
+<div class="figure warning">
+<div class="value">71,5 %</div>
+<div class="label">Halte akkumulieren Delay</div>
+</div>
+<div class="figure negative">
+<div class="value">L11</div>
+<div class="label">68,7 s · OTP 82 %, stärkste Akkumulation</div>
+</div>
+<div class="figure warning">
+<div class="value">71,3 %</div>
+<div class="label">Haltestellen ohne Standzeit (0s)</div>
+</div>
+<div class="figure negative">
+<div class="value">r ≥ 0,85</div>
+<div class="label">Kaskadenkorrelation alle 16 Linien</div>
+</div>
+</div><p><em>Unknown content type: sequence</em></p></section></section><!-- Chapter: Machine Learning -->
+<section><section><h2>Machine Learning</h2><p class="subline">Ziel: arrival_delay in Sekunden — direkt kommunizierbar, kein Schwellwert-Bias</p><blockquote class="statement">Warum ML? Weil die Struktur der Daten nichtlinear ist: Linie × Haltestelle × Tageszeit × Wetter × Event interagieren auf eine Weise, die kein handcodiertes Modell erfassen kann. Und weil prev_trip_delay ein Echtzeit-Signal ist, das einen Feedback-Loop im Modell ermöglicht.</blockquote><p><em>Unknown content type: comparison_table</em></p></section><section><h2>Machine Learning</h2><p class="subline">Der Kaskadenindikator erklärt den Sprung von v1 auf v2</p><div class="figures">
+<div class="figure neutral">
+<div class="value">41 Mio.</div>
+<div class="label">Trainings-Fahrten 2023–Jun 2024</div>
+</div>
+<div class="figure neutral">
+<div class="value">~29 Mio.</div>
+<div class="label">Test-Fahrten vollständiges Jahr 2025</div>
+</div>
+<div class="figure positive">
+<div class="value">−0,69 s</div>
+<div class="label">MBE nach Isotonic-Regression-Kalibrierung</div>
+</div>
+</div><blockquote class="statement">prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45,7 s auf 18,56 s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt.</blockquote></section><section><h2>Machine Learning</h2><p class="subline">Feature Importance bestätigt die Kaskadenthese</p><div class="chart-refs"><div class="chart-ref"><div class="chart-label">Feature Importance LightGBM v2</div><div class="chart-image" data-src="../img/model-feature-importance"></div><div class="chart-caption">Feature Importance (Gain). prev_trip_delay dominiert deutlich. stop_sequence_pct als zweites neues Feature zeigt starken Beitrag. Temporale und Wetter-Features konsistent, aber schwächer.</div></div></div></section><section><h2>Machine Learning</h2><p class="subline">Das Modell in konkreten Szenarien</p><blockquote class="statement">Das Modell kombiniert 36 Features zu einer konkreten Sekundenvorhersage. Drei Beispiele aus echten Betriebssituationen:</blockquote><p><em>Unknown content type: scenarios</em></p></section></section><!-- Chapter: Empfehlungen -->
+<section><section><h2>Die Handlungsempfehlungen</h2><p class="subline">Vier Empfehlungen, direkt durch Befunde gedeckt</p><p><em>Unknown content type: recommendations</em></p></section></section><!-- Chapter: Projektrahmen -->
+<section><section><h2>Der Projektrahmen</h2><p class="subline">Open Data, AI-Workflow, vollständig reproduzierbar</p><div class="sections"><div class="section"><strong>Datenbasis und Umfang</strong><ul><li>VBZ IST-Daten · GTFS · Meteo Schweiz · Event-Kalender</li><li>94,4 Mio. Zeilen · 26 Features · 541 MB Parquet</li><li>3 vollständige Betriebsjahre · 16 Linien · ca. 190 Haltestellen</li><li>66 dokumentierte Befunde in 12 Jupyter-Notebooks</li></ul></div><div class="section"><strong>Technologie-Stack</strong><ul><li>Python · Polars (85 Mio. Zeilen, lazy evaluation) · Jupyter · uv</li><li>LightGBM (Modellierung) · Plotly (Visualisierung) · Streamlit (Dashboard)</li><li>Trainingszeit LightGBM v2: ca. 18 Minuten auf Consumer-Hardware</li></ul></div><div class="section"><strong>AI-Workflow als Differenziator</strong><ul><li>Claude Code für iterative Analyse, Code-Refactoring, Dokumentation</li><li>Promptbasiertes Scaffolding: von der Idee zur Notebook-Struktur in Minuten</li><li>Menschliche Entscheidungsverantwortung bleibt bei allen Finding-Interpretationen</li></ul></div><div class="section"><strong>Reproduzierbarkeit</strong><ul><li>Vollständiger Code auf GitHub, alle Datenquellen öffentlich</li><li>Data Engineering vollständig reproduzierbar via Polars-Pipeline</li><li>Alle Befunde rückverfolgbar auf Finding-IDs in den Notebooks</li></ul></div></div></section><section><h2>Was vorhersagbar ist, ist steuerbar.</h2><p class="subline">Ein Projekt, das zeigt: Datengetriebene Analyse ist kein akademisches Artefakt — sie liefert operative Entscheidungsgrundlagen.</p><p><em>Unknown content type: tools</em></p><div class="figures">
+<div class="figure negative">
+<div class="value">87 %</div>
+<div class="label">OTP heute</div>
+</div>
+<div class="figure positive">
+<div class="value">95 %</div>
+<div class="label">VBZ-Ziel 2028</div>
+</div>
+</div></section><section></section><section><h2>Zurich Tram Flow</h2><p class="subline">Kay Wiegand · 2023–2025</p><div class="figures">
+<div class="figure neutral">
+<div class="value">94,4 M</div>
+<div class="label">Halt-Ereignisse</div>
+</div>
+<div class="figure neutral">
+<div class="value">16</div>
+<div class="label">Tramlinien</div>
+</div>
+<div class="figure neutral">
+<div class="value">66</div>
+<div class="label">Befunde</div>
+</div>
+<div class="figure neutral">
+<div class="value">12</div>
+<div class="label">Notebooks</div>
+</div>
+<div class="figure positive">
+<div class="value">18,56 s</div>
+<div class="label">MAE · LightGBM v2</div>
+</div>
+<div class="figure positive">
+<div class="value">−63 %</div>
+<div class="label">vs. Baseline</div>
+</div>
+</div><p><em>Unknown content type: links</em></p></section></section>
 
 <!--
 SLIDE TYPES REFERENCE:
