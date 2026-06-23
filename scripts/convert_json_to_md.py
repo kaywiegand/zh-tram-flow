@@ -225,7 +225,6 @@ def main():
         ("overview", "overview.md"),
         ("storyview", "storyview.md"),
         ("techview", "techview.md"),
-        ("socialview", "socialview.md"),
     ]
 
     for json_name, md_name in files:

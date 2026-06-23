@@ -295,5 +295,6 @@ generated_at:    2026-06-19
 summary_version: 2 (mechanisiert mit View-Markern + Research Opportunities)
 portfolio_check: ✅ complete (alle Findings, Recommendations, Research Opportunities dokumentiert)
 report_html:     ✅ mechanisiert (aus portfolio.md generiert)
-slides_html:     ✅ mechanisiert (4 Views: overview, storyview, techview, socialview)
+slides_html:     ✅ mechanisiert (3 Views: overview, storyview, techview)
+index_html:      ✅ One-Pager Landingpage (Hub + Social-Media-ready)
 ```

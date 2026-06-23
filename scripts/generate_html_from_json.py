@@ -249,7 +249,7 @@ def main():
         print(f"✅ Loaded template: {template_path}")
 
     # Generate HTML for each view
-    views = ["overview", "storyview", "techview", "socialview"]
+    views = ["overview", "storyview", "techview"]
 
     for view in views:
         json_path = json_dir / f"storyline-{view}.json"

@@ -193,7 +193,6 @@ def main():
         ("overview", "A"),
         ("storyview", "C"),
         ("techview", "B"),
-        ("socialview", "D"),
     ]
 
     for view_name, storyline_id in views:
