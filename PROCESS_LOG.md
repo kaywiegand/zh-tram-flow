@@ -875,6 +875,40 @@ Die bisherige Kernthese enthielt einen angreifbaren Claim ("das Geld wurde an de
 
 ---
 
+### 2026-06-23 — Dashboard Phase 5: "Linie erkunden" Konsistenz-Fix
+
+**Kontext:** Finalisierung des Streamlit-Dashboards Phase 5. Das "Linie erkunden"-View hatte **Inkonsistenzen**: 4 Komponenten (Balkendiagramm, Top-5-Tabelle, Karte, Richtungs-Labels) nutzten unterschiedliche Datenquellen, insbesondere die Karte mit hart codiertem `direction_id==1`.
+
+**Was wurde gemacht:**
+
+1. **`apps/dashboard/data_loaders.py`** neu erstellt — **Single Source of Truth**:
+   - `get_line_profile(line_name, direction_id, route_dir_df, stop_df)` — zentrale Funktion, liefert konsistent:
+     - `stops`: pd.DataFrame mit stop_sequence, stop_name, lat, lon, mean_delay, otp_pct, dwell_time_median, n_obs
+     - `shape_geom`: GTFS-Geometrie (lat/lon) sortiert nach shape_pt_sequence
+     - `direction_label`: dynamisch "Richtung A/B: Start → End"
+   - `get_direction_choices(line_name)` — nutzt die gleiche Quelle, liefert [(dir_id, label), ...]
+   - `_load_shape_geometry()` — richtungs-spezifisch (behebt das hart-codiert-Problem)
+
+2. **`apps/dashboard/app.py`** rewrite — "Linie erkunden" View (Zeile 513+):
+   - Ersetze manuelle Direction-Label-Generierung mit `get_direction_choices()` (DRY-Prinzip)
+   - Ersetze separate `route_for_line_and_direction()` + `load_gtfs_shapes()` Aufrufe mit **ein** `profile = get_line_profile()`
+   - **Alle 4 Komponenten nutzen jetzt die gleiche Datenbasis**: Balkendiagramm, Top-5-Tabelle, Karte, Labels
+   - `plot_line_map_with_geometry()` erweitert um `shape_geom` Parameter (optional, fallback zu load_gtfs_shapes für Backward-Compat)
+   - Imports via `sys.path.insert()` für Streamlit-Kontext
+
+3. **Funktionale Tests**:
+   - ✅ `data_loaders.py` Import funktioniert
+   - ✅ Streamlit Dashboard startet ohne Fehler
+   - ✅ Keine Warnings beim Start
+
+**Technische Entscheidung — Spalten-Namen:**
+- `route_profile_by_direction.parquet` hat native Spalten `lat`, `lon` (nicht `stop_lat`, `stop_lon`)
+- Konsistent in `stops_df` und `shape_geom` DataFrame beide `lat`/`lon` für uniformes Handling in Karte + Tabelle
+
+**Nächster Schritt:** User testet Dashboard in Browser — stellt sicher dass Richtungs-Toggle bei "Linie erkunden" konsistent ist (alle 3 Komponenten reagieren gleich)
+
+---
+
 ### 2026-05-28 — Neue Prediction-Notebooks: v2 + Modellvergleich
 
 **Was wurde gemacht:**

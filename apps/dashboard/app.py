@@ -16,6 +16,12 @@ import plotly.graph_objects as go
 import polars as pl
 import streamlit as st
 import numpy as np
+import sys
+from pathlib import Path
+
+# Streamlit lädt vom apps/dashboard/-Verzeichnis, also path anpassen
+sys.path.insert(0, str(Path(__file__).parent))
+from data_loaders import get_line_profile, get_direction_choices
 
 # ─── Pfade ────────────────────────────────────────────────────────────────────
 
@@ -212,21 +218,25 @@ def filter_route_for_display(route: pd.DataFrame, threshold_pct: float = 0.05) -
     max_n = route["n_obs"].max()
     return route[route["n_obs"] >= max_n * threshold_pct].copy()
 
-def plot_line_map_with_geometry(line: str, route: pd.DataFrame) -> go.Figure:
+def plot_line_map_with_geometry(line: str, route: pd.DataFrame, shape_geom: pd.DataFrame | None = None) -> go.Figure:
     """Karte mit echtem Linienzug (GTFS Shape) + gefilterten Haltestellen.
 
     Logik:
-    1. GTFS Shapes laden (echte Gleisgeometrie mit hunderten Zwischenpunkten)
+    1. GTFS Shapes laden oder nutzen bereitgestellte shape_geom (echte Gleisgeometrie)
     2. Route stops filtern: nur ≥5% der Hauptroute-Frequenz (entfernt Varianten)
     3. Bubble-Größe power-skaliert (2-24px, nicht linear)
     4. Zwei Layer: Linienzug (Tramfarbe) + Blasen (Delay-Farbcodierung)
     """
     # Layer 1: GTFS Shape (echte Gleisgeometrie)
-    shapes = load_gtfs_shapes(line)
+    # Nutze bereitgestelltes shape_geom falls vorhanden, sonst lade es
+    if shape_geom is not None and len(shape_geom) > 0:
+        shapes = shape_geom.copy()
+    else:
+        shapes = load_gtfs_shapes(line)
 
     # Layer 2: Filter route to main stops (consistent with bar chart)
     if len(route) > 0:
-        route_copy = filter_route_for_display(route)
+        route_copy = route.copy()  # Bereits gefiltert wenn es von get_line_profile() kommt
 
         # Bubble-Größe: power-scaled mit Mindestgröße für Sichtbarkeit
         if len(route_copy) > 0 and "mean_delay" in route_copy.columns:
@@ -525,32 +535,13 @@ if page == "Linie erkunden":
         format_func=lambda x: f"Linie {x}",
     )
 
-    # Determine available directions for selected line
-    line_directions_df = (
-        route_dir_df
-        .filter(pl.col("line_name").cast(pl.String) == str(sel_line))
-    )
-    available_directions = sorted(line_directions_df["direction_id"].unique().to_list())
-
-    # Build direction labels with start/end stop names
+    # Determine available directions for selected line (centralized via get_direction_choices)
+    direction_choices = get_direction_choices(sel_line, route_dir_df=route_dir_df)
+    direction_options = [None] + [d[0] for d in direction_choices] if direction_choices else [None]
     direction_labels = {None: "Gesamt (beide Richtungen)"}
-    for dir_id in available_directions:
-        if dir_id is not None:
-            dir_stops = (
-                line_directions_df
-                .filter(pl.col("direction_id") == dir_id)
-                .sort(pl.coalesce("stop_sequence", pl.lit(9999)))  # Primary: sequence; fallback: lat
-                .to_pandas()
-            )
-            if len(dir_stops) > 0:
-                start_stop = dir_stops["stop_name"].iloc[0].replace("Zürich, ", "")
-                end_stop = dir_stops["stop_name"].iloc[-1].replace("Zürich, ", "")
-                direction_labels[dir_id] = f"Richtung {chr(65 + dir_id)}: {start_stop} → {end_stop}"
-            else:
-                direction_labels[dir_id] = f"Richtung {chr(65 + dir_id)}"
+    for dir_id, label in direction_choices:
+        direction_labels[dir_id] = label
 
-    # Selectbox: Gesamt (default) + individual directions
-    direction_options = [None] + available_directions
     sel_direction = st.selectbox(
         "Fahrtrichtung",
         direction_options,
@@ -558,14 +549,23 @@ if page == "Linie erkunden":
         format_func=lambda d: direction_labels.get(d, f"Richtung {d}"),
     )
 
-    route = route_for_line_and_direction(sel_line, direction_id=sel_direction)
+    # SINGLE SOURCE OF TRUTH: get_line_profile() liefert alles konsistent
+    try:
+        profile = get_line_profile(sel_line, direction_id=sel_direction, route_dir_df=route_dir_df, stop_df=stop_df)
+    except Exception as e:
+        st.error(f"Fehler beim Laden des Linienprofils: {e}")
+        st.stop()
 
-    if len(route) == 0:
+    stops_df = profile['stops']
+    shape_geom = profile['shape_geom']
+    direction_label = profile['direction_label']
+
+    if len(stops_df) == 0:
         st.warning("Keine Daten für diese Linie.")
         st.stop()
 
-    # Filter to main route FIRST (before calculating stats)
-    route_filtered = filter_route_for_display(route)
+    # Filter to main route (consistent with Karte)
+    route_filtered = filter_route_for_display(stops_df)
 
     # Calculate KPIs from filtered route only
     n_stops = len(route_filtered)
@@ -651,7 +651,7 @@ if page == "Linie erkunden":
     st.markdown("---")
     section_label("Karte — Linienzug mit Verspätungen")
 
-    fig_map = plot_line_map_with_geometry(sel_line, route)
+    fig_map = plot_line_map_with_geometry(sel_line, route_filtered, shape_geom=shape_geom)
     st.plotly_chart(fig_map, use_container_width=True)
 
     # Info: Stops can shift over time
