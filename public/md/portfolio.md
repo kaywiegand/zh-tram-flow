@@ -46,6 +46,101 @@ so_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analy
 
 ---
 
+## Project Genesis
+
+### Idee & Motivation
+
+Die **Ausgangsfrage:** Öffentliche Verkehrsmittel sind Alltagserlebnis — Verspätungen lassen sich nicht abstrakt erklären, sondern direkt erleben. Das macht sie zum idealen Subject für datengesteuerte Analyse und Vorhersage.
+
+**Persönlicher Kontext:** Als Data Scientist suchte ich nach einem Projekt, das zeigt wie echte Datenarbeit funktioniert — nicht akademisch, sondern praktisch. Ein Problem mit echten Stakeholder-Anforderungen, echten Daten, echter Komplexität.
+
+**VBZ-Kontext:** Das Zürcher Tramnetz hat ein strukturelles OTP-Defizit (87 % statt 95 %-Ziel). Die Frage war: Sind Verspätungen **vorhersagbar** — und wenn ja, was sind die Hebel zum Gegensteuern?
+
+**Projekttyp:** Full-Stack DANSC (Data Engineering → Data Analysis → Data Science + Modellierung) über 3 reale Betriebsjahre.
+
+### Die Kernhypothese
+
+> *"Verspätungen im Tramnetz sind nicht zufällig. Sie folgen Mustern, die gelernt werden können. Und wenn sie vorhersagbar sind, sind sie auch steuerbar."*
+
+---
+
+## Data Engineering & Collection Experiment
+
+### Das Datenbeschaffungs-Challenge
+
+Das Projekt verband **4 heterogene Datenquellen** — jede mit eigenen Frequenzen, Granularitäten und Herausforderungen:
+
+#### 1. VBZ IST-Daten (Operative Realität)
+- **Was:** Reale Ankunfts- und Abfahrtszeiten für jeden Tram-Halt
+- **Granularität:** Trip × Stop × Zeitstempel
+- **Problem:** Raw-Daten enthielt canceled Fahrten, Duplikate, Lücken bei technischen Ausfällen
+- **Entscheidung:** `canceled = True` Fahrten **behalten** — sind Extremfälle die das Modell kennen muss
+- **Volumen:** ~50 M Halt-Ereignisse pro Jahr (2023–2025)
+
+#### 2. GTFS Fahrplandaten (Geplante Welt)
+- **Was:** Offizielle Fahrpläne, Haltestellen-Koordinaten, dwell_time pro Halt
+- **Problem:** GTFS ändert sich mehrmals pro Jahr — Service Calendars, Shape-Updates
+- **Entscheidung:** Temporale Joins pro service_date um konsistente Baseline zu haben
+- **Key Discovery:** `dwell_time = 0s` für 71,3 % aller Halte — das wurde zum Kernmechanismus
+
+#### 3. Meteo Schweiz (Externe Faktoren)
+- **Was:** Stündliche Wetterbeobachtungen (Temperatur, Niederschlag, Wind, Schnee)
+- **Problem:** Stationen sind räumlich verteilt, Messungen für Zürich-Zentrum vs. Peripherie unterscheiden sich stark
+- **Entscheidung:** Geografische Aggregation nach Stadtkreis + Flaggen (has_rain, has_snow, is_hot)
+- **Key Discovery:** Schnee geografisch trennbar von Regen (Höhenlagen vs. Flusstäler)
+
+#### 4. Event-Kalender (Disruptive Ereignisse)
+- **Was:** Grossveranstaltungen (Konzerte, Messen, Sport), Feiertage
+- **Problem:** Manuelle Dateneingabe, Klassifizierung oft unklar (wo taucht Taylor Swift auf?)
+- **Entscheidung:** Event-Kategorisierung nach Größe + historischer Delay-Impact
+- **Key Discovery:** Fachmessen (66,0 s) schlagen Taylor-Swift-Konzerte (75,4 s) in der Rangliste
+
+### Data Integration Pipeline
+
+**Der Join-Prozess:**
+```
+VBZ IST-Daten (trip_id × stop_id × actual_time)
+         ↓
+JOIN mit GTFS Fahrplan (trip_id × stop_id → dwell_time, stop_sequence)
+         ↓
+arrival_delay = actual_time − scheduled_time
+         ↓
+JOIN mit Meteo (hour × date → temperature, has_rain, has_snow)
+         ↓
+JOIN mit Event-Kalender (date → event_type, event_size)
+         ↓
+Final Master: 94,4 Millionen Zeilen · 26 Features · 541 MB Parquet
+```
+
+**Zeitaufwand:** ~1 Woche reine Data Engineering (Cleaning, Validation, Featurization)
+**Tool:** Polars (85 M Zeilen, lazy evaluation) für Speichereffizienz
+
+### Cleaning-Entscheidungen als Forschung
+
+Die meisten "Cleaning-Entscheidungen" waren **explizit Data Science Entscheidungen**, nicht Routine:
+
+| Problem | Annahme | Befund | Entscheidung |
+|---------|---------|--------|-----------|
+| Canceled Fahrten? | Wegwerfen (Ausreißer) | Canceled sind systematisch bei Events | **Behalten** — Teil der Realität |
+| Shuffle vs. Temporal Split? | Shuffle für mehr Daten | Zukünftige Daten ≠ Vergangenheit | **Temporal Split** — kein Data Leakage |
+| Outlier-Handling? | Winsorisieren (MAE-robustheit) | MAE bestraft Extremfälle proportional | **Keine Capping** — System-Fehler-Signal bewahren |
+| One-Hot vs. Native? | One-Hot Standard | LightGBM native Categoricals besser | **Native Categoricals** — 10× weniger Speicher |
+
+---
+
+## Status der Data Engineering Phase
+
+```
+✅ Erfolgreich:      All 4 Datenquellen integriert · Zeitliche Konsistenz · Spatial Join-Keys
+✅ Überraschungen:   71,3% dwell_time=0s (Root Cause) · Peripherie-Hotspots (nicht zentral)
+✅ Validierung:      Temporal Split verhindert Leakage · Keine Cancel-Bias · Featurization stabil
+
+⚠️  Remaining:       Feature Importance noch nicht exportiert (BACKLOG #43)
+                     Dashboard Direction-Split für Richtungs-Asymmetrie (Phase 5)
+```
+
+---
+
 ## Problem
 
 ```
