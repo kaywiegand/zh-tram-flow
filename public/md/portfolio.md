@@ -52,15 +52,25 @@ so_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analy
 
 Die **Ausgangsfrage:** Öffentliche Verkehrsmittel sind Alltagserlebnis — Verspätungen lassen sich nicht abstrakt erklären, sondern direkt erleben. Das macht sie zum idealen Subject für datengesteuerte Analyse und Vorhersage.
 
-**Persönlicher Kontext:** Als Data Scientist suchte ich nach einem Projekt, das zeigt wie echte Datenarbeit funktioniert — nicht akademisch, sondern praktisch. Ein Problem mit echten Stakeholder-Anforderungen, echten Daten, echter Komplexität.
+Drei Ebenen waren bewusst gewählt:
 
-**VBZ-Kontext:** Das Zürcher Tramnetz hat ein strukturelles OTP-Defizit (87 % statt 95 %-Ziel). Die Frage war: Sind Verspätungen **vorhersagbar** — und wenn ja, was sind die Hebel zum Gegensteuern?
+1. **Relatability** — Verspätungen sind gelebter Alltag. Jeder Pendler versteht sie direkt. Keine Insider-Konzepte nötig um das Problem zu verstehen.
 
-**Projekttyp:** Full-Stack DANSC (Data Engineering → Data Analysis → Data Science + Modellierung) über 3 reale Betriebsjahre.
+2. **Gemeinwohl** — Öffentlicher Verkehr ist ein Gemeingut. Bessere Fahrplanung dient der Gesellschaft, nicht privatem Profit. Das macht das Projekt bedeutungsvoll.
+
+3. **Datengrundsatz** — Zürich's VBZ publiziert granulare Echtzeitdaten als **Open Government Data**. Das ist selten: groß genug für echtes ML, konkret genug für operative Empfehlungen.
+
+**Persönlicher Kontext:** Als Data Scientist suchte ich nach einem Projekt, das zeigt wie echte Datenarbeit funktioniert — nicht akademisch, sondern praktisch. Nicht ein toy dataset, sondern ein Problem mit echten Stakeholder-Anforderungen, echten Daten, echter Komplexität. Ein vollständiger Data Cycle: Rohdaten → Analyse → Modell → Empfehlungen.
+
+**VBZ-Kontext:** Das Zürcher Tramnetz hat ein strukturelles OTP-Defizit (87 % statt 95 %-Ziel). Die Frage war: Sind Verspätungen **vorhersagbar** — und wenn ja, was sind die operativen Hebel zum Gegensteuern?
+
+**Projekttyp:** Full-Stack DANSC (Data Engineering → Data Analysis → Data Science + Modellierung) über 3 reale Betriebsjahre (2023–2025).
 
 ### Die Kernhypothese
 
 > *"Verspätungen im Tramnetz sind nicht zufällig. Sie folgen Mustern, die gelernt werden können. Und wenn sie vorhersagbar sind, sind sie auch steuerbar."*
+
+Die Umkehrung ist gleich wichtig: **Wenn wir verstehen warum Verspätungen entstehen, können wir konkret gegensteuern — nicht mit generischen Tipps, sondern mit Fahrplan-Redesign.**
 
 ---
 
@@ -95,25 +105,113 @@ Das Projekt verband **4 heterogene Datenquellen** — jede mit eigenen Frequenze
 - **Entscheidung:** Event-Kategorisierung nach Größe + historischer Delay-Impact
 - **Key Discovery:** Fachmessen (66,0 s) schlagen Taylor-Swift-Konzerte (75,4 s) in der Rangliste
 
+### Das Volumen-Challenge
+
+Die Rohdaten waren **massiv**:
+
+- **VBZ IST-Archiv:** 36 monatliche ZIP-Files (2023–2025)
+- **Komprimiert:** ~38 GB (schweizweit)
+- **Entpackt:** ~720 GB (nur die Schweiz — 16 Bundesländer)
+- **Nach VBZ-Filter (Tram only):** 92,9 Millionen Zeilen IST-Ereignisse
+- **+ GTFS join:** Haltestellen-Koordinaten, Fahrplan-Daten, Linieneigenschaften
+- **+ Wetterdaten:** 26.304 stündliche Messwerte (3 Messstationen)
+- **+ Events:** 258 manuell kuratierte Events (Feiertage, Konzerte, Messen, Sport)
+
+**Ergebnis:** 94,4 Millionen Zeilen · 26 Features · 541 MB Parquet
+
+Damit zu arbeiten war das erste echte Infra-Challenge: Single-Machine RAM mit Polars (lazy evaluation).
+
+### Die Join-Herausforderung
+
+Das Projekt war eigentlich ein **Data Engineering Projekt versteckt in einem ML-Projekt**. Vier heterogene Datenquellen zu verbinden war nicht trivial:
+
+| Quelle | Format | Granularität | Join-Schlüssel | Challenge |
+|--------|--------|--------------|-----------------|-----------|
+| **VBZ IST** | 36 ZIP-Archives | Per Stop + Timestamp | `FAHRT_BEZEICHNER × bpuic` | Schweizweit mischen, filtern, 38 GB Speicher |
+| **GTFS Fahrplan** | Parquet yearly | Per Trip × Stop × Service-Calendar | `trip_id × stop_id × service_date` | 3 Jahrgänge (2023/24/25 unterschiedlich), Baustellen-Routen (shape_id Varianten) |
+| **Meteo Schweiz** | Stündliche CSV | Hour × 3 Messstationen | `floor(timestamp, '1h')` | Nur Zürich relevant, Zeitumstellung (Nov/März Gaps) |
+| **Events** | Manuelle Liste | Per Date | `date` | 258 Einträge, Gewichtung nach Kategorie + Impact |
+
+**Kritische Entdeckung während Engineering (2026-05-15):**
+
+Der ursprüngliche `trip_id` wurde in der ersten Iteration **fälschlicherweise gelöscht**. Das bedeutete: Keine Trip-Level-Aggregation möglich. Bei 94 Millionen Zeilen ohne Trip-ID können sich keine Insights zu Kaskadeneffekten bilden.
+
+Die Entdeckung zwang zum Reprocessing aller 36 IST-Archive neu — neue Schätzung: +2 Wochen (insgesamt 3 Wochen Data Engineering Phase). Aber ohne diesen Nachtrag hätte das ganze Projekt nicht funktioniert. Das Modell braucht `prev_trip_delay` — und das braucht Trip-Level-Konsistenz.
+
+**Prozess:** Iterativ explorativ, nicht waterfall. Jeden Schritt validiert, jeden Fehler rückverfolgbar gemacht.
+
 ### Data Integration Pipeline
 
-**Der Join-Prozess:**
 ```
-VBZ IST-Daten (trip_id × stop_id × actual_time)
-         ↓
-JOIN mit GTFS Fahrplan (trip_id × stop_id → dwell_time, stop_sequence)
-         ↓
+VBZ IST-Daten (36 ZIPs) → 38 GB raw
+        ↓
+Filter: VBZ-Tram only, REAL-Status
+        ↓
+92,9 M Zeilen Halt-Ereignisse (trip × stop × time)
+        ↓
+JOIN mit GTFS Fahrplan (yearly) → dwell_time, stop_sequence, stop_coords
+        ↓
 arrival_delay = actual_time − scheduled_time
-         ↓
-JOIN mit Meteo (hour × date → temperature, has_rain, has_snow)
-         ↓
-JOIN mit Event-Kalender (date → event_type, event_size)
-         ↓
+        ↓
+JOIN mit Meteo (stündlich) → temperature, has_rain, has_snow
+        ↓
+JOIN mit Event-Kalender (manuell kuriert) → event_type, event_size
+        ↓
 Final Master: 94,4 Millionen Zeilen · 26 Features · 541 MB Parquet
 ```
 
-**Zeitaufwand:** ~1 Woche reine Data Engineering (Cleaning, Validation, Featurization)
-**Tool:** Polars (85 M Zeilen, lazy evaluation) für Speichereffizienz
+**Zeitaufwand:** ~3 Wochen Data Engineering
+- Woche 1: Feasibility Check (Datenquellen validieren, Formate verstehen)
+- Woche 2–3: Pipeline bauen, debuggen, reprocessing nach trip_id-Fehler
+- Quality Gates: Schema-Check · Coverage-Check · Join-Qualität · Value-Range Validation
+
+**Tool-Wahl:** Polars mit Lazy Evaluation (92 Millionen Zeilen passen nicht in RAM, sondern werden gescandelt). Nicht Pandas. Nicht Raw SQL. Polars macht das elegant.
+
+### Explorations-Highlights während des Engineering
+
+Die **6 Analyse-Dimensionen** stellten schon bei der Exploration überraschende Fragen — die später zu Findings wurden:
+
+#### Mythos 1: Der Morning Rush
+
+**Annahme:** Der schlimmste Peak ist 7–9h (Morgenspitze, Berufsverkehr).
+
+**Befund:** 7h liegt mit **48,9 Sekunden unter dem Netzschnitt**. Der echte Peak ist 21h (67,9 s) durch Event-Abreisewellen nach Konzerten und Fussballspielen.
+
+**Impact:** Die bisherige Kapazitätsplanung fokussierte auf "Morgenverkehr", aber die Daten zeigen dass 21h + Freitag + Grossveranstaltung die echte Krise ist. Das hätte niemand ohne Daten vermuten.
+
+#### Mythos 2: Innenstadt ist Hotspot
+
+**Annahme:** Die zentrale Innenstadt (Central, Paradeplatz, Zürich Hauptbahnhof) sind die Verspätungs-Hotspots — wegen Liniendichte und Komplexität.
+
+**Befund:** Paradeplatz (48,2 s) und Central (48,3 s) liegen **unter dem Netzschnitt** (56,3 s). Die echten Hotspots sind **periphere Endstationen**: Friedhof Enzenbühl (93,8 s), Balgrist (85,2 s), Leutschenbach (82,7 s).
+
+**Spatial Anomalie:** 0 Overlap zwischen "höchster Liniendichte" und "höchstem Delay". Die worst stops sind isolation Tramlinien an Peripherie.
+
+**Implikation:** Hotspots sind nicht Netz-Komplexität sondern Fahrplan-Design an Randlaufbahnen.
+
+#### Mythos 3: Schlechtwetter als Root Cause
+
+**Annahme:** Verspätungen entstehen durch Regen, Schnee, Hitze, Wind. Wetter ist der Haupttreiber.
+
+**Befund (Schnee):** +54 Sekunden, messbar, real. **ABER:** Schnee ist nur in Höhenlagen (Stadtkreise 4, 10, 12) relevant. Flusstäler (Kreis 5 an der Limmat) sind schneefrei.
+
+**Befund (Regen):** +23,3 Sekunden, deutlich weniger als Schnee.
+
+**Befund (Wind):** `is_windy` war immer null in den Daten — Wetterkollektur-Problem.
+
+**Kritische Erkenntnis:** Das Grundniveau der Verspätung (56,3 s Netzschnitt) bleibt **konstant auch bei optimalem Wetter**. Externe Faktoren verstärken, was intern schon strukturell angelegt ist.
+
+#### Stabilität trotz Chaos: VBZ's Meisterleistung
+
+**Befund (Dezember 2023):** VBZ führte einen **massiven Fahrplanumbau** durch — ganze Strecken umdefiniert, Haltestellen verschoben, Taktungen geändert.
+
+**Ergebnis in den Daten:** +0,5 Sekunden Effekt auf Netzschnitt-Delay. Praktisch unsichtbar.
+
+**Befund (Baustellen & Streckensperrungen):** Während der Analyse gab es mehrere Baustellen-Phasen (2024–2025). VBZ führte Umrouting ein, provisorische Halte, angepasste Fahrtzeiten.
+
+**Ergebnis:** Verspätungslevel blieb stabil. Keine Spitzen, keine Zusammenbrüche.
+
+**Implikation:** Das zeigt — VBZ hat die operative Exekution sehr gut im Griff. Die Verspätungen entstehen nicht durch Instabilität bei Störungen sondern durch **strukturelles Fahrplan-Design**: 71,3 % Haltestellen mit 0 Sekunden Standzeit (dwell_time = 0).
 
 ### Cleaning-Entscheidungen als Forschung
 
