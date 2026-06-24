@@ -532,7 +532,7 @@ if page == "Linie erkunden":
     )
 
     # ── Steuerung (links) + KPIs (rechts) in zwei Spalten ──
-    col_ctrl, col_kpi = st.columns([1, 2], gap="large")
+    col_ctrl, col_kpi = st.columns([7, 3], gap="large")
 
     with col_ctrl:
         sel_line = st.selectbox(
