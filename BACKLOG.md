@@ -386,13 +386,23 @@ Status: [ ] 2–3 Charts gewählt
 
 ## BACKLOG #68 — Direction ID Architecture Plan (Details)
 
-**Status:** DEFERRED | **Trigger:** Nach OP-1 Analyse Entscheidung treffen  
+**Status:** DEFERRED | **Trigger:** Dashboard-Discovery 2026-06-24 bestätigt — Quick Path nicht möglich  
 **Zeitaufwand:** ~2 Wochen (9 Sessions) | **Risiko:** MITTEL
+
+### 2026-06-24 — Dashboard-Discovery (neu)
+
+Beim Dashboard-Ausbau (Phase 5) wurde der Quick Path vollständig ausgeschlossen:
+- **trip_id-Format inkompatibel:** IST-Daten nutzen `85:3849:399618-…`, GTFS nutzt `1.T0.1-10-P-j23-…` — 0 gemeinsame IDs bei 147k IST-Trips und 183k GTFS-Trips
+- **is_start_stop / is_end_stop:** Flags sind in `test_final.parquet` komplett 0 — wurden im Preprocessing nicht korrekt gesetzt
+- **stop_sequence + arrival_time:** Beim Cleaning aus test_final entfernt — damit ist Richtungsbestimmung aus IST-Daten allein unmöglich
+- **Konsequenz:** Richtungsmetriken im Dashboard sind aktuell direction-agnostic (stop_agg über alle Trips). Filterung funktioniert nur auf Stop-Listen-Ebene, nicht auf Metriken-Ebene.
+
+**Einziger Weg:** `stop_sequence` im Preprocessing (sf_data-research) behalten → damit Fahrtrichtung aus Terminus-Matching bestimmbar.
 
 ### Context: Why This Matters
 
 Aktuell hat das System einen **oberflächlichen Direction-Filter** (UI-Level), aber die zugrundeliegenden Daten unterscheiden nicht zwischen den Fahrtrichtungen. Das führt zu:
-- ❌ Filterung zeigt keine Datenmäßigen Unterschiede (nur UI-Unterschiede)
+- ❌ Metriken im Dashboard sind direction-agnostic (Richtung A = Richtung B im Wert)
 - ❌ Modell nutzt `direction_id` nicht als Feature
 - ❌ Richtungs-spezifische Analysen unmöglich
 

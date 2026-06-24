@@ -467,15 +467,29 @@ Das Interactive Dashboard-Experiment offenbarte systematische Erkenntnislücken,
 durch weitere Exploration zugänglich wären. Das Portfolio demonstriert damit nicht
 nur "fertig", sondern auch "lebendig und iterativ":
 
-**Beispiel OP-1: Direction-Asymmetrie**
+**OP-1: Richtungsabhängige Verspätungsanalyse (Direction-Asymmetrie)**
 ```
-observation:   Geografische Splitting nach Direction-ID zeigt ~10s Delta zwischen
-               Fahrtrichtung A und B auf derselben Linie (z.B. L2 Wollishofen ↔ Central)
-hypothesis:    Nicht-lineare Topologie: Peripherie→Zentrum vs. Zentrum→Peripherie
-               = unterschiedliche Kaskadenprofile
-               
-trigger:       Dashboard-Filter "Fahrtrichtung" offenbarte diese systematische Varianz
-next_step:     Detailliert in BACKLOG.md (→ OP-1 bis OP-7 mit Implementation Paths)
+observation:   Dashboard-Exploration (2026-06-24) zeigt: Stop-Listen und Linienführung
+               sind richtungskorrekt — Metriken (Delay, OTP) sind es noch nicht.
+               Aktuell: stop_agg aggregiert alle Trips richtungsunabhängig.
+               Hypothese: Peripherie→Zentrum und Zentrum→Peripherie haben
+               unterschiedliche Kaskadenprofile (+10–20s Asymmetrie erwartet).
+
+data_gap:      VBZ IST trip_id-Format (85:3849:…) inkompatibel mit GTFS trip_id
+               (1.T0.1-10-P-j23-…) — direction_id kann nicht nachträglich gejoint werden.
+               stop_sequence wurde im Preprocessing entfernt.
+
+unlock_path:   stop_sequence im Preprocessing (sf_data-research) behalten →
+               Terminus-Matching → direction_id pro Trip → neue Aggregationen:
+               stop×direction, line×direction, hour×direction
+
+new_features:  • Richtungsabhängige Delay-Heatmaps
+               • Direction-spezifische Hotspot-Erkennung
+               • Asymmetrie-Score pro Linie als neues ML-Feature
+               • Modell v3: direction_id als Dimension
+
+priority:      HIGH — Dashboard-Discovery hat Lücke präzise lokalisiert.
+               Einziger Weg: Pipeline-Umbau in sf_data-research (BACKLOG #68)
 ```
 
 ---
