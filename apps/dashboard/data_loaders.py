@@ -79,12 +79,19 @@ def get_line_profile(
     if direction_id is not None:
         route_stops = route_filter.filter(pl.col("direction_id") == direction_id)
     else:
-        # Gesamt: dir=0 stops + Stops die nur in dir=1 vorkommen (Einbahnstraßen etc.)
-        dir0 = route_filter.filter(pl.col("direction_id") == 0)
-        dir1 = route_filter.filter(pl.col("direction_id") == 1)
-        stops_in_dir0 = set(dir0["stop_name"].to_list())
-        extra = dir1.filter(~pl.col("stop_name").is_in(stops_in_dir0))
-        route_stops = pl.concat([dir0, extra])
+        # Gesamt: dir=0 stops + echte dir=1-exklusive Stops (Einbahnstraßen)
+        # Normalisierung vor Vergleich: gleiche Gleis-Plattformen (Bellevue A/B/C/D)
+        # nicht als unterschiedliche Stops zählen
+        _norm = (
+            pl.col("stop_name")
+            .str.replace(r"^Zürich, ?", "", literal=False)
+            .str.replace(r" [A-F]$", "", literal=False)
+        )
+        dir0 = route_filter.filter(pl.col("direction_id") == 0).with_columns(_norm.alias("_norm"))
+        dir1 = route_filter.filter(pl.col("direction_id") == 1).with_columns(_norm.alias("_norm"))
+        stops_in_dir0_norm = set(dir0["_norm"].to_list())
+        extra = dir1.filter(~pl.col("_norm").is_in(stops_in_dir0_norm)).drop("_norm")
+        route_stops = pl.concat([dir0.drop("_norm"), extra])
 
     if len(route_stops) == 0:
         raise ValueError(f"Keine Halte gefunden für L{line_name} Richtung {direction_id}")
