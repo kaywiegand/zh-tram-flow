@@ -24,6 +24,7 @@
 </div>
 <div id="slideticks"></div>
 <div id="progress-track"><div id="progress-fill"></div></div>
+<div id="leftnav"></div>
 <div class="reveal"><div class="slides">
 <section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)" data-chapter="0">
   <h1>Zurich Tram Flow</h1>
@@ -116,7 +117,18 @@
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
 <script>
 Reveal.initialize({hash:true,controls:false,progress:false,transition:'slide',transitionSpeed:'fast',margin:0.07,width:1280,height:720});
-const CHAPTER_SLIDES=[0,2,3,5,6,7,10,12,13];const navItems=document.querySelectorAll('.ch');const total=document.querySelectorAll('.reveal .slides>section').length;const progressFill=document.getElementById('progress-fill');const tickContainer=document.getElementById('slideticks');for(let i=0;i<total;i++){const wrap=document.createElement('div');wrap.className='stk-wrap';const line=document.createElement('span');line.className='stk';const num=document.createElement('span');num.className='stk-num';num.textContent=i+1;wrap.appendChild(line);wrap.appendChild(num);tickContainer.appendChild(wrap);}const ticks=tickContainer.querySelectorAll('.stk-wrap');function getChapter(idx){let ch=0;for(let i=0;i<CHAPTER_SLIDES.length;i++){if(idx>=CHAPTER_SLIDES[i])ch=i;}return ch;}function update(){const idx=Reveal.getState().indexh;const ch=getChapter(idx);navItems.forEach((el,i)=>{el.classList.remove('active','done');if(i===ch)el.classList.add('active');else if(i<ch)el.classList.add('done');});ticks.forEach((t,i)=>{t.classList.remove('stk-past','stk-current');if(i===idx)t.classList.add('stk-current');else if(i<idx)t.classList.add('stk-past');});requestAnimationFrame(()=>{const track=document.getElementById('progress-track');const stkLine=ticks[idx].querySelector('.stk');const trackRect=track.getBoundingClientRect();const stkRect=stkLine.getBoundingClientRect();const centerX=stkRect.left+stkRect.width/2;const pct=trackRect.width>0?Math.max(0,Math.min(100,(centerX-trackRect.left)/trackRect.width*100)):0;progressFill.style.width=pct+'%';});}navItems.forEach(el=>el.addEventListener('click',()=>Reveal.slide(parseInt(el.dataset.slide))));Reveal.on('slidechanged',update);update();
+const CHAPTER_SLIDES=[0,2,3,5,6,7,10,12,13];
+const navItems=document.querySelectorAll('.ch');const total=document.querySelectorAll('.reveal .slides>section').length;const progressFill=document.getElementById('progress-fill');
+const chapterNames=Array.from(navItems).map(el=>{const c=el.cloneNode(true);const s=c.querySelector('.n');if(s)s.remove();return c.textContent.trim();});
+const tickContainer=document.getElementById('slideticks');
+for(let i=0;i<total;i++){const wrap=document.createElement('div');wrap.className='stk-wrap';const ci=CHAPTER_SLIDES.indexOf(i);if(ci!==-1)wrap.classList.add('stk-chapter');const lbl=document.createElement('span');lbl.className='stk-ch-label';lbl.textContent=ci!==-1?(chapterNames[ci]||''):'';const line=document.createElement('span');line.className='stk';const num=document.createElement('span');num.className='stk-num';num.textContent=i+1;wrap.appendChild(lbl);wrap.appendChild(line);wrap.appendChild(num);tickContainer.appendChild(wrap);}
+const ticks=tickContainer.querySelectorAll('.stk-wrap');
+const leftNav=document.getElementById('leftnav');
+if(leftNav){for(let i=0;i<total;i++){const item=document.createElement('div');item.className='ln-item';item.dataset.slide=i;const tick=document.createElement('span');tick.className='ln-tick';item.appendChild(tick);const ci=CHAPTER_SLIDES.indexOf(i);if(ci!==-1){item.classList.add('ln-chapter');const lbl=document.createElement('span');lbl.className='ln-label';lbl.textContent=chapterNames[ci]||'';item.appendChild(lbl);}item.addEventListener('click',()=>Reveal.slide(i));leftNav.appendChild(item);}}
+const leftItems=leftNav?Array.from(leftNav.querySelectorAll('.ln-item')):[];
+function getChapter(idx){let ch=0;for(let i=0;i<CHAPTER_SLIDES.length;i++){if(idx>=CHAPTER_SLIDES[i])ch=i;}return ch;}
+function update(){const idx=Reveal.getState().indexh;const ch=getChapter(idx);navItems.forEach((el,i)=>{el.classList.remove('active','done');if(i===ch)el.classList.add('active');else if(i<ch)el.classList.add('done');});ticks.forEach((t,i)=>{t.classList.remove('stk-past','stk-current','stk-chapter-active');if(i===idx)t.classList.add('stk-current');else if(i<idx)t.classList.add('stk-past');if(CHAPTER_SLIDES.indexOf(i)!==-1&&getChapter(i)===ch)t.classList.add('stk-chapter-active');});leftItems.forEach((item,i)=>{item.classList.remove('ln-past','ln-current');if(i===idx)item.classList.add('ln-current');else if(i<idx)item.classList.add('ln-past');});requestAnimationFrame(()=>{const track=document.getElementById('progress-track');if(!track)return;const stkLine=ticks[idx].querySelector('.stk');const trackRect=track.getBoundingClientRect();const stkRect=stkLine.getBoundingClientRect();const centerX=stkRect.left+stkRect.width/2;const pct=trackRect.width>0?Math.max(0,Math.min(100,(centerX-trackRect.left)/trackRect.width*100)):0;progressFill.style.width=pct+'%';});}
+navItems.forEach(el=>el.addEventListener('click',()=>Reveal.slide(parseInt(el.dataset.slide))));Reveal.on('slidechanged',update);update();
 </script>
 </body>
 </html>

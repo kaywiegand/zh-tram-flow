@@ -790,6 +790,7 @@ Erledigt 2026-06-15:
 | # | Beschreibung | Prio | Status |
 | :--- | :--- | :--- | :--- |
 | 34 | **Repo-Referenzen aktualisieren wenn `sf_data-research` umbenannt wird** — README, CLAUDE.md, ROADMAP und alle Notebooks verlinken aktuell auf `sf_data-research`. Bei Umbenennung des Repos zu `zh-tram-data` (oder ähnlich) alle Links und Textstellen ersetzen. Betrifft: README.md (mehrere Stellen), ROADMAP.md Phase 0, 00_introduction.ipynb, 06_prediction_5-comparison.ipynb. | 3 | – |
+| 71 | **UML-Diagramme für Python-Files** — Klassendiagramme und/oder Modulübersichten für `src/zh_tram_flow/` (analytics/, features/, cleaning.py, etc.) sowie `scripts/` und `apps/dashboard/`. Zeigt Abhängigkeiten + Paketstruktur. Format: SVG oder PNG, eingebunden in Doku (README oder eigene `docs/architecture.md`). Tool-Kandidaten: `pyreverse` (aus pylint) oder `diagrams`. | 2 | – |
 
 ---
 

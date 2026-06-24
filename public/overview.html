@@ -26,6 +26,7 @@
 
 <div id="slideticks"></div>
 <div id="progress-track"><div id="progress-fill"></div></div>
+<div id="leftnav"></div>
 <div class="reveal"><div class="slides">
 
 
@@ -565,28 +566,64 @@
     margin: 0.07, width: 1280, height: 720
   });
 
-  // Chapter start slide indices (0-based)
   const CHAPTER_SLIDES = [0, 2, 4, 6, 7, 10, 11, 12, 13];
-
   const navItems = document.querySelectorAll('.ch');
   const total = document.querySelectorAll('.reveal .slides > section').length;
   const progressFill = document.getElementById('progress-fill');
 
-  // Build tick marks with slide numbers
+  // Extract chapter names from top nav (strip number span)
+  const chapterNames = Array.from(navItems).map(el => {
+    const clone = el.cloneNode(true);
+    const span = clone.querySelector('.n');
+    if (span) span.remove();
+    return clone.textContent.trim();
+  });
+
+  // Build bottom ticks with chapter labels (Variant A)
   const tickContainer = document.getElementById('slideticks');
   for (let i = 0; i < total; i++) {
     const wrap = document.createElement('div');
     wrap.className = 'stk-wrap';
+    const ci = CHAPTER_SLIDES.indexOf(i);
+    if (ci !== -1) wrap.classList.add('stk-chapter');
+    const lbl = document.createElement('span');
+    lbl.className = 'stk-ch-label';
+    lbl.textContent = ci !== -1 ? (chapterNames[ci] || '') : '';
     const line = document.createElement('span');
     line.className = 'stk';
     const num = document.createElement('span');
     num.className = 'stk-num';
     num.textContent = i + 1;
+    wrap.appendChild(lbl);
     wrap.appendChild(line);
     wrap.appendChild(num);
     tickContainer.appendChild(wrap);
   }
   const ticks = tickContainer.querySelectorAll('.stk-wrap');
+
+  // Build left nav (Variant B)
+  const leftNav = document.getElementById('leftnav');
+  if (leftNav) {
+    for (let i = 0; i < total; i++) {
+      const item = document.createElement('div');
+      item.className = 'ln-item';
+      item.dataset.slide = i;
+      const tick = document.createElement('span');
+      tick.className = 'ln-tick';
+      item.appendChild(tick);
+      const ci = CHAPTER_SLIDES.indexOf(i);
+      if (ci !== -1) {
+        item.classList.add('ln-chapter');
+        const lbl = document.createElement('span');
+        lbl.className = 'ln-label';
+        lbl.textContent = chapterNames[ci] || '';
+        item.appendChild(lbl);
+      }
+      item.addEventListener('click', () => Reveal.slide(i));
+      leftNav.appendChild(item);
+    }
+  }
+  const leftItems = leftNav ? Array.from(leftNav.querySelectorAll('.ln-item')) : [];
 
   function getChapter(idx) {
     let ch = 0;
@@ -602,17 +639,23 @@
       else if (i < ch) el.classList.add('done');
     });
     ticks.forEach((t, i) => {
-      t.classList.remove('stk-past', 'stk-current');
-      if (i === idx)      t.classList.add('stk-current');
-      else if (i < idx)   t.classList.add('stk-past');
+      t.classList.remove('stk-past', 'stk-current', 'stk-chapter-active');
+      if (i === idx)    t.classList.add('stk-current');
+      else if (i < idx) t.classList.add('stk-past');
+      if (CHAPTER_SLIDES.indexOf(i) !== -1 && getChapter(i) === ch) t.classList.add('stk-chapter-active');
     });
-    // Progress fill: pixel-accurate — measure actual tick center vs track bounds
+    leftItems.forEach((item, i) => {
+      item.classList.remove('ln-past', 'ln-current');
+      if (i === idx)    item.classList.add('ln-current');
+      else if (i < idx) item.classList.add('ln-past');
+    });
     requestAnimationFrame(() => {
       const track = document.getElementById('progress-track');
+      if (!track) return;
       const stkLine = ticks[idx].querySelector('.stk');
       const trackRect = track.getBoundingClientRect();
-      const stkRect  = stkLine.getBoundingClientRect();
-      const centerX  = stkRect.left + stkRect.width / 2;
+      const stkRect   = stkLine.getBoundingClientRect();
+      const centerX   = stkRect.left + stkRect.width / 2;
       const pct = trackRect.width > 0
         ? Math.max(0, Math.min(100, (centerX - trackRect.left) / trackRect.width * 100))
         : 0;
