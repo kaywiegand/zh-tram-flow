@@ -72,6 +72,26 @@ PROCESS_LOG Session-Notes verwenden ab dieser Sektion Pointer auf Notebooks — 
 
 ## Verlauf
 
+### 2026-06-24 — Dashboard Phase 5: Tramlinien-Fix
+
+**Kontext:** Vorige Session hatte `tramlines_stops.parquet` aus GTFS korrekt aufgebaut (→ `01_exploration-tramlines.ipynb`). Das Dashboard nutzte noch IST-basierte Route-Profile mit falschen Halt-Mengen (L11 dir=0: 101 statt 34 Stops).
+
+**Was wurde gemacht:**
+- ✅ `precompute.py` umgebaut: `route_profile_by_direction.parquet` und `route_profile.parquet` jetzt aus `tramlines_stops.parquet` (GTFS-kanonisch) statt IST-Aggregaten; normalisierter Name-Join für Metriken (strip "Zürich, " prefix)
+- ✅ Ergebnis: 920 rows statt 2136 in route_profile_by_direction — korrekter Wert
+- ✅ `data_loaders.py`: `get_line_profile()` nutzt Metriken direkt aus Parquet (kein stop_df-Join mehr nötig)
+- ✅ `app.py`: `route_for_line()` Namens-Mismatch-Fix; dynamischer Einbahnstraßen-Hinweis unter Karte (zeigt Richtungs-Asymmetrien mit Δ-Wert und liniespezifischer Erklärung — inklusive L8-Sonderfall)
+- ✅ Dropdown-Labels: "Richtung A: Auzelg → Rehalp", "Richtung B: Rehalp → Auzelg" etc. für alle 17 Linien korrekt
+
+**Ergebnis:**
+- Alle 17 Linien mit korrekter Haltestellenanzahl und GTFS-Reihenfolge
+- Asymmetrische Linien korrekt erklärt (L2/L5/L6/L8/L15/L17)
+- L8 Sonderfall (30 vs 40 Stops) mit Wollishofen-Fahrplanwechsel-Kontext
+
+**Nächster Schritt:** Dashboard visuell testen (Streamlit starten), dann UI-Feinschliff Phase 5 weiterführen
+
+---
+
 ### 2026-06-19 — Portfolio Pipeline mechanisiert
 
 **Kontext:** Klare Single Source of Truth für Portfolio-Artefakte fehlte. JSONs waren de-facto-Quelle, aber manual gesynct mit HTMLs. portfolio.md existierte nur als Template.
