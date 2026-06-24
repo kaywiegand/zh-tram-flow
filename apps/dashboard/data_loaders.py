@@ -90,29 +90,36 @@ def get_line_profile(
     # Keine zusätzliche Sortierung nötig
 
     # Konvertiere zu Pandas (für Dashboard-Kompatibilität)
-    # Wähle nur verfügbare Spalten — stop_sequence ist optional
-    available_cols = ["stop_name", "lat", "lon"]
+    # route_profile_by_direction enthält seit Rebuild alle Metriken direkt (normalisierter Join)
+    base_cols = ["stop_name", "lat", "lon"]
     if "stop_sequence" in route_stops.columns:
-        available_cols.insert(0, "stop_sequence")
+        base_cols.insert(0, "stop_sequence")
 
-    stops_df = route_stops.select(available_cols).to_pandas()
+    # Metriken aus dem Parquet nutzen falls vorhanden
+    metric_cols = [c for c in ["mean_delay", "otp_pct", "dwell_time_median"] if c in route_stops.columns]
+    all_cols = base_cols + metric_cols
 
-    # Join mit stop_df für Metriken (mean_delay, otp_pct, n_obs)
-    stop_metrics = stop_df.select([
-        "stop_name",
-        "mean_delay",
-        "otp_pct",
-        "dwell_time_median",
-    ]).to_pandas()
+    stops_df = route_stops.select(all_cols).to_pandas()
 
-    stops_df = stops_df.merge(stop_metrics, on="stop_name", how="left")
+    # Nur wenn Metriken fehlen (z.B. ältere Parquet-Version): Fallback auf stop_df-Join
+    missing = [c for c in ["mean_delay", "otp_pct", "dwell_time_median"] if c not in stops_df.columns]
+    if missing and stop_df is not None:
+        stop_metrics = stop_df.select(["stop_name"] + missing).to_pandas()
+        stops_df = stops_df.merge(stop_metrics, on="stop_name", how="left")
 
-    # Fallback für fehlende Metriken (sollte nicht vorkommen, aber sicher is sicher)
-    stops_df["mean_delay"] = stops_df["mean_delay"].fillna(0.0)
-    stops_df["otp_pct"] = stops_df["otp_pct"].fillna(87.0)
-    stops_df["dwell_time_median"] = stops_df["dwell_time_median"].fillna(0.0)
+    stops_df["mean_delay"] = stops_df.get("mean_delay", 0.0) if "mean_delay" in stops_df.columns else 0.0
+    if "mean_delay" in stops_df.columns:
+        stops_df["mean_delay"] = stops_df["mean_delay"].fillna(0.0)
+    if "otp_pct" in stops_df.columns:
+        stops_df["otp_pct"] = stops_df["otp_pct"].fillna(87.0)
+    else:
+        stops_df["otp_pct"] = 87.0
+    if "dwell_time_median" in stops_df.columns:
+        stops_df["dwell_time_median"] = stops_df["dwell_time_median"].fillna(0.0)
+    else:
+        stops_df["dwell_time_median"] = 0.0
 
-    # n_obs aus dem Datensatz — wird nicht mehr verwendet, aber keep für Compatibility
+    # n_obs: alle Stops gleichwertig (tramlines_stops hat keine IST-Frequenz)
     stops_df["n_obs"] = len(stops_df)
 
     # Erstelle stop_short für Dashboard-Kompatibilität (entfernt "Zürich, " Prefix)

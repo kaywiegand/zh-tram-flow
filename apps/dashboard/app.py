@@ -354,23 +354,22 @@ def route_for_line_and_direction(line: str, direction_id: int | None = None) -> 
     return r
 
 def route_for_line(line: str) -> pd.DataFrame:
-    """Route-Profil einer Linie — geografisch sortiert mit OTP + dwell_time.
+    """Route-Profil einer Linie — sortiert nach stop_sequence (direction=0, GTFS-kanonisch).
 
-    NOTE: route_df ist bereits nach lat/lon sortiert (geografische Reihenfolge entlang der Linie).
-    Wir bereichern es nur mit stop_df-Metadaten, behalten aber die Sortierung.
+    route_df (route_profile.parquet) enthält alle Metriken bereits nach normalisiertem Join
+    mit stop_agg. Kein weiterer stop_df-Join nötig.
     """
     r = (
         route_df
         .filter(pl.col("line_name").cast(pl.String) == str(line))
         .with_columns(pl.col("stop_name").cast(pl.Utf8))
-        .join(
-            stop_df.select(["stop_name", "otp_pct", "dwell_time_median"])
-                .with_columns(pl.col("stop_name").cast(pl.Utf8)),
-            on="stop_name", how="left",
-        )
-        # Keep geographic order (lat/lon) — don't re-sort
         .to_pandas()
     )
+    # Fallback: join with stop_df if metrics missing (e.g. old parquet version)
+    if "otp_pct" not in r.columns or r["otp_pct"].isna().all():
+        stop_metrics = stop_df.select(["stop_name", "otp_pct", "dwell_time_median"]).to_pandas()
+        stop_metrics["stop_name"] = stop_metrics["stop_name"].str.replace(r"^Zürich, ?", "", regex=True)
+        r = r.merge(stop_metrics, on="stop_name", how="left")
     r["stop_short"] = r["stop_name"].str.replace(r"Zürich, ?", "", regex=True)
     return r
 
@@ -666,6 +665,45 @@ if page == "Linie erkunden":
     — zeigt die genauen Linienstrecken-Änderungen pro Jahr und Fahrplanwechsel.
     </div>
     """, unsafe_allow_html=True)
+
+    # Asymmetrie-Hinweis: unterschiedliche Haltestellenanzahl je Richtung
+    dir_counts = (
+        route_dir_df
+        .filter(pl.col("line_name").cast(pl.String) == sel_line)
+        .group_by("direction_id")
+        .agg(pl.len().alias("n"))
+        .sort("direction_id")
+        .to_pandas()
+    )
+    if len(dir_counts) == 2:
+        n0 = int(dir_counts.loc[dir_counts["direction_id"] == 0, "n"].values[0])
+        n1 = int(dir_counts.loc[dir_counts["direction_id"] == 1, "n"].values[0])
+        delta = abs(n0 - n1)
+        if delta >= 1:
+            if sel_line == "8":
+                asym_note = (
+                    f"<strong>Linie {sel_line} — strukturelle Asymmetrie:</strong> "
+                    f"Richtung A hat {n0} Halte, Richtung B hat {n1} Halte (Δ={delta}). "
+                    "Die GTFS-Daten 2025 bilden den Wollishofen-Abschnitt nur in Richtung B ab. "
+                    "Kein Datenfehler — die Strecke (Klusplatz ↔ Wollishoferplatz) war die offizielle "
+                    "Route bis zum grossen Fahrplanwechsel am 14. Dezember 2025."
+                )
+            elif delta <= 3:
+                asym_note = (
+                    f"<strong>Linie {sel_line} — Haltestellen-Asymmetrie:</strong> "
+                    f"Richtung A hat {n0} Halte, Richtung B hat {n1} Halte (Δ={delta}). "
+                    "Ursache: Im Innenstadtbereich nehmen Trams auf Einbahnstraßen-Abschnitten je nach "
+                    "Fahrtrichtung verschiedene Wege — dabei bedienen sie unterschiedliche Haltestellen. "
+                    "Kein Datenfehler, sondern die tatsächliche Betriebsrealität."
+                )
+            else:
+                asym_note = (
+                    f"<strong>Linie {sel_line} — Haltestellen-Asymmetrie:</strong> "
+                    f"Richtung A hat {n0} Halte, Richtung B hat {n1} Halte (Δ={delta}). "
+                    "Mögliche Ursachen: Einbahnstraßen-Routing, Schleifen an Endstationen oder "
+                    "strukturell unterschiedliche Streckenführungen."
+                )
+            box(asym_note, kind="insight")
 
     # ── Top-5 Problemhaltestellen ──
     st.markdown("---")
