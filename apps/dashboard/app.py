@@ -543,29 +543,15 @@ if page == "Linie erkunden":
             format_func=lambda x: f"Linie {x}",
         )
 
-        direction_choices = get_direction_choices(sel_line, route_dir_df=route_dir_df)
-        direction_options = [None] + [d[0] for d in direction_choices] if direction_choices else [None]
-        direction_labels = {None: "Gesamt (beide Richtungen)"}
-        for dir_id, label in direction_choices:
-            direction_labels[dir_id] = label
-
-        sel_direction = st.selectbox(
-            "Fahrtrichtung",
-            direction_options,
-            index=0,
-            format_func=lambda d: direction_labels.get(d, f"Richtung {d}"),
-        )
-
-    # Daten laden (nach den Selectboxen, ausserhalb der Spalten)
+    # Daten laden (nach dem Selectbox, ausserhalb der Spalten)
     try:
-        profile = get_line_profile(sel_line, direction_id=sel_direction, route_dir_df=route_dir_df, stop_df=stop_df)
+        profile = get_line_profile(sel_line, direction_id=None, route_dir_df=route_dir_df, stop_df=stop_df)
     except Exception as e:
         st.error(f"Fehler beim Laden des Linienprofils: {e}")
         st.stop()
 
     stops_df = profile['stops']
     shape_geom = profile['shape_geom']
-    direction_label = profile['direction_label']
 
     if len(stops_df) == 0:
         st.warning("Keine Daten für diese Linie.")
@@ -653,45 +639,6 @@ if page == "Linie erkunden":
 
     fig_map = plot_line_map_with_geometry(sel_line, route_filtered, shape_geom=shape_geom)
     st.plotly_chart(fig_map, use_container_width=True)
-
-    # Asymmetrie-Hinweis: unterschiedliche Haltestellenanzahl je Richtung
-    dir_counts = (
-        route_dir_df
-        .filter(pl.col("line_name").cast(pl.String) == sel_line)
-        .group_by("direction_id")
-        .agg(pl.len().alias("n"))
-        .sort("direction_id")
-        .to_pandas()
-    )
-    if len(dir_counts) == 2:
-        n0 = int(dir_counts.loc[dir_counts["direction_id"] == 0, "n"].values[0])
-        n1 = int(dir_counts.loc[dir_counts["direction_id"] == 1, "n"].values[0])
-        delta = abs(n0 - n1)
-        if delta >= 1:
-            if sel_line == "8":
-                asym_note = (
-                    f"<strong>Linie {sel_line} — strukturelle Asymmetrie:</strong> "
-                    f"Richtung A hat {n0} Halte, Richtung B hat {n1} Halte (Δ={delta}). "
-                    "Die GTFS-Daten 2025 bilden den Wollishofen-Abschnitt nur in Richtung B ab. "
-                    "Kein Datenfehler — die Strecke (Klusplatz ↔ Wollishoferplatz) war die offizielle "
-                    "Route bis zum grossen Fahrplanwechsel am 14. Dezember 2025."
-                )
-            elif delta <= 3:
-                asym_note = (
-                    f"<strong>Linie {sel_line} — Haltestellen-Asymmetrie:</strong> "
-                    f"Richtung A hat {n0} Halte, Richtung B hat {n1} Halte (Δ={delta}). "
-                    "Ursache: Im Innenstadtbereich nehmen Trams auf Einbahnstraßen-Abschnitten je nach "
-                    "Fahrtrichtung verschiedene Wege — dabei bedienen sie unterschiedliche Haltestellen. "
-                    "Kein Datenfehler, sondern die tatsächliche Betriebsrealität."
-                )
-            else:
-                asym_note = (
-                    f"<strong>Linie {sel_line} — Haltestellen-Asymmetrie:</strong> "
-                    f"Richtung A hat {n0} Halte, Richtung B hat {n1} Halte (Δ={delta}). "
-                    "Mögliche Ursachen: Einbahnstraßen-Routing, Schleifen an Endstationen oder "
-                    "strukturell unterschiedliche Streckenführungen."
-                )
-            box(asym_note, kind="insight")
 
     # ── Top-5 Problemhaltestellen ──
     st.markdown("---")
