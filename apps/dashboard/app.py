@@ -416,12 +416,12 @@ def recommendation_text(line: str, stats: dict, worst: pd.DataFrame) -> str:
 
     if otp >= 92:
         return (
-            f"✅ <strong>Linie {line} liegt über Netzschnitt</strong> (OTP {otp:.1f}%). "
+            f"<strong>Linie {line} liegt über Netzschnitt</strong> (OTP {otp:.1f}%). "
             f"Kein akuter Handlungsbedarf. Monitoring der {n_no_buf} Haltestellen ohne Puffer empfohlen."
         )
     elif otp >= 87:
         return (
-            f"⚠️ <strong>Linie {line} — moderater Handlungsbedarf.</strong> "
+            f"<strong>Linie {line} — moderater Handlungsbedarf.</strong> "
             f"OTP {otp:.1f}% · Lücke {gap:.1f} PP. "
             f"{n_no_buf} der 5 schlechtesten Haltestellen haben 0s Fahrplanpuffer. "
             f"Empfehlung: +20–30s an den Problemhalten einplanen."
