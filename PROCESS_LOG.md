@@ -1582,3 +1582,27 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - **Konsistenzregel:** JSON ↔ HTML Drift wird nie toleriert. CLAUDE.md dokumentiert Prozess.
 
 **Nächster Schritt:** Optional: Dashboard-Seiten testen auf Fahrtrichtung-Filter (all 3 pages + all visualizations) · Dann Phase 5 abschliessen
+
+---
+
+### 2026-06-24 — Tramlinien-Übersicht Notebook gebaut (`07_tramlines-overview.ipynb`)
+
+**Was wurde gemacht:**
+- `gtfs_stop_times_2025.parquet` aus `sf_data-research/data/interim/vbz/gtfs/` in `data/raw/gtfs/` kopiert — dauerhaft verfügbar im Projekt
+- `07_tramlines-overview.ipynb` komplett neu aufgebaut (vorheriger Inhalt gelöscht)
+
+**Notebook-Struktur (`07_tramlines-overview.ipynb`):**
+- Datenarchitektur-Sektion: Quellentabelle (5 Parquets + config.py) + Herleitungskette (routes → trips → stop_times → stops → shapes)
+- Setup-Zelle: lädt alle 5 Parquets, filtert Tram-Trips, wählt repräsentativen Trip pro (Linie, Richtung) nach max. Anzahl Stops
+- Übersichts-Chart: horizontale Balken aller 17 Linien in offiziellen Linienfarben
+- Inhaltsverzeichnis: alle Linien mit Endpunkten
+- Helper-Funktionen: `get_line_stops()` und `plot_line_map()`
+- Per-Linie Loop: für alle 17 Linien — Haltestellen A→B und B→A + interaktive Plotly-Karte
+
+**Wichtige technische Erkenntnisse (im Notebook dokumentiert):**
+- `direction_id` ist `Int64` (nicht String) → Polars-Filter mit `== 0 / == 1`
+- `gtfs_stop_times_2025.parquet`: `year` ist `Int16 = 2025` (nicht String `'2025'` wie andere Parquets)
+- `gtfs_tram_stop_times.parquet` (merged) hat `stop_id`-Format `gen:23026:...` → **nicht verwenden**, kein Join mit `gtfs_tram_stops` möglich
+- Repräsentativer Trip = Trip mit meisten Stops → Hauptstrecke, keine Kurzläufer
+
+**Nächster Schritt:** Notebook in Jupyter ausführen und Karten für alle 17 Linien validieren
