@@ -187,6 +187,32 @@ source .venv/bin/activate && python scripts/check_style.py
 ```
 Regeln: TITLE_KW, plotly_title(), LEGEND_KW_RIGHT, English labels, ylim-Parameter, keine Nulllinien.
 
+## Strecken-Basisdaten — `tramlines_stops.parquet`
+
+Erzeugt durch: `notebooks/01_exploration-tramlines.ipynb` (Export-Zelle ausführen)  
+Pfad: `data/processed/tramlines_stops.parquet`  
+Laden: `pl.read_parquet(PATHS['processed'] / 'tramlines_stops.parquet')`
+
+| Spalte | Typ | Beschreibung |
+|:-------|:----|:-------------|
+| `line_name` | String | Liniennummer (z.B. `'8'`, `'E'`) |
+| `direction_id` | Int64 | 0 oder 1 — willkürliche GTFS-Labels, **kein** festes Hin/Rück |
+| `headsign` | String | Zielanzeige des Trams (z.B. `'Klusplatz B'`) — einziger zuverlässiger Richtungs-Name |
+| `stop_sequence` | Int64 | Haltestellenreihenfolge innerhalb der Richtung (1-basiert) |
+| `stop_name` | String | Haltestellenname (ohne Präfix `'Zürich, '`) |
+| `stop_lat` | Float64 | Breitengrad |
+| `stop_lon` | Float64 | Längengrad |
+
+**Zweck:** Geordnete Haltestellen aller 17 Tramlinien für beide Richtungen — direkt ladbar für Dashboard-Features ohne GTFS-Join-Logik.
+
+**Kritische Hinweise:**
+- `direction_id` 0 und 1 sind **keine festen Richtungen** — immer `headsign` zur Identifikation verwenden
+- L8 hat 30 vs. 40 Halte je Richtung (strukturelle GTFS-Asymmetrie, kein Fehler) — Details in Notebook Architecture-Sektion
+- Nicht durch `precompute.py` generiert — wird durch Notebook-Ausführung aktualisiert
+- Vollständige Erklärung aller Asymmetrien: `notebooks/01_exploration-tramlines.ipynb`
+
+---
+
 ## Dashboard — Precomputed Aggregations
 
 Das Streamlit-Dashboard (`apps/dashboard/app.py`) nutzt vorberechnete Aggregationen für Performance.
