@@ -586,15 +586,14 @@ if page == "Linie erkunden":
 
     with col_kpi:
         st.markdown("<div style='height: 0.35rem'></div>", unsafe_allow_html=True)
-        k1, k2, k3 = st.columns(3)
-        k1.metric(
+        st.metric(
             "Pünktlichkeit (OTP)",
             f"{otp:.1f}%",
             delta=otp_delta_str(otp),
             delta_color="normal",
         )
-        k2.metric("Ø Verspätung", f"{delay:.0f}s")
-        k3.metric("Haltestellen", int(n_stops))
+        st.metric("Ø Verspätung", f"{delay:.0f}s")
+        st.metric("Haltestellen", int(n_stops))
 
     st.markdown("---")
 
