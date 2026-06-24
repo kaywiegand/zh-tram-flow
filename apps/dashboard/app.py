@@ -527,28 +527,31 @@ if page == "Linie erkunden":
         unsafe_allow_html=True,
     )
 
-    sel_line = st.selectbox(
-        "Linie wählen",
-        ALL_LINES,
-        index=ALL_LINES.index("11") if "11" in ALL_LINES else 0,
-        format_func=lambda x: f"Linie {x}",
-    )
+    # ── Steuerung (links) + KPIs (rechts) in zwei Spalten ──
+    col_ctrl, col_kpi = st.columns([1, 2], gap="large")
 
-    # Determine available directions for selected line (centralized via get_direction_choices)
-    direction_choices = get_direction_choices(sel_line, route_dir_df=route_dir_df)
-    direction_options = [None] + [d[0] for d in direction_choices] if direction_choices else [None]
-    direction_labels = {None: "Gesamt (beide Richtungen)"}
-    for dir_id, label in direction_choices:
-        direction_labels[dir_id] = label
+    with col_ctrl:
+        sel_line = st.selectbox(
+            "Linie wählen",
+            ALL_LINES,
+            index=ALL_LINES.index("11") if "11" in ALL_LINES else 0,
+            format_func=lambda x: f"Linie {x}",
+        )
 
-    sel_direction = st.selectbox(
-        "Fahrtrichtung",
-        direction_options,
-        index=0,  # Default to "Gesamt"
-        format_func=lambda d: direction_labels.get(d, f"Richtung {d}"),
-    )
+        direction_choices = get_direction_choices(sel_line, route_dir_df=route_dir_df)
+        direction_options = [None] + [d[0] for d in direction_choices] if direction_choices else [None]
+        direction_labels = {None: "Gesamt (beide Richtungen)"}
+        for dir_id, label in direction_choices:
+            direction_labels[dir_id] = label
 
-    # SINGLE SOURCE OF TRUTH: get_line_profile() liefert alles konsistent
+        sel_direction = st.selectbox(
+            "Fahrtrichtung",
+            direction_options,
+            index=0,
+            format_func=lambda d: direction_labels.get(d, f"Richtung {d}"),
+        )
+
+    # Daten laden (nach den Selectboxen, ausserhalb der Spalten)
     try:
         profile = get_line_profile(sel_line, direction_id=sel_direction, route_dir_df=route_dir_df, stop_df=stop_df)
     except Exception as e:
@@ -563,19 +566,13 @@ if page == "Linie erkunden":
         st.warning("Keine Daten für diese Linie.")
         st.stop()
 
-    # Filter to main route (consistent with Karte)
     route_filtered = filter_route_for_display(stops_df)
 
-    # Calculate KPIs from filtered route only
     n_stops = len(route_filtered)
-    otp = (route_filtered["otp_pct"].mean() if "otp_pct" in route_filtered.columns
-           else route_filtered.get("otp_pct", 0).mean())
-    delay = route_filtered["mean_delay"].mean() if "mean_delay" in route_filtered.columns else 0
+    otp = route_filtered["otp_pct"].mean() if "otp_pct" in route_filtered.columns else 0.0
+    delay = route_filtered["mean_delay"].mean() if "mean_delay" in route_filtered.columns else 0.0
 
-    # Get TOP 5 from filtered route
     worst = route_filtered.nlargest(5, "mean_delay") if len(route_filtered) > 0 else pd.DataFrame()
-
-    # Prepare worst_stops_for_display format
     if len(worst) > 0:
         worst_display = worst[["stop_name", "mean_delay", "otp_pct", "dwell_time_median"]].copy()
         worst_display.columns = ["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"]
@@ -583,17 +580,17 @@ if page == "Linie erkunden":
     else:
         worst = pd.DataFrame(columns=["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"])
 
-    # ── KPIs (now based on filtered route) ──
-
-    c1, c2, c3 = st.columns(3)
-    c1.metric(
-        "Pünktlichkeit (OTP)",
-        f"{otp:.1f}%",
-        delta=otp_delta_str(otp),
-        delta_color="normal",
-    )
-    c2.metric("Ø Verspätung", f"{delay:.0f}s")
-    c3.metric("Haltestellen (Hauptroute)", int(n_stops))
+    with col_kpi:
+        st.markdown("<div style='height: 0.35rem'></div>", unsafe_allow_html=True)
+        k1, k2, k3 = st.columns(3)
+        k1.metric(
+            "Pünktlichkeit (OTP)",
+            f"{otp:.1f}%",
+            delta=otp_delta_str(otp),
+            delta_color="normal",
+        )
+        k2.metric("Ø Verspätung", f"{delay:.0f}s")
+        k3.metric("Haltestellen", int(n_stops))
 
     st.markdown("---")
 
