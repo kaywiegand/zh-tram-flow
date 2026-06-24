@@ -163,26 +163,30 @@ print(f"  → stop_line_lookup: {len(stop_line_lookup)} rows")
 # ─── 6 + 7. Route profiles — basierend auf kanonischer tramlines_stops ───────
 print("Computing route_profile and route_profile_by_direction from tramlines_stops...")
 
-# Baue normalisierten Stop-Name-Index aus stop_agg:
-# tramlines_stops verwendet Kurznamen ("Fernsehstudio"), stop_agg Langnamen ("Zürich, Fernsehstudio")
-# → "Zürich, " prefix entfernen für den Join
+# stop_agg Join-Lookup: VBZ IST-Namen normalisieren
+# IST: "Zürich, Fernsehstudio" / "Zürich,Kalkbreite/Bhf.Wiedikon" → strip "Zürich, ?"
 stop_agg_for_join = stop_agg.with_columns(
     pl.col("stop_name").cast(pl.Utf8)
     .str.replace(r"^Zürich, ?", "", literal=False)
     .alias("stop_name_norm")
 ).select(["stop_name_norm", "mean_delay", "p90_delay", "otp_pct", "n_obs", "dwell_time_median"])
 
-# ─── route_profile_by_direction ────────────────────────────────────────────
-# Canonical stop list pro Linie + Richtung aus tramlines_stops
-# Metriken aus stop_agg via normalisiertem Join
-route_by_direction = (
-    tramlines
-    .rename({"stop_lat": "lat", "stop_lon": "lon"})
-    .join(
-        stop_agg_for_join.rename({"stop_name_norm": "stop_name"}),
-        on="stop_name",
-        how="left",
+# tramlines Join-Helper: Normalisierung auf GTFS-Seite
+# 1. strip "Zürich, ?" prefix (Kalkbreite-Fix)
+# 2. strip trailing " [A-F]" platform letter (Bellevue A/B/.../F → Bellevue)
+def _add_norm(df: pl.DataFrame) -> pl.DataFrame:
+    return df.with_columns(
+        pl.col("stop_name")
+        .str.replace(r"^Zürich, ?", "", literal=False)
+        .str.replace(r" [A-F]$", "", literal=False)
+        .alias("stop_name_norm")
     )
+
+# ─── route_profile_by_direction ────────────────────────────────────────────
+route_by_direction = (
+    _add_norm(tramlines.rename({"stop_lat": "lat", "stop_lon": "lon"}))
+    .join(stop_agg_for_join, on="stop_name_norm", how="left")
+    .drop("stop_name_norm")
     .with_columns([
         pl.col("mean_delay").fill_null(0.0).cast(pl.Float32),
         pl.col("p90_delay").fill_null(0.0).cast(pl.Float32),
@@ -210,16 +214,13 @@ route_by_direction.write_parquet(DATA_DIR / "route_profile_by_direction.parquet"
 print(f"  → route_profile_by_direction: {len(route_by_direction)} rows")
 
 # ─── route_profile (Richtung 0 als kanonische Reihenfolge) ─────────────────
-# Für Linienvergleich (Page 2): nur direction=0 Haltestellen, sortiert nach stop_sequence
 route_profile = (
-    tramlines
-    .filter(pl.col("direction_id") == 0)
-    .rename({"stop_lat": "lat", "stop_lon": "lon"})
-    .join(
-        stop_agg_for_join.rename({"stop_name_norm": "stop_name"}),
-        on="stop_name",
-        how="left",
+    _add_norm(
+        tramlines.filter(pl.col("direction_id") == 0)
+        .rename({"stop_lat": "lat", "stop_lon": "lon"})
     )
+    .join(stop_agg_for_join, on="stop_name_norm", how="left")
+    .drop("stop_name_norm")
     .with_columns([
         pl.col("mean_delay").fill_null(0.0).cast(pl.Float32),
         pl.col("p90_delay").fill_null(0.0).cast(pl.Float32),

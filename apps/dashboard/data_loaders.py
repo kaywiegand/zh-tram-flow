@@ -77,11 +77,14 @@ def get_line_profile(
     route_filter = route_dir_df.filter(pl.col("line_name").cast(pl.String) == str(line_name))
 
     if direction_id is not None:
-        # Spezifische Richtung
         route_stops = route_filter.filter(pl.col("direction_id") == direction_id)
     else:
-        # "Gesamt": nutze Richtung 0 als Basis-Reihenfolge (Start→Ende)
-        route_stops = route_filter.filter(pl.col("direction_id") == 0)
+        # Gesamt: dir=0 stops + Stops die nur in dir=1 vorkommen (Einbahnstraßen etc.)
+        dir0 = route_filter.filter(pl.col("direction_id") == 0)
+        dir1 = route_filter.filter(pl.col("direction_id") == 1)
+        stops_in_dir0 = set(dir0["stop_name"].to_list())
+        extra = dir1.filter(~pl.col("stop_name").is_in(stops_in_dir0))
+        route_stops = pl.concat([dir0, extra])
 
     if len(route_stops) == 0:
         raise ValueError(f"Keine Halte gefunden für L{line_name} Richtung {direction_id}")
