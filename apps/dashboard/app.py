@@ -532,10 +532,10 @@ if page == "Linie erkunden":
         unsafe_allow_html=True,
     )
 
-    # ── Steuerung (links) + KPIs (rechts) in zwei Spalten ──
-    col_ctrl, col_kpi = st.columns([7, 3], gap="large")
+    # ── Dropdown + 3 KPIs in einer Zeile ──
+    col_sel, col_otp, col_delay, col_stops = st.columns([2, 1, 1, 1], gap="large")
 
-    with col_ctrl:
+    with col_sel:
         sel_line = st.selectbox(
             "Linie wählen",
             ALL_LINES,
@@ -543,7 +543,7 @@ if page == "Linie erkunden":
             format_func=lambda x: f"Linie {x}",
         )
 
-    # Daten laden (nach dem Selectbox, ausserhalb der Spalten)
+    # Daten laden
     try:
         profile = get_line_profile(sel_line, direction_id=None, route_dir_df=route_dir_df, stop_df=stop_df)
     except Exception as e:
@@ -571,16 +571,14 @@ if page == "Linie erkunden":
     else:
         worst = pd.DataFrame(columns=["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"])
 
-    with col_kpi:
-        st.markdown("<div style='height: 0.35rem'></div>", unsafe_allow_html=True)
-        st.metric(
-            "Pünktlichkeit (OTP)",
-            f"{otp:.1f}%",
-            delta=otp_delta_str(otp),
-            delta_color="normal",
-        )
-        st.metric("Ø Verspätung", f"{delay:.0f}s")
-        st.metric("Haltestellen", int(n_stops))
+    col_otp.metric(
+        "Pünktlichkeit (OTP)",
+        f"{otp:.1f}%",
+        delta=otp_delta_str(otp),
+        delta_color="normal",
+    )
+    col_delay.metric("Ø Verspätung", f"{delay:.0f}s")
+    col_stops.metric("Haltestellen", int(n_stops))
 
     st.markdown("---")
 
