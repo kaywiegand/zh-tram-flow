@@ -1606,3 +1606,28 @@ Analyse (Delays identifizieren) → Befund (Delays sind strukturell, nicht zufä
 - Repräsentativer Trip = Trip mit meisten Stops → Hauptstrecke, keine Kurzläufer
 
 **Nächster Schritt:** Notebook in Jupyter ausführen und Karten für alle 17 Linien validieren
+
+---
+
+### 2026-06-24 (Fortsetzung) — Notebook verfeinert + Fahrplanwechsel-Kontext
+
+**Was wurde gemacht:**
+- Notebook umbenannt: `07_tramlines-overview` → `01_exploration-tramlines`
+- `Scattermapbox` → `Scattermap` (MapLibre, DeprecationWarning behoben)
+- Architecture-Sektion auf Deutsch umgeschrieben (Überschriften Englisch)
+- TOC-Zelle hinzugefügt
+- Zwischenüberschriften als separate Markdown-Zellen eingefügt
+- Export-Zelle: `data/processed/tramlines_stops.parquet` — Schema: `line_name, direction_id, headsign, stop_sequence, stop_name, stop_lat, stop_lon`
+- Line Directory: Asymmetrie-Tabelle mit Δ-Spalte
+- Per-Linie Loop: Asymmetrie-Hinweis direkt bei betroffenen Linien
+- `CLAUDE.md` aktualisiert: neue Sektion "Strecken-Basisdaten — tramlines_stops.parquet" für Dashboard-Sessions
+
+**VBZ Fahrplanwechsel-Recherche:**
+Webrecherche bestätigt: Die GTFS-Daten 2025 bilden die Strecken vor dem **14. Dezember 2025** ab.
+An diesem Datum trat der grösste Fahrplanwechsel in der VBZ-Geschichte in Kraft (Tramnetz Süd, 7 Linien geändert).
+- L8 alt (GTFS 2025): Klusplatz ↔ Wollishoferplatz ✓ offiziell bestätigt
+- L8 neu (ab 14.12.2025): Hardturm ↔ Kirche Fluntern
+- Methodisch konsistent: Verspätungs-Hauptdatensatz (2023–2025) enthält ebenfalls Daten unter der alten Streckenführung
+- Quelle: [fahrplanwechsel.vbz.ch/tramline/linie-8/](https://fahrplanwechsel.vbz.ch/tramline/linie-8/)
+
+**Nächster Schritt:** Notebook in Jupyter ausführen → dann Dashboard-Finalisierung (Phase 5)
