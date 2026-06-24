@@ -67,7 +67,7 @@ st.markdown("""
 section[data-testid="stSidebar"] { background: #1a3a5c; }
 section[data-testid="stSidebar"] * { color: #ffffff !important; }
 section[data-testid="stSidebar"] .stRadio label { font-size: 1rem; padding: 0.35rem 0; }
-.block-container { padding-top: 1.5rem; max-width: 1200px; }
+.block-container { padding-top: 3rem; max-width: 1200px; }
 
 .page-title   { font-size: 1.7rem; font-weight: 800; color: #1a3a5c; margin-bottom: 0.2rem; }
 .page-sub     { font-size: 0.97rem; color: #718096; margin-bottom: 1.5rem; line-height: 1.55; }
