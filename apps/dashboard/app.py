@@ -493,7 +493,7 @@ with st.sidebar:
     <div style="padding:1rem 0 0.5rem">
         <div style="font-size:1.3rem;font-weight:800">Zurich Tram Flow</div>
         <div style="font-size:0.78rem;opacity:0.6;margin-top:0.3rem">
-            Netz-Explorer · VBZ 2023–2025
+            Prototyp · VBZ 2023–2025
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -522,8 +522,12 @@ with st.sidebar:
 if page == "Linie erkunden":
     st.markdown('<div class="page-title">Linie erkunden</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="page-sub">Wähle eine Linie — sieh wo der Delay entsteht '
-        'und was dagegen getan werden kann.</div>',
+        '<div class="page-sub">'
+        'Wo entstehen Verspätungen — und auf welchen Linien ist der Handlungsbedarf am grössten? '
+        'Basierend auf 94 Mio. VBZ-Fahrten 2023–2025. '
+        'Alle Werte sind Durchschnitte über den Gesamtzeitraum — gut für Trends und Priorisierung, '
+        'nicht für exakte Echtzeit-Aussagen.'
+        '</div>',
         unsafe_allow_html=True,
     )
 
@@ -649,24 +653,6 @@ if page == "Linie erkunden":
 
     fig_map = plot_line_map_with_geometry(sel_line, route_filtered, shape_geom=shape_geom)
     st.plotly_chart(fig_map, use_container_width=True)
-
-    # Info: Fahrplanwechsel + Richtungs-Asymmetrien
-    st.markdown("""
-    <div class="insight-box" style="font-size: 0.9rem; color: #555; line-height: 1.6;">
-    <strong>Hinweis: Linienstrecken und Fahrtrichtungen</strong><br>
-    <strong>Fahrplanwechsel:</strong> Im Dezember 2023 und 2024 hat VBZ mehrere Linienführungen fundamental umgebaut.
-    Die Linie auf der Karte zeigt den aktuellen j25-Zustand. Verspätungen aus 2023–2024 stammen teilweise von
-    früheren Linienstrecken — daher sind manche Blasen nicht exakt auf der gezeichneten Linie positioniert.<br><br>
-    <strong>Einbahnstraßen und Richtungs-Asymmetrien:</strong> Trams können je nach Fahrtrichtung
-    unterschiedliche Haltestellen bedienen — weil sie im Innenstadtbereich auf Einbahnstraßen
-    verschiedene Wege nehmen oder an Endstationen eine Schleife fahren. Das ist keine Datenlücke,
-    sondern die tatsächliche Betriebsrealität. Wenn eine Linie asymmetrisch ist, erscheint
-    unten ein spezifischer Hinweis mit den genauen Zahlen.<br><br>
-    <strong>Für Details:</strong>
-    <a href="https://kaywiegand.github.io/zh-tram-flow/network-map.html" target="_blank" style="color: #2E86AB; font-weight: 600; text-decoration: underline;">Interaktive Network-Map öffnen</a>
-    — zeigt die genauen Linienstrecken-Änderungen pro Jahr und Fahrplanwechsel.
-    </div>
-    """, unsafe_allow_html=True)
 
     # Asymmetrie-Hinweis: unterschiedliche Haltestellenanzahl je Richtung
     dir_counts = (
