@@ -10,57 +10,58 @@
 /* ── Theme Variables (swap here to change theme) ────────── */
 :root {
   /* Brand colors */
-  --color-primary:      #1a3a5c;   /* dark blue — headings, nav, strong */
-  --color-accent:       #2E86AB;   /* mid blue  — h2 borders, links, subline */
-  --color-positive:     #27ae60;   /* green     — good news, success */
-  --color-warning:      #e67e22;   /* orange    — caution, amber states */
-  --color-negative:     #c0392b;   /* red       — problems, bad metrics */
+  --color-primary:      #3C4F72;   /* slate-blue — headings, icons, nav */
+  --color-primary-dk:   #1C2B48;   /* darkest — button fills, strong emphasis */
+  --color-accent:       #C4933A;   /* amber — KPIs, highlights, bullets */
+  --color-positive:     #27ae60;   /* green — good news, success */
+  --color-warning:      #e67e22;   /* orange — caution states */
+  --color-negative:     #c0392b;   /* red — problems, bad metrics */
 
-  /* Title slide (on dark gradient background) */
+  /* Title slide (on dark background) */
   --color-title-text:   #ffffff;
   --color-title-sub:    rgba(255,255,255,0.78);
   --color-title-meta:   rgba(255,255,255,0.32);
-  --color-kpi-positive: #4cd98a;   /* bright green on dark bg */
-  --color-kpi-negative: #ff7a7a;   /* bright red on dark bg */
-  --color-kpi-warning:  #ffc66d;   /* bright amber on dark bg */
+  --color-kpi-positive: #4cd98a;
+  --color-kpi-negative: #ff7a7a;
+  --color-kpi-warning:  #ffc66d;
 
   /* Backgrounds */
-  --bg-card:            #f5f9fc;
-  --bg-box-default:     #f0f7fb;
+  --bg-card:            #EEEDF2;   /* light gray panels, card fills */
+  --bg-box-default:     #EEEDF2;
   --bg-box-positive:    #f2faf5;
   --bg-box-negative:    #fdf3f2;
   --bg-box-warning:     #fdf8f0;
-  --bg-table-alt:       #f7fafb;
+  --bg-table-alt:       #F5F5F8;
   --bg-table-hl:        #e5f5ec;
 
   /* Borders */
-  --border-card:        #d0e8f5;
-  --border-box-default: #2E86AB;   /* same as accent */
+  --border-card:        #D0D4E2;
+  --border-box-default: #C4933A;   /* amber — matches accent */
   --border-myth-assume: #f0c8c8;
   --border-myth-finding:#b8e8cf;
 
   /* Text */
-  --text-body:          #333;
-  --text-muted:         #777;
-  --text-caption:       #888;
-  --text-strong:        #1a3a5c;   /* same as primary */
+  --text-body:          #596278;
+  --text-muted:         #8A95AB;
+  --text-caption:       #8A95AB;
+  --text-strong:        #3C4F72;   /* same as primary */
 
-  /* Title slide gradient — change both stops to retheme */
-  --gradient-title: linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%);
+  /* Title slide gradient */
+  --gradient-title: linear-gradient(135deg, #1C2B48 0%, #3C4F72 100%);
 
   /* Typography */
   --font-base-size:     21px;
   --font-ui:            -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   /* Spacing */
-  --radius-card:        8px;
-  --radius-box:         6px;
+  --radius-card:        12px;
+  --radius-box:         8px;
 }
 
 /* ── Base ─────────────────────────────────── */
 .reveal { font-size: var(--font-base-size); }
 .reveal h1 { font-size: 2.6em; color: var(--color-title-text); text-align: center; letter-spacing: -0.01em; margin-bottom: 0.2em; }
-.reveal h2 { font-size: 1.65em; color: var(--color-primary); border-bottom: 2px solid var(--color-accent); padding-bottom: 6px; margin-bottom: 0.3em; text-align: left; line-height: 1.2; font-weight: 700; }
+.reveal h2 { font-size: 1.65em; color: var(--color-primary); margin-bottom: 0.3em; text-align: left; line-height: 1.2; font-weight: 700; }
 .reveal .subline { font-size: 0.8em; color: var(--color-accent); font-weight: 600; letter-spacing: 0.02em; margin-bottom: 0.9em; text-align: left; display: block; }
 .reveal p, .reveal li { color: var(--text-body); line-height: 1.58; text-align: left; }
 .reveal ul { margin: 0; padding-left: 1.1em; }
@@ -115,20 +116,20 @@ tr.hl td { background: var(--bg-table-hl) !important; font-weight: 600; }
 .stk {
   width: 1px;
   height: 16px;
-  background: rgba(26, 58, 92, 0.2);
+  background: rgba(60, 79, 114, 0.2);
   border-radius: 1px;
   transition: background 0.18s, width 0.12s, height 0.12s;
 }
 .stk-num {
   font-size: 10px;
   line-height: 1;
-  color: rgba(26, 58, 92, 0.3);
+  color: rgba(60, 79, 114, 0.3);
   font-family: var(--font-ui);
   font-variant-numeric: tabular-nums;
   transition: color 0.18s;
 }
-.stk-wrap.stk-past .stk     { background: rgba(26, 58, 92, 0.5); }
-.stk-wrap.stk-past .stk-num { color: rgba(26, 58, 92, 0.5); }
+.stk-wrap.stk-past .stk     { background: rgba(60, 79, 114, 0.5); }
+.stk-wrap.stk-past .stk-num { color: rgba(60, 79, 114, 0.5); }
 .stk-wrap.stk-current .stk     { background: var(--color-primary); width: 2px; height: 32px; }
 .stk-wrap.stk-current .stk-num { color: var(--color-primary); font-weight: 700; }
 
@@ -149,7 +150,7 @@ tr.hl td { background: var(--bg-table-hl) !important; font-weight: 600; }
   transition: color 0.18s, font-weight 0.18s;
   align-self: flex-start;
 }
-.stk-wrap.stk-chapter .stk-ch-label       { color: rgba(26, 58, 92, 0.32); }
+.stk-wrap.stk-chapter .stk-ch-label       { color: rgba(60, 79, 114, 0.32); }
 .stk-wrap.stk-chapter .stk                { height: 30px; }
 .stk-wrap.stk-chapter-active .stk-ch-label { color: var(--color-primary); font-weight: 700; }
 .stk-wrap.stk-chapter-active .stk          { background: var(--color-primary); }
@@ -164,7 +165,7 @@ tr.hl td { background: var(--bg-table-hl) !important; font-weight: 600; }
   display: flex;
   flex-direction: column;
   padding: 16px 0;
-  border-left: 1px solid rgba(26, 58, 92, 0.1);
+  border-left: 1px solid rgba(60, 79, 114, 0.1);
 }
 .ln-item {
   display: flex;
@@ -179,17 +180,17 @@ tr.hl td { background: var(--bg-table-hl) !important; font-weight: 600; }
 .ln-tick {
   width: 5px;
   height: 1px;
-  background: rgba(26, 58, 92, 0.18);
+  background: rgba(60, 79, 114, 0.18);
   flex-shrink: 0;
   transition: width 0.18s, height 0.18s, background 0.18s;
 }
-.ln-item.ln-chapter  .ln-tick { width: 9px; background: rgba(26, 58, 92, 0.28); }
-.ln-item.ln-past     .ln-tick { background: rgba(26, 58, 92, 0.42); }
+.ln-item.ln-chapter  .ln-tick { width: 9px; background: rgba(60, 79, 114, 0.28); }
+.ln-item.ln-past     .ln-tick { background: rgba(60, 79, 114, 0.42); }
 .ln-item.ln-current  .ln-tick { width: 16px; height: 2px; background: var(--color-accent); }
 .ln-item:hover       .ln-tick { background: var(--color-accent); }
 .ln-label {
   font-size: 7px;
-  color: rgba(26, 58, 92, 0.3);
+  color: rgba(60, 79, 114, 0.3);
   font-family: var(--font-ui);
   white-space: nowrap;
   letter-spacing: 0.08em;
@@ -215,7 +216,7 @@ body.nav-left       #progress-track        { display: none !important; }
   bottom: 0;
   left: 28px; right: 28px;
   height: 10px;
-  background: rgba(26, 58, 92, 0.1);
+  background: rgba(60, 79, 114, 0.1);
   z-index: 9997;
 }
 #progress-fill {
