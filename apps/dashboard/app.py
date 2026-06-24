@@ -525,8 +525,9 @@ if page == "Linie erkunden":
         '<div class="page-sub">'
         'Wo entstehen Verspätungen — und auf welchen Linien ist der Handlungsbedarf am grössten? '
         'Basierend auf 94 Mio. VBZ-Fahrten 2023–2025. '
-        'Alle Werte sind Durchschnitte über den Gesamtzeitraum — gut für Trends und Priorisierung, '
-        'nicht für exakte Echtzeit-Aussagen.'
+        'Alle Werte sind Durchschnitte über den Gesamtzeitraum — geeignet für Trendanalyse und Priorisierung. '
+        'Fahrplanwechsel (Dez. 2023 / 2024), richtungsabhängige Linienstrecken und betriebliche Einbahnführungen '
+        'können in einzelnen Ansichten zu visuellen Abweichungen führen — die Datenbasis bleibt davon unberührt.'
         '</div>',
         unsafe_allow_html=True,
     )
