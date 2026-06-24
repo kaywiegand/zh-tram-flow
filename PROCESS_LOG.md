@@ -1651,3 +1651,32 @@ An diesem Datum trat der grösste Fahrplanwechsel in der VBZ-Geschichte in Kraft
 - Quelle: [fahrplanwechsel.vbz.ch/tramline/linie-8/](https://fahrplanwechsel.vbz.ch/tramline/linie-8/)
 
 **Nächster Schritt:** Notebook in Jupyter ausführen → dann Dashboard-Finalisierung (Phase 5)
+
+---
+
+### 2026-06-24 (Fortsetzung) — Style-Überarbeitung: Gamma-Design-Tokens
+
+**Was wurde gemacht:**
+- `docs/STYLE_TOKENS.css` erstellt (Workspace-Ebene) — vollständige CSS-Design-Tokens abgeleitet aus dem Gamma "Retainer Review" PDF-Deck (23 Slides analysiert)
+- `public/css/slides.css` — komplettes Retheme auf neue Palette:
+  - Primary: `#3C4F72` (Slate-Blue, vorher `#1a3a5c`)
+  - Accent: `#C4933A` (Amber, vorher `#2E86AB` Cerulean-Blue) — größter visueller Shift
+  - Surface: `#EEEDF2` (Grau-Lavendel, vorher blaustichiges `#f5f9fc`)
+  - Body-Text: `#596278` (vorher `#333`)
+  - h2 `border-bottom` entfernt (PDF: kein Underline unter Slide-Titeln)
+  - `radius-card`: 8px → 12px
+  - Alle `rgba(26, 58, 92, ...)` Nav-Ticks → `rgba(60, 79, 114, ...)`
+- `public/index.html` — komplett neu gestylt:
+  - Gradient-Header: `#1C2B48 → #3C4F72`
+  - Section-Labels, Badges, Quick-Links: Amber-Palette
+  - View-Cards: Overview=Amber, StoryView=Slate, TechView=Dark
+  - "Live Dashboard" → "Dashboard Prototyp" (Benennung vereinheitlicht)
+  - Emoji entfernt aus Badge + View-Times
+- Workspace `launch.json` gefixt: zeigte auf `reports/` statt `public/`
+
+**Entscheidungen:**
+- Accent-Wechsel Blue → Amber ist bewusst: PDF-Deck zeigt durchgängig Amber für KPIs, Highlights, Bullets
+- h2-Underline entfernt: im PDF existiert kein solches Element
+- index.html als vollständige Write-Operation, nicht als 30+ einzelne Edits
+
+**Nächster Schritt:** Dashboard-Finalisierung (Phase 5) — Fahrplan-Wechsel-Kontext ist dokumentiert
