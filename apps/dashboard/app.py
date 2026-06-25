@@ -25,7 +25,8 @@ from data_loaders import get_line_profile, get_direction_choices
 
 # ─── Pfade ────────────────────────────────────────────────────────────────────
 
-ROOT   = Path(__file__).resolve().parent.parent.parent
+ROOT     = Path(__file__).resolve().parent.parent.parent
+DASH_DIR = Path(__file__).resolve().parent
 AGG    = Path(__file__).resolve().parent / "data"
 MODELS = ROOT / "data" / "models"
 GTFS_DIR = ROOT / "data" / "raw" / "gtfs"
@@ -162,47 +163,18 @@ def otp_delta_str(otp: float) -> str:
 
 @st.cache_data(show_spinner=False)
 def load_gtfs_shapes(line: str) -> pd.DataFrame:
-    """Load GTFS shape (track geometry) for a line.
-
-    Returns: DataFrame with columns [lat, lon] in sequence order.
-    Falls back to empty DataFrame if GTFS files not found.
-    """
-    try:
-        trips_lf = pl.scan_parquet(GTFS_DIR / "gtfs_tram_trips.parquet")
-        routes_lf = pl.scan_parquet(GTFS_DIR / "gtfs_tram_routes.parquet")
-        shapes_lf = pl.scan_parquet(GTFS_DIR / "gtfs_tram_shapes.parquet")
-    except FileNotFoundError:
+    """Load precomputed shape geometry for a line from line_shapes.parquet."""
+    shapes_path = DASH_DIR / "data" / "line_shapes.parquet"
+    if not shapes_path.exists():
         return pd.DataFrame(columns=["lat", "lon"])
-
-    # Dominant shape per line: most trips, direction=1, latest year
-    dominant = (
-        trips_lf
-        .join(routes_lf.select(["route_id", "route_short_name", "year"]),
-              on=["route_id", "year"])
-        .filter(pl.col("route_short_name") == str(line))
-        .filter(pl.col("direction_id") == 1)
-        .group_by(["route_short_name", "shape_id"])
-        .agg(pl.len().alias("n_trips"))
-        .sort("n_trips", descending=True)
-        .collect()
-        .select("shape_id")
-        .head(1)
-    )
-
-    if len(dominant) == 0:
-        return pd.DataFrame(columns=["lat", "lon"])
-
-    shape_id = dominant["shape_id"][0]
-
     return (
-        shapes_lf
-        .filter(pl.col("shape_id") == shape_id)
-        .sort("shape_pt_sequence")
-        .select([
-            pl.col("shape_pt_lat").alias("lat"),
-            pl.col("shape_pt_lon").alias("lon"),
-        ])
-        .collect()
+        pl.read_parquet(shapes_path)
+        .filter(
+            (pl.col("line_name") == str(line)) &
+            (pl.col("direction_id") == 0)
+        )
+        .sort("seq")
+        .select(["lat", "lon"])
         .to_pandas()
     )
 
