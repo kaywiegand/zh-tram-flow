@@ -1710,3 +1710,17 @@ An diesem Datum trat der grösste Fahrplanwechsel in der VBZ-Geschichte in Kraft
 - BACKLOG: #68 + #69 in OP-1 absorbiert (sind Direction Architecture Opportunity, kein Dashboard-Fix), #70 entfernt
 
 **Nächster Schritt:** Streamlit Cloud Deployment — `share.streamlit.io` → Repo `kaywiegand/zh-tram-flow` · Main file `apps/dashboard/app.py`
+
+---
+
+### 2026-06-25 (Fortsetzung) — Streamlit Cloud Deployment + Docs-Abschluss
+
+**Was wurde gemacht:**
+- `load_gtfs_shapes` in `app.py` auf `line_shapes.parquet` umgestellt (GTFS-Raw-Zugriff entfernt)
+- `precompute.py`: neuer Block schreibt `line_shapes.parquet` (48KB) in `apps/dashboard/data/`
+- 78 lokale Commits erstmals nach GitHub gepusht — Streamlit Cloud hat deployed
+- Dashboard live: **https://zh-tram-flow.streamlit.app**
+- Docs-Abschluss: ROADMAP Phase 5 ✅, BACKLOG #65 ✅, portfolio.md stage + dashboard-URL, DEPLOYMENT.md Status-Zeile, JSONs Label "Live-App" → "Dashboard-Prototype", HTMLs regeneriert, PROJECTS.md auf ✅ portfolio-ready
+- Template `portfolio_summary_template.md` um `dashboard:` Feld erweitert — Schutz vor Überschreiben bei `/project-case story`
+
+**Nächster Schritt:** Phase 5 abgeschlossen — nächstes Thema offen
