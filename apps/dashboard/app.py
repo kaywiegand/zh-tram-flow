@@ -491,7 +491,8 @@ def build_feature_row(line_name, stop_name, hour, weekday, month,
 with st.sidebar:
     st.markdown("""
     <div style="padding:1rem 0 0.5rem">
-        <div style="font-size:1.3rem;font-weight:800">Zurich Tram Flow Prototype</div>
+        <div style="font-size:1rem;font-weight:600">Zurich Tram Flow</div>
+        <div style="font-size:1.25rem;font-weight:800;margin-top:0.15rem">Dashboard-Prototype</div>
         <div style="font-size:0.78rem;opacity:0.6;margin-top:0.3rem">
             Data VBZ 2023–2025
         </div>
@@ -527,13 +528,12 @@ if page == "Linie erkunden":
     st.markdown(
         '<div class="page-sub">'
         'Wo entstehen Verspätungen — und auf welchen Linien ist der Handlungsbedarf am grössten? '
-        'Basierend auf 94 Mio. VBZ-Fahrten 2023–2025. '
-        'Alle Werte sind Durchschnitte über den Gesamtzeitraum.'
-        '<br><br>'
+        'Basierend auf 94 Mio. VBZ-Fahrten 2023–2025.<br><br>'
+        'Alle Werte sind Durchschnitte über den Gesamtzeitraum.<br><br>'
         'Dieser erste Prototyp soll die Möglichkeiten der weiteren Verwendung der gesammelten Erkenntnisse aufzeigen. '
         'Dabei ist zu beachten, dass die Daten nicht primär für diese Darstellung aufbereitet wurden und durch eine '
         'Vielzahl an Änderungen des Strecken- und Fahrplans im Zeitraum 2023–2025 und Inkonsistenzen der '
-        'Haltestellenbenennung die Ansichten zu visuellen Abweichungen führen können.'
+        'Haltestellenbenennung die Ansichten zu visuellen Abweichungen führen können.<br><br>'
         '</div>',
         unsafe_allow_html=True,
     )
@@ -668,7 +668,7 @@ if page == "Linie erkunden":
         box(rec_text, kind=recommendation_box_color(otp))
 
     box(
-        f"Tipp: Im Tab <strong>«Delay vorhersagen»</strong> kannst du für jede Haltestelle "
+        f"Tipp: Im Tab <strong>«Verspätung vorhersagen»</strong> kannst du für jede Haltestelle "
         f"dieser Linie konkrete Szenarien durchspielen — z.B. was Schnee oder ein Event kostet.",
         kind="insight",
     )
