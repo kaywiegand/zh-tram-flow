@@ -313,7 +313,7 @@ def get_fallback_template() -> str:
     <script>
         Reveal.initialize({
             hash: true,
-            center: true,
+            center: false,
             transition: 'slide',
             plugins: [RevealNotes]
         });
