@@ -88,30 +88,26 @@ Hier nur Kurzübersicht. Alles andere (Workflow, Troubleshooting, FAQ, Details) 
 ```
 public/md/portfolio.md  (Single Source of Truth — umfassend + detailliert)
         ↓
-scripts/generate_json_from_portfolio.py
+scripts/generate_views.py
         ↓
-public/json/storyline-*.json  (4 strukturierte Extrakte)
-        ↓
-scripts/generate_html_from_json.py
-        ↓
-public/{overview,storyview,techview,socialview}.html
-        ↓
-scripts/convert_json_to_md.py
-        ↓
-public/md/{overview,storyview,techview,socialview}.md
+public/index.html + overview.html + storyview.html + techview.html
 ```
 
-**WICHTIG:** `portfolio.md` ist jetzt die **Autorität für alle Inhalte**.
+**WICHTIG:** `portfolio.md` ist die **einzige Autorität für alle Inhalte**.
 - Alle Zahlen, Findings, Recommendations stehen in portfolio.md
-- JSONs werden **generiert** aus portfolio.md (nicht manuell editiert)
-- HTMLs werden **generiert** aus JSONs
-- MDs werden **generiert** aus JSONs
+- HTMLs werden direkt aus portfolio.md generiert (kein JSON-Intermediate mehr)
+- `VIEW_CONFIG` in generate_views.py steuert Struktur und Reihenfolge der Slides
 
 **Änderungen machen:**
 1. Immer zuerst in `portfolio.md` ändern
-2. Dann `/project-case json` ausführen (generiert JSONs)
-3. Dann `/project-case report` ausführen (generiert HTMLs + MDs)
-4. Oder `/project-case full` für komplette Pipeline
+2. Dann `make slides` oder `uv run python scripts/generate_views.py`
+3. Oder `/project-case report` (ruft generate_views.py)
+
+**Archiviert (nicht mehr aktiv):**
+- `scripts/_archive/generate_json_from_portfolio.py`
+- `scripts/_archive/generate_html_from_json.py`
+- `scripts/_archive/convert_json_to_md.py`
+- `public/md/_archive/*.md` (view MDs — nur portfolio.md bleibt)
 
 ---
 
@@ -139,16 +135,12 @@ Dieses Projekt dokumentiert nicht nur Kernfindings sondern auch **7 systematisch
 # → generiert JSON, HTML, MD automatisch
 ```
 
-**Einzelne Schritte (wenn nötig):**
+**Einzelne Schritte:**
 ```bash
-# Nur JSONs regenerieren
-/project-case json
-# → scripts/generate_json_from_portfolio.py
-
-# Nur HTMLs + MDs regenerieren
-/project-case report
-# → scripts/generate_html_from_json.py
-# → scripts/convert_json_to_md.py
+# Alle Views regenerieren
+make slides
+# → scripts/generate_views.py
+# → public/index.html + overview.html + storyview.html + techview.html
 ```
 
 **Zahlenformat-Regel (Deutsch):**
@@ -163,10 +155,10 @@ Alle Zahlen in portfolio.md (und damit in allen generierten Artefakten):
 
 | Datei | Rolle | Geändert durch |
 | :--- | :--- | :--- |
-| `public/json/storyline-*.json` | Content Source of Truth | Manuell |
-| `public/*.html` | Präsentations-Views (Reveal.js) | Manuell (aus JSON) |
-| `public/md/*.md` | Markdown-Export (Gamma, etc.) | `python scripts/convert_json_to_md.py` |
-| `public/index.html` | Navigation-Hub | Manuell |
+| `public/md/portfolio.md` | Single Source of Truth | Manuell |
+| `public/*.html` | Präsentations-Views (Reveal.js) | `make slides` / generate_views.py |
+| `public/index.html` | Navigation-Hub | `make slides` / generate_views.py |
+| `public/css/slides.css` | Einzige Designquelle | Manuell (CSS-Änderungen) |
 | `public/img/` | Charts (PNG + interaktive HTML) | Notebook Export-Cells |
 
 ---
