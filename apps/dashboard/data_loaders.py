@@ -224,8 +224,28 @@ def _load_shape_geometry(line_name: str, direction_id: int = 0, year: str = "202
     """
     Lade GTFS shape coordinates für eine Linie + Richtung.
 
+    Reads first from precomputed line_shapes.parquet (available on Streamlit Cloud),
+    falls back to raw GTFS files for local development.
+
     Returns: DataFrame mit [lat, lon] (sortiert nach shape_pt_sequence)
     """
+    # ── Primary: precomputed shapes (committed to repo, works on Streamlit Cloud) ──
+    precomputed = Path(__file__).parent / "data" / "line_shapes.parquet"
+    if precomputed.exists():
+        result = (
+            pl.read_parquet(precomputed)
+            .filter(
+                (pl.col("line_name") == str(line_name)) &
+                (pl.col("direction_id") == direction_id)
+            )
+            .sort("seq")
+            .select(["lat", "lon"])
+            .to_pandas()
+        )
+        if len(result) > 0:
+            return result
+
+    # ── Fallback: raw GTFS files (local dev only) ──────────────────────────────
     try:
         trips = pl.read_parquet(GTFS_DIR / "gtfs_tram_trips.parquet")
         routes = pl.read_parquet(GTFS_DIR / "gtfs_tram_routes.parquet")
@@ -233,13 +253,9 @@ def _load_shape_geometry(line_name: str, direction_id: int = 0, year: str = "202
     except FileNotFoundError:
         return pd.DataFrame(columns=["lat", "lon"])
 
-    # Finde dominante shape_id für diese Linie + Richtung + Jahr
     dominant = (
         trips
-        .join(
-            routes.select(["route_id", "route_short_name", "year"]),
-            on=["route_id", "year"]
-        )
+        .join(routes.select(["route_id", "route_short_name", "year"]), on=["route_id", "year"])
         .filter(
             (pl.col("route_short_name") == str(line_name)) &
             (pl.col("direction_id") == direction_id) &

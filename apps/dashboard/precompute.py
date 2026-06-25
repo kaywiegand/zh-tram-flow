@@ -246,11 +246,57 @@ route_profile = (
 route_profile.write_parquet(DATA_DIR / "route_profile.parquet")
 print(f"  → route_profile: {len(route_profile)} rows")
 
+# ─── 8. Line shapes (dominant shape per line × direction, for map) ────────────
+print("Computing line_shapes ...")
+
+try:
+    trips_raw  = pl.read_parquet(GTFS_DIR / "gtfs_tram_trips.parquet")
+    routes_raw = pl.read_parquet(GTFS_DIR / "gtfs_tram_routes.parquet")
+    shapes_raw = pl.read_parquet(GTFS_DIR / "gtfs_tram_shapes.parquet")
+
+    dominant_shapes = (
+        trips_raw
+        .join(routes_raw.select(["route_id", "route_short_name", "year"]), on=["route_id", "year"])
+        .filter(pl.col("year") == "2025")
+        .group_by(["route_short_name", "direction_id", "shape_id"])
+        .agg(pl.len().alias("n_trips"))
+        .sort(["route_short_name", "direction_id", "n_trips"], descending=[False, False, True])
+        .unique(subset=["route_short_name", "direction_id"], keep="first")
+        .select(["route_short_name", "direction_id", "shape_id"])
+        .rename({"route_short_name": "line_name"})
+    )
+
+    line_shapes = (
+        dominant_shapes
+        .join(
+            shapes_raw.filter(pl.col("year") == "2025")
+            .select(["shape_id", "shape_pt_lat", "shape_pt_lon", "shape_pt_sequence"]),
+            on="shape_id",
+        )
+        .sort(["line_name", "direction_id", "shape_pt_sequence"])
+        .select([
+            pl.col("line_name").cast(pl.String),
+            pl.col("direction_id"),
+            pl.col("shape_pt_lat").alias("lat").cast(pl.Float32),
+            pl.col("shape_pt_lon").alias("lon").cast(pl.Float32),
+            pl.col("shape_pt_sequence").alias("seq"),
+        ])
+    )
+
+    line_shapes.write_parquet(DATA_DIR / "line_shapes.parquet")
+    print(f"  → line_shapes: {len(line_shapes)} rows")
+    line_shapes_rows = len(line_shapes)
+
+except FileNotFoundError:
+    print("  → line_shapes: SKIPPED (GTFS raw files not found)")
+    line_shapes_rows = 0
+
 print("\n✅ Precompute done. All files written to apps/dashboard/data/")
 total_rows = (
     len(stop_agg) + len(hourly_agg) + len(weather_agg)
     + len(line_agg) + len(stop_line_lookup)
     + len(route_profile) + len(route_by_direction)
+    + line_shapes_rows
 )
 print(f"   Total rows loaded at dashboard startup: ~{total_rows:,} (vs. 29M raw)")
 print(f"   Stop lists from: tramlines_stops.parquet (GTFS-canonical, not IST aggregates)")
