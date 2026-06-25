@@ -63,13 +63,15 @@
 /* ── Base ─────────────────────────────────── */
 .reveal { font-size: var(--font-base-size); font-family: var(--font-ui); }
 
-/* ── Content slide: start from top (requires center:false in Reveal init) ── */
+/* ── Content slide: top-anchored, subline floats above h2 via flex order ── */
 .reveal .slides section:not(.title-slide):not(.closing) {
   padding-top: 68px;
 }
+
 .reveal h1 { font-size: 2.6em; color: var(--color-title-text); text-align: center; letter-spacing: -0.01em; margin-bottom: 0.2em; }
-.reveal h2 { font-size: 1.65em; color: var(--color-primary); margin-bottom: 0.3em; text-align: left; line-height: 1.2; font-weight: 700; }
-.reveal .subline { font-size: 0.8em; color: var(--color-accent); font-weight: 600; letter-spacing: 0.02em; margin-bottom: 0.9em; text-align: left; display: block; }
+.reveal h2 { font-size: 1.65em; color: var(--color-primary); margin-bottom: 0.5em; margin-top: 0.15em; text-align: left; line-height: 1.2; font-weight: 700; }
+/* .subline: small uppercase chapter label, appears above h2 via CSS order */
+.reveal .subline { font-size: 0.56em; color: var(--color-accent); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0; text-align: left; display: block; }
 .reveal p, .reveal li { color: var(--text-body); line-height: 1.58; text-align: left; }
 .reveal ul { margin: 0; padding-left: 1.1em; }
 .reveal li { margin-bottom: 5px; font-size: 0.86em; }
@@ -253,10 +255,10 @@ body.nav-left       #progress-track        { display: none !important; }
 .w50 { flex: 1 !important; }
 
 /* ── Boxes ────────────────────────────────────── */
-.box { border-left: 4px solid var(--color-accent); background: var(--bg-box-default); padding: 9px 13px; border-radius: 0 var(--radius-box) var(--radius-box) 0; margin: 7px 0; font-size: 0.85em; line-height: 1.6; }
-.box.red   { border-left-color: var(--color-negative); background: var(--bg-box-negative); }
-.box.green { border-left-color: var(--color-positive); background: var(--bg-box-positive); }
-.box.amber { border-left-color: var(--color-warning);  background: var(--bg-box-warning); }
+.box { background: var(--bg-box-default); border: 1px solid var(--border-card); padding: 10px 14px; border-radius: var(--radius-box); margin: 7px 0; font-size: 0.85em; line-height: 1.6; }
+.box.red   { background: var(--bg-box-negative); border-color: var(--border-myth-assume); }
+.box.green { background: var(--bg-box-positive); border-color: var(--border-myth-finding); }
+.box.amber { background: var(--bg-box-warning);  border-color: #f5dfa8; }
 
 /* ── Metrics ──────────────────────────────────── */
 .mrow { display: flex; gap: 8px; margin: 8px 0; }
@@ -318,7 +320,7 @@ body.nav-left       #progress-track        { display: none !important; }
 
 /* ── Recommendation cards ─────────────────────── */
 .reco-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-.reco { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 9px; padding: 13px 15px; border-left: 4px solid var(--color-accent); }
+.reco { background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 9px; padding: 13px 15px; border-top: 3px solid var(--color-accent); }
 .reco .rn { font-size: 0.67em; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 5px; }
 .reco strong { display: block; font-size: 0.88em; color: var(--color-primary); margin-bottom: 7px; line-height: 1.35; }
 .reco ul { padding-left: 1em; margin: 0; }

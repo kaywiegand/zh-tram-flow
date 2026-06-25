@@ -1,671 +1,472 @@
 <!DOCTYPE html>
+<!--
+  SLIDES TEMPLATE — Workspace Portfolio
+  ======================================
+  Basis für /project-case slides.
+  Enthält: CSS-Klassen · Reveal.js CDN · JavaScript-Handler
+  KEIN Projektinhalt — wird von /project-case slides befüllt.
+
+  Farbpalette (STYLE_TOKENS — Gamma-Portfolio):
+    Primary:  #3C4F72  (Slate-Blue — Titel, Überschriften)
+    Dark:     #1C2B48  (Dunkelnavigation — Gradient-Start)
+    Accent:   #C4933A  (Amber — Labels, KPIs, Recos-Border)
+    Body:     #596278  (Fließtext)
+    Muted:    #8A95AB  (Captions, Labels)
+    Surface:  #EEEDF2  (Card-Hintergrund)
+    Border:   #D0D4E2  (Rahmen, Trennlinien)
+    Grün:     #27ae60  (positiv/done)
+    Orange:   #e67e22  (Warnung)
+    Rot:      #c0392b  (negativ/Problem)
+
+  CSS-Klassen (vollständig):
+    Layout:       .cols .w40 .w45 .w55 .w60
+    Boxen:        .box .box-green .box-orange
+    Metriken:     .metric-row .metric .metric.good .metric.warn .metric.bad
+    Pipeline:     .pipe-step .pipe-step.done .pipe-step.active .pipe-step.planned
+    DE-Steps:     .step .step.join .step.target
+    Evidence:     .ev-chain .ev-step .ev-circle .ev-body .ev-arrow .ev-step.climax
+    Modell:       .model-card .model-card.card-green .card-badge .card-mae .card-note
+    Empf.:        .reco .reco-num .reco-text
+    Charts:       .chart-tile .chart-tile-html
+    Vorhersage:   .prediction-card .pred-grid .pred-field .pred-btn .pred-result
+    Slides:       .title-slide .thesis-slide .slide-sub
+    Tabellen:     tr.hl tr.hl-green tr.pending
+    Progress:     .progress-marker .progress-label
+-->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zurich Tram Flow — Ergebnisse &amp; Handlungsempfehlungen</title>
+  <title><!-- PROJECT TITLE --></title>
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
   <link rel="stylesheet" href="css/slides.css">
+
+  <style>
+    /* ── Base ── */
+    .reveal { font-size: 22px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .reveal h1 { font-size: 2.4em; color: #3C4F72 !important; letter-spacing: -0.01em; text-align: left; }
+    .reveal h2 { font-size: 1.5em; color: #3C4F72 !important; margin-bottom: 0.55em; margin-top: 0.15em; text-align: left; font-weight: 700; line-height: 1.2; }
+    .reveal h3 { font-size: 1.0em; color: #3C4F72 !important; margin: 0.65em 0 0.25em; text-align: left; }
+    .reveal p, .reveal li { color: #596278 !important; line-height: 1.55; text-align: left; }
+    .reveal ul { margin: 0; padding-left: 1em; }
+    .reveal li { margin-bottom: 4px; }
+    .reveal strong { color: #3C4F72 !important; }
+    .reveal .slide-number { display: none !important; }
+    .reveal img { max-width: 100%; border-radius: 8px; }
+
+    /* ── Content slide positioning + left-align all non-centered content ── */
+    .reveal .slides section:not(.title-slide):not(.thesis-slide) { padding-top: 68px; text-align: left; }
+    .reveal .slides section:not(.title-slide):not(.thesis-slide) div { text-align: left; }
+    .reveal .slides section.title-slide,
+    .reveal .slides section.thesis-slide { height: 100% !important; }
+
+    /* ── Chapter label (subline before h2) ── */
+    .reveal .subline { font-size: 0.56em; color: #C4933A !important; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0; display: block; text-align: left !important; }
+    .slide-sub { font-size: 0.56em; color: #8A95AB; font-weight: 400; }
+
+    /* ── Title Slides ── */
+    .reveal section.title-slide { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; background: linear-gradient(135deg, #1C2B48 0%, #3C4F72 100%) !important; }
+    .reveal .title-slide h1 { color: #fff !important; font-size: 2.6em; letter-spacing: 0.01em; margin-bottom: 0.3em; text-align: center; font-weight: 700 !important; }
+    .reveal .title-slide p { color: rgba(255,255,255,0.78) !important; font-size: 1.0em !important; line-height: 1.8; text-align: center !important; }
+    .reveal .title-slide .sub { color: rgba(255,255,255,0.78) !important; font-size: 1.0em; line-height: 1.8; text-align: center; }
+    .reveal .title-slide .meta { color: rgba(255,255,255,0.42); font-size: 0.72em; margin-top: 1.6em; text-align: center; }
+
+    /* ── Kernthese Slide ── */
+    .reveal section.thesis-slide { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    .thesis-label { font-size: 0.68em; letter-spacing: 0.16em; text-transform: uppercase; color: #C4933A; font-weight: 700; margin-bottom: 0.9em; }
+    .thesis-main { font-size: 1.55em; color: #3C4F72; line-height: 1.4; font-weight: 700; max-width: 800px; text-align: center; }
+    .thesis-sub { font-size: 0.84em; color: #596278; margin-top: 1em; line-height: 1.75; max-width: 660px; text-align: center; }
+    .thesis-punch { font-size: 1.1em; color: #C4933A; font-weight: 700; margin-top: 1.3em; border-top: 1px solid #D0D4E2; padding-top: 1em; text-align: center; }
+
+    /* ── Layout ── */
+    .cols { display: flex; gap: 32px; align-items: flex-start; }
+    .cols > div { flex: 1; }
+    .cols > div.w55 { flex: 1.22; }
+    .cols > div.w45 { flex: 0.82; }
+    .cols > div.w60 { flex: 1.5; }
+    .cols > div.w40 { flex: 0.67; }
+
+    /* ── Boxes ── */
+    .box { background: #EEEDF2; border: 1px solid #D0D4E2; padding: 10px 14px; border-radius: 8px; margin: 6px 0; font-size: 0.86em; line-height: 1.6; }
+    .box-green { background: #f2faf5; border-color: #b8e8cf; }
+    .box-orange { background: #fef9f0; border-color: #f5dfa8; }
+
+    /* ── Metrics ── */
+    .metric-row { display: flex; gap: 10px; margin: 8px 0; }
+    .metric { text-align: center; background: #EEEDF2; border-radius: 10px; padding: 11px 12px; flex: 1; border: 1px solid #D0D4E2; }
+    .metric .val { font-size: 1.8em; font-weight: 700; color: #3C4F72 !important; line-height: 1.05; }
+    .metric .lbl { font-size: 0.65em; color: #8A95AB !important; margin-top: 4px; }
+    .metric.good .val, .metric.positive .val { color: #27ae60 !important; font-weight: 700 !important; }
+    .metric.warn .val, .metric.warning .val { color: #e67e22 !important; font-weight: 700 !important; }
+    .metric.bad .val, .metric.negative .val { color: #c0392b !important; font-weight: 700 !important; }
+
+    /* ── Figures ── */
+    .figures { display: flex; gap: 14px; flex-wrap: wrap; }
+    .figure { text-align: center; background: #EEEDF2; border-radius: 10px; padding: 12px 16px; flex: 1; border: 1px solid #D0D4E2; }
+    .figure .value { font-size: 1.8em !important; font-weight: 700 !important; line-height: 1.05; color: #3C4F72; }
+    .figure .label { font-size: 0.75em !important; color: #8A95AB !important; line-height: 1.4; margin-top: 4px; }
+    .figure.positive .value { color: #27ae60 !important; }
+    .figure.negative .value { color: #c0392b !important; }
+    .figure.warning .value { color: #e67e22 !important; }
+    .figure.neutral .value { color: #8A95AB !important; }
+    .figures-with-context { display: flex; gap: 12px; flex-wrap: wrap; }
+    .figure-item { text-align: center; background: #EEEDF2; border-radius: 10px; padding: 11px 14px; flex: 1; border: 1px solid #D0D4E2; }
+    .figure-value { font-size: 1.6em; font-weight: 700; line-height: 1.1; color: #3C4F72; }
+    .figure-label { font-size: 0.72em; color: #8A95AB; margin-top: 3px; }
+    .figure-context { font-size: 0.68em; color: #596278; margin-top: 4px; line-height: 1.4; }
+    .figure-item.positive .figure-value { color: #27ae60 !important; font-weight: 700 !important; }
+    .figure-item.negative .figure-value { color: #c0392b !important; font-weight: 700 !important; }
+    .figure-item.warning .figure-value { color: #e67e22 !important; font-weight: 700 !important; }
+
+    /* ── Tables ── */
+    .reveal table { width: 100%; border-collapse: collapse; font-size: 0.82em; margin: 0.3em 0; }
+    .reveal table th { background: #3C4F72; color: #fff; padding: 7px 10px; text-align: left; font-weight: 600; }
+    .reveal table td { padding: 6px 10px; border-bottom: 1px solid #D0D4E2; vertical-align: middle; text-align: left; }
+    .reveal table tr:nth-child(even) td { background: #EEEDF2; }
+    tr.hl td { background: #e5ebf4 !important; font-weight: 600; }
+    tr.hl-green td { background: #e5f5ec !important; font-weight: 700; }
+    tr.pending td { color: #8A95AB; font-style: italic; }
+
+    /* ── Pipeline ── */
+    .pipe-step { padding: 5px 14px; font-size: 0.78em; font-weight: 700; border-radius: 4px; color: #fff; text-align: center; }
+    .pipe-step.done { background: #27ae60; }
+    .pipe-step.active { background: #e67e22; }
+    .pipe-step.planned { background: #aaa; }
+
+    /* ── Steps (DE Pipeline) ── */
+    .step { background: #EEEDF2; border: 1px solid #D0D4E2; border-radius: 6px; padding: 5px 12px; margin: 3px 0; display: flex; align-items: center; gap: 12px; }
+    .step strong { font-size: 0.84em; color: #3C4F72; white-space: nowrap; min-width: 100px; }
+    .step .details { font-size: 0.78em; color: #596278; }
+    .step.join { background: #e8edf5; border-color: #3C4F72; border-left: 3px solid #3C4F72; }
+    .step.join strong { color: #3C4F72; }
+    .step.target { background: #f2faf5; border-color: #27ae60; border-left: 3px solid #27ae60; }
+    .step.target strong { color: #27ae60; }
+
+    /* ── Evidence Chain ── */
+    .ev-chain { display: flex; flex-direction: column; }
+    .ev-step { display: flex; align-items: flex-start; gap: 12px; padding: 9px 12px; background: #EEEDF2; border: 1px solid #D0D4E2; border-radius: 8px; }
+    .ev-circle { width: 26px; height: 26px; border-radius: 50%; background: #3C4F72; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85em; flex-shrink: 0; margin-top: 1px; }
+    .ev-body strong { display: block; color: #3C4F72; font-size: 0.9em; margin-bottom: 2px; }
+    .ev-body span { font-size: 0.77em; color: #596278; line-height: 1.4; }
+    .ev-arrow { padding: 1px 0 1px 13px; color: #8A95AB; font-size: 0.95em; line-height: 1; }
+    .ev-step.climax { background: #edf7f2; border-color: #27ae60; }
+    .ev-step.climax .ev-circle { background: #27ae60; }
+    .ev-step.climax .ev-body strong { color: #1e7a45; }
+
+    /* ── Model Cards ── */
+    .model-card { border-radius: 10px; padding: 14px 16px; border: 1px solid #D0D4E2; background: #EEEDF2; }
+    .model-card .card-badge { display: inline-block; font-size: 0.66em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: #3C4F72; color: #fff; padding: 2px 10px; border-radius: 12px; margin-bottom: 8px; }
+    .model-card h3 { margin: 0 0 6px; color: #3C4F72 !important; font-size: 0.95em !important; }
+    .model-card .card-mae { font-size: 2.2em; font-weight: 700; color: #3C4F72; line-height: 1.1; margin: 4px 0 8px; }
+    .model-card ul { font-size: 0.80em; margin-top: 6px; }
+    .model-card .card-note { font-size: 0.76em; color: #8A95AB; margin-top: 8px; border-top: 1px solid #D0D4E2; padding-top: 7px; }
+    .model-card.card-green { border-color: #27ae60; background: #f3fbf6; }
+    .model-card.card-green .card-badge { background: #27ae60; }
+    .model-card.card-green .card-mae { color: #1e7a45; }
+
+    /* ── Recommendations ── */
+    .reco { display: flex; align-items: flex-start; gap: 12px; background: #EEEDF2; border: 1px solid #D0D4E2; border-top: 3px solid #C4933A; border-radius: 8px; padding: 10px 14px; margin: 5px 0; }
+    .reco-num { font-size: 1.45em; font-weight: 700; color: #C4933A; line-height: 1; min-width: 26px; }
+    .reco-text strong { display: block; color: #3C4F72; font-size: 0.92em; margin-bottom: 2px; }
+    .reco-text span { font-size: 0.78em; color: #596278; }
+
+    /* ── Contrasts ── */
+    .contrasts { display: flex; flex-direction: column; gap: 10px; }
+    .contrast { background: #EEEDF2; border: 1px solid #D0D4E2; border-radius: 8px; padding: 10px 14px; }
+    .assumption { font-size: 0.82em; color: #8A95AB; margin-bottom: 4px; }
+    .finding { font-size: 0.86em; color: #3C4F72; }
+
+    /* ── Sections ── */
+    .sections { display: flex; flex-direction: column; gap: 8px; }
+    .section { background: #EEEDF2; border: 1px solid #D0D4E2; border-radius: 8px; padding: 10px 14px; }
+    .section strong { display: block; font-size: 0.88em; color: #3C4F72; margin-bottom: 4px; }
+    .section ul { margin: 0; padding-left: 1em; }
+    .section li { font-size: 0.82em; color: #596278; margin-bottom: 2px; }
+
+    /* ── Recommendations List ── */
+    .reco-list { display: flex; flex-direction: column; gap: 8px; }
+    .reco-text { flex: 1; text-align: left; }
+    .reco-cat { display: block; font-size: 0.7em; color: #8A95AB; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; text-align: left; }
+    .reco-text strong { text-align: left; }
+    .reco-text span { display: block; font-size: 0.76em; color: #596278; margin-top: 3px; line-height: 1.4; text-align: left; }
+
+    /* ── Scenarios ── */
+    .scenario-list { display: flex; flex-direction: column; gap: 8px; }
+    .scenario { display: flex; align-items: center; gap: 16px; background: #EEEDF2; border: 1px solid #D0D4E2; border-radius: 8px; padding: 10px 14px; }
+    .scenario-conditions { flex: 1; font-size: 0.82em; color: #596278; }
+    .scenario-pred { font-size: 1.5em; font-weight: 700; color: #3C4F72; min-width: 60px; text-align: right; }
+    .scenario-interp { font-size: 0.74em; color: #8A95AB; flex: 1; }
+    .scenario.warning .scenario-pred { color: #e67e22; }
+    .scenario.negative .scenario-pred { color: #c0392b; }
+    .scenario.positive .scenario-pred { color: #27ae60; }
+
+    /* ── Chart Refs ── */
+    .chart-refs { text-align: left; }
+    .chart-ref { margin-bottom: 10px; }
+    .chart-label { font-size: 0.92em; font-weight: 700; color: #3C4F72; margin-bottom: 2px; }
+    .chart-caption { font-size: 0.76em; color: #8A95AB; margin-top: 2px; }
+
+    /* ── Chart Tiles ── */
+    .chart-tile { display: block; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.10); text-decoration: none; cursor: pointer; }
+    .chart-tile img { width: 100%; display: block; }
+    .chart-tile-html { display: flex; align-items: center; justify-content: center; gap: 6px; background: #EEEDF2; border: 1px solid #D0D4E2; border-radius: 8px; padding: 13px 10px; text-decoration: none; color: #3C4F72; font-size: 0.78em; font-weight: 700; }
+
+    /* ── Prediction Card ── */
+    .prediction-card { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 20px 24px; max-width: 540px; margin: 0 auto; }
+    .pred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .pred-field label { display: block; font-size: 0.66em; color: #8A95AB; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .pred-field select { width: 100%; border: 1px solid #D0D4E2; border-radius: 5px; padding: 6px 8px; background: #EEEDF2; color: #3C4F72; font-size: 0.86em; cursor: not-allowed; }
+    .pred-btn { width: 100%; padding: 9px; background: #3C4F72; color: #fff; border: none; border-radius: 7px; font-size: 0.9em; font-weight: 700; cursor: default; margin-bottom: 12px; }
+    .pred-result { background: linear-gradient(135deg, #1C2B48, #3C4F72); border-radius: 9px; padding: 14px 20px; text-align: center; color: #fff; }
+    .pred-result .res-val { font-size: 2.9em; font-weight: 700; line-height: 1; }
+    .pred-result .res-lbl { font-size: 0.78em; opacity: 0.82; margin-top: 4px; }
+
+    /* ── Progress Bar ── */
+    .reveal .progress { height: 16px !important; }
+    .progress-marker { position: absolute; top: 0; height: 16px; width: 2px; background: rgba(255,255,255,0.85); z-index: 10; pointer-events: none; }
+    .progress-label { position: absolute; top: 50%; transform: translateY(-50%); font-size: 8px; color: rgba(255,255,255,0.9); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; padding-left: 3px; pointer-events: none; z-index: 11; }
+  </style>
 </head>
 <body>
+<div class="reveal">
+<div class="slides">
+<!-- Chapter: Einstieg -->
+<section><section class="title-slide" data-background="linear-gradient(135deg, #1C2B48 0%, #3C4F72 100%)"><h1>Zurich Tram Flow</h1><p class="subtitle">Verspätungsvorhersage im Zürcher Tramnetz</p><p class="subtitle">Datengetriebenes Analyse- und ML-Projekt</p><div class="figures">
+<div class="figure neutral">
+<div class="value">94,4 M</div>
+<div class="label">Halt-Ereignisse 2023–2025</div>
+</div>
+<div class="figure negative">
+<div class="value">87 %</div>
+<div class="label">OTP · Ziel: 95 %</div>
+</div>
+<div class="figure warning">
+<div class="value">71,3 %</div>
+<div class="label">Haltestellen ohne Puffer</div>
+</div>
+<div class="figure positive">
+<div class="value">18,56 s</div>
+<div class="label">Vorhersage-MAE LightGBM v2</div>
+</div>
+</div></section><section><p class="subline">Diese Präsentation auf einen Blick</p><h2>Inhalt</h2><ol class="agenda"><li>Die Ausgangssituation</li><li>Die Überraschungen</li><li>Die Erkenntnis</li><li>Das Modell</li><li>Die Handlungsempfehlungen</li><li>Das Resultat</li><li>Der Projektrahmen</li></ol></section></section><!-- Chapter: Ausgangssituation -->
+<section><section><p class="subline">OTP liegt dauerhaft unter dem VBZ-Ziel — das Projekt folgt drei Schritten</p><h2>Ausgangssituation</h2><div class="figures-with-context"><div class="figure-item negative"><div class="figure-value">87 %</div><div class="figure-label">OTP 2023–2025
+(netzweit)</div><div class="figure-context">Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.</div></div><div class="figure-item positive"><div class="figure-value">95 %</div><div class="figure-label">VBZ-Ziel
+bis 2028</div><div class="figure-context">VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)</div></div><div class="figure-item negative"><div class="figure-value">−8 PP</div><div class="figure-label">Strukturelle
+Lücke</div><div class="figure-context">Der Rückstand ist systemisch, nicht episodisch — er taucht in jedem Jahr, auf jeder Linie auf.</div></div><div class="figure-item warning"><div class="figure-value">56,3 s</div><div class="figure-label">Ø Ankunfts-
+verspätung</div><div class="figure-context">Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre.</div></div></div><div class="steps"><div class="step"><strong>Schritt 1:</strong> Analyse der Entstehungsmuster und Einflussfaktoren<br><small>Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition</small></div><div class="step"><strong>Schritt 2:</strong> Verspätungen vorhersagen<br><small>Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s, −63 % vs. Baseline</small></div><div class="step"><strong>Schritt 3:</strong> Handlungsempfehlungen<br><small>Was folgt daraus konkret? — 4 Empfehlungen, jede direkt durch Befunde gedeckt</small></div></div></section><section><p class="subline">OTP-Lücke in der Breite: alle 16 Linien, drei Jahre</p><h2>Ausgangssituation</h2><div class="chart-refs"><div class="chart-ref"><div class="chart-label">OTP nach Tramlinien</div><div class="chart-image" data-src="../img/target-otp-per-line"></div><div class="chart-caption">OTP nach Tramlinien, 2023–2025. Alle 16 Linien liegen unter dem 95 %-Ziel.</div></div><div class="chart-ref"><div class="chart-label">OTP Jahresverlauf</div><div class="chart-image" data-src="../img/target-otp"></div><div class="chart-caption">OTP-Jahresverlauf netzweit. Die Lücke zum VBZ-Ziel ist konstant und zeigt keinen Aufwärtstrend.</div></div></div></section></section><!-- Chapter: Überraschungen -->
+<section><section><p class="subline">Drei Annahmen, die die Daten widerlegen</p><h2>Die Überraschungen</h2><div class="contrasts"><div class="contrast"><div class="assumption"><em>Annahme:</em> Die Innenstadt ist der Verspätungs-Hotspot</div><div class="finding"><strong>Befund:</strong> Central (48,3 s) und Paradeplatz (48,2 s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93,8 s, Balgrist 85,2 s</div></div><div class="contrast"><div class="assumption"><em>Annahme:</em> Der Morgenrush ist das grösste Zeitproblem</div><div class="finding"><strong>Befund:</strong> 7h liegt mit 48,9 s unter Netzschnitt. Echter Peak: 21h (67,9 s) durch Abreisewellen nach Veranstaltungen</div></div><div class="contrast"><div class="assumption"><em>Annahme:</em> Schlechtes Wetter ist die Hauptursache</div><div class="finding"><strong>Befund:</strong> Schnee ist ein Verstärker (+54s). Die Grundursache liegt im Fahrplan-Design, wetterunabhängig und netzweit messbar</div></div></div></section><section><p class="subline">Hotspots an der Peripherie, Peak am Abend</p><h2>Die Überraschungen</h2><div class="chart-refs"><div class="chart-ref"><div class="chart-label">Verspätungshotspots</div><div class="chart-image" data-src="../img/spatial-stop-delay-map"></div><div class="chart-caption">Ø Ankunftsverspätung pro Haltestelle. Hotspots ausschliesslich in den peripheren Stadtkreisen 7, 11 und 12.</div></div><div class="chart-ref"><div class="chart-label">Delay nach Tageszeit</div><div class="chart-image" data-src="../img/temporal-hour-of-day"></div><div class="chart-caption">Ø Delay nach Tageszeit. Peak 21h, nicht am Morgen. Abend-Effekt durch Veranstaltungs-Abreisewellen.</div></div></div></section></section><!-- Chapter: Erkenntnis -->
+<section><section><p class="subline">Kein Puffer im Fahrplan, die Verspätung kaskadiert</p><h2>Die Erkenntnis</h2><div class="figures">
+<div class="figure warning">
+<div class="value">71,5 %</div>
+<div class="label">Halte die Delay akkumulieren</div>
+</div>
+<div class="figure negative">
+<div class="value">L11</div>
+<div class="label">68,7 s · OTP 82 % — stärkste Akkumulation</div>
+</div>
+<div class="figure warning">
+<div class="value">71,3 %</div>
+<div class="label">Haltestellen ohne Standzeit</div>
+</div>
+<div class="figure negative">
+<div class="value">r ≥ 0,85</div>
+<div class="label">Kaskadenkorrelation alle 16 Linien</div>
+</div>
+</div><p><em>Unknown content type: sequence</em></p><blockquote class="statement">Das ist kein Betriebsversagen. Es ist ein Fahrplan-Design-Thema. Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden.</blockquote><blockquote class="statement">Zwei externe Einflussfaktoren sind messbar und erheblich: Schnee (+54s) und Grossevents (bis +66s bei Fachmessen). Doch das Grundniveau der Verspätung bleibt auch bei optimalen Bedingungen konstant hoch. Externe Faktoren verstärken, was intern bereits strukturell angelegt ist.</blockquote><blockquote class="statement">Trotz Bauphasen, Streckensperrungen und Fahrplanumstellungen hält die VBZ das System bemerkenswert stabil. Die Verspätungslevel schwanken durch diese Eingriffe kaum. Die Ursache liegt nicht in externen Störungen, sondern im Fahrplan-Design selbst.</blockquote></section></section><!-- Chapter: Das Modell -->
+<section><section><p class="subline">Vorhersage ist die Voraussetzung für angepasste Steuerung</p><h2>Das Modell</h2><p><em>Unknown content type: comparison_table</em></p><blockquote class="statement">Der Sprung von v1 auf v2 kam nicht durch einen besseren Algorithmus, sondern durch das richtige Signal aus der Analyse: den Kaskadenindikator (prev_trip_delay).</blockquote></section><section><p class="subline">18,56 s Sekunden mittlerer Vorhersagefehler auf einem vollständigen ungesehenen Jahr</p><h2>Das Modell</h2><div class="figures">
+<div class="figure neutral">
+<div class="value">41 Mio.</div>
+<div class="label">Trainings-Fahrten 2023 bis Mitte 2024</div>
+</div>
+<div class="figure neutral">
+<div class="value">~29 Mio.</div>
+<div class="label">Test-Fahrten, vollständiges Jahr 2025</div>
+</div>
+<div class="figure positive">
+<div class="value">−63 %</div>
+<div class="label">Verbesserung vs. Baseline (Stop Mean)</div>
+</div>
+</div><blockquote class="statement">Kalibrierter Bias: −0.69 Sekunden, nahezu verzerrungsfrei. Trainiert auf Consumer-Hardware in ca. 18 Minuten.</blockquote></section><section><p class="subline">Konkrete Vorhersagen für reale Betriebssituationen</p><h2>Das Modell</h2><blockquote class="statement">Das Modell kombiniert Tageszeit, Linie, Haltestelle, Wetterlage und den Verspätungsstatus des Vorgänger-Trips zu einer konkreten Sekundenvorhersage. So lassen sich kritische Situationen identifizieren, bevor die Kaskade einsetzt.</blockquote><div class="scenario-list"><div class="scenario warning"><div class="scenario-conditions">Donnerstag · 21h · Linie 11 · Schnee</div><div class="scenario-pred">74 s</div><div class="scenario-interp">Frühwarnung aktiv, bevor die Kaskade einsetzt</div></div><div class="scenario neutral"><div class="scenario-conditions">Dienstag · 17h · Paradeplatz · leichter Regen</div><div class="scenario-pred">48 s</div></div><div class="scenario positive"><div class="scenario-conditions">Sonntag · 10h · Linie 6 · trocken</div><div class="scenario-pred">22 s</div><div class="scenario-interp">Normalbetrieb, kein Handlungsbedarf</div></div></div></section></section><!-- Chapter: Empfehlungen -->
+<section><section><p class="subline">Vier Empfehlungen, direkt durch Befunde gedeckt</p><h2>Die Handlungsempfehlungen</h2><div class="reco-list"><div class="reco"><div class="reco-num">R1</div><div class="reco-text"><strong>Gezielte Standzeit-Puffer auf Linie 11</strong><span class="reco-cat">Fahrplan-Design</span><span>L11: OTP 82 %, Ø 68,7 s, kein einziger Puffer auf der gesamten Strecke</span><span>Bereits 10 Sekunden an 3 bis 5 kritischen Koppelstellen unterbrechen die Kaskade</span></div></div><div class="reco"><div class="reco-num">R2</div><div class="reco-text"><strong>Vorhersagemodell als Frühwarnsignal im Leitstellen-System</strong><span class="reco-cat">Betriebssteuerung</span><span>MAE 18,56 s auf vollständigem Testjahr 2025, produktionsreif</span><span>Kaskadenindikator ist in Echtzeit aus dem VBZ-Betriebssystem verfügbar</span></div></div><div class="reco"><div class="reco-num">R3</div><div class="reco-text"><strong>Takterhöhung 20 bis 22h auf L11 und L8</strong><span class="reco-cat">Kapazitätsplanung</span><span>Peak 21h: 67,9 s, nicht der Morgen (7h: 48,9 s unter Netzschnitt)</span><span>Fachmessen schlechteste Event-Kategorie (66,0 s)</span></div></div><div class="reco"><div class="reco-num">R4</div><div class="reco-text"><strong>Stadtkreise 11 und 12 als strukturelle Prioritätszonen</strong><span class="reco-cat">Monitoring</span><span>Stadtkreis 11: OTP 83 %, Ø 68,3 s, strukturell benachteiligt</span><span>Separates OTP-Tracking auf Haltestellenebene ermöglicht Frühindikation</span></div></div></div></section></section><!-- Chapter: Resultat -->
+<section><section><p class="subline">Die Verspätungen im Zürcher Tramnetz folgen klaren Mustern. Das Fahrplan-Design ist die Ursache und der Hebel. Vier Handlungsempfehlungen sind durch die Daten direkt begründet.</p><h2>Was vorhersagbar ist, ist steuerbar.</h2><p><em>Unknown content type: tools</em></p><div class="figures">
+<div class="figure negative">
+<div class="value">87 %</div>
+<div class="label">OTP heute</div>
+</div>
+<div class="figure positive">
+<div class="value">95 %</div>
+<div class="label">VBZ-Ziel 2028</div>
+</div>
+</div></section></section><!-- Chapter: Projektrahmen -->
+<section><section><p class="subline">Open Data, reproduzierbar und vollständig dokumentiert</p><h2>Der Projektrahmen</h2><div class="sections"><div class="section"><strong>Datenbasis</strong><ul><li>VBZ IST-Daten: reale Ankunfts- und Abfahrtszeiten aller Tramhalte</li><li>GTFS: Fahrplandaten, Haltestellen-Koordinaten, Liniengeometrien</li><li>Meteo Schweiz: stündliche Messwerte (Temperatur, Niederschlag, Schnee)</li><li>Event-Kalender: Grossveranstaltungen Zürich 2023–2025</li><li>Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet</li></ul></div><div class="section"><strong>Umfang und Zeitaufwand</strong><ul><li>Zeitraum: 3 vollständige Betriebsjahre (2023, 2024, 2025)</li><li>16 Tramlinien, ca. 190 Haltestellen im Netz</li><li>66 dokumentierte Analyse-Befunde in 12 Notebooks</li><li>Ca. 3 Wochen: 1 Woche Data Engineering, 2 Wochen Analyse und Modellierung</li></ul></div><div class="section"><strong>Technologie-Stack</strong><ul><li>Python · Polars (85 Mio. Zeilen, lazy evaluation) · Jupyter · uv</li><li>LightGBM (Modellierung) · Plotly (Visualisierung) · Streamlit (Dashboard)</li><li>Trainingszeit LightGBM v2: ca. 18 Minuten auf Consumer-Hardware</li></ul></div><div class="section"><strong>Reproduzierbarkeit</strong><ul><li>Vollständiger Code auf GitHub veröffentlicht</li><li>Data Engineering vollständig reproduzierbar via Polars-Pipeline</li><li>Alle Datenquellen öffentlich: VBZ Open Data · Meteo Schweiz · GTFS</li><li>12 Jupyter-Notebooks, vollständig ausgeführt und dokumentiert</li><li>Alle Befunde rückverfolgbar auf Finding-IDs in den Notebooks</li></ul></div></div></section></section><!-- Chapter: Ende -->
+<section><section class="title-slide" data-background="linear-gradient(135deg, #1C2B48 0%, #3C4F72 100%)"><h1>Zurich Tram Flow</h1><p class="subtitle">Verspätungsvorhersage im Zürcher Tramnetz</p><p class="subtitle">Datengetriebenes Analyse- und ML-Projekt</p><div class="figures">
+<div class="figure neutral">
+<div class="value">94,4 M</div>
+<div class="label">Halt-Ereignisse 2023–2025</div>
+</div>
+<div class="figure negative">
+<div class="value">87 %</div>
+<div class="label">OTP · Ziel: 95 %</div>
+</div>
+<div class="figure warning">
+<div class="value">71,3 %</div>
+<div class="label">Haltestellen ohne Puffer</div>
+</div>
+<div class="figure positive">
+<div class="value">18,56 s</div>
+<div class="label">Vorhersage-MAE LightGBM v2</div>
+</div>
+</div></section></section>
 
-<div id="nav">
-  <div class="chs">
-    <div class="ch" data-chapter="0" data-slide="0"><span class="n">—</span>Start</div>
-    <div class="ch" data-chapter="1" data-slide="2"><span class="n">01</span>Ausgangssituation</div>
-    <div class="ch" data-chapter="2" data-slide="4"><span class="n">02</span>Überraschungen</div>
-    <div class="ch" data-chapter="3" data-slide="6"><span class="n">03</span>Erkenntnis</div>
-    <div class="ch" data-chapter="4" data-slide="7"><span class="n">04</span>Das Modell</div>
-    <div class="ch" data-chapter="5" data-slide="10"><span class="n">05</span>Empfehlungen</div>
-    <div class="ch" data-chapter="6" data-slide="11"><span class="n">06</span>Resultat</div>
-    <div class="ch" data-chapter="7" data-slide="12"><span class="n">07</span>Projektrahmen</div>
-    <div class="ch" data-chapter="8" data-slide="13"><span class="n">—</span>Ende</div>
+<!--
+SLIDE TYPES REFERENCE:
+
+── Title Slide (gradient background) ──────────────────────────
+<section class="title-slide" data-background="linear-gradient(135deg, #1C2B48 0%, #3C4F72 100%)">
+  <h1>[Project Name]</h1>
+  <div class="sub">[Tagline]<br>[Period · Rows · Stack]</div>
+  <div class="meta">github.com/[user]/[repo]</div>
+</section>
+
+── Kernthese Slide ──────────────────────────────────────────────
+<section class="thesis-slide">
+  <div class="thesis-label">Kernthese</div>
+  <div class="thesis-main">[Thesis statement]</div>
+  <div class="thesis-sub">[Supporting explanation]</div>
+  <div class="thesis-punch">[Call to action / so what]</div>
+</section>
+
+── Section Divider ──────────────────────────────────────────────
+<section class="title-slide" data-background="linear-gradient(135deg, #1C2B48 0%, #3C4F72 100%)">
+  <h1>[Section Name]</h1>
+</section>
+
+── Two-Column Content Slide ─────────────────────────────────────
+<section>
+  <h2>[Slide Title] <span class="slide-sub">— [Subtitle]</span></h2>
+  <div class="cols">
+    <div class="w55"> ... </div>
+    <div class="w45"> ... </div>
+  </div>
+</section>
+
+── Metric Row ───────────────────────────────────────────────────
+<div class="metric-row">
+  <div class="metric bad"><div class="val">[Value]</div><div class="lbl">[Label]</div></div>
+  <div class="metric"><div class="val">[Value]</div><div class="lbl">[Label]</div></div>
+  <div class="metric good"><div class="val">[Value]</div><div class="lbl">[Label]</div></div>
+</div>
+
+── Evidence Chain ───────────────────────────────────────────────
+<div class="ev-chain">
+  <div class="ev-step">
+    <div class="ev-circle">①</div>
+    <div class="ev-body"><strong>[Step title]</strong><span>[Detail]</span></div>
+  </div>
+  <div class="ev-arrow">↓</div>
+  <div class="ev-step climax"> ... </div>
+</div>
+
+── Model Cards (side by side) ───────────────────────────────────
+<div class="model-card">
+  <span class="card-badge">[Label]</span>
+  <h3>[Title]</h3>
+  <div class="card-mae">[MAE value]</div>
+  <ul><li>...</li></ul>
+  <div class="card-note">[Note]</div>
+</div>
+
+── Recommendations ──────────────────────────────────────────────
+<div class="reco">
+  <div class="reco-num">①</div>
+  <div class="reco-text">
+    <strong>[Title]</strong>
+    <span>[Detail]</span>
   </div>
 </div>
 
-<div id="slideticks"></div>
-<div id="progress-track"><div id="progress-fill"></div></div>
-<div id="leftnav"></div>
-<div class="reveal"><div class="slides">
+── Chart Tile (image) ───────────────────────────────────────────
+<a href="figures/[name].png" target="_blank" class="chart-tile">
+  <img src="figures/[name].png" alt="[Description]">
+</a>
 
+── Chart Tile (interactive HTML) ────────────────────────────────
+<a href="figures/[name].html" target="_blank" class="chart-tile-html">
+  🗺 [Link label] →
+</a>
 
-<!-- ══════════════════════════════════════════════
-     SLIDE 0 — Titel
-══════════════════════════════════════════════ -->
-<section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)" data-chapter="0">
-  <h1>Zurich Tram Flow</h1>
-  <div class="sub">
-    Verspätungsvorhersage im Zürcher Tramnetz<br>
-    <span style="opacity:0.35;">·</span><br>
-    Datengetriebenes Analyse- und ML-Projekt
-  </div>
-  <div class="kpi-row">
-    <div class="kpi"><div class="v">94,4 M</div><div class="l">Halt-Ereignisse<br>2023–2025</div></div>
-    <div class="kpi red"><div class="v">87 %</div><div class="l">OTP · Ziel: 95 %</div></div>
-    <div class="kpi amber"><div class="v">71,3 %</div><div class="l">Haltestellen<br>ohne Puffer</div></div>
-    <div class="kpi green"><div class="v">18,56 s</div><div class="l">Vorhersage-MAE<br>LightGBM v2</div></div>
-  </div>
-  <div class="meta">Kay Wiegand · github.com/kaywiegand/zh-tram-flow</div>
-</section>
+── Box variants ─────────────────────────────────────────────────
+<div class="box">[neutral info]</div>
+<div class="box box-green">[positive / done]</div>
+<div class="box box-orange">[recommendation / warning]</div>
+-->
 
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 1 — Inhalt
-══════════════════════════════════════════════ -->
-<section data-chapter="0">
-  <h2>Inhalt</h2>
-  <span class="subline">Diese Präsentation auf einen Blick</span>
-  <div class="agenda">
-    <div class="agenda-item"><span class="num">01</span><span class="label">Ausgangssituation</span></div>
-    <div class="agenda-item"><span class="num">02</span><span class="label">Die Überraschungen</span></div>
-    <div class="agenda-item"><span class="num">03</span><span class="label">Die Erkenntnis</span></div>
-    <div class="agenda-item"><span class="num">04</span><span class="label">Das Modell</span></div>
-    <div class="agenda-item"><span class="num">05</span><span class="label">Die Handlungsempfehlungen</span></div>
-    <div class="agenda-item"><span class="num">06</span><span class="label">Das Resultat</span></div>
-    <div class="agenda-item"><span class="num">07</span><span class="label">Der Projektrahmen</span></div>
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 2 — Die Ausgangssituation (Kennzahlen)
-══════════════════════════════════════════════ -->
-<section data-chapter="1">
-  <h2>Ausgangssituation</h2>
-  <span class="subline">OTP liegt dauerhaft unter dem VBZ-Ziel — das Projekt folgt zwei Schritten</span>
-  <div class="kv-list">
-
-    <div class="kv-row">
-      <div class="kv-fact green">
-        <div class="fv">95 %</div>
-        <div class="fl">VBZ-Ziel<br>bis 2028</div>
-      </div>
-      <div class="kv-text">
-        VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)
-      </div>
-    </div>
-
-    <div class="kv-row">
-      <div class="kv-fact red">
-        <div class="fv">87</div>
-        <div class="fl">OTP 2023–2025<br>(netzweit)</div>
-      </div>
-      <div class="kv-text">
-        Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.
-      </div>
-    </div>
-
-    <div class="kv-row">
-      <div class="kv-fact amber">
-        <div class="fv">56,3 s</div>
-        <div class="fl">Ø Ankunfts-<br>verspätung</div>
-      </div>
-      <div class="kv-text">
-        Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Der Wert ist über alle drei Betriebsjahre stabil, 2023, 2024 und 2025 ohne erkennbaren Aufwärtstrend.
-      </div>
-    </div>
-
-    <div class="kv-row">
-      <div class="kv-fact">
-        <div class="fv">16</div>
-        <div class="fl">Tramlinien<br>analysiert</div>
-      </div>
-      <div class="kv-text">
-        Der Rückstand ist systemisch, nicht episodisch. Er taucht in jedem Jahr, auf jeder Linie auf.
-      </div>
-    </div>
-
-  </div>
-
-  <div style="display:flex; gap:12px; margin-top:1.2em;">
-    <div style="flex:1; background:#EEEDF2; border:1px solid #D0D4E2; border-radius:8px; padding:12px 16px;">
-      <strong style="color:#1a3a5c;">① Analyse der Entstehungsmuster und Einflussfaktoren</strong><br>
-      <span style="font-size:0.85em; color:#596278;">Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition</span>
-    </div>
-    <div style="flex:1; background:#edfaf3; border:1px solid #b8e8cf; border-radius:8px; padding:12px 16px;">
-      <strong style="color:#1a6640;">② Verspätungen vorhersagen</strong><br>
-      <span style="font-size:0.85em; color:#596278;">Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s, −63% vs. Baseline</span>
-    </div>
-  </div>
-
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 3 — Die Ausgangssituation (Charts)
-══════════════════════════════════════════════ -->
-<section data-chapter="1">
-  <h2>Ausgangssituation</h2>
-  <span class="subline">OTP-Lücke in der Breite: alle 16 Linien, drei Jahre</span>
-  <div class="cols">
-    <div class="w50">
-      <div style="background:#e8ecf0; border-radius:8px; height:300px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#999;">
-        <span style="font-size:1.6em;">📊</span>
-        <span style="font-size:0.7em; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;">OTP nach Tramlinien</span>
-        <span style="font-size:0.65em;">target-otp-per-line · Export ausstehend</span>
-      </div>
-      <div class="caption">OTP nach Tramlinien, 2023–2025. Alle 16 Linien liegen unter dem 95 %-Ziel.</div>
-    </div>
-    <div class="w50">
-      <div style="background:#e8ecf0; border-radius:8px; height:300px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#999;">
-        <span style="font-size:1.6em;">📈</span>
-        <span style="font-size:0.7em; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;">OTP Jahresverlauf</span>
-        <span style="font-size:0.65em;">target-otp · Export ausstehend</span>
-      </div>
-      <div class="caption">OTP-Jahresverlauf netzweit. Die Lücke zum VBZ-Ziel ist konstant und zeigt keinen Aufwärtstrend.</div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 4 — Die Überraschungen
-══════════════════════════════════════════════ -->
-<section data-chapter="2">
-  <h2>Die Überraschungen</h2>
-  <span class="subline">Drei Annahmen, die die Daten widerlegen</span>
-  <div class="myth-rows">
-
-    <div class="myth-row-pair">
-      <div class="myth-assume">Die Innenstadt ist der Verspätungs-Hotspot</div>
-      <div class="myth-arrow">→</div>
-      <div class="myth-finding">Central (48,3 s) und Paradeplatz (48,2 s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93,8 s, Balgrist 85,2 s</div>
-    </div>
-
-    <div class="myth-row-pair">
-      <div class="myth-assume">Der Morgenrush ist das grösste Zeitproblem</div>
-      <div class="myth-arrow">→</div>
-      <div class="myth-finding">7h liegt mit 48,9 s unter Netzschnitt. Echter Peak: 21h (67,9 s) durch Abreisewellen nach Veranstaltungen</div>
-    </div>
-
-    <div class="myth-row-pair">
-      <div class="myth-assume">Schlechtes Wetter ist die Hauptursache</div>
-      <div class="myth-arrow">→</div>
-      <div class="myth-finding">Schnee ist ein Verstärker (+54s). Die Grundursache liegt im Fahrplan-Design, wetterunabhängig und netzweit messbar</div>
-    </div>
-
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 6 — Die Überraschungen (Charts)
-══════════════════════════════════════════════ -->
-<section data-chapter="2">
-  <h2>Die Überraschungen</h2>
-  <span class="subline">Hotspots an der Peripherie, Peak am Abend</span>
-  <div class="cols">
-    <div class="w50">
-      <div style="background:#e8ecf0; border-radius:8px; height:300px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#999;">
-        <span style="font-size:1.6em;">🗺️</span>
-        <span style="font-size:0.7em; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;">Verspätungshotspots</span>
-        <span style="font-size:0.65em;">spatial-stop-delay-map · Export ausstehend</span>
-      </div>
-      <div class="caption">Ø Ankunftsverspätung pro Haltestelle. Hotspots ausschliesslich in den peripheren Stadtkreisen 7, 11 und 12.</div>
-    </div>
-    <div class="w50">
-      <div style="background:#e8ecf0; border-radius:8px; height:300px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#999;">
-        <span style="font-size:1.6em;">⏰</span>
-        <span style="font-size:0.7em; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;">Delay nach Tageszeit</span>
-        <span style="font-size:0.65em;">temporal-hour-of-day · Export ausstehend</span>
-      </div>
-      <div class="caption">Ø Delay nach Tageszeit. Peak 21h, nicht am Morgen. Abend-Effekt durch Veranstaltungs-Abreisewellen.</div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 7 — Die Erkenntnis
-══════════════════════════════════════════════ -->
-<section data-chapter="3">
-  <h2>Die Erkenntnis</h2>
-  <span class="subline">Kein Puffer im Fahrplan, die Verspätung kaskadiert</span>
-  <div class="mrow" style="margin-bottom:16px;">
-    <div class="m amber"><div class="v">71,5 %</div><div class="l">Halte die<br>Delay akkumulieren</div></div>
-    <div class="m"><div class="v">L11</div><div class="l">68,7 s · OTP 82 %<br>stärkste Akkumulation</div></div>
-    <div class="m amber"><div class="v">71,3 %</div><div class="l">Haltestellen<br>ohne Standzeit</div></div>
-    <div class="m red"><div class="v">r ≥ 0,85</div><div class="l">Kaskadenkorrelation<br>alle 16 Linien</div></div>
-  </div>
-  <div class="steps">
-    <div class="step">
-      <div class="sn">1</div>
-      <span class="sl">Anomalie</span>
-      <p>Hotspots an Endstationen, nicht an zentralen Knotenpunkten. Null Überschneidung mit den dichtest bedienten Haltestellen.</p>
-    </div>
-    <div class="step-arrow">→</div>
-    <div class="step">
-      <div class="sn">2</div>
-      <span class="sl">Gradient</span>
-      <p>Der Delay wächst entlang der Strecke. L11: Verspätung am Ende der Fahrt doppelt so hoch wie zu Beginn.</p>
-    </div>
-    <div class="step-arrow">→</div>
-    <div class="step">
-      <div class="sn">3</div>
-      <span class="sl">Mechanismus</span>
-      <p><strong>71,3 %</strong> aller Haltestellen haben 0 Sekunden eingeplante Standzeit. Kein Puffer, keine Erholung möglich.</p>
-    </div>
-    <div class="step-arrow">→</div>
-    <div class="step">
-      <div class="sn">4</div>
-      <span class="sl">Kaskade</span>
-      <p>Pearson r ≥ 0,85 zwischen aufeinanderfolgenden Halts auf <strong>allen 16 Linien.</strong> Systematisch, kein Einzelfall.</p>
-    </div>
-  </div>
-  <div class="box" style="margin-top:16px;">
-    Das ist kein Betriebsversagen. Es ist ein <strong>Fahrplan-Design-Thema.</strong> Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden.
-  </div>
-  <div class="box amber" style="margin-top:8px;">
-    Zwei externe Einflussfaktoren sind messbar und erheblich: Schnee (+54s) und Grossevents (bis +66s bei Fachmessen). Doch das <strong>Grundniveau der Verspätung bleibt auch bei optimalen Bedingungen konstant hoch.</strong> Externe Faktoren verstärken, was intern bereits strukturell angelegt ist.
-  </div>
-  <div class="box green" style="margin-top:8px;">
-    Trotz Bauphasen, Streckensperrungen und Fahrplanumstellungen hält die VBZ das System <strong>bemerkenswert stabil.</strong> Die Verspätungslevel schwanken durch diese Eingriffe kaum. Das zeigt: Die Ursache liegt nicht in externen Störungen, sondern im Fahrplan-Design selbst.
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 8 — Das Modell (Tabelle)
-══════════════════════════════════════════════ -->
-<section data-chapter="4">
-  <h2>Das Modell</h2>
-  <span class="subline">Vorhersage ist die Voraussetzung für angepasste Steuerung</span>
-  <table>
-    <thead>
-      <tr>
-        <th>Ansatz</th>
-        <th>Features</th>
-        <th>MAE (Test)</th>
-        <th>Verbesserung</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Baseline (Stop Mean)</td>
-        <td>—</td>
-        <td>50,0 s</td>
-        <td>Ausgangspunkt</td>
-      </tr>
-      <tr>
-        <td>LightGBM v1<br><span style="font-size:0.82em;color:#888;font-weight:400;">Zeit · Wetter · Netz-Features · kein Live-Signal · MBE +8,3 s (systematisch zu optimistisch)</span></td>
-        <td>34</td>
-        <td>45,7 s</td>
-        <td>−4,3 s</td>
-      </tr>
-      <tr class="hl">
-        <td><strong>LightGBM v2</strong><br><span style="font-size:0.82em;color:#1a6e3a;font-weight:400;">+prev_trip_delay (Kaskadenindikator) · +stop_sequence_pct · Isotonic-Kalibrierung · MBE −0,69 s</span></td>
-        <td><strong>36</strong></td>
-        <td><strong>18,56 s</strong></td>
-        <td><strong>−31,4 s (−63 %)</strong></td>
-      </tr>
-    </tbody>
-  </table>
-  <div class="box green" style="margin-top:14px;">
-    Der Sprung von v1 auf v2 kam nicht durch einen besseren Algorithmus, sondern durch das richtige Signal aus der Analyse: den Kaskadenindikator (<em>prev_trip_delay</em>).
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 9 — Das Modell (Zahlen)
-══════════════════════════════════════════════ -->
-<section data-chapter="4">
-  <h2>Das Modell</h2>
-  <span class="subline">18,56 s Sekunden mittlerer Vorhersagefehler auf einem vollständigen ungesehenen Jahr</span>
-  <div class="hero">
-    <div class="hv">18,56 s Sekunden</div>
-    <div class="hl">mittlerer Vorhersagefehler (MAE) · getestet auf dem vollständigen Jahr 2025</div>
-  </div>
-  <div class="mrow">
-    <div class="m blue">
-      <div class="v">41 Mio.</div>
-      <div class="l">Trainings-Fahrten<br>2023 bis Mitte 2024</div>
-    </div>
-    <div class="m">
-      <div class="v">~29 Mio.</div>
-      <div class="l">Test-Fahrten<br>vollständiges Jahr 2025</div>
-    </div>
-    <div class="m green">
-      <div class="v">−63 %</div>
-      <div class="l">Verbesserung<br>vs. Baseline (Stop Mean)</div>
-    </div>
-  </div>
-  <div class="box green" style="margin-top:14px;">
-    Kalibrierter Bias: <strong>−0,69 Sekunden</strong>, nahezu verzerrungsfrei. Trainiert auf Consumer-Hardware in ca. 18 Minuten.
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 10 — Das Modell (Beispielszenarien)
-══════════════════════════════════════════════ -->
-<section data-chapter="4">
-  <h2>Das Modell</h2>
-  <span class="subline">Konkrete Vorhersagen für reale Betriebssituationen</span>
-  <div class="cols">
-    <div class="w45">
-      <p style="font-size:0.84em; color:#444; line-height:1.65;">
-        Das Modell kombiniert Tageszeit, Linie, Haltestelle, Wetterlage und den Verspätungsstatus des Vorgänger-Trips zu einer konkreten Sekundenvorhersage. So lassen sich kritische Situationen identifizieren, bevor die Kaskade einsetzt.
-      </p>
-    </div>
-    <div class="w55">
-      <div class="box amber">
-        <strong>Donnerstag · 21h · Linie 11 · Schnee</strong><br>
-        Vorhergesagte Verspätung: <strong>74 Sekunden</strong><br>
-        <span style="font-size:0.85em; color:#8a5000;">Frühwarnung aktiv, bevor die Kaskade einsetzt</span>
-      </div>
-      <div class="box" style="margin-top:8px;">
-        <strong>Dienstag · 17h · Paradeplatz · leichter Regen</strong><br>
-        Vorhergesagte Verspätung: <strong>48 Sekunden</strong>
-      </div>
-      <div class="box green" style="margin-top:8px;">
-        <strong>Sonntag · 10h · Linie 6 · trocken</strong><br>
-        Vorhergesagte Verspätung: <strong>22 Sekunden</strong><br>
-        <span style="font-size:0.85em; color:#1a6e3a;">Normalbetrieb, kein Handlungsbedarf</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 11 — Die Handlungsfelder
-══════════════════════════════════════════════ -->
-<section data-chapter="5">
-  <h2>Die Handlungsempfehlungen</h2>
-  <span class="subline">Vier Empfehlungen, direkt durch Befunde gedeckt</span>
-  <div class="reco-grid">
-    <div class="reco">
-      <div class="rn">R1 · Fahrplan-Design <span style="background:#3C4F72;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:6px;">Priorität 1</span></div>
-      <strong>Gezielte Standzeit-Puffer auf Linie 11</strong>
-      <ul>
-        <li>L11: OTP 82 %, Ø 68,7 s, kein einziger Puffer auf der gesamten Strecke</li>
-        <li>Bereits 10 Sekunden an 3 bis 5 kritischen Koppelstellen unterbrechen die Kaskade</li>
-        <li>Nachgewiesener Hebel Nr. 1, direkt auf Fahrplandaten gestützt</li>
-      </ul>
-    </div>
-    <div class="reco">
-      <div class="rn">R2 · Betriebssteuerung <span style="background:#3C4F72;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:6px;">Priorität 1</span></div>
-      <strong>Vorhersagemodell als Frühwarnsignal im Leitstellen-System</strong>
-      <ul>
-        <li>MAE 18,56 s auf vollständigem Testjahr 2025, produktionsreif</li>
-        <li>Kaskadenindikator ist in Echtzeit aus dem VBZ-Betriebssystem verfügbar</li>
-        <li>Frühwarnung bevor der Effekt einsetzt, nicht reaktiv nach Eskalation</li>
-      </ul>
-    </div>
-    <div class="reco">
-      <div class="rn">R3 · Kapazitätsplanung <span style="background:#C4933A;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:6px;">Priorität 2</span></div>
-      <strong>Takterhöhung 20 bis 22h auf L11 und L8</strong>
-      <ul>
-        <li>Peak 21h: 67,9 s, nicht der Morgen (7h: 48,9 s unter Netzschnitt)</li>
-        <li>Fachmessen schlechteste Event-Kategorie (66,0 s)</li>
-        <li>Spitzenlastmomente sind kalendarisch bekannt und im Voraus planbar</li>
-      </ul>
-    </div>
-    <div class="reco">
-      <div class="rn">R4 · Monitoring <span style="background:#C4933A;color:#fff;border-radius:3px;padding:1px 6px;font-size:0.85em;margin-left:6px;">Priorität 2</span></div>
-      <strong>Stadtkreise 11 und 12 als strukturelle Prioritätszonen</strong>
-      <ul>
-        <li>Stadtkreis 11: OTP 83 %, Ø 68,3 s, strukturell benachteiligt</li>
-        <li>Separates OTP-Tracking auf Haltestellenebene ermöglicht Frühindikation</li>
-        <li>Kombination mit Vorhersagemodell: proaktive Steuerung statt reaktive Entstörung</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 11 — Das Resultat
-══════════════════════════════════════════════ -->
-<section class="closing" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)" data-chapter="6">
-  <h2>Was vorhersagbar ist, ist steuerbar.</h2>
-  <div class="sub" style="line-height:2.0;">
-    Die Verspätungen im Zürcher Tramnetz folgen klaren Mustern. Das Fahrplan-Design ist die Ursache und der Hebel.<br>
-    <span style="opacity:0.3;">·</span><br>
-    Vier Handlungsempfehlungen sind durch die Daten direkt begründet und machen das Ziel erreichbar:
-  </div>
-  <div class="arrow-row" style="margin-top:1.0em; margin-bottom:0.8em;">
-    <div class="kpi-box red"><div class="v">87 %</div><div class="l">OTP heute</div></div>
-    <div style="font-size:2.4em; color:rgba(255,255,255,0.35); line-height:1;">→</div>
-    <div class="kpi-box green"><div class="v">95 %</div><div class="l">VBZ-Ziel 2028</div></div>
-  </div>
-  <div style="width:60px; border-top:1px solid rgba(255,255,255,0.2); margin:0.8em auto;"></div>
-  <div style="font-size:0.74em; color:rgba(255,255,255,0.5); margin-bottom:0.6em; letter-spacing:0.04em;">
-    Zur Unterstützung und Konkretisierung der Massnahmen wurden drei Tools entwickelt:
-  </div>
-  <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-    <div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:10px 18px; text-align:center; min-width:160px;">
-      <div style="font-size:0.72em; font-weight:700; color:rgba(255,255,255,0.55); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px;">Linie erkunden</div>
-      <div style="font-size:0.72em; color:rgba(255,255,255,0.4); line-height:1.5;">Delay-Profil · Map · Hotspots<br>Empfehlungsbox pro Linie</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:10px 18px; text-align:center; min-width:160px;">
-      <div style="font-size:0.72em; font-weight:700; color:rgba(255,255,255,0.55); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px;">Linien vergleichen</div>
-      <div style="font-size:0.72em; color:rgba(255,255,255,0.4); line-height:1.5;">KPIs · Delay-Verteilung<br>Priorisierungsentscheidung</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:10px 18px; text-align:center; min-width:160px;">
-      <div style="font-size:0.72em; font-weight:700; color:rgba(255,255,255,0.55); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:4px;">Delay vorhersagen</div>
-      <div style="font-size:0.72em; color:rgba(255,255,255,0.4); line-height:1.5;">Szenario A vs. B live<br>Was-wäre-wenn-Analyse</div>
-    </div>
-  </div>
-</section>
-
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 12 — Der Projektrahmen
-══════════════════════════════════════════════ -->
-<section data-chapter="7">
-  <h2>Der Projektrahmen</h2>
-  <span class="subline">Open Data, reproduzierbar und vollständig dokumentiert</span>
-  <div class="pf-grid">
-    <div class="pf-card">
-      <div class="pf-title">Datenbasis</div>
-      <ul>
-        <li>VBZ IST-Daten: reale Ankunfts- und Abfahrtszeiten aller Tramhalte</li>
-        <li>GTFS: Fahrplandaten, Haltestellen-Koordinaten, Liniengeometrien</li>
-        <li>Meteo Schweiz: stündliche Messwerte (Temperatur, Niederschlag, Schnee)</li>
-        <li>Event-Kalender: Grossveranstaltungen Zürich 2023–2025</li>
-        <li>Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet</li>
-      </ul>
-    </div>
-    <div class="pf-card">
-      <div class="pf-title">Umfang und Zeitaufwand</div>
-      <ul>
-        <li>Zeitraum: 3 vollständige Betriebsjahre (2023, 2024, 2025)</li>
-        <li>16 Tramlinien, ca. 190 Haltestellen im Netz</li>
-        <li>66 dokumentierte Analyse-Befunde in 12 Notebooks</li>
-        <li>Ca. 3 Wochen: 1 Woche Data Engineering, 2 Wochen Analyse und Modellierung</li>
-      </ul>
-    </div>
-    <div class="pf-card">
-      <div class="pf-title">Technologie-Stack</div>
-      <ul>
-        <li>Python · Polars (85 Mio. Zeilen, lazy evaluation) · Jupyter · uv</li>
-        <li>LightGBM (Modellierung) · Plotly (Visualisierung) · Streamlit (Dashboard)</li>
-        <li>Trainingszeit LightGBM v2: ca. 18 Minuten auf Consumer-Hardware</li>
-      </ul>
-    </div>
-    <div class="pf-card">
-      <div class="pf-title">Reproduzierbarkeit</div>
-      <ul>
-        <li>Vollständiger Code auf GitHub veröffentlicht</li>
-        <li>Data Engineering vollständig reproduzierbar via Polars-Pipeline</li>
-        <li>Alle Datenquellen öffentlich: VBZ Open Data · Meteo Schweiz · GTFS</li>
-        <li>12 Jupyter-Notebooks, vollständig ausgeführt und dokumentiert</li>
-        <li>Alle Befunde rückverfolgbar auf Finding-IDs in den Notebooks</li>
-      </ul>
-    </div>
-  </div>
-</section>
-<section data-chapter="7">
-  <h2>Was noch zu erforschen ist</h2>
-  <span class="subline">Dashboard-Exploration offenbarte 7 systematische Forschungsmöglichkeiten</span>
-  <div style="margin-top:1.4em; padding:14px; background:#f3f0ff; border:1px solid #d5ccf5; border-radius:8px;">
-    <div style="color:#3C4F72; font-size:0.88em; line-height:1.6;"><strong>🔬 Potenziale erkannt:</strong> Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie?</div>
-    <div style="color:#3C4F72; font-size:0.88em; line-height:1.6; margin-top:8px;"><strong>4 Priority-1 Topics:</strong> OP-1 Direction-Asymmetrie · OP-3 Linienlänge-Curve · OP-7 Kaskaden-Mechanik · OP-4 Weekday×Line-Interaktion</div>
-    <div style="color:#3C4F72; font-size:0.88em; line-height:1.6; margin-top:8px;"><strong>Detailliert in:</strong> <a href="../BACKLOG.md#-research-opportunities--dashboard-discovery" style="color:#6c5ce7; font-weight:600; text-decoration:none;">BACKLOG.md Research Opportunities</a></div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════════════
-     SLIDE 13 — Abbinder
-══════════════════════════════════════════════ -->
-<section class="closing" data-chapter="8" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)">
-  <div style="font-size:1.3em; font-weight:700; color:#fff; letter-spacing:-0.01em; margin-bottom:0.15em;">Zurich Tram Flow</div>
-  <div style="font-size:0.72em; color:rgba(255,255,255,0.4); margin-bottom:1.4em;">Kay Wiegand · 2023–2025</div>
-
-  <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:1.6em;">
-    <div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:9px 16px; text-align:center;">
-      <div style="font-size:1.4em; font-weight:700; color:#fff; line-height:1;">94,4 M</div>
-      <div style="font-size:0.58em; color:rgba(255,255,255,0.5); margin-top:3px;">Halt-Ereignisse</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:9px 16px; text-align:center;">
-      <div style="font-size:1.4em; font-weight:700; color:#fff; line-height:1;">66</div>
-      <div style="font-size:0.58em; color:rgba(255,255,255,0.5); margin-top:3px;">Befunde</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:9px 16px; text-align:center;">
-      <div style="font-size:1.4em; font-weight:700; color:#fff; line-height:1;">12</div>
-      <div style="font-size:0.58em; color:rgba(255,255,255,0.5); margin-top:3px;">Notebooks</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:9px 16px; text-align:center;">
-      <div style="font-size:1.4em; font-weight:700; color:#4cd98a; line-height:1;">18,56 s</div>
-      <div style="font-size:0.58em; color:rgba(255,255,255,0.5); margin-top:3px;">MAE · LightGBM v2</div>
-    </div>
-    <div style="background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:8px; padding:9px 16px; text-align:center;">
-      <div style="font-size:1.4em; font-weight:700; color:#4cd98a; line-height:1;">−63%</div>
-      <div style="font-size:0.58em; color:rgba(255,255,255,0.5); margin-top:3px;">vs. Baseline</div>
-    </div>
-  </div>
-
-  <a href="https://github.com/kaywiegand/zh-tram-flow"
-     style="display:inline-flex; align-items:center; gap:9px; background:rgba(255,255,255,0.12);
-            border:1px solid rgba(255,255,255,0.25); color:#fff;
-            text-decoration:none; border-radius:8px; padding:10px 22px; font-size:0.8em; font-weight:600; margin-bottom:1.2em;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
-    </svg>
-    github.com/kaywiegand/zh-tram-flow
-  </a>
-
-  <div style="display:flex; gap:18px; justify-content:center; font-size:0.72em;">
-    <a href="techview.html" style="color:rgba(255,255,255,0.5); text-decoration:none;">Technischer Deep Dive →</a>
-    <a href="storyview.html" style="color:rgba(255,255,255,0.5); text-decoration:none;">Projektverlauf →</a>
-    <a href="https://zh-tram-flow.streamlit.app" style="color:rgba(255,255,255,0.5); text-decoration:none;">Live-App →</a>
-  </div>
-</section>
-
-
-</div></div>
+</div><!-- /slides -->
+</div><!-- /reveal -->
 
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
 <script>
   Reveal.initialize({
-    hash: true, controls: false, progress: true,
-    transition: 'slide', transitionSpeed: 'fast',
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    transitionSpeed: 'default',
+    controls: true,
+    progress: true,
     center: false,
-    margin: 0.07, width: 1280, height: 720
+    plugins: [RevealNotes]
   });
 
-  const CHAPTER_SLIDES = [0, 2, 4, 6, 7, 10, 11, 12, 13];
-  const navItems = document.querySelectorAll('.ch');
-  const total = document.querySelectorAll('.reveal .slides > section').length;
-  const progressFill = document.getElementById('progress-fill');
+  // Section markers in progress bar
+  Reveal.on('ready', () => {
+    const allSlides = Array.from(document.querySelectorAll('.slides > section'));
+    const total = allSlides.length;
+    const progressEl = document.querySelector('.reveal .progress');
+    if (!progressEl) return;
 
-  // Extract chapter names from top nav (strip number span)
-  const chapterNames = Array.from(navItems).map(el => {
-    const clone = el.cloneNode(true);
-    const span = clone.querySelector('.n');
-    if (span) span.remove();
-    return clone.textContent.trim();
+    allSlides.forEach((slide, index) => {
+      if (index === 0) return;
+      if (!slide.classList.contains('title-slide')) return;
+      const pct = (index / total) * 100;
+
+      const marker = document.createElement('div');
+      marker.className = 'progress-marker';
+      marker.style.left = pct + '%';
+      progressEl.appendChild(marker);
+
+      const h1 = slide.querySelector('h1');
+      const label = document.createElement('div');
+      label.className = 'progress-label';
+      label.textContent = h1 ? h1.textContent.trim() : '';
+      label.style.left = 'calc(' + pct + '% + 3px)';
+      progressEl.appendChild(label);
+    });
   });
 
-  // Build bottom ticks with chapter labels (Variant A)
-  const tickContainer = document.getElementById('slideticks');
-  for (let i = 0; i < total; i++) {
-    const wrap = document.createElement('div');
-    wrap.className = 'stk-wrap';
-    const ci = CHAPTER_SLIDES.indexOf(i);
-    if (ci !== -1) wrap.classList.add('stk-chapter');
-    const lbl = document.createElement('span');
-    lbl.className = 'stk-ch-label';
-    lbl.textContent = ci !== -1 ? (chapterNames[ci] || '') : '';
-    const line = document.createElement('span');
-    line.className = 'stk';
-    const num = document.createElement('span');
-    num.className = 'stk-num';
-    num.textContent = i + 1;
-    wrap.appendChild(lbl);
-    wrap.appendChild(line);
-    wrap.appendChild(num);
-    tickContainer.appendChild(wrap);
-  }
-  const ticks = tickContainer.querySelectorAll('.stk-wrap');
+  // Chart tile click handlers — open images in clean new window
+  document.querySelectorAll('a.chart-tile').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var img = a.querySelector('img');
+      if (!img) return;
+      var w = window.open('', '_blank');
+      w.document.write('<!DOCTYPE html><html><head><style>*{margin:0;padding:0}body{background:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}</style></head><body><img src="' + img.src + '" style="max-width:100vw;max-height:100vh;object-fit:contain"></body></html>');
+      w.document.close();
+      w.focus();
+    });
+  });
 
-  // Build left nav (Variant B)
-  const leftNav = document.getElementById('leftnav');
-  if (leftNav) {
-    for (let i = 0; i < total; i++) {
-      const item = document.createElement('div');
-      item.className = 'ln-item';
-      item.dataset.slide = i;
-      const tick = document.createElement('span');
-      tick.className = 'ln-tick';
-      item.appendChild(tick);
-      const ci = CHAPTER_SLIDES.indexOf(i);
-      if (ci !== -1) {
-        item.classList.add('ln-chapter');
-        const lbl = document.createElement('span');
-        lbl.className = 'ln-label';
-        lbl.textContent = chapterNames[ci] || '';
-        item.appendChild(lbl);
-      }
-      item.addEventListener('click', () => Reveal.slide(i));
-      leftNav.appendChild(item);
-    }
-  }
-  const leftItems = leftNav ? Array.from(leftNav.querySelectorAll('.ln-item')) : [];
-
-  function getChapter(idx) {
-    let ch = 0;
-    for (let i = 0; i < CHAPTER_SLIDES.length; i++) { if (idx >= CHAPTER_SLIDES[i]) ch = i; }
-    return ch;
-  }
-  function update() {
-    const idx = Reveal.getState().indexh;
-    const ch = getChapter(idx);
-    navItems.forEach((el, i) => {
-      el.classList.remove('active', 'done');
-      if (i === ch) el.classList.add('active');
-      else if (i < ch) el.classList.add('done');
+  // Chart tile HTML — open in new tab
+  document.querySelectorAll('a.chart-tile-html').forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var w = window.open(a.href, '_blank');
+      if (w) w.focus();
     });
-    ticks.forEach((t, i) => {
-      t.classList.remove('stk-past', 'stk-current', 'stk-chapter-active');
-      if (i === idx)    t.classList.add('stk-current');
-      else if (i < idx) t.classList.add('stk-past');
-      if (CHAPTER_SLIDES.indexOf(i) !== -1 && getChapter(i) === ch) t.classList.add('stk-chapter-active');
-    });
-    leftItems.forEach((item, i) => {
-      item.classList.remove('ln-past', 'ln-current');
-      if (i === idx)    item.classList.add('ln-current');
-      else if (i < idx) item.classList.add('ln-past');
-    });
-    requestAnimationFrame(() => {
-      const track = document.getElementById('progress-track');
-      if (!track) return;
-      const stkLine = ticks[idx].querySelector('.stk');
-      const trackRect = track.getBoundingClientRect();
-      const stkRect   = stkLine.getBoundingClientRect();
-      const centerX   = stkRect.left + stkRect.width / 2;
-      const pct = trackRect.width > 0
-        ? Math.max(0, Math.min(100, (centerX - trackRect.left) / trackRect.width * 100))
-        : 0;
-      progressFill.style.width = pct + '%';
-    });
-  }
-  navItems.forEach(el => el.addEventListener('click', () => Reveal.slide(parseInt(el.dataset.slide))));
-  Reveal.on('slidechanged', update);
-  update();
+  });
 </script>
 </body>
 </html>

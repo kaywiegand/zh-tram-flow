@@ -370,10 +370,7 @@ Status: [ ] 2–3 Charts gewählt
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
 | 67 | **✅ Fahrtrichtungs-Filter im Dashboard (2026-06-18)** — Implementiert: Selectbox mit Gesamt/Richtung A/B auf "Linie erkunden". Direction ID aus GTFS (authentische Fahrtrichtungen, nicht geografische Varianten). Alle Stops gehören zu beiden Richtungen. Karte, Charts, Stats nutzen Filter. | 1 |
-| 67b | **✅ Fahrtrichtungs-Filter entfernt (2026-06-25)** — Richtungsauswahl aus "Linie erkunden" entfernt. Zeigt immer Gesamt (Union beider Richtungen). Begründung: Metriken sind nicht richtungsspezifisch (stop_agg direction-agnostic) → Filter versprach mehr als er hielt. Echte Lösung via #68. | 1 |
-| 68 | **Direction ID Architecture Overhaul (DEFERRED → Siehe Details unten)** — Ganzheitlicher Umbau: train_raw + test_final mit direction_id als Dimension. Neue Aggregationen: stop×direction, line×direction. Model v3 Retraining. Analysen: Asymmetrische Verspätung. **Aktuell not-critical, später evaluieren ob signifikante Unterschiede (~10s bei L11, siehe OP-1) das Refactoring rechtfertigen.** Trigger: Nach OP-1 Dashboard-Analyse Entscheidung treffen. | 3 |
-| 69 | **Dashboard — Endstationen ohne Daten als "k.A." anzeigen** — Terminal-Stops (z.B. Bahnhof Tiefenbrunnen auf L2) sind nicht im IST-Datensatz (VBZ misst letzte Ankunft nicht). Zeigen aktuell 0s. Besser: Stops mit `n_obs == 0` als "k.A." kennzeichnen (grauer Bubble, kein Delay-Label). Fix in `app.py` Kartenrendering. | 2 |
-| 70 | **Dashboard — GTFS-Linienzug über letzte Bubble hinaus** — GTFS-Shape-Geometrie reicht bis zum Terminus, der letzte gemessene Stop liegt aber vorher (wegen fehlender Endstations-Daten). Visuell: Linie läuft über die letzte Blase hinaus. Fix: Shape auf Bounding-Box der tatsächlich angezeigten Stops clippen. | 3 |
+| 67b | **✅ Fahrtrichtungs-Filter entfernt (2026-06-25)** — Richtungsauswahl aus "Linie erkunden" entfernt. Zeigt immer Gesamt (Union beider Richtungen). Begründung: stop_agg ist direction-agnostic (trip_id-Format IST vs. GTFS inkompatibel) → Filter versprach mehr als er hielt. Dashboard-Implikationen (richtungsabh. KPIs, Endstationen als "k.A.") → Research Opportunity OP-1. | 1 |
 
 ---
 
@@ -641,7 +638,7 @@ direction_id | Int64
 - Nur einzelne Linien betroffen
 - Andere Priorities höher (z.B. OP-7 Cascade Mechanics)
 
-**Decision Point:** Nach OP-1 Analyse (diese Woche) → BACKLOG #68 aktualisieren mit Freigabe
+**Decision Point:** Nach OP-1 Analyse → OP-1 "Implementation Path Deep" starten (Pipeline-Umbau sf_data-research)
 
 ---
 
@@ -668,7 +665,14 @@ direction_id | Int64
 
 **Implementation Path:** 
 - Quick: Vergleich-Tabellen in Notebook ohne Pipeline-Änderung
-- Deep: Siehe BACKLOG #68 (Direction ID Architecture Overhaul)
+- Deep: Pipeline-Umbau in `sf_data-research` — train_raw + test_final mit direction_id als Dimension. Neue Aggregationen: stop×direction, line×direction. Model v3 Retraining.
+
+**Dashboard-Implikationen (würde durch diesen Umbau freigeschaltet):**
+- Richtungsabhängige KPIs im "Linie erkunden"-Tab
+- Endstationen ohne IST-Daten (z.B. Tiefenbrunnen) als "k.A." statt 0s anzeigen
+- Direction-Filter im Dashboard reaktivieren — mit echten richtungsspezifischen Metriken
+
+**Warum aktuell nicht umsetzbar:** IST-Format `85:3849:…` vs. GTFS-Format `1.T0.1-10-P-j23-…` — 0 Overlap. Nur Pipeline-Umbau (sf_data-research) kann das beheben.
 
 **Prio:** 2 (interessant, aber nicht blockierend)
 

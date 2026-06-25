@@ -143,6 +143,44 @@ def render_content_item(item: Dict[str, Any]) -> str:
         html += '</div>'
         return html
 
+    elif item_type == "recommendations":
+        items = item.get("items", [])
+        html = '<div class="reco-list">'
+        for rec in items:
+            category = rec.get("category", "")
+            title = rec.get("title", "")
+            points = rec.get("points", [])
+            num_part = category.split("·")[0].strip() if "·" in category else category
+            cat_label = category.split("·", 1)[1].strip() if "·" in category else ""
+            html += '<div class="reco">'
+            html += f'<div class="reco-num">{num_part}</div>'
+            html += '<div class="reco-text">'
+            html += f'<strong>{title}</strong>'
+            if cat_label:
+                html += f'<span class="reco-cat">{cat_label}</span>'
+            for point in points[:2]:
+                html += f'<span>{point}</span>'
+            html += '</div></div>'
+        html += '</div>'
+        return html
+
+    elif item_type == "scenarios":
+        items = item.get("items", [])
+        html = '<div class="scenario-list">'
+        for sc in items:
+            conditions = sc.get("conditions", "")
+            secs = sc.get("prediction_seconds", "")
+            interp = sc.get("interpretation", "")
+            sentiment = sc.get("sentiment", "neutral")
+            html += f'<div class="scenario {sentiment}">'
+            html += f'<div class="scenario-conditions">{conditions}</div>'
+            html += f'<div class="scenario-pred">{secs} s</div>'
+            if interp:
+                html += f'<div class="scenario-interp">{interp}</div>'
+            html += '</div>'
+        html += '</div>'
+        return html
+
     else:
         # Fallback for unknown types
         return f'<p><em>Unknown content type: {item_type}</em></p>'
@@ -157,7 +195,7 @@ def render_slide(slide: Dict[str, Any]) -> str:
 
     if role == "title":
         # Title slide with gradient background
-        html = f'<section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)">'
+        html = f'<section class="title-slide" data-background="linear-gradient(135deg, #1C2B48 0%, #3C4F72 100%)">'
         html += f'<h1>{title}</h1>'
         if isinstance(subtitle, list):
             for sub in subtitle:
@@ -170,10 +208,10 @@ def render_slide(slide: Dict[str, Any]) -> str:
     else:
         # Regular slide
         html = f'<section>'
-        if title:
-            html += f'<h2>{title}</h2>'
         if subtitle:
             html += f'<p class="subline">{subtitle}</p>'
+        if title:
+            html += f'<h2>{title}</h2>'
         for item in content:
             html += render_content_item(item)
         html += '</section>'
