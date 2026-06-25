@@ -274,10 +274,10 @@ def plot_line_map_with_geometry(line: str, route: pd.DataFrame, shape_geom: pd.D
                 size=route_copy["bubble"],
                 color=route_copy.get("mean_delay", 0),
                 colorscale=[[0, GREEN], [0.4, AMBER], [1, RED]],
-                colorbar=dict(title="Delay (s)", thickness=12),
+                colorbar=dict(title="Verspätung (s)", thickness=12),
             ),
             text=[
-                f"<b>{stop}</b><br>Ø Delay: {delay:.1f}s<br>OTP: {otp:.1f}%"
+                f"<b>{stop}</b><br>Ø Verspätung: {delay:.1f}s<br>OTP: {otp:.1f}%"
                 for stop, delay, otp in zip(
                     route_copy.get("stop_name", []),
                     route_copy.get("mean_delay", []),
@@ -386,12 +386,12 @@ def worst_stops_for_line(line: str, n: int = 5) -> pd.DataFrame:
         .select(["stop_name", "mean_delay", "otp_pct", "dwell_time_median"])
         .rename({
             "stop_name": "Haltestelle",
-            "mean_delay": "Ø Delay (s)",
+            "mean_delay": "Ø Verspätung (s)",
             "otp_pct": "OTP (%)",
             "dwell_time_median": "Puffer (s)",
         })
         .with_columns([
-            pl.col("Ø Delay (s)").round(1),
+            pl.col("Ø Verspätung (s)").round(1),
             pl.col("OTP (%)").round(1),
             pl.col("Puffer (s)").round(0).cast(pl.Int32),
         ])
@@ -491,9 +491,9 @@ def build_feature_row(line_name, stop_name, hour, weekday, month,
 with st.sidebar:
     st.markdown("""
     <div style="padding:1rem 0 0.5rem">
-        <div style="font-size:1.3rem;font-weight:800">Zurich Tram Flow</div>
+        <div style="font-size:1.3rem;font-weight:800">Zurich Tram Flow Prototype</div>
         <div style="font-size:0.78rem;opacity:0.6;margin-top:0.3rem">
-            Prototyp · VBZ 2023–2025
+            Data VBZ 2023–2025
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -507,10 +507,13 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown("""
-    <div style="font-size:0.75rem;opacity:0.55;line-height:1.8">
-        OTP netzweit: <strong>87,0%</strong><br>
-        Ziel: 95% · Lücke −8 PP<br>
-        16 Linien · 94,4 Mio. Datenpunkte
+    <div style="font-size:0.75rem;opacity:0.55;line-height:1.6">
+        Projekt-Informationen:<br>
+        <a href="https://github.com/kaywiegand/zh-tram-flow"
+           target="_blank"
+           style="color:inherit;text-decoration:underline">
+            GitHub: zh-tram-flow
+        </a>
     </div>
     """, unsafe_allow_html=True)
 
@@ -525,9 +528,12 @@ if page == "Linie erkunden":
         '<div class="page-sub">'
         'Wo entstehen Verspätungen — und auf welchen Linien ist der Handlungsbedarf am grössten? '
         'Basierend auf 94 Mio. VBZ-Fahrten 2023–2025. '
-        'Alle Werte sind Durchschnitte über den Gesamtzeitraum — geeignet für Trendanalyse und Priorisierung. '
-        'Fahrplanwechsel (Dez. 2023 / 2024), richtungsabhängige Linienstrecken und betriebliche Einbahnführungen '
-        'können in einzelnen Ansichten zu visuellen Abweichungen führen — die Datenbasis bleibt davon unberührt.'
+        'Alle Werte sind Durchschnitte über den Gesamtzeitraum.'
+        '<br><br>'
+        'Dieser erste Prototyp soll die Möglichkeiten der weiteren Verwendung der gesammelten Erkenntnisse aufzeigen. '
+        'Dabei ist zu beachten, dass die Daten nicht primär für diese Darstellung aufbereitet wurden und durch eine '
+        'Vielzahl an Änderungen des Strecken- und Fahrplans im Zeitraum 2023–2025 und Inkonsistenzen der '
+        'Haltestellenbenennung die Ansichten zu visuellen Abweichungen führen können.'
         '</div>',
         unsafe_allow_html=True,
     )
@@ -566,10 +572,10 @@ if page == "Linie erkunden":
     worst = route_filtered.nlargest(5, "mean_delay") if len(route_filtered) > 0 else pd.DataFrame()
     if len(worst) > 0:
         worst_display = worst[["stop_name", "mean_delay", "otp_pct", "dwell_time_median"]].copy()
-        worst_display.columns = ["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"]
+        worst_display.columns = ["Haltestelle", "Ø Verspätung (s)", "OTP (%)", "Puffer (s)"]
         worst = worst_display
     else:
-        worst = pd.DataFrame(columns=["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"])
+        worst = pd.DataFrame(columns=["Haltestelle", "Ø Verspätung (s)", "OTP (%)", "Puffer (s)"])
 
     col_otp.metric(
         "Pünktlichkeit (OTP)",
@@ -583,7 +589,7 @@ if page == "Linie erkunden":
     st.markdown("---")
 
     # ── Delay-Profil: Plotly Bar (nach Delay sortiert) ──
-    section_label("Delay pro Haltestelle")
+    section_label("Verspätung pro Haltestelle")
 
     # route_filtered already calculated above — use it consistently
     color = line_color(sel_line)
@@ -599,7 +605,7 @@ if page == "Linie erkunden":
         textposition="outside",
         hovertemplate=(
             "<b>%{customdata[0]}</b><br>"
-            "Ø Delay: %{y:.1f}s<br>"
+            "Ø Verspätung: %{y:.1f}s<br>"
             "OTP: %{customdata[1]:.1f}%<br>"
             "Puffer: %{customdata[2]:.0f}s"
             "<extra></extra>"
@@ -640,7 +646,7 @@ if page == "Linie erkunden":
 
     # ── Top-5 Problemhaltestellen ──
     st.markdown("---")
-    section_label("Top 5 Problemhaltestellen")
+    section_label("Rangliste der Haltestellenverspätungen")
 
     # worst is already filtered to main route (calculated above) — use directly
     col_tbl, col_rec = st.columns([3, 2], gap="large")
@@ -651,7 +657,7 @@ if page == "Linie erkunden":
             hide_index=True,
             use_container_width=True,
             column_config={
-                "Ø Delay (s)": st.column_config.NumberColumn(format="%.1f s"),
+                "Ø Verspätung (s)": st.column_config.NumberColumn(format="%.1f s"),
                 "OTP (%)": st.column_config.NumberColumn(format="%.1f %%"),
                 "Puffer (s)": st.column_config.NumberColumn(format="%d s"),
             },
@@ -727,17 +733,17 @@ elif page == "Linien vergleichen":
     # Prepare display format for both
     if len(worst_a) > 0:
         worst_a_display = worst_a[["stop_name", "mean_delay", "otp_pct", "dwell_time_median"]].copy()
-        worst_a_display.columns = ["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"]
+        worst_a_display.columns = ["Haltestelle", "Ø Verspätung (s)", "OTP (%)", "Puffer (s)"]
         worst_a = worst_a_display
     else:
-        worst_a = pd.DataFrame(columns=["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"])
+        worst_a = pd.DataFrame(columns=["Haltestelle", "Ø Verspätung (s)", "OTP (%)", "Puffer (s)"])
 
     if len(worst_b) > 0:
         worst_b_display = worst_b[["stop_name", "mean_delay", "otp_pct", "dwell_time_median"]].copy()
-        worst_b_display.columns = ["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"]
+        worst_b_display.columns = ["Haltestelle", "Ø Verspätung (s)", "OTP (%)", "Puffer (s)"]
         worst_b = worst_b_display
     else:
-        worst_b = pd.DataFrame(columns=["Haltestelle", "Ø Delay (s)", "OTP (%)", "Puffer (s)"])
+        worst_b = pd.DataFrame(columns=["Haltestelle", "Ø Verspätung (s)", "OTP (%)", "Puffer (s)"])
 
     st.markdown("---")
 
@@ -763,10 +769,10 @@ elif page == "Linien vergleichen":
 
     kpi_pair(kpi_cols[0], "OTP",
              stats_a["otp_pct"], stats_b["otp_pct"], suffix="%")
-    kpi_pair(kpi_cols[1], "Ø Delay",
+    kpi_pair(kpi_cols[1], "Ø Verspätung",
              stats_a["mean_delay"], stats_b["mean_delay"],
              fmt="{:.0f}", suffix="s", inverse=True)
-    kpi_pair(kpi_cols[2], "P90 Delay",
+    kpi_pair(kpi_cols[2], "P90 Verspätung",
              stats_a["p90_delay"], stats_b["p90_delay"],
              fmt="{:.0f}", suffix="s", inverse=True)
     kpi_pair(kpi_cols[3], "Haltestellen",
@@ -776,7 +782,7 @@ elif page == "Linien vergleichen":
     st.markdown("---")
 
     # ── Overlapping Bar Chart — normalized width ──
-    section_label("Delay-Verteilung — Hauptroute beider Linien")
+    section_label("Verspätungs-Verteilung — Hauptroute beider Linien")
 
     fig_cmp = go.Figure()
     for route, ln, lw in [(route_a_filtered, line_a, 3.0), (route_b_filtered, line_b, 2.0)]:
@@ -792,7 +798,7 @@ elif page == "Linien vergleichen":
                 marker=dict(size=6, color=line_color(ln)),
                 hovertemplate=(
                     f"<b>Linie {ln}</b><br>%{{customdata}}<br>"
-                    "Ø Delay: %{y:.1f}s<extra></extra>"
+                    "Ø Verspätung: %{y:.1f}s<extra></extra>"
                 ),
                 customdata=route["stop_short"],
             ))
@@ -815,14 +821,14 @@ elif page == "Linien vergleichen":
 
     # ── Top-5 nebeneinander ──
     st.markdown("---")
-    section_label("Top 5 Problemhaltestellen")
+    section_label("Rangliste der Haltestellenverspätungen")
 
     col_wa, col_wb = st.columns(2, gap="large")
     with col_wa:
         st.caption(f"Linie {line_a}")
         st.dataframe(worst_a, hide_index=True, use_container_width=True,
                      column_config={
-                         "Ø Delay (s)": st.column_config.NumberColumn(format="%.1f s"),
+                         "Ø Verspätung (s)": st.column_config.NumberColumn(format="%.1f s"),
                          "OTP (%)": st.column_config.NumberColumn(format="%.1f %%"),
                          "Puffer (s)": st.column_config.NumberColumn(format="%d s"),
                      })
@@ -833,7 +839,7 @@ elif page == "Linien vergleichen":
         st.caption(f"Linie {line_b}")
         st.dataframe(worst_b, hide_index=True, use_container_width=True,
                      column_config={
-                         "Ø Delay (s)": st.column_config.NumberColumn(format="%.1f s"),
+                         "Ø Verspätung (s)": st.column_config.NumberColumn(format="%.1f s"),
                          "OTP (%)": st.column_config.NumberColumn(format="%.1f %%"),
                          "Puffer (s)": st.column_config.NumberColumn(format="%d s"),
                      })
@@ -846,7 +852,7 @@ elif page == "Linien vergleichen":
 # ══════════════════════════════════════════════════════════════════════════════
 
 elif page == "Verspätung vorhersagen":
-    st.markdown('<div class="page-title">Delay vorhersagen</div>', unsafe_allow_html=True)
+    st.markdown('<div class="page-title">Verspätung vorhersagen</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="page-sub">'
         'Was kostet ein Schneetag auf Linie 11 um 21 Uhr? '
@@ -867,7 +873,10 @@ elif page == "Verspätung vorhersagen":
     # ── Zwei Szenario-Spalten ──
     col_s1, col_s2 = st.columns(2, gap="large")
 
-    def scenario_form(col, key_prefix: str, label: str):
+    _DEFAULTS_A = {"hour": 8,  "weekday": 0, "month": 2, "snow": False, "temp": 5,  "stop": "Glattpark"}
+    _DEFAULTS_B = {"hour": 21, "weekday": 3, "month": 2, "snow": True,  "temp": -2, "stop": "Glattpark"}
+
+    def scenario_form(col, key_prefix: str, label: str, defaults: dict):
         with col:
             st.markdown(f"**{label}**")
 
@@ -885,20 +894,22 @@ elif page == "Verspätung vorhersagen":
                 .unique()
                 .to_list()
             )
+            default_stop_idx = line_stops.index(defaults["stop"]) if defaults["stop"] in line_stops else 0
             s_stop = st.selectbox(
                 "Haltestelle", line_stops,
+                index=default_stop_idx,
                 key=f"{key_prefix}_stop",
             )
 
             c1, c2 = st.columns(2)
-            s_hour    = c1.selectbox("Stunde", list(range(24)), index=21,
+            s_hour    = c1.selectbox("Stunde", list(range(24)), index=defaults["hour"],
                                      format_func=lambda h: f"{h:02d}:00",
                                      key=f"{key_prefix}_hour")
-            s_weekday = c2.selectbox("Wochentag", list(range(7)), index=3,
+            s_weekday = c2.selectbox("Wochentag", list(range(7)), index=defaults["weekday"],
                                      format_func=lambda d: WEEKDAY_LABELS[d],
                                      key=f"{key_prefix}_weekday")
             s_month = st.selectbox(
-                "Monat", list(range(1, 13)), index=1,
+                "Monat", list(range(1, 13)), index=defaults["month"] - 1,
                 format_func=lambda m: [
                     "Jan","Feb","Mär","Apr","Mai","Jun",
                     "Jul","Aug","Sep","Okt","Nov","Dez"
@@ -907,11 +918,11 @@ elif page == "Verspätung vorhersagen":
             )
             st.markdown("**Wetter & Kontext**")
             w1, w2 = st.columns(2)
-            s_snow    = w1.checkbox("Schnee",             key=f"{key_prefix}_snow")
+            s_snow    = w1.checkbox("Schnee",             value=defaults["snow"], key=f"{key_prefix}_snow")
             s_rain    = w2.checkbox("Regen",              key=f"{key_prefix}_rain")
             s_event   = w1.checkbox("Grossveranstaltung", key=f"{key_prefix}_event")
             s_holiday = w2.checkbox("Feiertag",           key=f"{key_prefix}_holiday")
-            s_temp    = st.slider("Temperatur (°C)", -10, 40, 5 if s_snow else 15,
+            s_temp    = st.slider("Temperatur (°C)", -10, 40, defaults["temp"],
                                   key=f"{key_prefix}_temp")
 
             return {
@@ -921,13 +932,13 @@ elif page == "Verspätung vorhersagen":
                 "event": s_event, "holiday": s_holiday, "temp": s_temp,
             }
 
-    sc1 = scenario_form(col_s1, "s1", "Szenario A")
-    sc2 = scenario_form(col_s2, "s2", "Szenario B")
+    sc1 = scenario_form(col_s1, "s1", "Szenario A", _DEFAULTS_A)
+    sc2 = scenario_form(col_s2, "s2", "Szenario B", _DEFAULTS_B)
 
     st.markdown("---")
-    run = st.button("Beide Szenarien berechnen ▶", type="primary", use_container_width=True)
+    st.button("Aktualisieren ▶", type="primary", use_container_width=True)
 
-    if run:
+    if True:
         model, meta = load_model()
 
         def predict(sc: dict) -> float:
@@ -945,7 +956,7 @@ elif page == "Verspätung vorhersagen":
         def result_block(col, pred: float, sc: dict, label: str):
             with col:
                 css = "pred-green" if pred < 30 else "pred-amber" if pred < 90 else "pred-red"
-                lbl = "pünktlich" if pred < 30 else "leichte Verspätung" if pred < 90 else "erhebliche Verspätung"
+                lbl = "pünktlich" if pred < 30 else "leichte Verspätung" if pred < 60 else "erhöhte Verspätung" if pred < 90 else "erhebliche Verspätung"
                 st.markdown(f"""
                 <div class="pred-box {css}">
                     <div class="pred-val">{pred:+.0f}s</div>
@@ -971,9 +982,9 @@ elif page == "Verspätung vorhersagen":
             box("Kein wesentlicher Unterschied zwischen den Szenarien (< 5s).", kind="insight")
         elif diff > 0:
             box(
-                f"<strong>Szenario B kostet {diff:+.0f}s mehr Delay</strong> als Szenario A. "
+                f"<strong>Szenario B kostet {diff:+.0f}s mehr Verspätung</strong> als Szenario A. "
                 + (f"Davon entfallen schätzungsweise +54s auf Schnee." if sc2["snow"] and not sc1["snow"] else "")
-                + (f" Events treiben den Delay abends signifikant." if sc2["event"] and not sc1["event"] else ""),
+                + (f" Events treiben die Verspätung abends signifikant." if sc2["event"] and not sc1["event"] else ""),
                 kind="warn",
             )
         else:
@@ -997,7 +1008,7 @@ elif page == "Verspätung vorhersagen":
             height=280,
             margin=dict(t=20, b=10),
             plot_bgcolor="white", paper_bgcolor="white",
-            yaxis=dict(gridcolor="#eee", title="Vorhergesagter Delay (s)"),
+            yaxis=dict(gridcolor="#eee", title="Vorhergesagte Verspätung (s)"),
             showlegend=False,
         )
         st.plotly_chart(fig_bar, use_container_width=True)
