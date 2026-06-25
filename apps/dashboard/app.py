@@ -539,7 +539,7 @@ if page == "Linie erkunden":
     )
 
     # ── Dropdown + 3 KPIs in einer Zeile ──
-    col_sel, col_otp, col_delay, col_stops = st.columns([1, 2, 2, 2], gap="large")
+    col_sel, col_otp, col_delay, col_stops = st.columns([2, 4, 3, 2], gap="large")
 
     with col_sel:
         sel_line = st.selectbox(
