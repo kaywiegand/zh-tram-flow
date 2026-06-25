@@ -181,16 +181,16 @@
 
 ---
 
-## Phase 5 — Dashboard & Präsentation · NÄCHSTE PHASE
+## Phase 5 — Dashboard & Präsentation · ✅ ABGESCHLOSSEN (2026-06-25)
 
 ### Tooling-Entscheidung
-- [ ] Dash + Plotly vs. Streamlit vs. Tableau
-- [ ] Entscheidung nach Phase 2 Erfahrung
+- [x] Streamlit — deployed auf Streamlit Cloud
 
 ### Interface
-- [ ] Historik: Heatmaps Stadtkreise und Zeitverläufe
-- [ ] Predictive: What-if Eingabemaske
-  (z.B. Freitag + Regen + Spiel im Letzigrund → Erwarteter Delay)
+- [x] Linie erkunden: Karte + Stop-Profil + KPIs (OTP, Ø Verspätung, Haltestellen)
+- [x] Rangliste der Haltestellenverspätungen (alle Linien)
+- [x] Verspätungs-Vorhersage: What-if Szenario-Vergleich (LightGBM v1 live)
+- [x] Dashboard-Prototype live: https://zh-tram-flow.streamlit.app
 
 ---
 

@@ -326,7 +326,7 @@ Status: [ ] 2–3 Charts gewählt
        _archive/ gelöscht. Dashboard-URL (Streamlit) bleibt offen → #65
 -->
 | 62 | **`public/index.html` reviewen** — Zahlen, Links und Findings-Referenzen prüfen. | 1 |
-| 65 | **`public/index.html` — Dashboard-Link prüfen** — Link auf Live Dashboard (Streamlit) zeigt nicht korrekt. URL verifizieren und korrigieren sobald Streamlit Cloud deployed. | 2 |
+| 65 | **✅ Dashboard-Prototype live (2026-06-25)** — https://zh-tram-flow.streamlit.app · public/index.html und alle Docs auf korrekte URL aktualisiert. | 2 |
 | 63 | **`/project-case check`** — Portfolio-Readiness prüfen bevor weitere Aufbereitung. Gibt Priorisierung für die letzten Schritte. | 1 |
 | 64 | **README finalisieren** — Rollentrennung README vs. `00_introduction` explizit dokumentieren. Deliverables-Liste aktuell? → BACKLOG #1 schliessen. | 2 |
 | 5 | **Pipeline-Skizze dokumentieren** — vollständige Datenpipeline in `00_introduction.ipynb`: wann lazy, wann collect(), wann sink_parquet() und warum. Format: Diagramm + Begründungstabelle. | 2 |

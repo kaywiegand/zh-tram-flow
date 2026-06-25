@@ -12,13 +12,14 @@
 name:       Zurich Tram Flow
 slug:       zh-tram-flow
 type:       DANSC
-stage:      Phase 4 abgeschlossen — LightGBM v2 trainiert, Evaluation + Vergleich fertig
+stage:      Phase 5 abgeschlossen — Dashboard-Prototype live auf Streamlit Cloud
 target:     arrival_delay (Sekunden)
-stack:      Python · Polars · Pandas · LightGBM · Plotly · Jupyter · uv
+stack:      Python · Polars · Pandas · LightGBM · Plotly · Streamlit · Jupyter · uv
 period:     2023–2025
 rows:       ~85 M (lf_clean) · 94,4 M total
 notebooks:  12
 findings:   66
+dashboard:  https://zh-tram-flow.streamlit.app
 ```
 
 ---
@@ -498,10 +499,11 @@ priority:      HIGH — Dashboard-Discovery hat Lücke präzise lokalisiert.
 
 ```
 generated_by:    /portfolio story (2026-05-28) + mechanisiert (2026-06-19)
-generated_at:    2026-06-19
+generated_at:    2026-06-25
 summary_version: 2 (mechanisiert mit View-Markern + Research Opportunities)
 portfolio_check: ✅ complete (alle Findings, Recommendations, Research Opportunities dokumentiert)
 report_html:     ✅ mechanisiert (aus portfolio.md generiert)
 slides_html:     ✅ mechanisiert (3 Views: overview, storyview, techview)
 index_html:      ✅ One-Pager Landingpage (Hub + Social-Media-ready)
+dashboard:       ✅ live — https://zh-tram-flow.streamlit.app (Dashboard-Prototype)
 ```

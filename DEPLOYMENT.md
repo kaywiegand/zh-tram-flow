@@ -87,7 +87,11 @@ git push origin main
 
 ## 2. Streamlit Dashboard (Interactive App)
 
-### Setup (One-time)
+**Status: ✅ Deployed — https://zh-tram-flow.streamlit.app** (seit 2026-06-25)
+
+Name: Dashboard-Prototype | Auto-deploy bei jedem Push auf `main`.
+
+### Setup (One-time — bereits erledigt)
 
 1. Go to https://share.streamlit.io — sign in with GitHub
 2. Click **New app**:
@@ -95,8 +99,6 @@ git push origin main
    - Branch: `main`
    - File: `apps/dashboard/app.py`
 3. Click **Deploy**
-
-App live at **https://zh-tram-flow.streamlit.app**
 
 ### Pre-requisite: Precomputed Aggregations
 
