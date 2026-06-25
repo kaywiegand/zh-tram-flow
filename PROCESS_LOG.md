@@ -13,8 +13,8 @@
 | Repo | `zh-tram-flow` |
 | Typ | DANSC — Data Analysis + Data Science |
 | Erstellt | 2026-05-11 |
-| Status | 🟢 Phase 4 ABGESCHLOSSEN — LightGBM v2 trainiert · Phase 5 (Dashboard) ausstehend |
-| Nächster Schritt | /project-case report ausführen · Phase 5 Dashboard-Tooling entscheiden |
+| Status | 🟢 Phase 5 IN FINALISIERUNG — Dashboard Prototype live, Streamlit Cloud Deployment ausstehend |
+| Nächster Schritt | Streamlit Cloud deployen (share.streamlit.io → kaywiegand/zh-tram-flow · apps/dashboard/app.py) |
 | Datenbasis | `sf_data-research` — Phase 0 abgeschlossen |
 | Stack | Python · Polars · Pandas · Plotly · LightGBM · uv |
 
@@ -1680,3 +1680,33 @@ An diesem Datum trat der grösste Fahrplanwechsel in der VBZ-Geschichte in Kraft
 - index.html als vollständige Write-Operation, nicht als 30+ einzelne Edits
 
 **Nächster Schritt:** Dashboard-Finalisierung (Phase 5) — Fahrplan-Wechsel-Kontext ist dokumentiert
+
+---
+
+### 2026-06-25 — Dashboard Phase 5 Finalisierung: Daten-Fixes + UI-Polish + Terminology
+
+**Was wurde gemacht:**
+
+**Daten-Fixes (P1 + P3):**
+- P1: "Gesamt" zeigte identische Werte wie "Richtung A" → Fix in `data_loaders.py`: Gesamt = Union beider Richtungen mit normalisiertem Namensvergleich (Platform-Letter-Strip "Bellevue C/D" → "Bellevue")
+- P3: Bellevue (53,8s) und Kalkbreite (41,2s) zeigten 0s → Fix in `precompute.py`: `_add_norm()` normalisiert GTFS-Namen vor Join (strip `^Zürich, ?` + trailing platform letter)
+- Parquet-Daten mit `make precompute` regeneriert
+
+**Fahrtrichtungs-Filter entfernt (#67b):**
+- Begründung: IST-Daten (test_final) haben trip_id-Format `85:3849:…`, GTFS hat `1.T0.1-10-P-j23-…` → 0 Overlap, stop_agg nicht richtungsspezifisch. Filter versprach mehr als er hielt.
+- Entscheidung: Dashboard zeigt nur "Gesamt" — sauberere UX, ehrlichere Kommunikation
+- Dashboard-Implikationen (richtungsabh. KPIs, Terminal-Stops als "k.A.") → Research Opportunity OP-1
+
+**UI-Polish:**
+- Globales Rename "Delay" → "Verspätung" in allen sichtbaren Labels
+- "Top 5 Problemhaltestellen" → "Rangliste der Haltestellenverspätungen"
+- Sidebar: "Zurich Tram Flow" + "Dashboard-Prototype" (zweizeilig), GitHub-Link, Stats-Block entfernt
+- Layout: 4 gleiche Spalten (25%) für Linie + 3 KPI-Boxes
+- Subtitle "Linie erkunden": positives Prototyp-Framing statt Einschränkungs-Liste
+- Prediction: neue Label-Stufe "erhöhte Verspätung" bei 60–90s; Szenario-Defaults A (L11/Glattpark/08:00/Mo/kein Schnee) vs. B (L11/Glattpark/21:00/Do/Schnee); Auto-Compute on Load
+
+**Infrastruktur:**
+- `public/index.html`: Dashboard-Link von Render-URL auf `https://zh-tram-flow.streamlit.app` aktualisiert
+- BACKLOG: #68 + #69 in OP-1 absorbiert (sind Direction Architecture Opportunity, kein Dashboard-Fix), #70 entfernt
+
+**Nächster Schritt:** Streamlit Cloud Deployment — `share.streamlit.io` → Repo `kaywiegand/zh-tram-flow` · Main file `apps/dashboard/app.py`
