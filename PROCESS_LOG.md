@@ -1724,3 +1724,42 @@ An diesem Datum trat der grösste Fahrplanwechsel in der VBZ-Geschichte in Kraft
 - Template `portfolio_summary_template.md` um `dashboard:` Feld erweitert — Schutz vor Überschreiben bei `/project-case story`
 
 **Nächster Schritt:** Phase 5 abgeschlossen — nächstes Thema offen
+
+---
+
+### 2026-06-26 — Portfolio-HTML: Restore + Design-Politur + Workflow-Sicherung
+
+**Kontext:** Ein „simplify"-Refactor der HTML-View-Pipeline (Commit `ce25901`) hatte
+den abgestimmten, funktionierenden Stand überschrieben (JSON-Schicht durch dünnes
+Dict ersetzt, Inhalt hardcodiert, Design zerschossen: schwarze Debug-Rahmen,
+Gamma-Palette, uppercase). Entscheidung: bewährten Stand zurück, dann gezielt Politur.
+
+**Was wurde gemacht:**
+- **Restore** auf bewährten Stand `3e2c8c9`: `public/json/storyline-*.json`,
+  `slides.css`, `overview/storyview/techview.html`, Scripts
+  (`generate_json_from_portfolio` · `generate_html_from_json` · `convert_json_to_md`),
+  Template aus `eec3131` (pre-Gamma). `generate_views.py` + `_archive`-Ordner entfernt.
+  `public/json-backup/` aus `public/json/` neu erzeugt (Pipeline wieder lauffähig).
+- **Design-Politur** (in den Inputs, nicht im Output):
+  - Headings normal-case statt uppercase (`text-transform: none` in Template + slides.css)
+  - Radius global verkleinert (Cards 8→5px, Boxen 6→4px, Hub-Cards 12→6px) — Test ob eleganter
+- **index.html (Hub) überarbeitet** nach Kay-Feedback: Pipeline-Badge raus, Tagline/Subtitle
+  gleiche Größe + enger, Header-Padding größer, Spacing-Rhythmus vereinheitlicht (4rem),
+  Captions nicht mehr uppercase, 3 View-Boxen in 3 Spalten (Overview · Tech View · Story View),
+  Titel „Basic Information" / „Technical Insights" / „Detailed Description",
+  „Live Dashboard" → „Dashboard-Prototype", „GitHub Repo" → „GitHub-Repo", „vier"→„drei".
+
+**⚠️ Workflow-Regeln (wichtig — wo lebt was, was übersteht Regenerierung):**
+- **Slide-Design** → `public/css/slides.css` + `docs/portfolio/templates/slides-template.html`.
+  Beides sind **Inputs** → überleben `generate_html_from_json.py`. NIE die generierten
+  `overview/storyview/techview.html` direkt editieren — wird überschrieben.
+- **Slide-Inhalt** → `public/md/portfolio.md` → JSON → HTML. Inhalt immer dort ändern.
+- **index.html** → **hand-gepflegt, NICHT pipeline-generiert** (Guard-Kommentar im File).
+  Die Scripts fassen sie nicht an; aber die Skill-Doku (Mode `report`) behauptet
+  fälschlich, sie zu generieren → bei stur-nach-Doku-Lauf Überschreib-Risiko.
+- **Skill-Doku-Altlasten** (zu bereinigen in views.md-Phase): `mds/` vs `md/`-Pfad,
+  Mode `report`/`slides` veraltet (`presentation.html`), index nicht in Pipeline.
+
+**Backlog / nächster Schritt:** views.md-Fundament (portfolio.md = Fakten,
+views.md = Storyboards, Generator merged, index in Pipeline holen, Skill anpassen).
+Erst danach ist index.html generiert und das Überschreib-Risiko ganz weg.

@@ -5,7 +5,7 @@
 #
 # Voraussetzung: uv installiert (pip install uv)
 
-.PHONY: setup install kernel test lint clean help maps slides
+.PHONY: setup install kernel test lint clean help maps portfolio
 
 setup: ## Virtuelle Umgebung erstellen + Dependencies installieren
 	uv venv
@@ -48,9 +48,13 @@ map-network: ## Interaktive Netzwerk-Delta-Karte öffnen
 map-meteo: ## Interaktive Wetter-Impact-Karte öffnen
 	open public/img/meteo-weather-impact-map.html
 
-slides: ## Portfolio-Views aus portfolio.md generieren (index + overview + storyview + techview)
-	uv run python scripts/generate_views.py
-	@echo "✅ Views generiert. Öffne: public/index.html"
+portfolio: ## Portfolio-Artefakte sicher regenerieren (archiviert alten Stand → archive/vN, dann index + 3 Views aus portfolio.md)
+	uv run python scripts/archive_portfolio_artifacts.py
+	uv run python scripts/generate_json_from_portfolio.py
+	uv run python scripts/generate_html_from_json.py
+	uv run python scripts/generate_index_from_portfolio.py
+	uv run python scripts/convert_json_to_md.py
+	@echo "✅ Portfolio regeneriert · alter Stand in public/archive/ · öffne public/index.html"
 
 report: ## Notebook als HTML exportieren → public/report.html
 	. .venv/bin/activate && jupyter nbconvert --to html --no-input --output-dir public --output report notebooks/04_insights.ipynb

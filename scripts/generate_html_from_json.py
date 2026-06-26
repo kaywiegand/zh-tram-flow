@@ -148,28 +148,81 @@ def render_content_item(item: Dict[str, Any]) -> str:
         return f'<p><em>Unknown content type: {item_type}</em></p>'
 
 
-def render_slide(slide: Dict[str, Any]) -> str:
+_SENTIMENT_KPI_CLASS = {"positive": "green", "negative": "red", "warning": "amber"}
+
+
+def render_title_slide_content(content: List[Any]) -> str:
+    """Render content items for a title slide using .kpi-row .kpi structure."""
+    html = ""
+    for item in content:
+        if item.get("type") == "figures":
+            html += '<div class="kpi-row">'
+            for fig in item.get("items", []):
+                sentiment = fig.get("sentiment", "neutral")
+                css = _SENTIMENT_KPI_CLASS.get(sentiment, "")
+                cls = f'kpi {css}' if css else 'kpi'
+                html += f'<div class="{cls}">'
+                html += f'<div class="v">{fig.get("value", "")}</div>'
+                html += f'<div class="l">{fig.get("label", "")}</div>'
+                html += '</div>'
+            html += '</div>'
+        else:
+            html += render_content_item(item)
+    return html
+
+
+def render_closing_links(github: str) -> str:
+    """Render the link row for the end-slide."""
+    links = []
+    if github:
+        links.append(("GitHub-Repo", f"https://github.com/{github}"))
+    links.append(("Dashboard-Prototype", "https://zh-tram-flow.streamlit.app"))
+    links.append(("Netzwerk-Karte", "network-map.html"))
+    html = '<div class="closing-links">'
+    for label, href in links:
+        html += f'<a href="{href}" class="c-link">{label}</a>'
+    html += '</div>'
+    return html
+
+
+def render_slide(
+    slide: Dict[str, Any],
+    chapter_idx: int = 0,
+    chapter_label: str | None = None,
+    github: str = "",
+    is_last_chapter: bool = False,
+) -> str:
     """Render a single slide as HTML."""
     role = slide.get("role", "standard")
     title = slide.get("title", "")
     subtitle = slide.get("subtitle", "")
     content = slide.get("content", [])
 
+    data_ch = f' data-chapter="{chapter_idx}"'
+    data_lbl = f' data-chapter-label="{chapter_label}"' if chapter_label is not None else ""
+
     if role == "title":
-        # Title slide with gradient background
-        html = f'<section class="title-slide" data-background="linear-gradient(135deg, #1a3a5c 0%, #2E86AB 100%)">'
+        html = f'<section class="title-slide" data-background="#1a3a5c"{data_ch}{data_lbl}>'
         html += f'<h1>{title}</h1>'
+        # Subtitle: join list with <br> into one .sub div
         if isinstance(subtitle, list):
-            for sub in subtitle:
-                html += f'<p class="subtitle">{sub}</p>'
+            sub_text = "<br>".join(s for s in subtitle if s)
         else:
-            html += f'<p class="subtitle">{subtitle}</p>'
-        for item in content:
-            html += render_content_item(item)
+            sub_text = subtitle or ""
+        if sub_text:
+            html += f'<div class="sub">{sub_text}</div>'
+        # KPI row from figures
+        html += render_title_slide_content(content)
+        # Meta text only on opening slide, link row only on end-slide
+        if is_last_chapter:
+            html += render_closing_links(github)
+        elif github:
+            html += f'<div class="meta">github.com/{github}</div>'
         html += '</section>'
     else:
-        # Regular slide
-        html = f'<section>'
+        html = f'<section{data_ch}{data_lbl}>'
+        if chapter_label:
+            html += f'<span class="slide-kicker">{chapter_label}</span>'
         if title:
             html += f'<h2>{title}</h2>'
         if subtitle:
@@ -181,17 +234,15 @@ def render_slide(slide: Dict[str, Any]) -> str:
     return html
 
 
-def render_chapter(chapter: Dict[str, Any]) -> str:
-    """Render a chapter (section group) in reveal.js format."""
+def render_chapter(chapter: Dict[str, Any], chapter_idx: int = 0, github: str = "", is_last: bool = False) -> str:
+    """Render a chapter as flat reveal.js sections (1D, no nesting)."""
     nav_label = chapter.get("nav_label", "")
     slides = chapter.get("slides", [])
 
-    # Wrap slides in a section for chapter grouping
-    html = f'<!-- Chapter: {nav_label} -->\n<section>'
-    for slide in slides:
-        html += render_slide(slide)
-    html += '</section>'
-
+    html = f'<!-- Chapter: {nav_label} -->\n'
+    for j, slide in enumerate(slides):
+        label = nav_label if j == 0 else None
+        html += render_slide(slide, chapter_idx=chapter_idx, chapter_label=label, github=github, is_last_chapter=is_last)
     return html
 
 
@@ -200,10 +251,12 @@ def build_html(json_data: Dict[str, Any], template: str) -> str:
     meta = json_data.get("meta", {})
     chapters = json_data.get("chapters", [])
 
-    # Render all chapters
+    github = meta.get("github", "")
+    total = len(chapters)
+    # Render all chapters (flat, 1D — no chapter nesting)
     slides_html = ""
-    for chapter in chapters:
-        slides_html += render_chapter(chapter)
+    for i, chapter in enumerate(chapters):
+        slides_html += render_chapter(chapter, chapter_idx=i, github=github, is_last=(i == total - 1))
 
     # Replace placeholder in template
     html = template.replace("<!-- SLIDES_PLACEHOLDER -->", slides_html)

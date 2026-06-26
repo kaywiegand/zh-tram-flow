@@ -52,6 +52,8 @@ build/
 # Used for validation, not part of final artifacts
 public/json-backup/
 public/html-backup/
+# Versioned snapshots before each regeneration run (lokale Historie, kein Artefakt)
+public/archive/
 
 # ── IDE & OS ───────────────────────────────────────────────────────────────
 .vscode/settings.json

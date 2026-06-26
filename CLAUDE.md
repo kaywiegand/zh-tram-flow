@@ -86,28 +86,25 @@ Hier nur Kurzübersicht. Alles andere (Workflow, Troubleshooting, FAQ, Details) 
 ### Single Source of Truth: portfolio.md
 
 ```
-public/md/portfolio.md  (Single Source of Truth — umfassend + detailliert)
+scripts/archive_portfolio_artifacts.py → public/archive/vN/  (Backup vor Überschreiben)
         ↓
-scripts/generate_views.py
-        ↓
-public/index.html + overview.html + storyview.html + techview.html
+public/md/portfolio.md  (Single Source of Truth)
+        ├─ generate_json_from_portfolio.py  → public/json/storyline-{overview,storyview,techview}.json
+        ├─ generate_html_from_json.py       → public/{overview,storyview,techview}.html
+        ├─ generate_index_from_portfolio.py → public/index.html  (Hub, aus scripts/index-template.html)
+        └─ convert_json_to_md.py            → public/md/{overview,storyview,techview}.md
 ```
 
-**WICHTIG:** `portfolio.md` ist die **einzige Autorität für alle Inhalte**.
-- Alle Zahlen, Findings, Recommendations stehen in portfolio.md
-- HTMLs werden direkt aus portfolio.md generiert (kein JSON-Intermediate mehr)
-- `VIEW_CONFIG` in generate_views.py steuert Struktur und Reihenfolge der Slides
+**WICHTIG — wo lebt was (übersteht Regenerierung):**
+- **Inhalt** (Zahlen, Findings, Recommendations) → `portfolio.md`
+- **Slide-Design** → `public/css/slides.css` + `docs/portfolio/templates/slides-template.html`
+- **Hub-Layout/Copy** → `scripts/index-template.html` (dyn. Werte aus portfolio.md)
+- Generierte `public/*.html` NIE direkt editieren — wird überschrieben (liegt im Archiv).
 
 **Änderungen machen:**
-1. Immer zuerst in `portfolio.md` ändern
-2. Dann `make slides` oder `uv run python scripts/generate_views.py`
-3. Oder `/project-case report` (ruft generate_views.py)
-
-**Archiviert (nicht mehr aktiv):**
-- `scripts/_archive/generate_json_from_portfolio.py`
-- `scripts/_archive/generate_html_from_json.py`
-- `scripts/_archive/convert_json_to_md.py`
-- `public/md/_archive/*.md` (view MDs — nur portfolio.md bleibt)
+1. Inhalt in `portfolio.md` / Design in css+template / Hub in index-template
+2. `make portfolio` (= archive → json → html → index → md), oder `/project-case report`
+3. Jeder Lauf archiviert den alten Stand nach `public/archive/vN/` (gitignored)
 
 ---
 
@@ -135,12 +132,16 @@ Dieses Projekt dokumentiert nicht nur Kernfindings sondern auch **7 systematisch
 # → generiert JSON, HTML, MD automatisch
 ```
 
-**Einzelne Schritte:**
+**Einzelne Schritte (wenn nötig):**
 ```bash
-# Alle Views regenerieren
-make slides
-# → scripts/generate_views.py
-# → public/index.html + overview.html + storyview.html + techview.html
+# Nur JSONs regenerieren
+/project-case json
+# → scripts/generate_json_from_portfolio.py
+
+# Nur HTMLs + MDs regenerieren
+/project-case report
+# → scripts/generate_html_from_json.py
+# → scripts/convert_json_to_md.py
 ```
 
 **Zahlenformat-Regel (Deutsch):**
@@ -155,10 +156,15 @@ Alle Zahlen in portfolio.md (und damit in allen generierten Artefakten):
 
 | Datei | Rolle | Geändert durch |
 | :--- | :--- | :--- |
-| `public/md/portfolio.md` | Single Source of Truth | Manuell |
-| `public/*.html` | Präsentations-Views (Reveal.js) | `make slides` / generate_views.py |
-| `public/index.html` | Navigation-Hub | `make slides` / generate_views.py |
-| `public/css/slides.css` | Einzige Designquelle | Manuell (CSS-Änderungen) |
+| `public/md/portfolio.md` | Single Source of Truth (Inhalt) | Manuell / `/project-case story` |
+| `public/css/slides.css` | Slide-Design (Theme) | Manuell |
+| `docs/portfolio/templates/slides-template.html` | Slide-Layout/CSS-Basis | Manuell |
+| `scripts/index-template.html` | Hub-Layout + kuratierte Copy | Manuell |
+| `public/json/storyline-*.json` | strukturierte Slide-Extrakte | generiert aus portfolio.md |
+| `public/{overview,storyview,techview}.html` | Präsentations-Views (Reveal.js) | generiert aus JSON |
+| `public/index.html` | Navigation-Hub | generiert aus portfolio.md + index-template |
+| `public/md/*.md` | Markdown-Export | generiert (`convert_json_to_md.py`) |
+| `public/archive/vN/` | Snapshot vor jedem Lauf (gitignored) | `archive_portfolio_artifacts.py` |
 | `public/img/` | Charts (PNG + interaktive HTML) | Notebook Export-Cells |
 
 ---

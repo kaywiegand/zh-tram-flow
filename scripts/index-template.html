@@ -9,7 +9,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zurich Tram Flow — Portfolio</title>
+  <title>{{PROJECT_NAME}} — Portfolio</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -117,9 +117,9 @@
 
 <header>
   <div class="header-inner">
-    <h1>Zurich Tram Flow</h1>
+    <h1>{{PROJECT_NAME}}</h1>
     <p class="tagline">Verspätungsvorhersage im Zürcher Tramnetz</p>
-    <p class="subtitle">Datengetriebenes Analyse- und ML-Projekt | 2023–2025</p>
+    <p class="subtitle">Datengetriebenes Analyse- und ML-Projekt | {{PERIOD}}</p>
     <div class="kpi-row">
       <div class="kpi">
         <div class="v">94,4 M</div>
@@ -157,7 +157,7 @@
       <strong>Identifikation & Ursachen:</strong> 6 Analysedimensionen (Temporal · Spatial · Network · Meteorology · Events · Target) offenbaren die Struktur: Periphere Korridore mit höchsten Delays · Pearson r ≥ 0,85 Delay-Kaskade zwischen aufeinanderfolgenden Halten · Schnee +54s Effekt geografisch separierbar von Regen. 66 strukturierte Findings dokumentieren Patterns und Hebel.
     </p>
     <p class="section-intro">
-      <strong>Ergebnisse:</strong> LightGBM v2 erreicht 18,56 s MAE (−63% vs. Baseline). Das Modell bestätigt die Analyse: Delay ist vorhersagbar, weil es strukturell ist. 4 Datenquellen über 94,4M Halt-Ereignisse (2023–2025).
+      <strong>Ergebnisse:</strong> LightGBM v2 erreicht 18,56 s MAE (−63% vs. Baseline). Das Modell bestätigt die Analyse: Delay ist vorhersagbar, weil es strukturell ist. 4 Datenquellen über 94,4M Halt-Ereignisse ({{PERIOD}}).
     </p>
     <p class="section-intro">
       <strong>Data Cycle:</strong> Data Engineering (4 Quellen) → Data Analysis (6 Dimensionen) → Data Science (Modell) → Data Storytelling (Report, Dashboard, Insights).
@@ -217,8 +217,8 @@
 
     <div class="links-section">
       <div class="links-grid">
-        <a href="https://github.com/kaywiegand/zh-tram-flow" class="quick-link">GitHub-Repo</a>
-        <a href="https://zh-tram-flow.streamlit.app" class="quick-link">Dashboard-Prototype</a>
+        <a href="{{GITHUB_REPO_URL}}" class="quick-link">GitHub-Repo</a>
+        <a href="{{DASHBOARD_URL}}" class="quick-link">Dashboard-Prototype</a>
         <a href="network-map.html" class="quick-link">Netzwerk-Karte</a>
       </div>
     </div>
@@ -228,10 +228,10 @@
 
 <footer>
   <p>
-    Zurich Tram Flow — Verspätungsvorhersage & Fahrplan-Optimierung<br>
-    <a href="https://github.com/kaywiegand">Kay Wiegand</a> |
-    <a href="https://github.com/kaywiegand/zh-tram-flow">GitHub</a> |
-    2023–2025
+    {{PROJECT_NAME}} — Verspätungsvorhersage & Fahrplan-Optimierung<br>
+    <a href="{{GITHUB_USER_URL}}">Kay Wiegand</a> |
+    <a href="{{GITHUB_REPO_URL}}">GitHub</a> |
+    {{PERIOD}}
   </p>
   <p style="margin-top: 1rem; font-size: 0.75rem; opacity: 0.7;">
     Portfolio-Pipeline mechanisiert (2026-06-19) ·
