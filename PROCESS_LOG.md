@@ -422,6 +422,37 @@ Schwachstellen im bestehenden Projekt identifiziert und direkt in der Dokumentat
 
 ---
 
+## Session 2026-06-26 — Portfolio HTML-Pipeline + Design System
+
+**Was passiert ist:**
+- Portfolio-Pipeline mechanisiert: `portfolio.md → JSON → HTML` vollständig aufgebaut
+  - `generate_json_from_portfolio.py` — erzeugt `public/json/storyline-{overview,storyview,techview}.json`
+  - `generate_html_from_json.py` — erzeugt `public/{overview,storyview,techview}.html` aus JSON + Template
+  - `generate_index_from_portfolio.py` — erzeugt `public/index.html` aus `index-template.html`
+  - `convert_json_to_md.py` — erzeugt `public/md/*.md` als Markdown-Export
+  - `archive_portfolio_artifacts.py` — sichert Stand vor jedem Lauf nach `public/archive/vN/`
+- Design System (aus Workspace-Styleguide) auf alle Views angewendet:
+  - Header: solid `#1a3a5c`, kein Verlauf
+  - Title/End-Slides: h1 + `.sub` + `.kpi-row` (.kpi.red/.amber/.green) + `.meta`-Text
+  - End-Slide: `.closing-links` Zeile (GitHub, Dashboard, Netzwerk-Karte)
+  - Slide-Header: `.slide-kicker` (linksbündig) + h2 (kein border-bottom) + `.slide-subtitle`
+  - Boxen, Radius: `--radius-card/box: 5px`
+  - Navigation: custom Bottom-Ticks + Progress-Bar, chapter-aware Labels
+- Workspace: `docs/portfolio/templates/styleguide.html` als vollständiges Design-System-Referenz-Doc erstellt
+
+**Entscheidungen:**
+- Flat (1D) Reveal.js-Struktur beibehalten — `indexh` deckt alle Slides linear ab, Ticks funktionieren direkt
+- `.closing-links` nur auf End-Slide, `.meta`-Text (github.com/…) nur auf Opening-Title-Slide
+- Styleguide als eigenständiges HTML-File in `docs/portfolio/templates/` — nicht live deployed
+
+**Bekannte Lücken dokumentiert in BACKLOG #80–91:**
+- Kritisch: 8 Content-Types ohne Renderer (`recommendations`, `comparison_table`, `scenarios`, `closing`-role, `tools`, `sequence`, `abbinder`, `links`) — zeigen Fallback-Fehlertext
+- Design-Upgrades: 4 Content-Types mit suboptimalem Mapping (`figures` → `.metric-row`, `steps`/`contrasts`/`statement` → Styleguide-Elemente)
+
+**Nächster Schritt:** Renderer für fehlende Content-Types implementieren (BACKLOG #80–87), dann Design-Upgrades (#88–91)
+
+---
+
 ## Aktueller Stand
 
 **Phase 0 (Data Engineering):** ✅ Abgeschlossen — in `sf_data-research`

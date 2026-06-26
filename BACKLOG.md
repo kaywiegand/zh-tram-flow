@@ -8,6 +8,37 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 ---
 
+## HTML-Generator — Fehlende Renderer (KRITISCH)
+
+Content-Types die im JSON vorkommen aber keinen Renderer haben — zeigen aktuell
+`<em>Unknown content type: ...</em>` als Fallback-Text in den Views.
+
+| # | Content-Type | Vorkommt in | Styleguide-Mapping | Prio |
+| :--- | :--- | :--- | :--- | :--- |
+| 80 | **`recommendations`** | overview, storyview, techview | `.reco .reco-num .reco-text` oder `.box-green` gestapelt | 1 |
+| 81 | **`comparison_table`** | alle drei Views | `<table>` mit `.hl`-Rows (Styleguide: Tabellen-Sektion) | 1 |
+| 82 | **`scenarios`** | overview, storyview | `.metric-row .metric` oder `.prediction-card` | 1 |
+| 83 | **`closing` (role)** | overview Resultat-Kapitel | `.closing .c-title .c-sub .closing-stats` | 1 |
+| 84 | **`tools`** | overview (closing-Slide) | `.box` oder Karten-Grid | 2 |
+| 85 | **`sequence`** | overview | `.ev-chain` (Evidence-Chain) oder nummerierte `.box` | 2 |
+| 86 | **`abbinder`** | storyview, techview | Abschnitts-Trennfolie — `.box-green` Summary | 2 |
+| 87 | **`links`** | storyview, techview | Link-Liste — `<a>` mit `.quick-link` Styling | 2 |
+
+---
+
+## HTML-Generator — Design-Upgrades (nicht kritisch)
+
+Content-Types die rendern, aber bessere Styleguide-Elemente hätten:
+
+| # | Type | Aktuell | Styleguide-Ziel | Prio |
+| :--- | :--- | :--- | :--- | :--- |
+| 88 | **`figures` (reguläre Slides)** | `.figure .value .label` | `.metric-row .metric .val .lbl` mit Sentiment-Klasse | 2 |
+| 89 | **`steps`** | nacktes `<div class="step">` | `.box` gestapelt | 3 |
+| 90 | **`contrasts`** | `.assumption` / `.finding` divs | `.box-orange` (Annahme) + `.box-green` (Befund) | 3 |
+| 91 | **`statement`** | `<blockquote class="statement">` | `.thesis-wrap .thesis-main` | 3 |
+
+---
+
 ## Critical Fixes
 
 | # | Beschreibung | Prio |
