@@ -253,15 +253,14 @@ body.nav-left       #progress-track        { display: none !important; }
 .box.green { border-left-color: var(--color-positive); background: var(--bg-box-positive); }
 .box.amber { border-left-color: var(--color-warning);  background: var(--bg-box-warning); }
 
-/* ── Metrics ──────────────────────────────────── */
-.mrow { display: flex; gap: 8px; margin: 8px 0; }
-.m { flex: 1; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-card); padding: 10px 8px; text-align: center; }
-.m .v { font-size: 1.75em; font-weight: 700; color: var(--color-primary); line-height: 1.05; }
-.m .l { font-size: 0.59em; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
-.m.red   .v { color: var(--color-negative); }
-.m.green .v { color: var(--color-positive); }
-.m.amber .v { color: var(--color-warning); }
-.m.blue  .v { color: var(--color-accent); }
+/* ── Metrics (= styleguide .metric-row) ───────── */
+.metric-row { display: flex; gap: 10px; margin: 8px 0; }
+.metric { flex: 1; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-card); padding: 11px 12px; text-align: center; }
+.metric .val { font-size: 1.8em; font-weight: 700; color: var(--color-primary); line-height: 1.05; }
+.metric .lbl { font-size: 0.62em; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
+.metric.good .val { color: var(--color-positive); }
+.metric.warn .val { color: var(--color-warning); }
+.metric.bad  .val { color: var(--color-negative); }
 
 /* ── Agenda slide ─────────────────────────────── */
 .agenda { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1em; }
@@ -374,3 +373,39 @@ body.nav-left       #progress-track        { display: none !important; }
 .closing .kpi-box.red   .v { color: var(--color-kpi-negative); }
 .closing .kpi-box.green .v { color: var(--color-kpi-positive); }
 .closing .kpi-box .l { font-size: 0.64em; color: rgba(255,255,255,0.55); margin-top: 4px; }
+
+/* ── Statement callout (emphatic sentence) ────── */
+.reveal blockquote.statement {
+  font-size: 1.18em; line-height: 1.5; color: var(--color-primary);
+  font-weight: 600; text-align: center; max-width: 860px;
+  margin: 0.7em auto; padding: 0.4em 0.6em;
+  background: none; box-shadow: none; border: none; font-style: normal;
+}
+.reveal blockquote.statement::before,
+.reveal blockquote.statement::after { content: none; }
+
+/* ── Evidence chain (sequence of reasoning) ───── */
+.ev-chain { display: flex; flex-direction: column; }
+.ev-step { display: flex; align-items: flex-start; gap: 12px; padding: 9px 12px; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: var(--radius-card); }
+.ev-circle { width: 26px; height: 26px; border-radius: 50%; background: var(--color-accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85em; flex-shrink: 0; margin-top: 1px; }
+.ev-body strong { display: block; color: var(--color-primary); font-size: 0.9em; margin-bottom: 2px; }
+.ev-body span { font-size: 0.78em; color: #555; line-height: 1.45; }
+.ev-arrow { padding: 1px 0 1px 13px; color: #b0c8d8; font-size: 0.95em; line-height: 1; }
+.ev-step.climax { background: var(--bg-box-positive); border-color: var(--color-positive); }
+.ev-step.climax .ev-circle { background: var(--color-positive); }
+.ev-step.climax .ev-body strong { color: #1e7a45; }
+
+/* ── Chart tiles (real exported figures) ──────── */
+.chart-grid { display: flex; gap: 14px; align-items: flex-start; margin: 0.4em 0; }
+.chart-fig { flex: 1; display: flex; flex-direction: column; }
+.chart-tile { display: block; border-radius: var(--radius-card); overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.12); text-decoration: none; }
+.chart-tile img { width: 100%; display: block; }
+.chart-tile-html { display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--bg-box-default); border: 1px solid var(--border-card); border-radius: var(--radius-card); padding: 13px 10px; text-decoration: none; color: var(--color-accent); font-size: 0.8em; font-weight: 700; }
+
+/* ── Link grid (slide context) ────────────────── */
+.links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 0.6em; }
+.quick-link { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--radius-card); text-decoration: none; color: var(--color-accent); background: var(--bg-box-default); border: 1px solid #c8e0ef; font-size: 0.85em; font-weight: 600; }
+.quick-link::before { content: "→"; font-weight: 700; }
+
+/* ── Highlighted best row (comparison table) ──── */
+tr.hl-green td { background: var(--bg-box-positive) !important; font-weight: 700; }

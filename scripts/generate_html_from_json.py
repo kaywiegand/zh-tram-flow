@@ -9,8 +9,23 @@ Generates Reveal.js-based HTML slides with CSS styling from template.
 """
 
 import json
+import re
 from pathlib import Path
 from typing import Dict, List, Any
+
+
+# Sentiment → CSS modifier maps (see public/css/slides.css)
+_METRIC_SENTIMENT = {"positive": "good", "negative": "bad", "warning": "warn"}
+_FACT_SENTIMENT = {"positive": "green", "negative": "red", "warning": "amber"}
+_IMG_EXT_RE = re.compile(r"\.(png|jpe?g|svg|gif|webp|html)$", re.IGNORECASE)
+
+
+def _img_src(source: str) -> str:
+    """Normalize a chart source to an ../img/ path, appending .png when no extension."""
+    source = source.strip()
+    if not _IMG_EXT_RE.search(source):
+        source = f"{source}.png"
+    return f"../img/{source}"
 
 
 def load_json(path: Path) -> Dict[str, Any]:
@@ -26,120 +41,191 @@ def load_slides_template(path: Path) -> str:
 
 
 def render_content_item(item: Dict[str, Any]) -> str:
-    """Render a single content item based on type."""
+    """Render a single content item to styleguide-conformant HTML.
+
+    Class vocabulary is the single source of truth in public/css/slides.css
+    and mirrored in docs/portfolio/templates/styleguide.html.
+    """
     item_type = item.get("type", "")
 
     if item_type == "figures":
-        items = item.get("items", [])
-        lines = ['<div class="figures">']
-        for fig in items:
-            value = fig.get("value", "")
-            label = fig.get("label", "")
-            sentiment = fig.get("sentiment", "neutral")
-            # Map sentiment to CSS classes for color-coding
-            sentiment_class = sentiment if sentiment in ["positive", "negative", "warning"] else "neutral"
-            lines.append(f'<div class="figure {sentiment_class}">')
-            lines.append(f'<div class="value">{value}</div>')
-            lines.append(f'<div class="label">{label}</div>')
-            lines.append('</div>')
-        lines.append('</div>')
-        return "\n".join(lines)
-
-    elif item_type == "agenda":
-        items = item.get("items", [])
-        if item.get("grouped"):
-            html = '<ul class="agenda grouped">'
-            for group in items:
-                section = group.get("section", "")
-                slides = group.get("slides", [])
-                html += f'<li><strong>{section}</strong><ul>'
-                for slide in slides:
-                    html += f'<li>{slide}</li>'
-                html += '</ul></li>'
-            html += '</ul>'
-            return html
-        else:
-            html = '<ol class="agenda">'
-            for item in items:
-                html += f'<li>{item}</li>'
-            html += '</ol>'
-            return html
-
-    elif item_type == "sections":
-        items = item.get("items", [])
-        html = '<div class="sections">'
-        for sec in items:
-            label = sec.get("label", "")
-            points = sec.get("points", [])
-            html += f'<div class="section"><strong>{label}</strong><ul>'
-            for point in points:
-                html += f'<li>{point}</li>'
-            html += '</ul></div>'
+        # KPI cards in a row → .metric-row > .metric
+        html = '<div class="metric-row">'
+        for fig in item.get("items", []):
+            mod = _METRIC_SENTIMENT.get(fig.get("sentiment", ""), "")
+            cls = f"metric {mod}".strip()
+            html += f'<div class="{cls}">'
+            html += f'<div class="val">{fig.get("value", "")}</div>'
+            html += f'<div class="lbl">{fig.get("label", "")}</div>'
+            html += '</div>'
         html += '</div>'
         return html
 
     elif item_type == "figures_with_context":
-        items = item.get("items", [])
-        html = '<div class="figures-with-context">'
-        for fig in items:
-            value = fig.get("value", "")
-            label = fig.get("label", "")
-            context = fig.get("context", "")
-            sentiment = fig.get("sentiment", "neutral")
-            sentiment_class = sentiment if sentiment in ["positive", "negative", "warning"] else "neutral"
-            html += f'<div class="figure-item {sentiment_class}">'
-            html += f'<div class="figure-value">{value}</div>'
-            html += f'<div class="figure-label">{label}</div>'
-            if context:
-                html += f'<div class="figure-context">{context}</div>'
+        # Fact box + explanatory text → .kv-list > .kv-row
+        html = '<div class="kv-list">'
+        for fig in item.get("items", []):
+            mod = _FACT_SENTIMENT.get(fig.get("sentiment", ""), "")
+            cls = f"kv-fact {mod}".strip()
+            html += '<div class="kv-row">'
+            html += f'<div class="{cls}"><div class="fv">{fig.get("value", "")}</div>'
+            html += f'<div class="fl">{fig.get("label", "")}</div></div>'
+            html += f'<div class="kv-text">{fig.get("context", "")}</div>'
+            html += '</div>'
+        html += '</div>'
+        return html
+
+    elif item_type == "contrasts":
+        # Myth-busting: assumption (✗) → finding (✓), marks via CSS ::before
+        html = '<div class="myth-rows">'
+        for c in item.get("items", []):
+            html += '<div class="myth-row-pair">'
+            html += f'<div class="myth-assume">{c.get("assumption", "")}</div>'
+            html += '<div class="myth-arrow">→</div>'
+            html += f'<div class="myth-finding">{c.get("finding", "")}</div>'
             html += '</div>'
         html += '</div>'
         return html
 
     elif item_type == "statement":
-        text = item.get("text", "")
-        return f'<blockquote class="statement">{text}</blockquote>'
+        return f'<blockquote class="statement">{item.get("text", "")}</blockquote>'
 
-    elif item_type == "contrasts":
-        items = item.get("items", [])
-        html = '<div class="contrasts">'
-        for contrast in items:
-            assumption = contrast.get("assumption", "")
-            finding = contrast.get("finding", "")
-            html += f'<div class="contrast">'
-            html += f'<div class="assumption"><em>Annahme:</em> {assumption}</div>'
-            html += f'<div class="finding"><strong>Befund:</strong> {finding}</div>'
+    elif item_type == "steps":
+        # Numbered process steps → .steps > .step (.sn/.sl/p)
+        html = '<div class="steps">'
+        for step in item.get("items", []):
+            html += '<div class="step">'
+            html += f'<div class="sn">{step.get("step", "")}</div>'
+            html += f'<span class="sl">{step.get("label", "")}</span>'
+            detail = step.get("detail", "")
+            if detail:
+                html += f'<p>{detail}</p>'
             html += '</div>'
         html += '</div>'
         return html
 
-    elif item_type == "steps":
+    elif item_type == "sequence":
+        # Chain of reasoning → .ev-chain > .ev-step, arrows between
         items = item.get("items", [])
-        html = '<div class="steps">'
-        for step in items:
-            step_num = step.get("step", "")
-            label = step.get("label", "")
-            detail = step.get("detail", "")
-            html += f'<div class="step"><strong>Schritt {step_num}:</strong> {label}'
-            if detail:
-                html += f'<br><small>{detail}</small>'
+        html = '<div class="ev-chain">'
+        for i, step in enumerate(items):
+            climax = " climax" if (step.get("sentiment") == "positive" or i == len(items) - 1) else ""
+            html += f'<div class="ev-step{climax}">'
+            html += f'<div class="ev-circle">{i + 1}</div>'
+            html += f'<div class="ev-body"><strong>{step.get("label", "")}</strong>'
+            html += f'<span>{step.get("text", "")}</span></div></div>'
+            if i < len(items) - 1:
+                html += '<div class="ev-arrow">↓</div>'
+        html += '</div>'
+        return html
+
+    elif item_type == "sections":
+        # Project-frame cards → .pf-grid > .pf-card
+        html = '<div class="pf-grid">'
+        for sec in item.get("items", []):
+            html += f'<div class="pf-card"><div class="pf-title">{sec.get("label", "")}</div><ul>'
+            for point in sec.get("points", []):
+                html += f'<li>{point}</li>'
+            html += '</ul></div>'
+        html += '</div>'
+        return html
+
+    elif item_type == "tools":
+        # Feature/tool cards → .pf-grid > .pf-card (description lines as list)
+        html = '<div class="pf-grid">'
+        for tool in item.get("items", []):
+            html += f'<div class="pf-card"><div class="pf-title">{tool.get("label", "")}</div><ul>'
+            for line in str(tool.get("description", "")).split("\n"):
+                if line.strip():
+                    html += f'<li>{line.strip()}</li>'
+            html += '</ul></div>'
+        html += '</div>'
+        return html
+
+    elif item_type == "recommendations":
+        # Recommendation cards → .reco-grid > .reco (.rn/strong/ul)
+        html = '<div class="reco-grid">'
+        for rec in item.get("items", []):
+            html += '<div class="reco">'
+            html += f'<div class="rn">{rec.get("category", "")}</div>'
+            html += f'<strong>{rec.get("title", "")}</strong><ul>'
+            for point in rec.get("points", []):
+                html += f'<li>{point}</li>'
+            html += '</ul></div>'
+        html += '</div>'
+        return html
+
+    elif item_type == "scenarios":
+        # Prediction scenarios → .kv-list (seconds fact + conditions/interpretation)
+        html = '<div class="kv-list">'
+        for sc in item.get("items", []):
+            mod = _FACT_SENTIMENT.get(sc.get("sentiment", ""), "")
+            cls = f"kv-fact {mod}".strip()
+            secs = sc.get("prediction_seconds", "")
+            html += '<div class="kv-row">'
+            html += f'<div class="{cls}"><div class="fv">{secs} s</div>'
+            html += '<div class="fl">Prognose</div></div>'
+            text = f'<strong>{sc.get("conditions", "")}</strong>'
+            interp = sc.get("interpretation")
+            if interp:
+                text += f' — {interp}'
+            html += f'<div class="kv-text">{text}</div>'
             html += '</div>'
         html += '</div>'
+        return html
+
+    elif item_type == "comparison_table":
+        columns = item.get("columns", [])
+        rows = item.get("rows", [])
+        html = '<table><thead><tr>'
+        for col in columns:
+            html += f'<th>{col}</th>'
+        html += '</tr></thead><tbody>'
+        for row in rows:
+            cls = ' class="hl-green"' if row.get("highlight") else ''
+            html += f'<tr{cls}>'
+            for cell in row.get("cells", []):
+                html += f'<td>{cell}</td>'
+            html += '</tr>'
+        html += '</tbody></table>'
         return html
 
     elif item_type == "chart_refs":
-        items = item.get("items", [])
-        html = '<div class="chart-refs">'
-        for chart in items:
+        # Real exported figures → .chart-grid > .chart-fig > a.chart-tile > img
+        html = '<div class="chart-grid">'
+        for chart in item.get("items", []):
+            src = _img_src(chart.get("source", ""))
             label = chart.get("label", "")
-            source = chart.get("source", "")
             caption = chart.get("caption", "")
-            html += f'<div class="chart-ref">'
-            html += f'<div class="chart-label">{label}</div>'
-            html += f'<div class="chart-image" data-src="../img/{source}"></div>'
+            html += '<div class="chart-fig">'
+            html += f'<a class="chart-tile" href="{src}" target="_blank">'
+            html += f'<img src="{src}" alt="{label}"></a>'
             if caption:
-                html += f'<div class="chart-caption">{caption}</div>'
+                html += f'<div class="caption">{caption}</div>'
             html += '</div>'
+        html += '</div>'
+        return html
+
+    elif item_type == "links":
+        # Link grid → .links-grid > a.quick-link
+        html = '<div class="links-grid">'
+        primary = item.get("primary", "")
+        if primary:
+            html += f'<a class="quick-link" href="{primary}" target="_blank">GitHub-Repo</a>'
+        for link in item.get("items", []):
+            html += f'<a class="quick-link" href="{link.get("href", "")}">{link.get("label", "")}</a>'
+        html += '</div>'
+        return html
+
+    elif item_type == "agenda":
+        items = item.get("items", [])
+        html = '<div class="agenda">'
+        if item.get("grouped"):
+            for group in items:
+                html += f'<div class="agenda-item"><span class="label">{group.get("section", "")}</span></div>'
+        else:
+            for i, entry in enumerate(items):
+                html += f'<div class="agenda-item"><span class="num">{i + 1}</span><span class="label">{entry}</span></div>'
         html += '</div>'
         return html
 
