@@ -106,8 +106,8 @@
       "nav_label": "Ausgangssituation",
       "slides": [
         {
-          "title": "Ausgangssituation",
-          "subtitle": "OTP 87 % netzweit, Ziel 95 % bis 2028 — Analyse vor Modellierung",
+          "title": "Strukturelle Lücke im Netz",
+          "subtitle": "87 % OTP seit drei Jahren — dauerhaft unter dem VBZ-Ziel von 95 %",
           "content": [
             {
               "type": "figures",
@@ -512,8 +512,8 @@
       "nav_label": "Empfehlungen",
       "slides": [
         {
-          "title": "Handlungsempfehlungen",
-          "subtitle": "Vier Empfehlungen, jede direkt durch Modell oder Analyse gedeckt",
+          "title": "Vier direkte Hebel nutzen",
+          "subtitle": "Jede Empfehlung ist direkt durch einen Befund aus der Analyse gedeckt",
           "content": [
             {
               "type": "recommendations",

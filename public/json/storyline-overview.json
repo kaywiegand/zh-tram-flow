@@ -72,8 +72,8 @@
       "nav_label": "Ausgangssituation",
       "slides": [
         {
-          "title": "Ausgangssituation",
-          "subtitle": "OTP liegt dauerhaft unter dem VBZ-Ziel — das Projekt folgt drei Schritten",
+          "title": "Strukturelle Lücke im Netz",
+          "subtitle": "87 % OTP seit drei Jahren — dauerhaft unter dem VBZ-Ziel von 95 %",
           "content": [
             {
               "type": "figures_with_context",
@@ -127,8 +127,8 @@
           ]
         },
         {
-          "title": "Ausgangssituation",
-          "subtitle": "OTP-Lücke in der Breite: alle 16 Linien, drei Jahre",
+          "title": "Alle 16 Linien im Soll",
+          "subtitle": "Keine einzige Linie erreicht das Ziel — die Lücke zieht sich durch das gesamte Netz",
           "content": [
             {
               "type": "chart_refs",
@@ -137,7 +137,18 @@
                   "label": "OTP nach Tramlinien",
                   "source": "target-otp-per-line",
                   "caption": "OTP nach Tramlinien, 2023–2025. Alle 16 Linien liegen unter dem 95 %-Ziel."
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Kein Aufwärtstrend erkennbar",
+          "subtitle": "OTP schwankt saisonal, aber der Mittelwert bewegt sich seit 2023 nicht",
+          "content": [
+            {
+              "type": "chart_refs",
+              "items": [
                 {
                   "label": "OTP Jahresverlauf",
                   "source": "target-otp",
@@ -153,8 +164,8 @@
       "nav_label": "Überraschungen",
       "slides": [
         {
-          "title": "Die Überraschungen",
-          "subtitle": "Drei Annahmen, die die Daten widerlegen",
+          "title": "Widerlegte Annahmen",
+          "subtitle": "Drei Erwartungen, die die Daten klar widerlegen",
           "content": [
             {
               "type": "contrasts",
@@ -176,8 +187,8 @@
           ]
         },
         {
-          "title": "Die Überraschungen",
-          "subtitle": "Hotspots an der Peripherie, Peak am Abend",
+          "title": "Die Innenstadt ist pünktlicher",
+          "subtitle": "Verspätungs-Hotspots liegen an der Peripherie, nicht im Stadtzentrum",
           "content": [
             {
               "type": "chart_refs",
@@ -186,7 +197,18 @@
                   "label": "Verspätungshotspots",
                   "source": "spatial-stop-delay-map",
                   "caption": "Ø Ankunftsverspätung pro Haltestelle. Hotspots ausschliesslich in den peripheren Stadtkreisen 7, 11 und 12."
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Der Peak am Abend",
+          "subtitle": "Um 21 Uhr entstehen die höchsten Verspätungen — nicht im Morgenrush",
+          "content": [
+            {
+              "type": "chart_refs",
+              "items": [
                 {
                   "label": "Delay nach Tageszeit",
                   "source": "temporal-hour-of-day",
@@ -202,8 +224,8 @@
       "nav_label": "Erkenntnis",
       "slides": [
         {
-          "title": "Die Erkenntnis",
-          "subtitle": "Kein Puffer im Fahrplan, die Verspätung kaskadiert",
+          "title": "Die Kaskade bei den Verspätungen",
+          "subtitle": "Ohne Puffer im Fahrplan überträgt sich jede Verspätung auf die Folgefahrten",
           "content": [
             {
               "type": "figures",
@@ -274,8 +296,8 @@
       "nav_label": "Das Modell",
       "slides": [
         {
-          "title": "Das Modell",
-          "subtitle": "Vorhersage ist die Voraussetzung für angepasste Steuerung",
+          "title": "Drei Iterationen der Modellierung",
+          "subtitle": "Von der Baseline über Feature Engineering zum finalen Ensemble-Modell",
           "content": [
             {
               "type": "comparison_table",
@@ -323,8 +345,8 @@
           ]
         },
         {
-          "title": "Das Modell",
-          "subtitle": "18,56 s Sekunden mittlerer Vorhersagefehler auf einem vollständigen ungesehenen Jahr",
+          "title": "18,56 Sekunden MAE",
+          "subtitle": "Mittlerer Vorhersagefehler auf einem vollständigen, ungesehenen Testjahr — 63 % unter der Baseline",
           "content": [
             {
               "type": "figures",
@@ -359,8 +381,8 @@
           ]
         },
         {
-          "title": "Das Modell",
-          "subtitle": "Konkrete Vorhersagen für reale Betriebssituationen",
+          "title": "Konkreter Nutzen in der Praxis",
+          "subtitle": "Konkrete Vorhersagen für reale Betriebssituationen zeigen die operative Relevanz",
           "content": [
             {
               "type": "statement",
@@ -398,8 +420,8 @@
       "nav_label": "Empfehlungen",
       "slides": [
         {
-          "title": "Die Handlungsempfehlungen",
-          "subtitle": "Vier Empfehlungen, direkt durch Befunde gedeckt",
+          "title": "Vier direkte Hebel nutzen",
+          "subtitle": "Jede Empfehlung ist direkt durch einen Befund aus der Analyse gedeckt",
           "content": [
             {
               "type": "recommendations",
@@ -474,21 +496,6 @@
                   "description": "Szenario A vs. B live\nWas-wäre-wenn-Analyse"
                 }
               ]
-            },
-            {
-              "type": "figures",
-              "items": [
-                {
-                  "value": "87 %",
-                  "label": "OTP heute",
-                  "sentiment": "negative"
-                },
-                {
-                  "value": "95 %",
-                  "label": "VBZ-Ziel 2028",
-                  "sentiment": "positive"
-                }
-              ]
             }
           ]
         }
@@ -498,7 +505,7 @@
       "nav_label": "Projektrahmen",
       "slides": [
         {
-          "title": "Der Projektrahmen",
+          "title": "Offen & reproduzierbar",
           "subtitle": "Open Data, reproduzierbar und vollständig dokumentiert",
           "content": [
             {

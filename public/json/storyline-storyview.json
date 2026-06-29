@@ -88,8 +88,8 @@
       "nav_label": "Ausgangssituation",
       "slides": [
         {
-          "title": "Ausgangssituation",
-          "subtitle": "OTP 87 %, Ziel 95 % — das Projekt folgt einer sequenziellen Logik",
+          "title": "Strukturelle Lücke im Netz",
+          "subtitle": "87 % OTP seit drei Jahren — dauerhaft unter dem VBZ-Ziel von 95 %",
           "content": [
             {
               "type": "figures",
@@ -207,8 +207,8 @@
       "nav_label": "Exploration",
       "slides": [
         {
-          "title": "Exploration",
-          "subtitle": "Drei Überraschungen und ein Muster",
+          "title": "Widerlegte Annahmen",
+          "subtitle": "Drei Erwartungen, die die Daten klar widerlegen",
           "content": [
             {
               "type": "contrasts",
@@ -230,8 +230,8 @@
           ]
         },
         {
-          "title": "Exploration",
-          "subtitle": "Hotspots an der Peripherie, Peak am Abend",
+          "title": "Die Innenstadt ist pünktlicher",
+          "subtitle": "Verspätungs-Hotspots liegen an der Peripherie, nicht im Stadtzentrum",
           "content": [
             {
               "type": "chart_refs",
@@ -240,7 +240,18 @@
                   "label": "Verspätungshotspots nach Haltestelle",
                   "source": "spatial-stop-delay-map",
                   "caption": "Ø Ankunftsverspätung pro Haltestelle. Hotspots ausschliesslich in peripheren Stadtkreisen 7, 11 und 12. Null Überschneidung mit höchster Liniendichte."
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Der Peak am Abend",
+          "subtitle": "Um 21 Uhr entstehen die höchsten Verspätungen — nicht im Morgenrush",
+          "content": [
+            {
+              "type": "chart_refs",
+              "items": [
                 {
                   "label": "Delay nach Tageszeit",
                   "source": "temporal-hour-of-day",
@@ -292,8 +303,8 @@
       "nav_label": "Erkenntnis",
       "slides": [
         {
-          "title": "Die Erkenntnis",
-          "subtitle": "Kein Puffer im Fahrplan, die Verspätung kaskadiert — in vier Schritten bewiesen",
+          "title": "Die Kaskade bei den Verspätungen",
+          "subtitle": "Ohne Puffer im Fahrplan überträgt sich jede Verspätung auf die Folgefahrten — in vier Schritten bewiesen",
           "content": [
             {
               "type": "figures",
@@ -349,8 +360,8 @@
       "nav_label": "Machine Learning",
       "slides": [
         {
-          "title": "Machine Learning",
-          "subtitle": "Ziel: arrival_delay in Sekunden — direkt kommunizierbar, kein Schwellwert-Bias",
+          "title": "Drei Iterationen der Modellierung",
+          "subtitle": "Von der Baseline über Feature Engineering zum finalen Ensemble-Modell",
           "content": [
             {
               "type": "statement",
@@ -398,8 +409,8 @@
           ]
         },
         {
-          "title": "Machine Learning",
-          "subtitle": "Der Kaskadenindikator erklärt den Sprung von v1 auf v2",
+          "title": "18,56 Sekunden MAE",
+          "subtitle": "Mittlerer Vorhersagefehler auf einem vollständigen, ungesehenen Testjahr — 63 % unter der Baseline",
           "content": [
             {
               "type": "figures",
@@ -450,8 +461,8 @@
           ]
         },
         {
-          "title": "Machine Learning",
-          "subtitle": "Das Modell in konkreten Szenarien",
+          "title": "Konkreter Nutzen in der Praxis",
+          "subtitle": "Konkrete Vorhersagen für reale Betriebssituationen zeigen die operative Relevanz",
           "content": [
             {
               "type": "statement",
@@ -489,8 +500,8 @@
       "nav_label": "Empfehlungen",
       "slides": [
         {
-          "title": "Die Handlungsempfehlungen",
-          "subtitle": "Vier Empfehlungen, direkt durch Befunde gedeckt",
+          "title": "Vier direkte Hebel nutzen",
+          "subtitle": "Jede Empfehlung ist direkt durch einen Befund aus der Analyse gedeckt",
           "content": [
             {
               "type": "recommendations",
@@ -541,7 +552,7 @@
       "nav_label": "Projektrahmen",
       "slides": [
         {
-          "title": "Der Projektrahmen",
+          "title": "Offen & reproduzierbar",
           "subtitle": "Open Data, AI-Workflow, vollständig reproduzierbar",
           "content": [
             {
@@ -603,21 +614,6 @@
                 {
                   "label": "Delay vorhersagen",
                   "description": "Szenario A vs. B live\nWas-wäre-wenn-Analyse"
-                }
-              ]
-            },
-            {
-              "type": "figures",
-              "items": [
-                {
-                  "value": "87 %",
-                  "label": "OTP heute",
-                  "sentiment": "negative"
-                },
-                {
-                  "value": "95 %",
-                  "label": "VBZ-Ziel 2028",
-                  "sentiment": "positive"
                 }
               ]
             }

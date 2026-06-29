@@ -47,8 +47,8 @@
 
 ### Ausgangssituation
 
-## Ausgangssituation
-*OTP 87 %, Ziel 95 % — das Projekt folgt einer sequenziellen Logik*
+## Strukturelle Lücke im Netz
+*87 % OTP seit drei Jahren — dauerhaft unter dem VBZ-Ziel von 95 %*
 
 * **87 %** — OTP netzweit 2023–2025
 * **95 %** — VBZ-Ziel bis 2028
@@ -86,12 +86,16 @@
 
 ### Exploration
 
-## Exploration
-*Drei Überraschungen und ein Muster*
+## Widerlegte Annahmen
+*Drei Erwartungen, die die Daten klar widerlegen*
 
 
-## Exploration
-*Hotspots an der Peripherie, Peak am Abend*
+## Die Innenstadt ist pünktlicher
+*Verspätungs-Hotspots liegen an der Peripherie, nicht im Stadtzentrum*
+
+
+## Der Peak am Abend
+*Um 21 Uhr entstehen die höchsten Verspätungen — nicht im Morgenrush*
 
 
 ## Exploration
@@ -108,8 +112,8 @@
 
 ### Erkenntnis
 
-## Die Erkenntnis
-*Kein Puffer im Fahrplan, die Verspätung kaskadiert — in vier Schritten bewiesen*
+## Die Kaskade bei den Verspätungen
+*Ohne Puffer im Fahrplan überträgt sich jede Verspätung auf die Folgefahrten — in vier Schritten bewiesen*
 
 * **71,5 %** — Halte akkumulieren Delay
 * **L11** — 68,7 s · OTP 82 %, stärkste Akkumulation
@@ -121,13 +125,13 @@
 
 ### Machine Learning
 
-## Machine Learning
-*Ziel: arrival_delay in Sekunden — direkt kommunizierbar, kein Schwellwert-Bias*
+## Drei Iterationen der Modellierung
+*Von der Baseline über Feature Engineering zum finalen Ensemble-Modell*
 
 > Warum ML? Weil die Struktur der Daten nichtlinear ist: Linie × Haltestelle × Tageszeit × Wetter × Event interagieren auf eine Weise, die kein handcodiertes Modell erfassen kann. Und weil prev_trip_delay ein Echtzeit-Signal ist, das einen Feedback-Loop im Modell ermöglicht.
 
-## Machine Learning
-*Der Kaskadenindikator erklärt den Sprung von v1 auf v2*
+## 18,56 Sekunden MAE
+*Mittlerer Vorhersagefehler auf einem vollständigen, ungesehenen Testjahr — 63 % unter der Baseline*
 
 * **41 Mio.** — Trainings-Fahrten 2023–Jun 2024
 * **~29 Mio.** — Test-Fahrten vollständiges Jahr 2025
@@ -138,8 +142,8 @@
 *Feature Importance bestätigt die Kaskadenthese*
 
 
-## Machine Learning
-*Das Modell in konkreten Szenarien*
+## Konkreter Nutzen in der Praxis
+*Konkrete Vorhersagen für reale Betriebssituationen zeigen die operative Relevanz*
 
 > Das Modell kombiniert 36 Features zu einer konkreten Sekundenvorhersage. Drei Beispiele aus echten Betriebssituationen:
 
@@ -148,8 +152,8 @@
 
 ### Empfehlungen
 
-## Die Handlungsempfehlungen
-*Vier Empfehlungen, direkt durch Befunde gedeckt*
+## Vier direkte Hebel nutzen
+*Jede Empfehlung ist direkt durch einen Befund aus der Analyse gedeckt*
 
 
 
@@ -157,7 +161,7 @@
 
 ### Projektrahmen
 
-## Der Projektrahmen
+## Offen & reproduzierbar
 *Open Data, AI-Workflow, vollständig reproduzierbar*
 
 * **Datenbasis und Umfang**
@@ -181,8 +185,6 @@
 ## Was vorhersagbar ist, ist steuerbar.
 *Ein Projekt, das zeigt: Datengetriebene Analyse ist kein akademisches Artefakt — sie liefert operative Entscheidungsgrundlagen.*
 
-* **87 %** — OTP heute
-* **95 %** — VBZ-Ziel 2028
 
 
 

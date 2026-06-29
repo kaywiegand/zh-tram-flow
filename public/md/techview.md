@@ -50,8 +50,8 @@
 
 ### Ausgangssituation
 
-## Ausgangssituation
-*OTP 87 % netzweit, Ziel 95 % bis 2028 — Analyse vor Modellierung*
+## Strukturelle Lücke im Netz
+*87 % OTP seit drei Jahren — dauerhaft unter dem VBZ-Ziel von 95 %*
 
 * **87 %** — OTP netzweit 2023–2025
 * **−8 PP** — Lücke zum VBZ-Ziel 95 %
@@ -164,8 +164,8 @@
 
 ### Empfehlungen
 
-## Handlungsempfehlungen
-*Vier Empfehlungen, jede direkt durch Modell oder Analyse gedeckt*
+## Vier direkte Hebel nutzen
+*Jede Empfehlung ist direkt durch einen Befund aus der Analyse gedeckt*
 
 
 
