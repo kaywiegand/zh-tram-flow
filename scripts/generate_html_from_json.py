@@ -131,9 +131,10 @@ def render_content_item(item: Dict[str, Any]) -> str:
         return html
 
     elif item_type == "tools":
-        # Feature/tool cards → .pf-grid > .pf-card (description lines as list)
-        html = '<div class="pf-grid">'
-        for tool in item.get("items", []):
+        # Feature/tool cards → .pf-grid, one column per tool (e.g. 3 → three columns)
+        tools = item.get("items", [])
+        html = f'<div class="pf-grid" style="grid-template-columns: repeat({len(tools)}, 1fr)">'
+        for tool in tools:
             html += f'<div class="pf-card"><div class="pf-title">{tool.get("label", "")}</div><ul>'
             for line in str(tool.get("description", "")).split("\n"):
                 if line.strip():
@@ -191,19 +192,18 @@ def render_content_item(item: Dict[str, Any]) -> str:
         return html
 
     elif item_type == "chart_refs":
-        # Real exported figures → .chart-grid > .chart-fig > a.chart-tile > img
-        html = '<div class="chart-grid">'
+        # One full-size image per slide → .chart-single (slides are split so each
+        # chart_refs carries a single item; loop kept for safety)
+        html = ""
         for chart in item.get("items", []):
             src = _img_src(chart.get("source", ""))
             label = chart.get("label", "")
             caption = chart.get("caption", "")
-            html += '<div class="chart-fig">'
-            html += f'<a class="chart-tile" href="{src}" target="_blank">'
-            html += f'<img src="{src}" alt="{label}"></a>'
+            html += '<div class="chart-single">'
+            html += f'<a class="chart-tile" href="{src}" target="_blank"><img src="{src}" alt="{label}"></a>'
             if caption:
                 html += f'<div class="caption">{caption}</div>'
             html += '</div>'
-        html += '</div>'
         return html
 
     elif item_type == "links":
@@ -305,6 +305,42 @@ def render_slide(
         elif github:
             html += f'<div class="meta">github.com/{github}</div>'
         html += '</section>'
+    elif len(content) == 1 and content[0].get("type") == "agenda":
+        # Table-of-contents slide → two columns: title block left, chapter list right
+        agenda = content[0]
+        caption = chapter_label or title
+        html = f'<section{data_ch}{data_lbl}>'
+        html += '<div class="agenda-cols">'
+        html += '<div class="agenda-head">'
+        if caption:
+            html += f'<span class="slide-kicker">{caption}</span>'
+        if title:
+            html += f'<h2>{title}</h2>'
+        if subtitle:
+            html += f'<p class="subline">{subtitle}</p>'
+        html += '</div>'
+        html += '<div class="agenda-list">'
+        for i, entry in enumerate(agenda.get("items", [])):
+            if agenda.get("grouped"):
+                html += f'<div class="ag-item"><span class="ag-num">{i + 1}</span><span class="ag-label">{entry.get("section", "")}</span></div>'
+                for sub in entry.get("slides", []):
+                    html += f'<div class="ag-sub">{sub}</div>'
+            else:
+                html += f'<div class="ag-item"><span class="ag-num">{i + 1}</span><span class="ag-label">{entry}</span></div>'
+        html += '</div></div></section>'
+    elif [c.get("type") for c in content] == ["statement", "scenarios"]:
+        # Title row on top, then two columns: text left, KPI/scenario boxes right
+        html = f'<section{data_ch}{data_lbl}>'
+        if chapter_label:
+            html += f'<span class="slide-kicker">{chapter_label}</span>'
+        if title:
+            html += f'<h2>{title}</h2>'
+        if subtitle:
+            html += f'<p class="subline">{subtitle}</p>'
+        html += '<div class="cols">'
+        html += f'<div class="w45">{render_content_item(content[0])}</div>'
+        html += f'<div class="w55">{render_content_item(content[1])}</div>'
+        html += '</div></section>'
     else:
         html = f'<section{data_ch}{data_lbl}>'
         if chapter_label:
@@ -332,7 +368,7 @@ def render_chapter(chapter: Dict[str, Any], chapter_idx: int = 0, github: str = 
     return html
 
 
-def build_html(json_data: Dict[str, Any], template: str) -> str:
+def build_html(json_data: Dict[str, Any], template: str, css_version: str = "1") -> str:
     """Build complete HTML presentation from JSON."""
     meta = json_data.get("meta", {})
     chapters = json_data.get("chapters", [])
@@ -354,6 +390,7 @@ def build_html(json_data: Dict[str, Any], template: str) -> str:
     html = html.replace("{{ DURATION }}", str(meta.get("duration_minutes", "")))
     html = html.replace("{{ AUTHOR }}", meta.get("author", ""))
     html = html.replace("{{ GITHUB }}", meta.get("github", ""))
+    html = html.replace("{{ CSS_VERSION }}", css_version)
 
     return html
 
@@ -387,6 +424,10 @@ def main():
         template = load_slides_template(template_path)
         print(f"✅ Loaded template: {template_path}")
 
+    # Cache-buster for the linked stylesheet: changes whenever slides.css changes
+    css_path = output_dir / "css" / "slides.css"
+    css_version = str(int(css_path.stat().st_mtime)) if css_path.exists() else "1"
+
     # Generate HTML for each view
     views = ["overview", "storyview", "techview"]
 
@@ -405,7 +446,7 @@ def main():
         print(f"  → Loaded JSON: {json_path}")
 
         # Build HTML
-        html_content = build_html(json_data, template)
+        html_content = build_html(json_data, template, css_version)
         print(f"  → Built HTML presentation")
 
         # Save
