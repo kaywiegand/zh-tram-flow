@@ -1934,3 +1934,35 @@ KPI-Zeile + View-Karten im Browser visuell + per DOM-Text geprüft.
 
 **Nächster Schritt:** keiner offen aus dieser Teilaufgabe. `/project-case slides`-Modus bleibt
 der einzige verbleibende Punkt aus BACKLOG #70.
+
+---
+
+### 2026-07-01 (weitere Fortsetzung) — Design-Templates auch zum Skill verschoben
+
+Kay: "alles was der Skill braucht, um sein Ding zu machen, liegt bei ihm" — nicht nur Mechanik
+(Scripts, schon erledigt), auch Design. Auslöser: `styleguide.html` hatte im eigenen
+Kopf-Kommentar stehen, ihr CSS sei eine "VERBATIM-Kopie von `zh-tram-flow/public/css/slides.css`" —
+die kanonische Design-Quelle lag also versehentlich in diesem einen Projekt, obwohl alle
+Portfolios gleich aussehen sollen.
+
+**Was wurde gemacht:**
+- `docs/portfolio/templates/slides-template.html` + `styleguide.html` → `skills/project-case/templates/`
+- `zh-tram-flow/scripts/index-template.html` → `skills/project-case/templates/` (kein
+  Projekt-Content mehr drin seit der Hub-Umstellung von vorhin, jetzt reines Layout — kann also
+  global sein)
+- Neu: `skills/project-case/templates/slides.css` als kanonische Design-Quelle für alle Portfolios
+- `generate_html_from_json.py` kopiert diese CSS jetzt bei jedem Lauf nach
+  `public/css/slides.css` — die Projekt-Datei ist ab jetzt reine Build-Kopie, nie mehr von Hand editieren
+- `styleguide.html` bindet die CSS per echtem `<link>` ein statt sie hand-kopiert vorzuhalten
+- `.claude/launch.json` (Preview „styleguide") auf neuen Pfad aktualisiert
+
+**Bewusst nicht verschoben:** `README_template.md`, `portfolio_summary_template.md`, `STANDARD.md`,
+`CHECKLIST.md`, `WORKFLOW.md` — bleiben in `docs/portfolio/`, da auch `project-review` sie nutzt,
+nicht exklusiv `project-case`.
+
+**Verifiziert:** `make portfolio` neu gelaufen — `overview.html`/`storyview.html`/`techview.html`
+nur im CSS-Cache-Buster-Zeitstempel anders (erwartet, da `slides.css` frisch kopiert wurde),
+`index.html` byte-identisch. `styleguide.html` im Browser geprüft — Theme kommt korrekt per Link.
+
+**Nächster Schritt:** keiner offen. Der Skill-Ordner enthält jetzt alles, was er für Mechanik +
+Design braucht — nur Content (`slides.yaml`, `portfolio.md`) und deployte Build-Kopien bleiben im Projekt.

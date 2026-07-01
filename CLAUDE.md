@@ -97,7 +97,7 @@ public/md/slides.yaml    — Slide-Struktur + -Inhalt (Single Source of Truth f�
         ↓
         ├─ generate_json_from_slides.py     → public/json/storyline-{overview,storyview,techview}.json
         ├─ generate_html_from_json.py       → public/{overview,storyview,techview}.html
-        ├─ generate_index_from_portfolio.py → public/index.html  (Hub, aus slides.yaml["hub"] + scripts/index-template.html)
+        ├─ generate_index_from_portfolio.py → public/index.html  (Hub, aus slides.yaml["hub"] + Skill-Template)
         ├─ convert_json_to_md.py            → public/md/{overview,storyview,techview}.md
         └─ print_slide_matrix.py            → public/md/slides-matrix.md (Audit: Slide × View)
 ```
@@ -111,8 +111,11 @@ dem Projekt-Root heraus aufrufen (macht `make portfolio` automatisch).
 - **Hub-Inhalt** (Hero-KPIs, View-Karten) → `public/md/slides.yaml`, Block `hub:` (im Projekt) —
   **nicht** mehr im Template hartcodiert; bei Content-Änderungen mitpflegen!
 - **Fakten/Findings/Recommendations** (Referenz beim Slide-Schreiben) → `public/md/portfolio.md` (im Projekt)
-- **Slide-Design** → `public/css/slides.css` (im Projekt) + `docs/portfolio/templates/slides-template.html` (global)
-- **Hub-Layout/Design** → `scripts/index-template.html` (im Projekt — nur noch Layout/CSS, kein Content mehr)
+- **Slide-Design** → `skills/project-case/templates/{slides-template.html,slides.css}` (global, für
+  alle Portfolios identisch) — `public/css/slides.css` hier im Projekt ist nur die Build-Kopie,
+  wird bei jedem `make portfolio`-Lauf überschrieben, NIE von Hand editieren
+- **Hub-Layout/Design** → `skills/project-case/templates/index-template.html` (global, seit
+  2026-07-01 nicht mehr im Projekt)
 - **Mechanik** (JSON/HTML/MD generieren) → `skills/project-case/scripts/*.py` (global)
 - Generierte `public/*.html` NIE direkt editieren — wird überschrieben (liegt im Archiv).
 - `public/json-backup/` ist retiriert — `slides.yaml` ist die einzige Quelle, kein Backup-Schritt mehr nötig.
@@ -175,12 +178,13 @@ Alle Zahlen in portfolio.md (und damit in allen generierten Artefakten):
 | :--- | :--- | :--- |
 | `public/md/portfolio.md` | Fakten: Findings, Recommendations, These | Manuell / `/project-case story` |
 | `public/md/slides.yaml` | Single Source of Truth (Slide-Struktur + -Inhalt + Hub-Block) | Manuell |
-| `public/css/slides.css` | Slide-Design (Theme) | Manuell |
-| `docs/portfolio/templates/slides-template.html` | Slide-Layout/CSS-Basis | Manuell |
-| `scripts/index-template.html` | Hub-Layout/CSS (kein Content mehr) | Manuell |
+| `public/css/slides.css` | **Build-Kopie** (nicht editieren!) | überschrieben bei jedem Lauf aus Skill-Template |
+| `skills/project-case/templates/slides-template.html` | Slide-Layout/CSS-Basis (global) | Manuell, gilt für alle Portfolios |
+| `skills/project-case/templates/slides.css` | Kanonisches Slide-Design (global) | Manuell, gilt für alle Portfolios |
+| `skills/project-case/templates/index-template.html` | Hub-Layout (global, kein Content) | Manuell, gilt für alle Portfolios |
 | `public/json/storyline-*.json` | strukturierte Slide-Extrakte | generiert aus `slides.yaml` (Skill-Script) |
 | `public/{overview,storyview,techview}.html` | Präsentations-Views (Reveal.js) | generiert aus JSON (Skill-Script) |
-| `public/index.html` | Navigation-Hub | generiert aus portfolio.md + slides.yaml["hub"] + index-template (Skill-Script) |
+| `public/index.html` | Navigation-Hub | generiert aus portfolio.md + slides.yaml["hub"] + Skill-Template |
 | `public/md/*.md` | Markdown-Export | generiert (Skill-Script `convert_json_to_md.py`) |
 | `public/md/slides-matrix.md` | Audit: Slide × View | generiert (Skill-Script `print_slide_matrix.py`) |
 | `public/archive/vN/` | Snapshot vor jedem Lauf (gitignored) | Skill-Script `archive_portfolio_artifacts.py` |
