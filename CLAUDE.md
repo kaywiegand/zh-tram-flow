@@ -122,7 +122,9 @@ dem Projekt-Root heraus aufrufen (macht `make portfolio` automatisch).
 - Details: `skills/project-case/PORTFOLIO_PIPELINE.md`
 
 **Änderungen machen:**
-1. Inhalt in `slides.yaml` (Slides) / `portfolio.md` (Fakten) / Design in css+template / Hub in index-template
+1. Kleine Textänderung → direkt in `slides.yaml`/`portfolio.md` editieren. Neue `slides.yaml`
+   oder größere inhaltliche Überarbeitung → `/project-case slides` (Dialog-Modus mit
+   Kapitel-Feedback + Tabellen-Review vor dem Schreiben). Design → Templates im Skill-Ordner.
 2. `make portfolio` (= archive → json → html → index → md → matrix), oder `/project-case report`
 3. Jeder Lauf archiviert den alten Stand nach `public/archive/vN/` (gitignored)
 
@@ -144,24 +146,20 @@ Dieses Projekt dokumentiert nicht nur Kernfindings sondern auch **7 systematisch
 
 ### Workflow: Änderungen durchführen
 
-**Kompletter Workflow (empfohlen):**
+**Neue `slides.yaml` oder größere Überarbeitung (Dialog mit Kapitel-Feedback):**
 ```bash
-# 1. slides.yaml editieren (Slide-Struktur/-Inhalt) — portfolio.md bei geänderten Fakten
-# 2. Komplette Pipeline ausführen
-/project-case full
-# → generiert JSON, HTML, MD automatisch
+/project-case slides
+# → fragt bei bestehender Datei erst Backup + neu-vs-weiterarbeiten ab,
+#   baut StoryView zuerst, leitet Overview/TechView per Wiederverwendung ab,
+#   zeigt vor dem Schreiben eine Tabelle zur Abnahme
 ```
 
-**Einzelne Schritte (wenn nötig):**
+**Kleine Textänderung + komplette Pipeline neu laufen lassen:**
 ```bash
-# Nur JSONs regenerieren
-/project-case json
-# → skills/project-case/scripts/generate_json_from_slides.py
-
-# Nur HTMLs + MDs regenerieren
+# 1. slides.yaml direkt editieren (Slide-Struktur/-Inhalt) — portfolio.md bei geänderten Fakten
+# 2. Komplette Pipeline ausführen
 /project-case report
-# → skills/project-case/scripts/generate_html_from_json.py
-# → skills/project-case/scripts/convert_json_to_md.py
+# → generiert JSON, HTML, MD automatisch (rein mechanisch, kein Dialog)
 ```
 
 **Zahlenformat-Regel (Deutsch):**

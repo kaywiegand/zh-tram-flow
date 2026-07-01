@@ -106,7 +106,7 @@
                   "context": "VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)"
                 },
                 {
-                  "value": "−8 PP",
+                  "value": "−8 %",
                   "label": "Strukturelle\nLücke",
                   "sentiment": "negative",
                   "context": "Der Rückstand ist systemisch, nicht episodisch — er taucht in jedem Jahr, auf jeder Linie auf."

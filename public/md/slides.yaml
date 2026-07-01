@@ -133,7 +133,7 @@ chapters:
 
   # ---------------------------------------------------------------------
   # Kanonische Slide, identisch in allen 3 Views (Kay-Entscheidung 2026-07-01:
-  # KPI-Set 87/95/-8PP/56,3s überall, kein 71,5%-Swap in TechView mehr).
+  # KPI-Set 87/95/-8%/56,3s überall, kein 71,5%-Swap in TechView mehr).
   - id: ausgangssituation
     nav_label: Ausgangssituation
     slides:
@@ -152,7 +152,7 @@ chapters:
                 label: "VBZ-Ziel\nbis 2028"
                 sentiment: positive
                 context: "VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)"
-              - value: "−8 PP"
+              - value: "−8 %"
                 label: "Strukturelle\nLücke"
                 sentiment: negative
                 context: "Der Rückstand ist systemisch, nicht episodisch — er taucht in jedem Jahr, auf jeder Linie auf."

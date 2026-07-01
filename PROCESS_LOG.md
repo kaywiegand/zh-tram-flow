@@ -1966,3 +1966,43 @@ nur im CSS-Cache-Buster-Zeitstempel anders (erwartet, da `slides.css` frisch kop
 
 **Nächster Schritt:** keiner offen. Der Skill-Ordner enthält jetzt alles, was er für Mechanik +
 Design braucht — nur Content (`slides.yaml`, `portfolio.md`) und deployte Build-Kopien bleiben im Projekt.
+
+### 2026-07-01 (weitere Fortsetzung) — Zahlenformat-Nachzieh: BACKLOG #92 erledigt
+
+`slides.yaml` Zeile 155 (Slide `ausgangssituation-otp-gap`): `"−8 PP"` → `"−8 %"` (auch Kopf-Kommentar
+Zeile 136 mitgezogen). `portfolio.md` hatte den Wert schon korrekt (`−8 %`, Zeile 249) — dort kein
+Fix nötig, kein Drift zwischen Fakten- und Slide-Quelle. `make portfolio` gelaufen, alle 3 Views +
+JSON/MD neu generiert, `grep -rn "PP\b"` über `public/*.html`, `public/md/*.md`, `public/json/*.json`
+bestätigt: keine Reste mehr.
+
+**Nächster Schritt:** keiner offen. BACKLOG #92 aus `BACKLOG.md` entfernt.
+
+---
+
+### 2026-07-01 (weitere Fortsetzung) — `/project-case slides`-Modus gebaut, BACKLOG #70 geschlossen
+
+Letzter offener Punkt aus der heutigen Slide-Registry-Arbeit: es gab keinen Skill-Modus, der
+`slides.yaml` erstellt — nur die manuelle Content-Alignment-Session, die wir heute gemeinsam
+gemacht haben. Kay wollte dieses Vorgehen als festen, wiederholbaren Modus in `project-case.md`
+verankert haben, nicht nur als einmaliges Chat-Ergebnis.
+
+**Was wurde gemacht** (in `skills/project-case/project-case.md` + `PORTFOLIO_PIPELINE.md`,
+siehe Workspace-Repo-Commit):
+- Neuer Modus `slides`: bei bestehender `slides.yaml` erst Backup ja/nein, dann neu-aufbauen
+  vs. weiterarbeiten abfragen — ersetzt die frühere `locked`-Feld-Idee (nie implementiert,
+  jetzt komplett aus der Doku entfernt)
+- Baut zuerst StoryView (vollständigste Version), leitet Overview/TechView danach durch
+  Wiederverwendung ab (View-Liste erweitern statt neue Slide anlegen) — Varianten nur die
+  Ausnahme
+- Kapitel-für-Kapitel-Feedback-Schleife statt alles auf einmal vorzuschlagen
+- Tabellen-Review (gleiches Format wie `print_slide_matrix.py`) vor dem Schreiben, zur
+  expliziten Text-Abnahme durch Kay
+- Toter Modus `json` aus der Moduliste entfernt (war nirgends definiert, reine Doku-Leiche)
+- `/project-case full` ruft jetzt `slides` als expliziten, wartenden Dialog-Schritt auf
+  (zwischen `story` und `report`)
+
+**BACKLOG #70 geschlossen** (Skill-Umbau abgeschlossen: Scripts + Design-Templates beim Skill,
+jetzt auch der fehlende Autoren-Modus).
+
+**Nächster Schritt:** keiner offen. Der Skill deckt jetzt den kompletten Zyklus ab — Notebooks
+→ `story` → `slides` (Dialog) → `report` (mechanisch) → fertige Präsentationen.

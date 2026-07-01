@@ -12,7 +12,6 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 92 | **„−8 PP" → „−8 %"** in `public/md/slides.yaml` (Ausgangssituation-Slide) — verstößt gegen `NUMBER_FORMAT.md` (Prozentpunkte als `%`, nicht `pp`/`PP`). War schon vor der Slide-Registry so, in allen 3 Views identisch (kein Drift), beim Registry-Bau 2026-07-01 gefunden aber bewusst nicht mit-gefixt. | 3 |
 | 93 | **Content-Typen ohne Renderer:** `findings`, `note` (aus der alten, kaputt-verschachtelten "Weitere Potenziale"-Slide) haben in `generate_html_from_json.py` keine Implementierung — würden als `Unknown content type` rendern. Aktuell nirgends mehr in `slides.yaml` verwendet (auf `sections`+`statement` umgestellt). Falls künftig wieder gebraucht: entweder Renderer ergänzen oder bei der Slide-Autorenarbeit auf implementierte Typen ausweichen (Liste in `slides.yaml`-Kopfkommentar). | 3 |
 
 ---
@@ -398,9 +397,7 @@ Status: [ ] 2–3 Charts gewählt
 
 ## Skill & Tooling
 
-| # | Beschreibung | Prio |
-| :--- | :--- | :--- |
-| 70 | **`/project-case` Skill überarbeiten** — Aktueller Skill passt NICHT für unser Projekt. Probleme: Confusing Namings · Unklar "Single Point of Truth" · Zu komplex für Different Audiences. Strukturiert für generische Projekte. **Heute:** Manuell für dieses Projekt arbeiten (JSON + HTML direkt). **Später:** Anhand von zh-tram-flow komplett neu bauen — dann mit klarer Architektur (Input/Output pro Modus definiert, keine Mehrdeutigkeit). | 2 |
+*(Item #70 — `/project-case` Skill überarbeiten — erledigt 2026-07-01, siehe PROCESS_LOG.)*
 
 ---
 

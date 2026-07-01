@@ -56,7 +56,7 @@
 * **95 %** — VBZ-Ziel
 bis 2028
   - VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)
-* **−8 PP** — Strukturelle
+* **−8 %** — Strukturelle
 Lücke
   - Der Rückstand ist systemisch, nicht episodisch — er taucht in jedem Jahr, auf jeder Linie auf.
 * **56,3 s** — Ø Ankunfts-
