@@ -1,0 +1,879 @@
+# Slide-Registry — Single Source of Truth für Overview/StoryView/TechView
+#
+# Ersetzt die frühere Architektur (portfolio.md -> generate_json_from_portfolio.py ->
+# public/json-backup/), die Slide-Inhalte nie wirklich mechanisch aus portfolio.md
+# abgeleitet hat. Diese Datei IST die Slide-Struktur + der Slide-Inhalt.
+#
+# Schema:
+#   chapters: Liste von Kapiteln. Jedes Kapitel hat eine id, nav_label (Default-Anzeigename),
+#             optional nav_label_by_view (Override je View), und eine slides-Liste.
+#   Jede Slide hat: id, views (Liste der Views, die diese Slide zeigen), role (optional:
+#             title/closing/abbinder), title, subtitle, content (Liste von content-items —
+#             gleiche Typen wie im bisherigen JSON-Schema: figures, figures_with_context,
+#             steps, chart_refs, contrasts, sequence, statement, comparison_table,
+#             scenarios, recommendations, sections, tools, agenda, links).
+#   view_composition: pro View die Liste der Kapitel-IDs in Anzeigereihenfolge.
+#
+# Content-Typen OHNE Renderer in generate_html_from_json.py (nicht verwenden!): findings, note.
+# Nur die 14 oben genannten Typen sind implementiert.
+
+chapters:
+
+  # ---------------------------------------------------------------------
+  - id: einstieg
+    nav_label: Einstieg
+    slides:
+      - id: einstieg-title-overview
+        views: [overview]
+        role: title
+        title: "Zurich Tram Flow"
+        subtitle:
+          - "Verspätungsvorhersage im Zürcher Tramnetz"
+          - "Datengetriebenes Analyse- und ML-Projekt"
+        content:
+          - type: figures
+            items:
+              - {value: "94,4 M", label: "Halt-Ereignisse 2023–2025", sentiment: neutral}
+              - {value: "87 %", label: "OTP · Ziel: 95 %", sentiment: negative}
+              - {value: "71,3 %", label: "Haltestellen ohne Puffer", sentiment: warning}
+              - {value: "18,56 s", label: "Vorhersage-MAE LightGBM v2", sentiment: positive}
+
+      - id: einstieg-title-storyview
+        views: [storyview]
+        role: title
+        title: "Zurich Tram Flow"
+        subtitle:
+          - "Von der Frage bis zur Empfehlung"
+          - "Data Engineering · EDA · Machine Learning · Dashboard"
+        content:
+          - type: figures
+            items:
+              - {value: "94,4 M", label: "Halt-Ereignisse", sentiment: neutral}
+              - {value: "87 %", label: "OTP heute · Ziel: 95 %", sentiment: negative}
+              - {value: "18,56 s", label: "MAE LightGBM v2", sentiment: positive}
+              - {value: "−63 %", label: "vs. Baseline", sentiment: positive}
+
+      - id: einstieg-title-techview
+        views: [techview]
+        role: title
+        title: "Zurich Tram Flow"
+        subtitle:
+          - "Das Projekt als End-to-End ML Case"
+          - "Data Engineering · EDA · Feature Engineering · LightGBM"
+        content:
+          - type: figures
+            items:
+              - {value: "94,4 M", label: "Halt-Ereignisse, 4 Datenquellen", sentiment: neutral}
+              - {value: "50,0 s", label: "Baseline MAE (Stop Mean)", sentiment: neutral}
+              - {value: "18,56 s", label: "LightGBM v2 MAE (Test 2025)", sentiment: positive}
+              - {value: "−63 %", label: "Verbesserung vs. Baseline", sentiment: positive}
+
+      - id: einstieg-these
+        views: [storyview]
+        title: "Die These"
+        subtitle: "Ein Satz, der das gesamte Projekt trägt"
+        content:
+          - type: statement
+            sentiment: neutral
+            text: "Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb."
+          - type: statement
+            sentiment: positive
+            text: "Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel."
+
+      - id: einstieg-agenda-overview
+        views: [overview]
+        title: "Inhalt"
+        subtitle: "Diese Präsentation auf einen Blick"
+        content:
+          - type: agenda
+            items:
+              - "Die Ausgangssituation"
+              - "Die Überraschungen"
+              - "Die Erkenntnis"
+              - "Das Modell"
+              - "Die Handlungsempfehlungen"
+              - "Das Resultat"
+              - "Der Projektrahmen"
+
+      - id: einstieg-agenda-storyview
+        views: [storyview]
+        title: "Inhalt"
+        subtitle: "Sieben Kapitel, ein durchgehender Datenpfad"
+        content:
+          - type: agenda
+            items:
+              - "Ausgangssituation"
+              - "Data Engineering"
+              - "Exploration"
+              - "Die Erkenntnis"
+              - "Machine Learning"
+              - "Die Handlungsempfehlungen"
+              - "Projektrahmen und Workflow"
+
+      - id: einstieg-agenda-techview
+        views: [techview]
+        title: "Inhalt"
+        subtitle: "Sechs Abschnitte, ein durchgehender ML-Workflow"
+        content:
+          - type: agenda
+            grouped: true
+            items:
+              - section: "Ausgangssituation"
+                slides: ["OTP-Lücke und Datenlage"]
+              - section: "Datenstrategie"
+                slides: ["Datenquellen und Integration", "Cleaning-Entscheidungen"]
+              - section: "Baseline"
+                slides: ["Stop Mean als Benchmark"]
+              - section: "Feature Engineering"
+                slides: ["32 Features v1 · Kaskadenindikator v2"]
+              - section: "Modellauswahl"
+                slides: ["Warum LightGBM", "v1 · v2 · Robustheits-Check"]
+              - section: "Evaluation & Ausblick"
+                slides: ["Feature Importance", "Produktionsreife & Reflexion", "Handlungsempfehlungen"]
+
+  # ---------------------------------------------------------------------
+  # Kanonische Slide, identisch in allen 3 Views (Kay-Entscheidung 2026-07-01:
+  # KPI-Set 87/95/-8PP/56,3s überall, kein 71,5%-Swap in TechView mehr).
+  - id: ausgangssituation
+    nav_label: Ausgangssituation
+    slides:
+      - id: ausgangssituation-otp-gap
+        views: [overview, storyview, techview]
+        title: "Strukturelle Lücke im Netz"
+        subtitle: "87 % OTP seit drei Jahren — dauerhaft unter dem VBZ-Ziel von 95 %"
+        content:
+          - type: figures_with_context
+            items:
+              - value: "87 %"
+                label: "OTP 2023–2025\n(netzweit)"
+                sentiment: negative
+                context: "Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend."
+              - value: "95 %"
+                label: "VBZ-Ziel\nbis 2028"
+                sentiment: positive
+                context: "VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)"
+              - value: "−8 PP"
+                label: "Strukturelle\nLücke"
+                sentiment: negative
+                context: "Der Rückstand ist systemisch, nicht episodisch — er taucht in jedem Jahr, auf jeder Linie auf."
+              - value: "56,3 s"
+                label: "Ø Ankunfts-\nverspätung"
+                sentiment: warning
+                context: "Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre."
+          - type: steps
+            items:
+              - step: "1"
+                label: "Analyse der Entstehungsmuster und Einflussfaktoren"
+                detail: "Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition"
+              - step: "2"
+                label: "Verspätungen vorhersagen"
+                detail: "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s (arrival_delay in Sekunden), −63 % vs. Baseline"
+
+      - id: ausgangssituation-otp-per-line
+        views: [overview]
+        title: "Alle 16 Linien im Soll"
+        subtitle: "Keine einzige Linie erreicht das Ziel — die Lücke zieht sich durch das gesamte Netz"
+        content:
+          - type: chart_refs
+            items:
+              - label: "OTP nach Tramlinien"
+                source: target-otp-per-line
+                caption: "OTP nach Tramlinien, 2023–2025. Alle 16 Linien liegen unter dem 95 %-Ziel."
+
+      - id: ausgangssituation-otp-trend
+        views: [overview]
+        title: "Kein Aufwärtstrend erkennbar"
+        subtitle: "OTP schwankt saisonal, aber der Mittelwert bewegt sich seit 2023 nicht"
+        content:
+          - type: chart_refs
+            items:
+              - label: "OTP Jahresverlauf"
+                source: target-otp
+                caption: "OTP-Jahresverlauf netzweit. Die Lücke zum VBZ-Ziel ist konstant und zeigt keinen Aufwärtstrend."
+
+  # ---------------------------------------------------------------------
+  # Overview nennt das Kapitel "Ueberraschungen" (Business-Framing als Hook),
+  # StoryView nennt es "Exploration" (Prozess-Framing, EDA-Phase) — bewusst
+  # unterschiedliche Framings fuer unterschiedliche Zielgruppen, gleiche 3
+  # Kern-Slides (Wortlaut vereinheitlicht, war zuvor leicht unterschiedlich).
+  - id: ueberraschungen
+    nav_label: Überraschungen
+    nav_label_by_view:
+      storyview: Exploration
+    slides:
+      - id: ueberraschungen-widerlegte-annahmen
+        views: [overview, storyview]
+        title: "Widerlegte Annahmen"
+        subtitle: "Drei Erwartungen, die die Daten klar widerlegen"
+        content:
+          - type: contrasts
+            items:
+              - assumption: "Die Innenstadt ist der Verspätungs-Hotspot"
+                finding: "Central (48,3 s) und Paradeplatz (48,2 s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93,8 s, Balgrist 85,2 s — periphere Aussenkorridore"
+              - assumption: "Der Morgenrush ist das grösste Zeitproblem"
+                finding: "7h liegt mit 48,9 s unter Netzschnitt. Echter Peak: 21h (67,9 s) durch Abreisewellen nach Veranstaltungen. Donnerstag ist der schlechteste Wochentag"
+              - assumption: "Schlechtes Wetter ist die Hauptursache"
+                finding: "Schnee ist ein Verstärker (+54s), Regen +23,3 s. Geografisch trennbar: Schnee trifft Höhenlagen (K10/K12), Regen Flusstäler (K5). Grundrauschen bleibt wetterunabhängig"
+
+      - id: ueberraschungen-innenstadt-map
+        views: [overview, storyview]
+        title: "Die Innenstadt ist pünktlicher"
+        subtitle: "Verspätungs-Hotspots liegen an der Peripherie, nicht im Stadtzentrum"
+        content:
+          - type: chart_refs
+            items:
+              - label: "Verspätungshotspots nach Haltestelle"
+                source: spatial-stop-delay-map
+                caption: "Ø Ankunftsverspätung pro Haltestelle. Hotspots ausschliesslich in peripheren Stadtkreisen 7, 11 und 12. Null Überschneidung mit höchster Liniendichte."
+
+      - id: ueberraschungen-peak-abend
+        views: [overview, storyview]
+        title: "Der Peak am Abend"
+        subtitle: "Um 21 Uhr entstehen die höchsten Verspätungen — nicht im Morgenrush"
+        content:
+          - type: chart_refs
+            items:
+              - label: "Delay nach Tageszeit"
+                source: temporal-hour-of-day
+                caption: "Ø Delay nach Tageszeit (0–23h). Peak 21h, nicht 7h. Abend-Effekt durch Veranstaltungs-Abreisewellen."
+
+      - id: ueberraschungen-wetter
+        views: [storyview]
+        title: "Exploration"
+        subtitle: "Wetter: Schnee und Regen treffen unterschiedliche Stadtteile"
+        content:
+          - type: figures
+            items:
+              - {value: "+54s", label: "Schnee-Effekt netzweit", sentiment: negative}
+              - {value: "+23,3 s", label: "Regen-Effekt netzweit", sentiment: warning}
+              - {value: "−9,9 s", label: "Feiertage vs. Normal", sentiment: positive}
+              - {value: "66,0 s", label: "Fachmessen (schlechteste Event-Kategorie)", sentiment: negative}
+          - type: statement
+            sentiment: neutral
+            text: "Feiertage sind der beste Tagestyp: −9,9 s vs. Normal. Der MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied."
+
+  # ---------------------------------------------------------------------
+  - id: data-engineering
+    nav_label: Data Engineering
+    nav_label_by_view:
+      techview: Datenstrategie
+    slides:
+      - id: data-engineering-sources
+        views: [storyview, techview]
+        title: "Datenstrategie"
+        subtitle: "Vier Quellen, ein temporaler Join, 94,4 Millionen Zeilen"
+        content:
+          - type: sections
+            items:
+              - label: "VBZ IST-Daten (Primärquelle)"
+                points:
+                  - "Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025"
+                  - "Granularität: Fahrt × Haltestelle × Timestamp"
+                  - "Enthält canceled = True Fahrten — bewusst behalten (relevante Extremfälle)"
+              - label: "GTFS (Fahrplandaten)"
+                points:
+                  - "Geplante Ankunfts-/Abfahrtszeiten, dwell_time, stop_sequence"
+                  - "Liniengeometrien und Haltestellen-Koordinaten (lat/lon)"
+                  - "Join-Key: trip_id × stop_id × service_date"
+              - label: "Meteo Schweiz"
+                points:
+                  - "Stündliche Messwerte: Temperatur, Niederschlag, Windgeschwindigkeit"
+                  - "Join über Zeitstempel (hour-level) auf IST-Daten"
+                  - "Abgeleitete Flags: has_rain, has_snow, has_heavy_rain, is_hot"
+              - label: "Event-Kalender"
+                points:
+                  - "Grossveranstaltungen Zürich 2023–2025: Konzerte, Messen, Sport"
+                  - "Kategorisierung: event_type, event_size, event_weight"
+                  - "Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet"
+
+      - id: data-engineering-cleaning-storyview
+        views: [storyview]
+        title: "Data Engineering"
+        subtitle: "Cleaning als Forschungsentscheidung, nicht als Routine"
+        content:
+          - type: contrasts
+            items:
+              - assumption: "Canceled-Fahrten entfernen"
+                finding: "Bewusst behalten: canceled = True Fahrten sind Extremfälle, die das Modell kennen muss. Entfernen würde die Realität des Netzes verfälschen."
+              - assumption: "Shuffle-Split für mehr Trainingsdaten"
+                finding: "Temporal Split (kein Shuffle): Train 2023–Jun 2024 / Val Jul–Dez 2024 / Test 2025. Data Leakage wäre sonst unvermeidbar."
+              - assumption: "Haltestellen über One-Hot Encoding"
+                finding: "Native Categoricals in LightGBM: stop_name, line_name, event_type direkt als Kategorie. Kein Dimensionsproblem, schnelleres Training."
+
+      - id: data-engineering-cleaning-techview
+        views: [techview]
+        title: "Datenstrategie"
+        subtitle: "Cleaning-Entscheidungen und ihre Begründungen"
+        content:
+          - type: contrasts
+            items:
+              - assumption: "Canceled-Fahrten entfernen"
+                finding: "Behalten: canceled = True Zeilen sind relevante Extremfälle — Modell soll auch Ausfälle antizipieren können"
+              - assumption: "Shuffle-Split für mehr Trainingsdaten"
+                finding: "Temporal Split: Zukunft darf Vergangenheit nicht kennen. Shuffle würde Data Leakage erzeugen"
+              - assumption: "arrival_delay winsorisieren (Extremwerte kappen)"
+                finding: "Kein Capping: MAE belohnt Präzision auch bei Extremwerten. Winsorisierung würde Systemfehler verbergen"
+              - assumption: "Alle Haltestellen gleich behandeln"
+                finding: "stop_sequence_pct als normierter Streckenfortschritt — erlaubt linienübergreifendes Lernen ohne One-Hot-Explosion"
+
+  # ---------------------------------------------------------------------
+  - id: baseline
+    nav_label: Baseline
+    slides:
+      - id: baseline-table
+        views: [techview]
+        title: "Baseline"
+        subtitle: "Stop Mean als sinnvollster naiver Benchmark"
+        content:
+          - type: comparison_table
+            columns: ["Ansatz", "Logik", "MAE (Test)"]
+            rows:
+              - cells: ["Grand Mean", "Immer Netz-Ø vorhersagen (56,3 s)", "50,6 s"]
+                highlight: false
+              - cells: ["Hour Mean", "Ø nach Tagesstunde", "50,5 s"]
+                highlight: false
+              - cells: ["Line Mean", "Ø nach Linie", "50,4 s"]
+                highlight: false
+              - cells: ["Stop Mean", "Ø nach Haltestelle (stärkste naive Baseline)", "50,0 s"]
+                highlight: true
+          - type: statement
+            sentiment: neutral
+            text: "Stop Mean gewinnt, weil Haltestellen strukturell unterschiedliche Delay-Level haben. Jedes Modell muss diesen Benchmark schlagen. Grand Mean, Hour Mean und Line Mean liegen alle < 1s voneinander entfernt — reine Mittelwert-Strategien bringen keinen Vorteil."
+
+  # ---------------------------------------------------------------------
+  - id: feature-engineering
+    nav_label: Feature Engineering
+    slides:
+      - id: feature-engineering-overview
+        views: [techview]
+        title: "Feature Engineering"
+        subtitle: "32 Features v1, 34 Features v2 — der entscheidende Unterschied"
+        content:
+          - type: sections
+            items:
+              - label: "Temporale Features (v1)"
+                points:
+                  - "hour, weekday, month, season, year"
+                  - "is_weekend, is_november, is_holiday"
+                  - "is_late_night_weekend (Kombinations-Feature)"
+              - label: "Netz-Features (v1)"
+                points:
+                  - "line_name, stop_name (native categoricals — kein One-Hot)"
+                  - "district_nr, n_lines_at_stop, n_stops_line"
+                  - "is_start_stop, is_end_stop, dwell_time"
+              - label: "Externe Features (v1)"
+                points:
+                  - "temperature, precipitation, wind_speed"
+                  - "has_rain, has_heavy_rain, has_snow, has_flood, is_hot"
+                  - "has_event, event_type, event_size, event_weight, event_weight_x_hour"
+              - label: "Kaskaden-Features (neu in v2)"
+                points:
+                  - "prev_trip_delay: Verspätung des Vorgänger-Trips an diesem Halt — echtzeit-verfügbar"
+                  - "stop_sequence_pct: normierter Streckenfortschritt (0–1) — linienübergreifend lernbar"
+                  - "Ergebnis: MAE 45,7 s → 18,56 s, −63 %"
+
+  # ---------------------------------------------------------------------
+  # Shared, erweitert: die 3 zusaetzlichen "statement"-Bloecke waren zuvor
+  # nur in Overview, wurden aber inhaltlich sinnvoll ergaenzt (Kay: Storyview
+  # soll die vollstaendigste Erzaehlung sein).
+  - id: erkenntnis
+    nav_label: Erkenntnis
+    slides:
+      - id: erkenntnis-kaskade
+        views: [overview, storyview]
+        title: "Die Kaskade bei den Verspätungen"
+        subtitle: "Ohne Puffer im Fahrplan überträgt sich jede Verspätung auf die Folgefahrten — in vier Schritten bewiesen"
+        content:
+          - type: figures
+            items:
+              - {value: "71,5 %", label: "Halte akkumulieren Delay", sentiment: warning}
+              - {value: "L11", label: "68,7 s · OTP 82 % — stärkste Akkumulation", sentiment: negative}
+              - {value: "71,3 %", label: "Haltestellen ohne Standzeit (0s)", sentiment: warning}
+              - {value: "r ≥ 0,85", label: "Kaskadenkorrelation alle 16 Linien", sentiment: negative}
+          - type: sequence
+            items:
+              - label: "Anomalie"
+                text: "Hotspots an Endstationen, nicht an zentralen Knotenpunkten. Null Überschneidung mit den dichtest bedienten Haltestellen."
+              - label: "Gradient"
+                text: "Der Delay wächst entlang der Strecke. L11: Verspätung am Streckenende doppelt so hoch wie am Anfang."
+              - label: "Mechanismus"
+                text: "71,3 % aller Haltestellen haben 0 Sekunden eingeplante Standzeit. Kein Puffer, keine Erholung möglich."
+              - label: "Kaskade"
+                text: "Pearson r ≥ 0,85 zwischen aufeinanderfolgenden Halts auf allen 16 Linien. Systematisch, kein Einzelfall."
+          - type: statement
+            sentiment: neutral
+            text: "Das ist kein Betriebsversagen. Es ist ein Fahrplan-Design-Thema. Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden."
+          - type: statement
+            sentiment: warning
+            text: "Zwei externe Einflussfaktoren sind messbar und erheblich: Schnee (+54s) und Grossevents (bis +66s bei Fachmessen). Doch das Grundniveau der Verspätung bleibt auch bei optimalen Bedingungen konstant hoch. Externe Faktoren verstärken, was intern bereits strukturell angelegt ist."
+          - type: statement
+            sentiment: positive
+            text: "Trotz Bauphasen, Streckensperrungen und Fahrplanumstellungen hält die VBZ das System bemerkenswert stabil. Die Verspätungslevel schwanken durch diese Eingriffe kaum. Die Ursache liegt nicht in externen Störungen, sondern im Fahrplan-Design selbst."
+
+  # ---------------------------------------------------------------------
+  # Overview + StoryView teilen die "Drei Iterationen"-Tabelle (kanonisch, 4 Spalten).
+  # TechView hat eine bewusst reichhaltigere 5-Spalten-Tabelle (MBE + OTP) unter eigenem
+  # Titel — legitime technische Vertiefung, keine Inkonsistenz (Kay-Entscheidung: nur
+  # den Feature-Zahlen-Fehler 34/36 -> 32/34 korrigieren, Struktur nicht erzwingen).
+  - id: modell-progression
+    nav_label: Das Modell
+    nav_label_by_view:
+      storyview: Machine Learning
+      techview: Modellauswahl
+    slides:
+      - id: modell-drei-iterationen
+        views: [overview, storyview]
+        title: "Drei Iterationen der Modellierung"
+        subtitle: "Von der Baseline über Feature Engineering zum finalen Ensemble-Modell"
+        content:
+          - type: statement
+            sentiment: neutral
+            text: "Warum ML? Weil die Struktur der Daten nichtlinear ist: Linie × Haltestelle × Tageszeit × Wetter × Event interagieren auf eine Weise, die kein handcodiertes Modell erfassen kann. Und weil prev_trip_delay ein Echtzeit-Signal ist, das einen Feedback-Loop im Modell ermöglicht."
+          - type: comparison_table
+            columns: ["Ansatz", "Features", "MAE (Test)", "Verbesserung"]
+            rows:
+              - cells: ["Baseline (Stop Mean)", "—", "50,0 s", "Ausgangspunkt"]
+                highlight: false
+              - cells: ["LightGBM v1 — Zeit · Wetter · Netz-Features · kein Live-Signal · MBE +8,3 s", "32", "45,7 s", "−4,3 s"]
+                highlight: false
+              - cells: ["LightGBM v2 — +prev_trip_delay · +stop_sequence_pct · Isotonic-Kalibrierung · MBE −0,69 s", "34", "18,56 s", "−31,4 s (−63 %)"]
+                highlight: true
+          - type: statement
+            sentiment: positive
+            text: "Der Sprung von v1 auf v2 kam nicht durch einen besseren Algorithmus, sondern durch das richtige Signal aus der Analyse: den Kaskadenindikator (prev_trip_delay)."
+
+      - id: modell-mae-hero-overview
+        views: [overview]
+        title: "18,56 Sekunden MAE"
+        subtitle: "Mittlerer Vorhersagefehler auf einem vollständigen, ungesehenen Testjahr — 63 % unter der Baseline"
+        content:
+          - type: figures
+            hero:
+              value: "18,56 s"
+              label: "mittlerer Vorhersagefehler (MAE) · getestet auf dem vollständigen Jahr 2025"
+              sentiment: positive
+            items:
+              - {value: "41 Mio.", label: "Trainings-Fahrten 2023 bis Mitte 2024", sentiment: neutral}
+              - {value: "~29 Mio.", label: "Test-Fahrten, vollständiges Jahr 2025", sentiment: neutral}
+              - {value: "−63 %", label: "Verbesserung vs. Baseline (Stop Mean)", sentiment: positive}
+          - type: statement
+            sentiment: positive
+            text: "Kalibrierter Bias: −0,69 Sekunden, nahezu verzerrungsfrei. Trainiert auf Consumer-Hardware in ca. 18 Minuten."
+
+      - id: modell-mae-hero-storyview
+        views: [storyview]
+        title: "18,56 Sekunden MAE"
+        subtitle: "Mittlerer Vorhersagefehler auf einem vollständigen, ungesehenen Testjahr — 63 % unter der Baseline"
+        content:
+          - type: figures
+            hero:
+              value: "18,56 s"
+              label: "MAE · LightGBM v2 · Test 2025 (~29M Fahrten)"
+              sentiment: positive
+            items:
+              - {value: "41 Mio.", label: "Trainings-Fahrten 2023–Jun 2024", sentiment: neutral}
+              - {value: "~29 Mio.", label: "Test-Fahrten vollständiges Jahr 2025", sentiment: neutral}
+              - {value: "−0,69 s", label: "MBE nach Isotonic-Regression-Kalibrierung", sentiment: positive}
+          - type: statement
+            sentiment: positive
+            text: "prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45,7 s auf 18,56 s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt."
+
+      - id: modell-modellauswahl-warum-lightgbm
+        views: [techview]
+        title: "Modellauswahl und -Anpassung"
+        subtitle: "Warum LightGBM, warum kein Hyperparameter-Tuning"
+        content:
+          - type: contrasts
+            items:
+              - assumption: "XGBoost als Standard-Benchmark"
+                finding: "XGBoost: val MAE ~21,4 s bei 150 Runden auf 85M Zeilen — über 90 Minuten Trainingszeit. LightGBM: vergleichbare Qualität in ca. 18 Minuten. Klare Wahl für iteratives Arbeiten."
+              - assumption: "Native Categoricals über One-Hot Encoding"
+                finding: "LightGBM verarbeitet Kategorien nativ — kein One-Hot für line_name, stop_name, event_type. Weniger Speicher, schnelleres Training, keine künstliche Sparsität."
+              - assumption: "Hyperparameter-Tuning vor Feature Engineering"
+                finding: "Bewusste Entscheidung dagegen: Feature Engineering bringt mehr als Tuning auf schwachen Features. prev_trip_delay allein liefert −27s MAE. Tuning käme danach."
+              - assumption: "Early Stopping als Tuning-Ersatz"
+                finding: "Early Stopping mit Validation-Set steuert Modellkomplexität automatisch. Verhindert Overfitting ohne manuelle Suche nach n_estimators."
+
+      - id: modell-modellauswahl-v1-v2
+        views: [techview]
+        title: "Modellauswahl und -Anpassung"
+        subtitle: "v1 zu v2: der Sprung kam aus der Analyse, nicht aus dem Algorithmus"
+        content:
+          - type: comparison_table
+            columns: ["Version", "Neue Features", "MAE (Test)", "MBE (Test)", "OTP-Verbesserung"]
+            rows:
+              - cells: ["Baseline (Stop Mean)", "—", "50,0 s", "—", "—"]
+                highlight: false
+              - cells: ["LightGBM v1", "32 Features (Zeit · Wetter · Netz)", "45,7 s", "+8,3 s", "71,9 % → 77,5 %"]
+                highlight: false
+              - cells: ["LightGBM v2", "+prev_trip_delay, +stop_sequence_pct (34 total)", "18,56 s", "−0,69 s", "→ kalibriert"]
+                highlight: true
+          - type: statement
+            sentiment: positive
+            text: "v1 war systematisch zu optimistisch (MBE +8,3 s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0,69 s. Der MAE-Sprung von 45,7 s auf 18,56 s entspricht −63 % und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature."
+
+      - id: modell-robustheits-check
+        views: [techview]
+        title: "Robustheits-Check"
+        subtitle: "XGBoost-Vergleich und Stabilitätsprüfung"
+        content:
+          - type: figures
+            items:
+              - {value: "~21,4 s", label: "XGBoost val MAE (150 Runden)", sentiment: warning}
+              - {value: "90+ Min", label: "XGBoost Trainingszeit auf 85M Zeilen", sentiment: negative}
+              - {value: "18 Min", label: "LightGBM v2 Trainingszeit", sentiment: positive}
+              - {value: "18,56 s", label: "LightGBM v2 Test MAE (2025)", sentiment: positive}
+          - type: statement
+            sentiment: neutral
+            text: "XGBoost erreicht auf dem Validation-Set vergleichbare Qualität, braucht aber 5× mehr Zeit. Für iteratives Feature Engineering über mehrere Wochen ist LightGBM die klar überlegene Wahl. Das ist eine Workflow-Entscheidung, keine Qualitätskompromittierung."
+
+  # ---------------------------------------------------------------------
+  # nav_label bewusst eigenständig ("Feature Importance") statt "Machine Learning"/"Evaluation"
+  # zu wiederholen — sonst stehen in der Progress-Nav 2-3 identische Labels direkt hintereinander
+  # (fiel beim visuellen Check auf, 2026-07-01).
+  - id: feature-importance
+    nav_label: Feature Importance
+    slides:
+      - id: feature-importance-chart
+        views: [storyview, techview]
+        title: "Feature Importance"
+        subtitle: "prev_trip_delay dominiert — die Analyse hat recht behalten"
+        content:
+          - type: chart_refs
+            items:
+              - label: "Feature Importance LightGBM v2"
+                source: model-feature-importance
+                caption: "Feature Importance (Gain). prev_trip_delay und stop_sequence_pct dominieren. Temporale und Wetter-Features zeigen konsistente, aber deutlich schwächere Beiträge."
+          - type: statement
+            sentiment: positive
+            text: "Die Kaskadenanalyse (r ≥ 0,85 netzweit) hat die Feature-Wichtigkeit korrekt antizipiert. Das Modell bestätigt: Das Signal steckt in den Daten, nicht im Algorithmus."
+
+  # ---------------------------------------------------------------------
+  # nav_label bewusst eigenständig ("Anwendung") — selber Grund wie bei feature-importance
+  # (war zuvor "Das Modell"/"Machine Learning", identisch zum direkt vorangehenden Kapitel).
+  - id: konkreter-nutzen
+    nav_label: Anwendung
+    slides:
+      - id: konkreter-nutzen-scenarios
+        views: [overview, storyview]
+        title: "Konkreter Nutzen in der Praxis"
+        subtitle: "Konkrete Vorhersagen für reale Betriebssituationen zeigen die operative Relevanz"
+        content:
+          - type: statement
+            sentiment: neutral
+            text: "Das Modell kombiniert Tageszeit, Linie, Haltestelle, Wetterlage und den Verspätungsstatus des Vorgänger-Trips zu einer konkreten Sekundenvorhersage. So lassen sich kritische Situationen identifizieren, bevor die Kaskade einsetzt."
+          - type: scenarios
+            items:
+              - conditions: "Donnerstag · 21h · Linie 11 · Schnee"
+                prediction_seconds: 74
+                interpretation: "Frühwarnung aktiv, bevor die Kaskade einsetzt"
+                sentiment: warning
+              - conditions: "Dienstag · 17h · Paradeplatz · leichter Regen"
+                prediction_seconds: 48
+                interpretation: null
+                sentiment: neutral
+              - conditions: "Sonntag · 10h · Linie 6 · trocken"
+                prediction_seconds: 22
+                interpretation: "Normalbetrieb, kein Handlungsbedarf"
+                sentiment: positive
+
+  # ---------------------------------------------------------------------
+  - id: produktionsreife
+    nav_label: Evaluation
+    slides:
+      - id: produktionsreife-reflexion
+        views: [techview]
+        title: "Produktionsreife und Reflexion"
+        subtitle: "Was produktionsreif ist, was offen bleibt"
+        content:
+          - type: contrasts
+            items:
+              - assumption: "Produktionsreif"
+                finding: "LightGBM v2: MAE 18,56 s, MBE −0,69 s, trainiert auf 41M Fahrten, getestet auf vollständigem Jahr 2025 (~29M). Streamlit-Dashboard mit Live-Predictor lauffähig. Code vollständig reproduzierbar."
+              - assumption: "Offen: Hyperparameter-Tuning"
+                finding: "Wurde bewusst zurückgestellt. Nächster Schritt nach Feature Engineering. Potenziell weitere −2 bis −4s MAE erreichbar."
+              - assumption: "Offen: v2 im Streamlit-Predictor"
+                finding: "Dashboard nutzt aktuell v1 (Pre-Trip-Use-Case ohne prev_trip_delay). v2 erfordert Live-Signal aus VBZ-Betriebssystem — setzt Daten-Integration voraus."
+              - assumption: "Offen: Ensemble / Stacking"
+                finding: "Nicht evaluiert. LightGBM v2 allein liefert bereits −63 % vs. Baseline. Ensemble-Ansätze wären nächste Iteration."
+
+  # ---------------------------------------------------------------------
+  # Kanonisch vereinheitlicht (Kay-Ziel: die "So-what"-Slide soll allen
+  # Zielgruppen die IDENTISCHEN 4 Empfehlungen zeigen, technisch gegruendet).
+  - id: empfehlungen
+    nav_label: Empfehlungen
+    slides:
+      - id: empfehlungen-vier-hebel
+        views: [overview, storyview, techview]
+        title: "Vier direkte Hebel nutzen"
+        subtitle: "Jede Empfehlung ist direkt durch einen Befund aus der Analyse gedeckt"
+        content:
+          - type: recommendations
+            items:
+              - category: "R1 · Fahrplan-Design"
+                title: "Standzeit-Puffer L11 an Koppelstellen"
+                points:
+                  - "dwell_time = 0s an 71,3 % aller Haltestellen ist das Root-Cause-Feature"
+                  - "+10s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt"
+                  - "L11: OTP 82 %, Ø 68,7 s — Hebel Nr. 1 aus Analyse und Modell"
+              - category: "R2 · Real-Time Dispatch"
+                title: "prev_trip_delay als Echtzeit-Signal im Dispatching"
+                points:
+                  - "prev_trip_delay ist das stärkste Feature — und in Echtzeit aus VBZ-System verfügbar"
+                  - "LightGBM v2 Inferenz: Millisekunden pro Vorhersage, keine Latenz-Probleme"
+                  - "MAE 18,56 s auf Test 2025: Produktionsreife bereits nachgewiesen"
+              - category: "R3 · Kapazitätsplanung"
+                title: "Taktanpassung 20–22h auf L11 und L8"
+                points:
+                  - "Peak 21h: 67,9 s — nicht der Morgen (7h: 48,9 s unter Netzschnitt)"
+                  - "Donnerstag + Grossevent: kritischste Kombination im Netz"
+                  - "Spitzenlastmomente sind kalendarisch planbar"
+              - category: "R4 · Monitoring"
+                title: "Stadtkreise 11 und 12 als strukturelle Prioritätszonen"
+                points:
+                  - "Kreis 11: OTP 83 %, Ø 68,3 s — strukturell benachteiligt, nicht situativ"
+                  - "district_nr gehört zu den Top-Features im Modell — räumliche Struktur ist lernbar und persistent"
+                  - "Kombination mit Prediction-Modell: proaktive Steuerung statt reaktive Entstörung"
+
+  # ---------------------------------------------------------------------
+  - id: resultat
+    nav_label: Resultat
+    slides:
+      - id: resultat-closing-thesis
+        views: [overview, storyview]
+        role: closing
+        title: "Was vorhersagbar ist, ist steuerbar."
+        subtitle: "Ein Projekt, das zeigt: Datengetriebene Analyse ist kein akademisches Artefakt — sie liefert operative Entscheidungsgrundlagen."
+        content:
+          - type: tools
+            items:
+              - label: "Linie erkunden"
+                description: "Delay-Profil · Map · Hotspots\nEmpfehlungsbox pro Linie"
+              - label: "Linien vergleichen"
+                description: "KPIs · Delay-Verteilung\nPriorisierungsentscheidung"
+              - label: "Delay vorhersagen"
+                description: "Szenario A vs. B live\nWas-wäre-wenn-Analyse"
+
+  # ---------------------------------------------------------------------
+  # Vereinheitlicht + erweitert: die "AI-Workflow als Differenziator"-Sektion
+  # war zuvor nur in StoryView — jetzt fuer beide Views, da das Teil von Kays
+  # Karriere-Positionierung ist (Portfolio + AI-Workflow als Differenziator).
+  - id: projektrahmen
+    nav_label: Projektrahmen
+    slides:
+      - id: projektrahmen-offen-reproduzierbar
+        views: [overview, storyview]
+        title: "Offen & reproduzierbar"
+        subtitle: "Open Data, AI-Workflow, vollständig reproduzierbar"
+        content:
+          - type: sections
+            items:
+              - label: "Datenbasis und Umfang"
+                points:
+                  - "VBZ IST-Daten · GTFS · Meteo Schweiz · Event-Kalender"
+                  - "94,4 Mio. Zeilen · 26 Features · 541 MB Parquet"
+                  - "3 vollständige Betriebsjahre · 16 Linien · ca. 190 Haltestellen"
+                  - "66 dokumentierte Befunde in 12 Jupyter-Notebooks"
+              - label: "Technologie-Stack"
+                points:
+                  - "Python · Polars (85 Mio. Zeilen, lazy evaluation) · Jupyter · uv"
+                  - "LightGBM (Modellierung) · Plotly (Visualisierung) · Streamlit (Dashboard)"
+                  - "Trainingszeit LightGBM v2: ca. 18 Minuten auf Consumer-Hardware"
+              - label: "AI-Workflow als Differenziator"
+                points:
+                  - "Claude Code für iterative Analyse, Code-Refactoring, Dokumentation"
+                  - "Promptbasiertes Scaffolding: von der Idee zur Notebook-Struktur in Minuten"
+                  - "Menschliche Entscheidungsverantwortung bleibt bei allen Finding-Interpretationen"
+              - label: "Reproduzierbarkeit"
+                points:
+                  - "Vollständiger Code auf GitHub, alle Datenquellen öffentlich"
+                  - "Data Engineering vollständig reproduzierbar via Polars-Pipeline"
+                  - "Alle Befunde rückverfolgbar auf Finding-IDs in den Notebooks"
+
+  # ---------------------------------------------------------------------
+  # BUGFIX 2026-07-01: war zuvor fälschlich als Slide INNERHALB des
+  # "Projektrahmen"/"Empfehlungen"-Kapitels verschachtelt (kein eigenes
+  # Kapitel) UND nutzte Content-Typen (findings, note) ohne Renderer ->
+  # rendete als leere Slide in Story- und TechView. Jetzt eigenes Kapitel,
+  # nur Content-Typen mit Renderer (sections statt findings, statement
+  # statt note).
+  - id: weitere-potenziale
+    nav_label: Weitere Potenziale
+    slides:
+      - id: weitere-potenziale-research-opportunities
+        views: [storyview, techview]
+        title: "Was noch zu erforschen ist"
+        subtitle: "Dashboard-Exploration offenbarte 7 systematische Forschungsmöglichkeiten"
+        content:
+          - type: statement
+            sentiment: neutral
+            text: "Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie? Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale."
+          - type: sections
+            items:
+              - label: "4 von 7 Forschungsmöglichkeiten (Auswahl)"
+                points:
+                  - "OP-1: Direction-Asymmetrie (~10s Delta zwischen Richtung A/B)"
+                  - "OP-2: Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)"
+                  - "OP-3: Linienlänge ↔ Delay nicht-linear"
+                  - "OP-7: Kaskaden-Verstärker vs. -Dämpfer pro Linie"
+          - type: statement
+            sentiment: neutral
+            text: "Detaillierte Hypothesen, Implementation Paths und Prioritäten → BACKLOG.md, Sektion Research Opportunities."
+
+  # ---------------------------------------------------------------------
+  - id: ende
+    nav_label: Ende
+    slides:
+      - id: ende-title-repeat-overview
+        views: [overview]
+        role: title
+        title: "Zurich Tram Flow"
+        subtitle:
+          - "Verspätungsvorhersage im Zürcher Tramnetz"
+          - "Datengetriebenes Analyse- und ML-Projekt"
+        content:
+          - type: figures
+            items:
+              - {value: "94,4 M", label: "Halt-Ereignisse 2023–2025", sentiment: neutral}
+              - {value: "87 %", label: "OTP · Ziel: 95 %", sentiment: negative}
+              - {value: "71,3 %", label: "Haltestellen ohne Puffer", sentiment: warning}
+              - {value: "18,56 s", label: "Vorhersage-MAE LightGBM v2", sentiment: positive}
+
+      - id: ende-abbinder-storyview
+        views: [storyview]
+        role: abbinder
+        title: "Zurich Tram Flow"
+        subtitle: "Kay Wiegand · 2023–2025"
+        content:
+          - type: figures
+            items:
+              - {value: "94,4 M", label: "Halt-Ereignisse", sentiment: neutral}
+              - {value: "16", label: "Tramlinien", sentiment: neutral}
+              - {value: "66", label: "Befunde", sentiment: neutral}
+              - {value: "12", label: "Notebooks", sentiment: neutral}
+              - {value: "18,56 s", label: "MAE · LightGBM v2", sentiment: positive}
+              - {value: "−63 %", label: "vs. Baseline", sentiment: positive}
+          - type: links
+            primary: "https://github.com/kaywiegand/zh-tram-flow"
+            items:
+              - {label: "Ergebnisübersicht (HR/Business)", href: "overview.html"}
+              - {label: "Technischer Deep Dive", href: "techview.html"}
+              - {label: "Dashboard-Prototype", href: "https://zh-tram-flow.streamlit.app"}
+
+      - id: ende-abbinder-techview
+        views: [techview]
+        role: abbinder
+        title: "Zurich Tram Flow"
+        subtitle: "Kay Wiegand · 2023–2025"
+        content:
+          - type: figures
+            items:
+              - {value: "94,4 M", label: "Halt-Ereignisse", sentiment: neutral}
+              - {value: "41,2 M", label: "Trainings-Fahrten", sentiment: neutral}
+              - {value: "~29 M", label: "Test-Fahrten (2025)", sentiment: neutral}
+              - {value: "34", label: "Features (v2)", sentiment: neutral}
+              - {value: "18,56 s", label: "MAE · LightGBM v2", sentiment: positive}
+              - {value: "−63 %", label: "vs. Baseline", sentiment: positive}
+          - type: links
+            primary: "https://github.com/kaywiegand/zh-tram-flow"
+            items:
+              - {label: "Ergebnisübersicht (HR/Business)", href: "overview.html"}
+              - {label: "Projektverlauf (Portfolio)", href: "storyview.html"}
+              - {label: "Dashboard-Prototype", href: "https://zh-tram-flow.streamlit.app"}
+
+# ===========================================================================
+# Meta pro View — landet unverändert im "meta"-Feld der jeweiligen storyline-*.json,
+# wird von generate_html_from_json.py für Titel/Github-Link/Closing-Links genutzt.
+view_meta:
+  overview:
+    project: "Zurich Tram Flow"
+    period: "2023–2025"
+    author: "Kay Wiegand"
+    github: "kaywiegand/zh-tram-flow"
+    presentation_title: "Ergebnisse & Handlungsempfehlungen"
+    audience: "HR · Business · Hiring Manager"
+    duration_minutes: 10
+  storyview:
+    project: "Zurich Tram Flow"
+    period: "2023–2025"
+    author: "Kay Wiegand"
+    github: "kaywiegand/zh-tram-flow"
+    presentation_title: "Der gesamte Daten-Lifecycle"
+    audience: "Portfolio · Konferenz · Vollbild"
+    duration_minutes: 35
+  techview:
+    project: "Zurich Tram Flow"
+    period: "2023–2025"
+    author: "Kay Wiegand"
+    github: "kaywiegand/zh-tram-flow"
+    presentation_title: "Technischer Deep Dive"
+    audience: "Data Scientists · Tech Leads · Interviewer"
+    duration_minutes: 20
+
+# ===========================================================================
+# Steuert public/index.html (Hub) — konsumiert von generate_index_from_portfolio.py.
+# headline_kpis_from zeigt auf eine Slide-ID statt die Werte zu duplizieren: die
+# 4 Hero-KPIs auf dem Hub sind IMMER genau die figures-Liste dieser Slide.
+hub:
+  headline_kpis_from: einstieg-title-overview
+  view_order: [overview, techview, storyview]
+  view_cards:
+    overview:
+      kicker: "Overview"
+      label: "Basic Information"
+      description: "Ergebnisse & Handlungsempfehlungen für Stakeholder. Fokus auf Business-Impact und konkrete Maßnahmen."
+      badge: "HR · Business"
+      badge_class: blue
+    techview:
+      kicker: "Tech View"
+      label: "Technical Insights"
+      description: "Technischer Deep-Dive für Data Scientists. Feature-Engineering, Modellauswahl, Evaluation im Detail."
+      badge: "Data Science"
+      badge_class: dark
+    storyview:
+      kicker: "Story View"
+      label: "Detailed Description"
+      description: "Der gesamte Daten-Lifecycle: von Rohdaten über Analyse bis Vorhersage-Modell. Portfolio-Vollansicht."
+      badge: "Portfolio"
+      badge_class: purple
+
+view_composition:
+  overview:
+    - einstieg
+    - ausgangssituation
+    - ueberraschungen
+    - erkenntnis
+    - modell-progression
+    - konkreter-nutzen
+    - empfehlungen
+    - resultat
+    - projektrahmen
+    - ende
+
+  storyview:
+    - einstieg
+    - ausgangssituation
+    - ueberraschungen
+    - data-engineering
+    - erkenntnis
+    - modell-progression
+    - feature-importance
+    - konkreter-nutzen
+    - empfehlungen
+    - resultat
+    - projektrahmen
+    - weitere-potenziale
+    - ende
+
+  techview:
+    - einstieg
+    - ausgangssituation
+    - data-engineering
+    - baseline
+    - feature-engineering
+    - modell-progression
+    - feature-importance
+    - produktionsreife
+    - empfehlungen
+    - weitere-potenziale
+    - ende

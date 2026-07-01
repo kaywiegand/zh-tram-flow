@@ -30,7 +30,7 @@ ROOT = Path(__file__).resolve().parent.parent
 NOTEBOOKS_DIR = ROOT / "notebooks"
 PUBLIC_DIR = ROOT / "public"
 EXPORTS_DIR = ROOT / "docs" / "exports"
-PORTFOLIO_MD = PUBLIC_DIR / "mds" / "portfolio.md"
+PORTFOLIO_MD = PUBLIC_DIR / "md" / "portfolio.md"
 
 EXPORTS_DIR.mkdir(parents=True, exist_ok=True)
 (EXPORTS_DIR / "notebooks").mkdir(exist_ok=True)

@@ -366,8 +366,8 @@ test_rows:      ~29 M (inkl. Nov/Dez 2025 — vorher ausgeschlossen, nach Maskie
 | Model | Features | Test MAE | vs. Baseline | Data Requirement |
 |---|---|---|---|---|
 | Stop Mean Baseline | — | 50,0 s | — | Historical stop mean |
-| LightGBM v1 | 34 (Zeit · Wetter · Events · Linie · Stop) | 45,7 s | −4,3 s | Schedule + Weather + Events |
-| LightGBM v2 | 36 (+prev_trip_delay, +stop_sequence_pct) | **18,56 s** | **−31,4 s (−63 %)** | + Live-Signal (Vorgänger-Halt) |
+| LightGBM v1 | 32 (Zeit · Wetter · Events · Linie · Stop) | 45,7 s | −4,3 s | Schedule + Weather + Events |
+| LightGBM v2 | 34 (+prev_trip_delay, +stop_sequence_pct) | **18,56 s** | **−31,4 s (−63 %)** | + Live-Signal (Vorgänger-Halt) |
 
 ![Model Progression: v2 MAE 18,56s (−63% vs. Baseline 50,0s)](../img/story-7-model-progression.png)
 

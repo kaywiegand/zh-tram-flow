@@ -48,12 +48,17 @@ map-network: ## Interaktive Netzwerk-Delta-Karte öffnen
 map-meteo: ## Interaktive Wetter-Impact-Karte öffnen
 	open public/img/meteo-weather-impact-map.html
 
-portfolio: ## Portfolio-Artefakte sicher regenerieren (archiviert alten Stand → archive/vN, dann index + 3 Views aus portfolio.md)
-	uv run python scripts/archive_portfolio_artifacts.py
-	uv run python scripts/generate_json_from_portfolio.py
-	uv run python scripts/generate_html_from_json.py
-	uv run python scripts/generate_index_from_portfolio.py
-	uv run python scripts/convert_json_to_md.py
+# Generische Portfolio-Pipeline-Scripts leben im Skill (projektübergreifend wiederverwendbar,
+# siehe /Users/kaywiegand/Workspace/skills/project-case/PORTFOLIO_PIPELINE.md), nicht im Projekt.
+SKILL_SCRIPTS := /Users/kaywiegand/Workspace/skills/project-case/scripts
+
+portfolio: ## Portfolio-Artefakte sicher regenerieren (archiviert alten Stand → archive/vN, dann index + Views aus slides.yaml/portfolio.md)
+	uv run python $(SKILL_SCRIPTS)/archive_portfolio_artifacts.py
+	uv run python $(SKILL_SCRIPTS)/generate_json_from_slides.py
+	uv run python $(SKILL_SCRIPTS)/generate_html_from_json.py
+	uv run python $(SKILL_SCRIPTS)/generate_index_from_portfolio.py
+	uv run python $(SKILL_SCRIPTS)/convert_json_to_md.py
+	uv run python $(SKILL_SCRIPTS)/print_slide_matrix.py
 	@echo "✅ Portfolio regeneriert · alter Stand in public/archive/ · öffne public/index.html"
 
 report: ## Notebook als HTML exportieren → public/report.html

@@ -1,13 +1,12 @@
 {
   "meta": {
-    "storyline": "B",
-    "presentation_title": "Technischer Deep Dive",
-    "audience": "Data Scientists · Tech Leads · Interviewer",
-    "duration_minutes": 20,
+    "project": "Zurich Tram Flow",
+    "period": "2023–2025",
     "author": "Kay Wiegand",
     "github": "kaywiegand/zh-tram-flow",
-    "project": "Zurich Tram Flow",
-    "period": "2023–2025"
+    "presentation_title": "Technischer Deep Dive",
+    "audience": "Data Scientists · Tech Leads · Interviewer",
+    "duration_minutes": 20
   },
   "chapters": [
     {
@@ -78,7 +77,7 @@
                 {
                   "section": "Feature Engineering",
                   "slides": [
-                    "34 Features v1 · Kaskadenindikator v2"
+                    "32 Features v1 · Kaskadenindikator v2"
                   ]
                 },
                 {
@@ -110,27 +109,31 @@
           "subtitle": "87 % OTP seit drei Jahren — dauerhaft unter dem VBZ-Ziel von 95 %",
           "content": [
             {
-              "type": "figures",
+              "type": "figures_with_context",
               "items": [
                 {
                   "value": "87 %",
-                  "label": "OTP netzweit 2023–2025",
-                  "sentiment": "negative"
+                  "label": "OTP 2023–2025\n(netzweit)",
+                  "sentiment": "negative",
+                  "context": "Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend."
+                },
+                {
+                  "value": "95 %",
+                  "label": "VBZ-Ziel\nbis 2028",
+                  "sentiment": "positive",
+                  "context": "VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)"
                 },
                 {
                   "value": "−8 PP",
-                  "label": "Lücke zum VBZ-Ziel 95 %",
-                  "sentiment": "negative"
+                  "label": "Strukturelle\nLücke",
+                  "sentiment": "negative",
+                  "context": "Der Rückstand ist systemisch, nicht episodisch — er taucht in jedem Jahr, auf jeder Linie auf."
                 },
                 {
                   "value": "56,3 s",
-                  "label": "Ø Ankunftsverspätung",
-                  "sentiment": "warning"
-                },
-                {
-                  "value": "71,5 %",
-                  "label": "Halte akkumulieren Delay",
-                  "sentiment": "warning"
+                  "label": "Ø Ankunfts-\nverspätung",
+                  "sentiment": "warning",
+                  "context": "Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre."
                 }
               ]
             },
@@ -145,7 +148,7 @@
                 {
                   "step": "2",
                   "label": "Verspätungen vorhersagen",
-                  "detail": "arrival_delay in Sekunden — direkt kommunizierbar, kein Schwellwert-Bias. Temporaler Split, kein Shuffle"
+                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s (arrival_delay in Sekunden), −63 % vs. Baseline"
                 }
               ]
             }
@@ -279,8 +282,8 @@
             },
             {
               "type": "statement",
-              "text": "Stop Mean gewinnt, weil Haltestellen strukturell unterschiedliche Delay-Level haben. Jedes Modell muss diesen Benchmark schlagen. Grand Mean, Hour Mean und Line Mean liegen alle < 1s voneinander entfernt — reine Mittelwert-Strategien bringen keinen Vorteil.",
-              "sentiment": "neutral"
+              "sentiment": "neutral",
+              "text": "Stop Mean gewinnt, weil Haltestellen strukturell unterschiedliche Delay-Level haben. Jedes Modell muss diesen Benchmark schlagen. Grand Mean, Hour Mean und Line Mean liegen alle < 1s voneinander entfernt — reine Mittelwert-Strategien bringen keinen Vorteil."
             }
           ]
         }
@@ -291,7 +294,7 @@
       "slides": [
         {
           "title": "Feature Engineering",
-          "subtitle": "34 Features v1, 36 Features v2 — der entscheidende Unterschied",
+          "subtitle": "32 Features v1, 34 Features v2 — der entscheidende Unterschied",
           "content": [
             {
               "type": "sections",
@@ -391,7 +394,7 @@
                 {
                   "cells": [
                     "LightGBM v1",
-                    "34 Features (Zeit · Wetter · Netz)",
+                    "32 Features (Zeit · Wetter · Netz)",
                     "45,7 s",
                     "+8,3 s",
                     "71,9 % → 77,5 %"
@@ -401,7 +404,7 @@
                 {
                   "cells": [
                     "LightGBM v2",
-                    "+prev_trip_delay, +stop_sequence_pct",
+                    "+prev_trip_delay, +stop_sequence_pct (34 total)",
                     "18,56 s",
                     "−0,69 s",
                     "→ kalibriert"
@@ -412,8 +415,8 @@
             },
             {
               "type": "statement",
-              "text": "v1 war systematisch zu optimistisch (MBE +8,3 s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0,69 s. Der MAE-Sprung von 45,7 s auf 18,56 s entspricht −63 % und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.",
-              "sentiment": "positive"
+              "sentiment": "positive",
+              "text": "v1 war systematisch zu optimistisch (MBE +8,3 s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0,69 s. Der MAE-Sprung von 45,7 s auf 18,56 s entspricht −63 % und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature."
             }
           ]
         },
@@ -448,15 +451,15 @@
             },
             {
               "type": "statement",
-              "text": "XGBoost erreicht auf dem Validation-Set vergleichbare Qualität, braucht aber 5× mehr Zeit. Für iteratives Feature Engineering über mehrere Wochen ist LightGBM die klar überlegene Wahl. Das ist eine Workflow-Entscheidung, keine Qualitätskompromittierung.",
-              "sentiment": "neutral"
+              "sentiment": "neutral",
+              "text": "XGBoost erreicht auf dem Validation-Set vergleichbare Qualität, braucht aber 5× mehr Zeit. Für iteratives Feature Engineering über mehrere Wochen ist LightGBM die klar überlegene Wahl. Das ist eine Workflow-Entscheidung, keine Qualitätskompromittierung."
             }
           ]
         }
       ]
     },
     {
-      "nav_label": "Evaluation",
+      "nav_label": "Feature Importance",
       "slides": [
         {
           "title": "Feature Importance",
@@ -474,11 +477,16 @@
             },
             {
               "type": "statement",
-              "text": "Die Kaskadenanalyse (r ≥ 0,85 netzweit) hat die Feature-Wichtigkeit korrekt antizipiert. Das Modell bestätigt: Das Signal steckt in den Daten, nicht im Algorithmus.",
-              "sentiment": "positive"
+              "sentiment": "positive",
+              "text": "Die Kaskadenanalyse (r ≥ 0,85 netzweit) hat die Feature-Wichtigkeit korrekt antizipiert. Das Modell bestätigt: Das Signal steckt in den Daten, nicht im Algorithmus."
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "nav_label": "Evaluation",
+      "slides": [
         {
           "title": "Produktionsreife und Reflexion",
           "subtitle": "Was produktionsreif ist, was offen bleibt",
@@ -523,8 +531,8 @@
                   "title": "Standzeit-Puffer L11 an Koppelstellen",
                   "points": [
                     "dwell_time = 0s an 71,3 % aller Haltestellen ist das Root-Cause-Feature",
-                    "L11 zeigt stärksten Kaskadeneffekt: prev_trip_delay ist dominantes Feature",
-                    "+10s Puffer an 3–5 Koppelstellen unterbricht den Feedback-Loop"
+                    "+10s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt",
+                    "L11: OTP 82 %, Ø 68,7 s — Hebel Nr. 1 aus Analyse und Modell"
                   ]
                 },
                 {
@@ -538,55 +546,66 @@
                 },
                 {
                   "category": "R3 · Kapazitätsplanung",
-                  "title": "Taktanpassung 20–22h auf kritischen Linien",
+                  "title": "Taktanpassung 20–22h auf L11 und L8",
                   "points": [
-                    "hour = 21 ist stärkstes Temporal-Feature nach dem Kaskadenindikator",
-                    "has_event interagiert signifikant mit hour — kalendarisch planbar",
-                    "L11 und L8 zeigen persistentes erhöhtes Delay in diesem Zeitfenster"
+                    "Peak 21h: 67,9 s — nicht der Morgen (7h: 48,9 s unter Netzschnitt)",
+                    "Donnerstag + Grossevent: kritischste Kombination im Netz",
+                    "Spitzenlastmomente sind kalendarisch planbar"
                   ]
                 },
                 {
                   "category": "R4 · Monitoring",
-                  "title": "OTP-Monitoring district_nr 11 und 12 als Prioritätszonen",
+                  "title": "Stadtkreise 11 und 12 als strukturelle Prioritätszonen",
                   "points": [
-                    "district_nr gehört zu Top-Features — räumliche Struktur ist lernbar und persistent",
-                    "Kreise 11 und 12: höchste Delay-Level, niedrigste OTP, kein Dwell-Puffer",
-                    "Kombination mit Prediction-Modell ermöglicht proaktives Alert-System"
+                    "Kreis 11: OTP 83 %, Ø 68,3 s — strukturell benachteiligt, nicht situativ",
+                    "district_nr gehört zu den Top-Features im Modell — räumliche Struktur ist lernbar und persistent",
+                    "Kombination mit Prediction-Modell: proaktive Steuerung statt reaktive Entstörung"
                   ]
                 }
               ]
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "nav_label": "Weitere Potenziale",
+      "slides": [
         {
-          "nav_label": "Weitere Potenziale",
-          "slides": [
+          "title": "Was noch zu erforschen ist",
+          "subtitle": "Dashboard-Exploration offenbarte 7 systematische Forschungsmöglichkeiten",
+          "content": [
             {
-              "title": "Was noch zu erforschen ist",
-              "subtitle": "Dashboard-Exploration offenbarte 7 systematische Forschungsmöglichkeiten",
-              "content": [
+              "type": "statement",
+              "sentiment": "neutral",
+              "text": "Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie? Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale."
+            },
+            {
+              "type": "sections",
+              "items": [
                 {
-                  "type": "statement",
-                  "text": "Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie? Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale.",
-                  "sentiment": "neutral"
-                },
-                {
-                  "type": "findings",
-                  "items": [
-                    "OP-1: Direction-Asymmetrie (~10s Delta)",
-                    "OP-2: Stop-Variabilität (Puffer-Stops)",
+                  "label": "4 von 7 Forschungsmöglichkeiten (Auswahl)",
+                  "points": [
+                    "OP-1: Direction-Asymmetrie (~10s Delta zwischen Richtung A/B)",
+                    "OP-2: Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)",
                     "OP-3: Linienlänge ↔ Delay nicht-linear",
-                    "OP-7: Kaskaden-Verstärker vs. -Dämpfer"
+                    "OP-7: Kaskaden-Verstärker vs. -Dämpfer pro Linie"
                   ]
-                },
-                {
-                  "type": "note",
-                  "text": "Detaillierte Hypothesen → BACKLOG.md Research Opportunities Section"
                 }
               ]
+            },
+            {
+              "type": "statement",
+              "sentiment": "neutral",
+              "text": "Detaillierte Hypothesen, Implementation Paths und Prioritäten → BACKLOG.md, Sektion Research Opportunities."
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "nav_label": "Ende",
+      "slides": [
         {
           "role": "abbinder",
           "title": "Zurich Tram Flow",
@@ -601,17 +620,17 @@
                   "sentiment": "neutral"
                 },
                 {
-                  "value": "41.2M",
+                  "value": "41,2 M",
                   "label": "Trainings-Fahrten",
                   "sentiment": "neutral"
                 },
                 {
-                  "value": "~29M",
+                  "value": "~29 M",
                   "label": "Test-Fahrten (2025)",
                   "sentiment": "neutral"
                 },
                 {
-                  "value": "36",
+                  "value": "34",
                   "label": "Features (v2)",
                   "sentiment": "neutral"
                 },
@@ -649,147 +668,5 @@
         }
       ]
     }
-  ],
-  "_extracted": {
-    "findings": [
-      {
-        "id": "F1",
-        "title": "Struktur: Kein Puffer eingebaut",
-        "finding": "71,5 % aller Halte akkumulieren Delay (delay_delta > 0) — weil\n           71,3 % der Haltestellen 0s dwell_time haben. Das Netz hat keinen\n           Erholungsmechanismus eingebaut.",
-        "number": "71,3 % dwell_time = 0s",
-        "source": "03_analysis_1-target.ipynb · 03_analysis_4-spatial.ipynb",
-        "images": [
-          {
-            "alt": "Dwell Time Distribution: 71,3% haben 0s Puffer",
-            "url": "../img/story-1-dwell-binary.png"
-          },
-          {
-            "alt": "Delay Delta: 71,4% der Halte zeigen wachsende Verspätung",
-            "url": "../img/story-1-dwell-delta.png"
-          }
-        ]
-      },
-      {
-        "id": "F2",
-        "title": "Geo: Hotspots an der Peripherie",
-        "finding": "Die schlimmsten Haltestellen sind periphere Aussenkorridore —\n           Friedhof Enzenbühl (93,8 s), Balgrist (85,2 s), Leutschenbach (82,7 s).\n           Zentrale Knotenpunkte (Central, Paradeplatz) liegen unter Netzschnitt.\n           0 Overlap zwischen höchster Liniendichte und höchstem Delay.",
-        "number": "0 Overlap Top-Dichte × Top-Delay",
-        "source": "03_analysis_4-spatial.ipynb",
-        "images": [
-          {
-            "alt": "Periphere Hotspots — durchschnittliche Verspätung pro Haltestelle",
-            "url": "../img/story-2-peripherie-delay-overview1.png"
-          },
-          {
-            "alt": "Distrikts-Perspektive: Strukturelles Muster der Peripherie-Nachteile",
-            "url": "../img/story-2-peripherie-delay-overview2.png"
-          }
-        ]
-      },
-      {
-        "id": "F3",
-        "title": "Zeit: Kein Morgenrush — Peak um 21h",
-        "finding": "7h liegt mit 48,9 s unter dem Netzschnitt. Der echte Peak ist 21h (67,9 s)\n           durch Events-Abreisewellen. Donnerstag ist der schlechteste Wochentag\n           (60,4 s, P95=194s) — nicht Freitag. November jeweils Jahreshöchstwert.",
-        "number": "+11,7 s um 21h vs. Netzschnitt",
-        "source": "03_analysis_3-temporal.ipynb",
-        "images": [
-          {
-            "alt": "Hourly Delay Profile: Peak um 21h durch Abreisewellen, nicht um 8h",
-            "url": "../img/story-3-temporal-hour-of-day.png"
-          }
-        ]
-      },
-      {
-        "id": "F4",
-        "title": "Wetter: Schnee geografisch trennbar von Regen",
-        "finding": "Schnee ist der stärkste Einzeleffekt (+54s, OTP −10,9 %). Geografisch\n           klar trennbar: Schnee trifft Höhenlagen (K10/K4/K12), Regen trifft\n           Flusstäler (K5 / Limmat). Linien reagieren komplett unterschiedlich:\n           L9 Schnee +75,9 s vs. Regen +10,0 s — L17 umgekehrt.",
-        "number": "Schnee +54s · Regen +23,3 s",
-        "source": "03_analysis_5-meteo.ipynb",
-        "images": [
-          {
-            "alt": "Schnee-Effekt: +54s in Höhenlagen (K10, K4, K12)",
-            "url": "../img/story-4-snow-map.png"
-          },
-          {
-            "alt": "Regen-Effekt: +23,3s in Flusstälern (K5 Limmat-Region)",
-            "url": "../img/story-4-rain-map.png"
-          }
-        ]
-      },
-      {
-        "id": "F5",
-        "title": "Events: Feiertage beste Tage, Fachmessen schlechteste Kategorie",
-        "finding": "Feiertage sind mit 46,3 s (−9,9 s vs. Normal) der beste Tagestyp —\n           der MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist\n           ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied.\n           Fachmessen (66,0 s) schlagen Taylor Swift (75,4 s) in der Rangliste.",
-        "number": "Feiertage −9,9 s · Fachmessen 66,0 s",
-        "source": "03_analysis_6-events.ipynb",
-        "images": [
-          {
-            "alt": "Event-Effekt ist Abend-only (18–22h), nicht tagsüber",
-            "url": "../img/story-5-event-delays-hours.png"
-          },
-          {
-            "alt": "Event-Kategorien: Fachmesse (65s) schlägt Taylor Swift (75s)",
-            "url": "../img/story-5-event-delays-types.png"
-          }
-        ]
-      },
-      {
-        "id": "F6",
-        "title": "Kaskade: Pearson r ≥ 0,85 auf allen 16 Linien",
-        "finding": "Der Delay an einem Halt überträgt sich mit r ≥ 0.85 auf den nächsten\n           Halt desselben Trips — auf allen 16 Linien. Das ist kein statistisches\n           Artefakt, sondern ein lernbares Signal: prev_trip_delay ist in LightGBM v2\n           das stärkste neue Feature und erklärt den Sprung von 45,7 s auf 18,56 s MAE.",
-        "number": "Pearson r ≥ 0,85 (alle 16 Linien)",
-        "source": "03_analysis_4-spatial.ipynb · 06_prediction_4-model_v2.ipynb",
-        "images": [
-          {
-            "alt": "Allgemeine Linienkarte: Delay-Gradient von Start (rot) zu Ende (grün)",
-            "url": "../img/story-6-line-delay.png"
-          },
-          {
-            "alt": "L2 Detail: Periphere Start mit hohem Delay, zentrale Endhaltestelle besser",
-            "url": "../img/story-6-line-delay-L2.png"
-          },
-          {
-            "alt": "L7 Detail: Kaskadeneffekt über die gesamte Route",
-            "url": "../img/story-6-line-delay-L7.png"
-          },
-          {
-            "alt": "L8 Detail: Event-Peak-Linie mit strukturellem Akkumulationsmuster",
-            "url": "../img/story-6-line-delay-L8.png"
-          }
-        ]
-      }
-    ],
-    "recommendations": [
-      {
-        "id": "R1",
-        "title": "Fahrplan-Redesign L11 — gezielter Puffer einbauen",
-        "detail": "71,3 % aller Haltestellen haben 0s dwell_time — kein Erholungsmechanismus.\n          L11 (68,7 s, OTP 82 %) und ihre Endstationen zeigen die stärkste Akkumulation.\n          Selbst +10s Puffer an 3–5 kritischen Koppelstellen würde den Kaskadeneffekt\n          unterbrechen (Hebel #1, direkt durch dwell_time=0 und Pearson r ≥ 0,85 gedeckt)."
-      },
-      {
-        "id": "R2",
-        "title": "Real-Time Dispatch — Kaskadenmodell operativ nutzen",
-        "detail": "LightGBM v2 mit prev_trip_delay erreicht MAE 18,56 s (−63 % vs. Baseline).\n          Das Signal ist echtzeit-verfügbar (Vorgänger-Halt als Input). Dispatchsystem\n          könnte automatisch Taktlücken schließen bevor der Kaskadeneffekt entsteht."
-      },
-      {
-        "id": "R3",
-        "title": "Kapazitätsmanagement 20–22h — Event-Abreisewelle abfedern",
-        "detail": "Peak ist 21h (+11,7 s vs. Netzschnitt) durch Abreisewellen.\n          Donnerstag + Freitag mit Grossevents ist die kritischste Kombination.\n          Takterhöhung 20–22h auf L11/L8 (beide dauerhaft erhöhtes Grundniveau)\n          wäre durch Daten direkt begründbar."
-      }
-    ],
-    "problem": {},
-    "storyline": {
-      "thesis": "Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im\n            Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.",
-      "hook": "Der Hauptpeak liegt um 21h (Abreisewelle nach Events) — nicht um 8h\n            (Morgenrush). Und alle 16 Tramlinien zeigen Pearson r ≥ 0,85 zwischen\n            aufeinanderfolgenden Halten: Der Delay kaskadiert systematisch.",
-      "proof": "4-Schritt-Beweiskette:\n            1. Anomalie — periphere Hotspots, nicht zentrale Knotenpunkte\n            2. Gradient — Delay wächst entlang der Strecke (L11 vs. L6 als Kontrast)\n            3. Mechanismus — 71,3 % dwell_time = 0s: kein Puffer, keine Erholung möglich\n            4. Kaskade — Pearson r ≥ 0,85 netzweit: systematisch, kein Einzelfall\n\nso_what:    Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse:\n            prev_trip_delay (Kaskadenindikator) ist das stärkste neue Feature in v2\n            — MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.",
-      "so_what": "Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse:\n            prev_trip_delay (Kaskadenindikator) ist das stärkste neue Feature in v2\n            — MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel."
-    },
-    "model_images": [
-      {
-        "alt": "Model Progression: v2 MAE 18,56s (−63% vs. Baseline 50,0s)",
-        "url": "../img/story-7-model-progression.png"
-      }
-    ],
-    "updated_at": "2026-06-22",
-    "source": "portfolio.md"
-  }
+  ]
 }

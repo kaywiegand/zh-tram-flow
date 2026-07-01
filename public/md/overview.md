@@ -88,11 +88,11 @@ verspätung
 ### Erkenntnis
 
 ## Die Kaskade bei den Verspätungen
-*Ohne Puffer im Fahrplan überträgt sich jede Verspätung auf die Folgefahrten*
+*Ohne Puffer im Fahrplan überträgt sich jede Verspätung auf die Folgefahrten — in vier Schritten bewiesen*
 
-* **71,5 %** — Halte die Delay akkumulieren
+* **71,5 %** — Halte akkumulieren Delay
 * **L11** — 68,7 s · OTP 82 % — stärkste Akkumulation
-* **71,3 %** — Haltestellen ohne Standzeit
+* **71,3 %** — Haltestellen ohne Standzeit (0s)
 * **r ≥ 0,85** — Kaskadenkorrelation alle 16 Linien
 > Das ist kein Betriebsversagen. Es ist ein Fahrplan-Design-Thema. Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden.
 > Zwei externe Einflussfaktoren sind messbar und erheblich: Schnee (+54s) und Grossevents (bis +66s bei Fachmessen). Doch das Grundniveau der Verspätung bleibt auch bei optimalen Bedingungen konstant hoch. Externe Faktoren verstärken, was intern bereits strukturell angelegt ist.
@@ -106,6 +106,7 @@ verspätung
 ## Drei Iterationen der Modellierung
 *Von der Baseline über Feature Engineering zum finalen Ensemble-Modell*
 
+> Warum ML? Weil die Struktur der Daten nichtlinear ist: Linie × Haltestelle × Tageszeit × Wetter × Event interagieren auf eine Weise, die kein handcodiertes Modell erfassen kann. Und weil prev_trip_delay ein Echtzeit-Signal ist, das einen Feedback-Loop im Modell ermöglicht.
 > Der Sprung von v1 auf v2 kam nicht durch einen besseren Algorithmus, sondern durch das richtige Signal aus der Analyse: den Kaskadenindikator (prev_trip_delay).
 
 ## 18,56 Sekunden MAE
@@ -114,7 +115,12 @@ verspätung
 * **41 Mio.** — Trainings-Fahrten 2023 bis Mitte 2024
 * **~29 Mio.** — Test-Fahrten, vollständiges Jahr 2025
 * **−63 %** — Verbesserung vs. Baseline (Stop Mean)
-> Kalibrierter Bias: −0.69 Sekunden, nahezu verzerrungsfrei. Trainiert auf Consumer-Hardware in ca. 18 Minuten.
+> Kalibrierter Bias: −0,69 Sekunden, nahezu verzerrungsfrei. Trainiert auf Consumer-Hardware in ca. 18 Minuten.
+
+
+---
+
+### Anwendung
 
 ## Konkreter Nutzen in der Praxis
 *Konkrete Vorhersagen für reale Betriebssituationen zeigen die operative Relevanz*
@@ -136,7 +142,7 @@ verspätung
 ### Resultat
 
 ## Was vorhersagbar ist, ist steuerbar.
-*Die Verspätungen im Zürcher Tramnetz folgen klaren Mustern. Das Fahrplan-Design ist die Ursache und der Hebel. Vier Handlungsempfehlungen sind durch die Daten direkt begründet.*
+*Ein Projekt, das zeigt: Datengetriebene Analyse ist kein akademisches Artefakt — sie liefert operative Entscheidungsgrundlagen.*
 
 
 
@@ -145,28 +151,24 @@ verspätung
 ### Projektrahmen
 
 ## Offen & reproduzierbar
-*Open Data, reproduzierbar und vollständig dokumentiert*
+*Open Data, AI-Workflow, vollständig reproduzierbar*
 
-* **Datenbasis**
-  - VBZ IST-Daten: reale Ankunfts- und Abfahrtszeiten aller Tramhalte
-  - GTFS: Fahrplandaten, Haltestellen-Koordinaten, Liniengeometrien
-  - Meteo Schweiz: stündliche Messwerte (Temperatur, Niederschlag, Schnee)
-  - Event-Kalender: Grossveranstaltungen Zürich 2023–2025
-  - Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet
-* **Umfang und Zeitaufwand**
-  - Zeitraum: 3 vollständige Betriebsjahre (2023, 2024, 2025)
-  - 16 Tramlinien, ca. 190 Haltestellen im Netz
-  - 66 dokumentierte Analyse-Befunde in 12 Notebooks
-  - Ca. 3 Wochen: 1 Woche Data Engineering, 2 Wochen Analyse und Modellierung
+* **Datenbasis und Umfang**
+  - VBZ IST-Daten · GTFS · Meteo Schweiz · Event-Kalender
+  - 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet
+  - 3 vollständige Betriebsjahre · 16 Linien · ca. 190 Haltestellen
+  - 66 dokumentierte Befunde in 12 Jupyter-Notebooks
 * **Technologie-Stack**
   - Python · Polars (85 Mio. Zeilen, lazy evaluation) · Jupyter · uv
   - LightGBM (Modellierung) · Plotly (Visualisierung) · Streamlit (Dashboard)
   - Trainingszeit LightGBM v2: ca. 18 Minuten auf Consumer-Hardware
+* **AI-Workflow als Differenziator**
+  - Claude Code für iterative Analyse, Code-Refactoring, Dokumentation
+  - Promptbasiertes Scaffolding: von der Idee zur Notebook-Struktur in Minuten
+  - Menschliche Entscheidungsverantwortung bleibt bei allen Finding-Interpretationen
 * **Reproduzierbarkeit**
-  - Vollständiger Code auf GitHub veröffentlicht
+  - Vollständiger Code auf GitHub, alle Datenquellen öffentlich
   - Data Engineering vollständig reproduzierbar via Polars-Pipeline
-  - Alle Datenquellen öffentlich: VBZ Open Data · Meteo Schweiz · GTFS
-  - 12 Jupyter-Notebooks, vollständig ausgeführt und dokumentiert
   - Alle Befunde rückverfolgbar auf Finding-IDs in den Notebooks
 
 

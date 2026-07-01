@@ -52,7 +52,7 @@ from zh_tram_flow.settings import setup_plotting, logger
 - Lernmomente mit Polars explizit kommentieren — dieses Projekt ist auch Lernprojekt
 - Alle Outputs (Charts, Daten) → `public/` oder `data/processed/`, nie im Notebook-Root
   - `public/img/` ← exportierte Charts (PNG + interaktive HTML)
-  - `public/mds/` ← Portfolio-Docs
+  - `public/md/` ← Portfolio-Docs (portfolio.md, slides.yaml, generierte View-Exports)
   - Hinweis: Dieses Projekt nutzt `public/` statt `reports/` — GitHub Pages Deployment-Anforderung
 
 ---
@@ -83,27 +83,44 @@ Hier nur Kurzübersicht. Alles andere (Workflow, Troubleshooting, FAQ, Details) 
 /Users/kaywiegand/Workspace/skills/project-case/PORTFOLIO_PIPELINE.md
 ```
 
-### Single Source of Truth: portfolio.md
+### Zwei Quellen, klar getrennt (seit 2026-07-01)
+
+`portfolio.md` hat nie mechanisch die Slide-Struktur gesteuert — `generate_json_from_portfolio.py`
+kopierte `chapters` unverändert aus `public/json-backup/`, Slide-Inhalte wurden zuletzt direkt in den
+JSONs von Hand gepflegt (undokumentiert, Ursache für Drift zwischen den Views). Korrigierte Architektur:
 
 ```
-scripts/archive_portfolio_artifacts.py → public/archive/vN/  (Backup vor Überschreiben)
+public/md/portfolio.md   — Fakten: Findings, Recommendations, These (von /project-case story befüllt)
+public/md/slides.yaml    — Slide-Struktur + -Inhalt (Single Source of Truth für die 3 Views)
         ↓
-public/md/portfolio.md  (Single Source of Truth)
-        ├─ generate_json_from_portfolio.py  → public/json/storyline-{overview,storyview,techview}.json
+[skills/project-case/scripts/] archive_portfolio_artifacts.py → public/archive/vN/  (Backup vor Überschreiben)
+        ↓
+        ├─ generate_json_from_slides.py     → public/json/storyline-{overview,storyview,techview}.json
         ├─ generate_html_from_json.py       → public/{overview,storyview,techview}.html
-        ├─ generate_index_from_portfolio.py → public/index.html  (Hub, aus scripts/index-template.html)
-        └─ convert_json_to_md.py            → public/md/{overview,storyview,techview}.md
+        ├─ generate_index_from_portfolio.py → public/index.html  (Hub, aus slides.yaml["hub"] + scripts/index-template.html)
+        ├─ convert_json_to_md.py            → public/md/{overview,storyview,techview}.md
+        └─ print_slide_matrix.py            → public/md/slides-matrix.md (Audit: Slide × View)
 ```
+
+**Scripts liegen im Skill, nicht im Projekt** (seit 2026-07-01): `/Users/kaywiegand/Workspace/skills/project-case/scripts/`
+— projektübergreifend wiederverwendbar, da sie relativ zum Arbeitsverzeichnis arbeiten. Immer aus
+dem Projekt-Root heraus aufrufen (macht `make portfolio` automatisch).
 
 **WICHTIG — wo lebt was (übersteht Regenerierung):**
-- **Inhalt** (Zahlen, Findings, Recommendations) → `portfolio.md`
-- **Slide-Design** → `public/css/slides.css` + `docs/portfolio/templates/slides-template.html`
-- **Hub-Layout/Copy** → `scripts/index-template.html` (dyn. Werte aus portfolio.md)
+- **Slide-Inhalt** (Titel, Text, welche Slide in welchem View) → `public/md/slides.yaml` (im Projekt)
+- **Hub-Inhalt** (Hero-KPIs, View-Karten) → `public/md/slides.yaml`, Block `hub:` (im Projekt) —
+  **nicht** mehr im Template hartcodiert; bei Content-Änderungen mitpflegen!
+- **Fakten/Findings/Recommendations** (Referenz beim Slide-Schreiben) → `public/md/portfolio.md` (im Projekt)
+- **Slide-Design** → `public/css/slides.css` (im Projekt) + `docs/portfolio/templates/slides-template.html` (global)
+- **Hub-Layout/Design** → `scripts/index-template.html` (im Projekt — nur noch Layout/CSS, kein Content mehr)
+- **Mechanik** (JSON/HTML/MD generieren) → `skills/project-case/scripts/*.py` (global)
 - Generierte `public/*.html` NIE direkt editieren — wird überschrieben (liegt im Archiv).
+- `public/json-backup/` ist retiriert — `slides.yaml` ist die einzige Quelle, kein Backup-Schritt mehr nötig.
+- Details: `skills/project-case/PORTFOLIO_PIPELINE.md`
 
 **Änderungen machen:**
-1. Inhalt in `portfolio.md` / Design in css+template / Hub in index-template
-2. `make portfolio` (= archive → json → html → index → md), oder `/project-case report`
+1. Inhalt in `slides.yaml` (Slides) / `portfolio.md` (Fakten) / Design in css+template / Hub in index-template
+2. `make portfolio` (= archive → json → html → index → md → matrix), oder `/project-case report`
 3. Jeder Lauf archiviert den alten Stand nach `public/archive/vN/` (gitignored)
 
 ---
@@ -118,7 +135,7 @@ Dieses Projekt dokumentiert nicht nur Kernfindings sondern auch **7 systematisch
   - Generiert in JSONs und HTMLs aus portfolio.md
 
 - **Warum wichtig:** Portfolio zeigt nicht nur "fertig" sondern auch "lebendig" und "iterativ"
-- **Änderungen:** Immer zuerst `portfolio.md` aktualisieren, dann `/project-case full` ausführen
+- **Änderungen:** Immer zuerst `slides.yaml` (Slide-Inhalt) / `portfolio.md` (Fakten) aktualisieren, dann `/project-case full` ausführen
 
 ---
 
@@ -126,7 +143,7 @@ Dieses Projekt dokumentiert nicht nur Kernfindings sondern auch **7 systematisch
 
 **Kompletter Workflow (empfohlen):**
 ```bash
-# 1. portfolio.md editieren (einzige Quelle)
+# 1. slides.yaml editieren (Slide-Struktur/-Inhalt) — portfolio.md bei geänderten Fakten
 # 2. Komplette Pipeline ausführen
 /project-case full
 # → generiert JSON, HTML, MD automatisch
@@ -136,12 +153,12 @@ Dieses Projekt dokumentiert nicht nur Kernfindings sondern auch **7 systematisch
 ```bash
 # Nur JSONs regenerieren
 /project-case json
-# → scripts/generate_json_from_portfolio.py
+# → skills/project-case/scripts/generate_json_from_slides.py
 
 # Nur HTMLs + MDs regenerieren
 /project-case report
-# → scripts/generate_html_from_json.py
-# → scripts/convert_json_to_md.py
+# → skills/project-case/scripts/generate_html_from_json.py
+# → skills/project-case/scripts/convert_json_to_md.py
 ```
 
 **Zahlenformat-Regel (Deutsch):**
@@ -156,15 +173,19 @@ Alle Zahlen in portfolio.md (und damit in allen generierten Artefakten):
 
 | Datei | Rolle | Geändert durch |
 | :--- | :--- | :--- |
-| `public/md/portfolio.md` | Single Source of Truth (Inhalt) | Manuell / `/project-case story` |
+| `public/md/portfolio.md` | Fakten: Findings, Recommendations, These | Manuell / `/project-case story` |
+| `public/md/slides.yaml` | Single Source of Truth (Slide-Struktur + -Inhalt + Hub-Block) | Manuell |
 | `public/css/slides.css` | Slide-Design (Theme) | Manuell |
 | `docs/portfolio/templates/slides-template.html` | Slide-Layout/CSS-Basis | Manuell |
-| `scripts/index-template.html` | Hub-Layout + kuratierte Copy | Manuell |
-| `public/json/storyline-*.json` | strukturierte Slide-Extrakte | generiert aus portfolio.md |
-| `public/{overview,storyview,techview}.html` | Präsentations-Views (Reveal.js) | generiert aus JSON |
-| `public/index.html` | Navigation-Hub | generiert aus portfolio.md + index-template |
-| `public/md/*.md` | Markdown-Export | generiert (`convert_json_to_md.py`) |
-| `public/archive/vN/` | Snapshot vor jedem Lauf (gitignored) | `archive_portfolio_artifacts.py` |
+| `scripts/index-template.html` | Hub-Layout/CSS (kein Content mehr) | Manuell |
+| `public/json/storyline-*.json` | strukturierte Slide-Extrakte | generiert aus `slides.yaml` (Skill-Script) |
+| `public/{overview,storyview,techview}.html` | Präsentations-Views (Reveal.js) | generiert aus JSON (Skill-Script) |
+| `public/index.html` | Navigation-Hub | generiert aus portfolio.md + slides.yaml["hub"] + index-template (Skill-Script) |
+| `public/md/*.md` | Markdown-Export | generiert (Skill-Script `convert_json_to_md.py`) |
+| `public/md/slides-matrix.md` | Audit: Slide × View | generiert (Skill-Script `print_slide_matrix.py`) |
+| `public/archive/vN/` | Snapshot vor jedem Lauf (gitignored) | Skill-Script `archive_portfolio_artifacts.py` |
+
+Alle "Skill-Script"-Einträge liegen in `/Users/kaywiegand/Workspace/skills/project-case/scripts/`, nicht im Projekt.
 | `public/img/` | Charts (PNG + interaktive HTML) | Notebook Export-Cells |
 
 ---

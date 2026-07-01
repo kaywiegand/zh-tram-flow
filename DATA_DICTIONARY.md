@@ -82,7 +82,10 @@ Joined hourly from three Zürich measurement stations. All values represent the 
 
 ## Engineered Features (ML Dataset)
 
-The ML-ready dataset (`data/processed/train_final_v2.parquet`, `test_final_v2.parquet`) contains 36 features derived from the master dataset. Key additions:
+The ML-ready dataset (`data/processed/train_final_v2.parquet`, `test_final_v2.parquet`) has **43
+columns total**, but only **34 are actually used as model features** (verified against the
+`FEATURES_V2` list in [`06_prediction_4-model_v2.ipynb`](../notebooks/06_prediction_4-model_v2.ipynb),
+output: "Features v1: 32 / Features v2: 34"). Key additions vs. v1:
 
 | Feature | Source | Notes |
 | :--- | :--- | :--- |
@@ -94,5 +97,27 @@ The ML-ready dataset (`data/processed/train_final_v2.parquet`, `test_final_v2.pa
 | `has_snow` | `precipitation` + `temperature` | Binary snow indicator |
 | `is_rush_hour` | `hour` | Morning (7–9h) or evening (17–19h) |
 | `dwell_time` | `departure_schedule` − `arrival_schedule` | Planned dwell time in seconds |
+
+### Columns present but NOT used as a model feature
+
+These 9 columns exist in `train_final_v2.parquet`/`test_final_v2.parquet` (kept for traceability/target
+definition) but are explicitly excluded from `FEATURES_V2` in `06_prediction_4-model_v2.ipynb`:
+
+| Column | Why excluded |
+| :--- | :--- |
+| `arrival_delay` | Target variable |
+| `departure_delay` | Leaks target information |
+| `delay_delta` | Leaks target information |
+| `trip_id` | Identifier, not a feature — used upstream to compute `prev_trip_delay` |
+| `operating_date` | Identifier — decomposed into `hour`/`day_of_week`/`month`/`season` instead |
+| `event_name` | Free-text identifier — `event_type`/`event_size` used instead |
+| `stop_lat` | Identifier — `stop_name` used instead (native categorical) |
+| `stop_lon` | Identifier — `stop_name` used instead (native categorical) |
+| `stop_sequence` | Superseded by `stop_sequence_pct` (relative position) |
+
+> **Why this table exists:** an earlier version of this file stated "36 features", which conflated the
+> raw column count with the actual model feature count and had propagated into `public/md/portfolio.md`
+> (corrected 2026-07-01). Keep this table in sync if `FEATURES_V2`/`EXCLUDE_V2` in the notebook change,
+> so a future `/project-case story` run doesn't reintroduce the same mismatch.
 
 Full feature list and encoding decisions: [`05_feature_engineering.ipynb`](../notebooks/05_feature_engineering.ipynb)

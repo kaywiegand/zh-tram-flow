@@ -35,6 +35,7 @@
     .kpi .l { font-size: 0.68rem; color: #888; letter-spacing: 0.04em; margin-top: 2px; }
     .kpi.positive .v { color: #27ae60; }
     .kpi.negative .v { color: #c0392b; }
+    .kpi.warning .v { color: #e67e22; }
 
     /* ─── Main rhythm ────────────────────────────
        First block ↔ header  ==  block ↔ block  ==  last block ↔ footer  ==  4rem */
@@ -121,23 +122,7 @@
     <p class="tagline">Verspätungsvorhersage im Zürcher Tramnetz</p>
     <p class="subtitle">Datengetriebenes Analyse- und ML-Projekt | {{PERIOD}}</p>
     <div class="kpi-row">
-      <div class="kpi">
-        <div class="v">94,4 M</div>
-        <div class="l">Halt-Ereignisse</div>
-      </div>
-      <div class="kpi negative">
-        <div class="v">87 %</div>
-        <div class="l">OTP (Ziel: 95 %)</div>
-      </div>
-      <div class="kpi positive">
-        <div class="v">18,56 s</div>
-        <div class="l">MAE LightGBM v2</div>
-      </div>
-      <div class="kpi positive">
-        <div class="v">−63 %</div>
-        <div class="l">vs. Baseline</div>
-      </div>
-    </div>
+{{HEADLINE_KPIS}}    </div>
   </div>
 </header>
 
@@ -174,40 +159,7 @@
     </p>
 
     <div class="view-grid">
-      <!-- Overview -->
-      <a href="overview.html" class="view-card overview">
-        <div class="view-label">Overview</div>
-        <h3>Basic Information</h3>
-        <p class="view-desc">Ergebnisse & Handlungsempfehlungen für Stakeholder. Fokus auf Business-Impact und konkrete Maßnahmen.</p>
-        <div class="view-meta">
-          <span class="view-time">⏱️ 10 Min</span>
-          <span class="view-badge blue">HR · Business</span>
-        </div>
-      </a>
-
-      <!-- TechView -->
-      <a href="techview.html" class="view-card techview">
-        <div class="view-label">Tech View</div>
-        <h3>Technical Insights</h3>
-        <p class="view-desc">Technischer Deep-Dive für Data Scientists. Feature-Engineering, Modellauswahl, Evaluation im Detail.</p>
-        <div class="view-meta">
-          <span class="view-time">⏱️ 20 Min</span>
-          <span class="view-badge dark">Data Science</span>
-        </div>
-      </a>
-
-      <!-- StoryView -->
-      <a href="storyview.html" class="view-card storyview">
-        <div class="view-label">Story View</div>
-        <h3>Detailed Description</h3>
-        <p class="view-desc">Der gesamte Daten-Lifecycle: von Rohdaten über Analyse bis Vorhersage-Modell. Portfolio-Vollansicht.</p>
-        <div class="view-meta">
-          <span class="view-time">⏱️ 35 Min</span>
-          <span class="view-badge purple">Portfolio</span>
-        </div>
-      </a>
-
-    </div>
+{{VIEW_CARDS}}    </div>
   </section>
 
   <!-- ─── Quick Links ─────────────────────── -->

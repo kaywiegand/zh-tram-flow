@@ -36,7 +36,7 @@
 * **Baseline**
   - Stop Mean als Benchmark
 * **Feature Engineering**
-  - 34 Features v1 · Kaskadenindikator v2
+  - 32 Features v1 · Kaskadenindikator v2
 * **Modellauswahl**
   - Warum LightGBM
   - v1 · v2 · Robustheits-Check
@@ -53,10 +53,18 @@
 ## Strukturelle Lücke im Netz
 *87 % OTP seit drei Jahren — dauerhaft unter dem VBZ-Ziel von 95 %*
 
-* **87 %** — OTP netzweit 2023–2025
-* **−8 PP** — Lücke zum VBZ-Ziel 95 %
-* **56,3 s** — Ø Ankunftsverspätung
-* **71,5 %** — Halte akkumulieren Delay
+* **87 %** — OTP 2023–2025
+(netzweit)
+  - Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.
+* **95 %** — VBZ-Ziel
+bis 2028
+  - VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)
+* **−8 PP** — Strukturelle
+Lücke
+  - Der Rückstand ist systemisch, nicht episodisch — er taucht in jedem Jahr, auf jeder Linie auf.
+* **56,3 s** — Ø Ankunfts-
+verspätung
+  - Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre.
 
 
 ---
@@ -103,7 +111,7 @@
 ### Feature Engineering
 
 ## Feature Engineering
-*34 Features v1, 36 Features v2 — der entscheidende Unterschied*
+*32 Features v1, 34 Features v2 — der entscheidende Unterschied*
 
 * **Temporale Features (v1)**
   - hour, weekday, month, season, year
@@ -148,12 +156,17 @@
 
 ---
 
-### Evaluation
+### Feature Importance
 
 ## Feature Importance
 *prev_trip_delay dominiert — die Analyse hat recht behalten*
 
 > Die Kaskadenanalyse (r ≥ 0,85 netzweit) hat die Feature-Wichtigkeit korrekt antizipiert. Das Modell bestätigt: Das Signal steckt in den Daten, nicht im Algorithmus.
+
+
+---
+
+### Evaluation
 
 ## Produktionsreife und Reflexion
 *Was produktionsreif ist, was offen bleibt*
@@ -169,13 +182,32 @@
 
 
 
+---
+
+### Weitere Potenziale
+
+## Was noch zu erforschen ist
+*Dashboard-Exploration offenbarte 7 systematische Forschungsmöglichkeiten*
+
+> Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie? Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale.
+* **4 von 7 Forschungsmöglichkeiten (Auswahl)**
+  - OP-1: Direction-Asymmetrie (~10s Delta zwischen Richtung A/B)
+  - OP-2: Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)
+  - OP-3: Linienlänge ↔ Delay nicht-linear
+  - OP-7: Kaskaden-Verstärker vs. -Dämpfer pro Linie
+> Detaillierte Hypothesen, Implementation Paths und Prioritäten → BACKLOG.md, Sektion Research Opportunities.
+
+
+---
+
+### Ende
 
 ## Zurich Tram Flow
 *Kay Wiegand · 2023–2025*
 
 * **94,4 M** — Halt-Ereignisse
-* **41.2M** — Trainings-Fahrten
-* **~29M** — Test-Fahrten (2025)
-* **36** — Features (v2)
+* **41,2 M** — Trainings-Fahrten
+* **~29 M** — Test-Fahrten (2025)
+* **34** — Features (v2)
 * **18,56 s** — MAE · LightGBM v2
 * **−63 %** — vs. Baseline

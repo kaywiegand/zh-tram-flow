@@ -1794,3 +1794,143 @@ Gamma-Palette, uppercase). Entscheidung: bewährten Stand zurück, dann gezielt 
 **Backlog / nächster Schritt:** views.md-Fundament (portfolio.md = Fakten,
 views.md = Storyboards, Generator merged, index in Pipeline holen, Skill anpassen).
 Erst danach ist index.html generiert und das Überschreib-Risiko ganz weg.
+
+---
+
+### 2026-07-01 — Slide-Registry: Wiederverwendungs-Mechanismus für Overview/StoryView/TechView
+
+**Kontext:** Beim Durchgehen der drei Präsentations-HTMLs fiel auf, dass Story und
+Reihenfolge nicht stimmen (z. B. war die „Ausgangssituation"-Slide je View unterschiedlich,
+obwohl sie identisch sein sollte). Root Cause verifiziert: `generate_json_from_portfolio.py`
+hat die `chapters`/`slides`-Struktur nie aus `portfolio.md` abgeleitet, sondern unverändert
+aus `public/json-backup/` kopiert — die aus `portfolio.md` extrahierten Werte landeten nur
+in einem ungenutzten `_extracted`-Feld. Die tatsächlichen Slide-Inhalte wurden zuletzt direkt
+in den drei `storyline-*.json` von Hand editiert, unabhängig je View, ohne Aufzeichnung. Das
+war exakt die Lücke, die die Session vom 2026-06-26 schon als „views.md-Fundament" vorgemerkt
+hatte — heute umgesetzt (unter dem Namen `slides.yaml`, gleiches Konzept).
+
+**Was wurde gemacht:**
+- **Feature-Zahl-Fakt korrigiert:** `06_prediction_4-model_v2.ipynb`-Output verifiziert
+  (Features v1/v2) — `portfolio.md` und `DATA_DICTIONARY.md` hatten beide einen falschen
+  Wert für v2, der nicht mit ROADMAP.md/README.md übereinstimmte. `DATA_DICTIONARY.md` um
+  eine Tabelle der Spalten ergänzt, die im finalen Modell NICHT als Feature verwendet werden
+  (Quelle: `EXCLUDE_V2` im Notebook) — soll verhindern, dass ein künftiger `/project-case`-Lauf
+  den gleichen Fehler erneut macht.
+- **`public/md/slides.yaml`** neu angelegt — einzige Quelle für Slide-Struktur + -Inhalt.
+  Content-Alignment-Session mit Kay: für Slides, die unter gleichem Titel je View
+  abweichenden Inhalt hatten, wurde jeweils eine kanonische Version entschieden (nicht nur
+  markiert). Ergebnis: deutlich mehr Slides sind jetzt strukturell wiederverwendet statt
+  gedriftet.
+- **`scripts/generate_json_from_slides.py`** ersetzt `generate_json_from_portfolio.py` —
+  rein mechanisch (Filter + Reihenfolge nach `view_composition`), kein Regex-Parsing mehr.
+- **`scripts/print_slide_matrix.py`** neu — erzeugt `public/md/slides-matrix.md`
+  (Slide × View-Tabelle), wiederholt ausführbar nach jeder Registry-Änderung.
+- **Bugfix beim Aufbau der Registry entdeckt:** die „Weitere Potenziale"-Sektion
+  (Research Opportunities OP-1–7) war in Story- und TechView als Slide fälschlich
+  innerhalb eines anderen Kapitels verschachtelt (kein eigenes Kapitel) UND nutzte
+  Content-Typen (`findings`, `note`), für die es in `generate_html_from_json.py` keinen
+  Renderer gibt — rendete dadurch als leere Slide. Jetzt eigenes Kapitel, nur
+  Content-Typen mit Renderer.
+- **Beim visuellen Check** (Preview-Tool) eine zweite Regression selbst gefunden und
+  behoben: durch die Kapitel-Aufteilung standen in der Progress-Nav teils 2–3 Kapitel
+  mit identischem Namen direkt hintereinander (z. B. „Das Modell" zweimal in Overview).
+  Zwei Kapitel-IDs (`feature-importance`, `konkreter-nutzen`) bekamen eigenständige,
+  inhaltlich passende Namen.
+- **`public/json-backup/`** retiriert (kein Backup-Schritt mehr nötig, Registry ist die
+  einzige Quelle) — Referenzen in `skills/project-case/PORTFOLIO_PIPELINE.md` entsprechend
+  korrigiert, inkl. neuem Changelog-Eintrag dort.
+- **Skill-Doku-Bug gefixt:** `public/mds/` → `public/md/` in `skills/project-case/project-case.md`
+  (Modi `check`/`story`, 6 Stellen) sowie in diesem Projekt selbst (`CLAUDE.md` Konventionen-Sektion).
+- `Makefile` (`make portfolio`) und `CLAUDE.md` (Pipeline-Diagramm, Dateien-Übersicht) auf
+  die neue Architektur aktualisiert.
+
+**Bewusst nicht gemacht (siehe `skills/project-case/PORTFOLIO_PIPELINE.md`, Changelog):**
+- Kein neuer Skill-Modus (`/project-case slides`), der diese Content-Alignment-Sessions
+  künftig eigenständig durchführen würde — heute manuell erledigt, Modus ist BACKLOG #70-Terrain.
+- Kein Umzug der generischen Scripts in den globalen Skill-Ordner — architektonisch sinnvoll,
+  aber erst nach Bewährung des Schemas in diesem Projekt.
+- „−8 PP" (sollte laut `NUMBER_FORMAT.md` „−8 %" heißen) in der Ausgangssituation-Slide
+  gefunden, aber nicht gefixt (war schon vorher so, in allen 3 Views identisch, kein
+  Drift-Problem) — kleiner Nachzieh-Punkt.
+
+**BACKLOG-Pflege:** Sektion „HTML-Generator — Fehlende Renderer (KRITISCH)" (#80–87) entfernt —
+beim Lesen von `generate_html_from_json.py` verifiziert, dass alle 8 Content-Typen/Rollen
+(`recommendations`, `comparison_table`, `scenarios`, `closing`, `tools`, `sequence`, `abbinder`,
+`links`) längst implementiert sind und im Preview-Check korrekt rendern; die Liste war stale.
+Neue kleine Punkte #92 (Zahlenformat „−8 PP"→„−8 %") und #93 (Content-Typen `findings`/`note`
+ohne Renderer — aktuell nirgends mehr verwendet) ergänzt.
+
+**Nächster Schritt:** Die verbleibenden HTML-Generator-Design-Upgrades (#88–91) bleiben
+unverändert gültig. Mittelfristig: `/project-case slides`-Modus gemäß BACKLOG #70.
+
+---
+
+### 2026-07-01 (Fortsetzung) — Scripts noch am selben Tag zum Skill verschoben
+
+Der oben vorgemerkte "erst bewähren, dann verschieben"-Plan wurde direkt am selben Tag umgesetzt,
+auf Kays Wunsch: Er will die heutigen Änderungen sauber dokumentiert haben — einheitlich in den
+Skill-MD-Files (statt über Projekt und Skill verstreut) und mit einem Architektur-Diagramm, das
+für ihn nachvollziehbar ist.
+
+**Was wurde gemacht:**
+- Alle 6 generischen Pipeline-Scripts von `zh-tram-flow/scripts/` nach
+  `skills/project-case/scripts/` verschoben (workspace-Repo, nicht zh-tram-flow-Repo — cross-repo
+  move via copy + `git rm`/`git add`, kein `git mv` möglich).
+- Voraussetzung dafür geschaffen: 3 Scripts nutzten `Path(__file__).parent.parent` (bricht, wenn
+  das Script nicht mehr im Projekt liegt) → auf `Path.cwd()` umgestellt. `convert_json_to_md.py`
+  hatte sogar einen hartcodierten absoluten Pfad zu `zh-tram-flow` — ebenfalls gefixt.
+- Hartcodierte View-Liste (`["overview","storyview","techview"]`) in `generate_html_from_json.py`,
+  `convert_json_to_md.py` und `archive_portfolio_artifacts.py` durch dynamische Erkennung aus
+  vorhandenen `storyline-*.json` ersetzt — notwendig, damit die Scripts in einem Projekt mit
+  anderer `view_composition` nicht falsch laufen.
+- `index-template.html` bewusst **nicht** verschoben — kuratierter Projekt-Content wie
+  `slides.yaml`, kein generisches Script.
+- `Makefile` nutzt jetzt eine `SKILL_SCRIPTS`-Variable statt relativer `scripts/`-Pfade.
+- `skills/project-case/project-case.md` und `PORTFOLIO_PIPELINE.md` durchgängig auf die neuen
+  Pfade aktualisiert, inkl. Mermaid-Architektur-Diagramm in `PORTFOLIO_PIPELINE.md` (Überblick-Sektion).
+- Workspace-`.gitignore` um `skills/**/__pycache__/` ergänzt (Python-Bytecode wäre sonst mit
+  reingerutscht, da `skills/` per Allowlist komplett getrackt wird).
+
+**Verifiziert:** `make portfolio` nach dem Umzug ausgeführt — Output byte-identisch zum
+Vor-Umzug-Snapshot (`public/archive/v3/` vs. frisch generiert), keine Regression.
+
+**Nächster Schritt:** BACKLOG #70 damit größtenteils erledigt (Script-Umzug ✅) — offen bleibt
+nur noch der `/project-case slides`-Modus für die Content-Alignment-Session selbst.
+
+---
+
+### 2026-07-01 (Fortsetzung) — Hub-Duplikation aufgelöst: index.html jetzt aus slides.yaml
+
+Kay fiel auf: `scripts/index-template.html` hatte die 4 Hero-KPIs und die 3 View-Karten-Texte
+hartcodiert — identischer Inhalt zu dem, was in `slides.yaml` (Titel-Slides, `view_meta`) bereits
+strukturiert vorlag. Klassische Duplikation, die bei der nächsten Content-Änderung nur an einer
+Stelle aktualisiert worden wäre.
+
+**Was wurde gemacht:**
+- `slides.yaml` um Block `hub` erweitert: `headline_kpis_from` (Zeiger auf Slide-ID
+  `einstieg-title-overview` statt Werte-Kopie), `view_order`, `view_cards` (kicker/label/
+  description/badge/badge_class pro View)
+- `generate_index_from_portfolio.py` liest jetzt zusätzlich `slides.yaml` und rendert Hero-KPI-Zeile
+  + 3 View-Karten dynamisch; `index-template.html` enthält nur noch Layout/CSS + `{{...}}`-Platzhalter,
+  keinen hartcodierten Content mehr
+- Neue CSS-Klasse `.kpi.warning` ergänzt (für den 4. KPI-Wert, der vorher nicht im Hub vorkam)
+- Hub-KPI-Satz auf Kays Wunsch vereinheitlicht: 94,4 M / 87 % / 71,3 % / 18,56 s (= Overview-Titelslide,
+  vorher stand im Hub abweichend −63 % als 4. Wert)
+- Dokumentiert in `PORTFOLIO_PIPELINE.md` + `project-case.md`: künftige Slide-Autorenarbeit
+  (aktuell manuell, später `/project-case slides`) muss den `hub`-Block mitpflegen — explizit auf
+  Kays Wunsch, damit der Skill das "mitdenkt" statt es zu vergessen
+
+**Aufräumen nebenbei (auf Kays ausdrücklichen Wunsch gelöscht):**
+- `scripts/generate_json_from_portfolio.py` — totes Duplikat der alten kaputten Pipeline, durch
+  `generate_json_from_slides.py` ersetzt, aber nie gelöscht worden
+- `scripts/generate_widget_data.py` — verwaistes Live-Prediction-Widget-Script, Output-Pfad
+  `reports/live-prediction.html` existiert seit der Umstellung auf `public/` nicht mehr, nirgends
+  verlinkt oder referenziert
+- `scripts/export_artifacts.py` — 1-Zeilen-Änderung von Kay selbst, mit committed
+
+**Verifiziert:** `make portfolio` komplett neu gelaufen, `overview.html`/`storyview.html`/
+`techview.html` byte-identisch zum Vorlauf (nur `index.html` ändert sich, wie erwartet),
+KPI-Zeile + View-Karten im Browser visuell + per DOM-Text geprüft.
+
+**Nächster Schritt:** keiner offen aus dieser Teilaufgabe. `/project-case slides`-Modus bleibt
+der einzige verbleibende Punkt aus BACKLOG #70.

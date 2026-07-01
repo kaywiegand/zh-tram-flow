@@ -8,21 +8,12 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 
 ---
 
-## HTML-Generator — Fehlende Renderer (KRITISCH)
+## Zahlenformat-Nachzieh (klein)
 
-Content-Types die im JSON vorkommen aber keinen Renderer haben — zeigen aktuell
-`<em>Unknown content type: ...</em>` als Fallback-Text in den Views.
-
-| # | Content-Type | Vorkommt in | Styleguide-Mapping | Prio |
-| :--- | :--- | :--- | :--- | :--- |
-| 80 | **`recommendations`** | overview, storyview, techview | `.reco .reco-num .reco-text` oder `.box-green` gestapelt | 1 |
-| 81 | **`comparison_table`** | alle drei Views | `<table>` mit `.hl`-Rows (Styleguide: Tabellen-Sektion) | 1 |
-| 82 | **`scenarios`** | overview, storyview | `.metric-row .metric` oder `.prediction-card` | 1 |
-| 83 | **`closing` (role)** | overview Resultat-Kapitel | `.closing .c-title .c-sub .closing-stats` | 1 |
-| 84 | **`tools`** | overview (closing-Slide) | `.box` oder Karten-Grid | 2 |
-| 85 | **`sequence`** | overview | `.ev-chain` (Evidence-Chain) oder nummerierte `.box` | 2 |
-| 86 | **`abbinder`** | storyview, techview | Abschnitts-Trennfolie — `.box-green` Summary | 2 |
-| 87 | **`links`** | storyview, techview | Link-Liste — `<a>` mit `.quick-link` Styling | 2 |
+| # | Beschreibung | Prio |
+| :--- | :--- | :--- |
+| 92 | **„−8 PP" → „−8 %"** in `public/md/slides.yaml` (Ausgangssituation-Slide) — verstößt gegen `NUMBER_FORMAT.md` (Prozentpunkte als `%`, nicht `pp`/`PP`). War schon vor der Slide-Registry so, in allen 3 Views identisch (kein Drift), beim Registry-Bau 2026-07-01 gefunden aber bewusst nicht mit-gefixt. | 3 |
+| 93 | **Content-Typen ohne Renderer:** `findings`, `note` (aus der alten, kaputt-verschachtelten "Weitere Potenziale"-Slide) haben in `generate_html_from_json.py` keine Implementierung — würden als `Unknown content type` rendern. Aktuell nirgends mehr in `slides.yaml` verwendet (auf `sections`+`statement` umgestellt). Falls künftig wieder gebraucht: entweder Renderer ergänzen oder bei der Slide-Autorenarbeit auf implementierte Typen ausweichen (Liste in `slides.yaml`-Kopfkommentar). | 3 |
 
 ---
 
