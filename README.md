@@ -31,7 +31,7 @@
 | New to the project | [`00_introduction`](notebooks/00_introduction.ipynb) — context, data dictionary, network overview |
 | Looking for findings | [`03_analysis_0-overview`](notebooks/03_analysis_0-overview.ipynb) — all 66 findings indexed |
 | Looking for the model | [`06_prediction_0-overview`](notebooks/06_prediction_0-overview.ipynb) — ML approach and results |
-| Want to see it live | [Report](https://kaywiegand.github.io/zh-tram-flow/report.html) · [Dashboard](https://zh-tram-flow.streamlit.app) |
+| Want to see it live | [Hub](https://kaywiegand.github.io/zh-tram-flow/) · [Dashboard](https://zh-tram-flow.streamlit.app) |
 
 ---
 
@@ -71,7 +71,7 @@ The project covers the full data cycle end-to-end:
 | **Data Engineering** | Ingest, join, validate 4 data sources (IST · GTFS · Weather · Events) → master dataset | [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) |
 | **Data Analysis** | 6 analysis dimensions · 66 structured findings | [`03_analysis_0-overview`](notebooks/03_analysis_0-overview.ipynb) |
 | **Data Science** | Feature engineering → LightGBM v1 + v2 → evaluation | [`06_prediction_0-overview`](notebooks/06_prediction_0-overview.ipynb) |
-| **Data Storytelling** | Report · Presentation · Dashboard · Landing Page | [`public/index.html`](https://kaywiegand.github.io/zh-tram-flow/) |
+| **Data Storytelling** | Overview · StoryView · TechView · Dashboard · Hub | [`public/index.html`](https://kaywiegand.github.io/zh-tram-flow/) |
 
 ---
 
@@ -251,11 +251,29 @@ Four concrete actions that follow directly from the analysis findings:
 
 | Artifact | Link |
 | :--- | :--- |
-| Full Report | https://kaywiegand.github.io/zh-tram-flow/report.html |
-| Presentation | https://kaywiegand.github.io/zh-tram-flow/presentation.html |
-| Landing Page | https://kaywiegand.github.io/zh-tram-flow/landingpage.html |
+| Hub (landing + navigation) | https://kaywiegand.github.io/zh-tram-flow/ |
+| Overview (business-focused) | https://kaywiegand.github.io/zh-tram-flow/overview.html |
+| StoryView (full narrative) | https://kaywiegand.github.io/zh-tram-flow/storyview.html |
+| TechView (technical deep-dive) | https://kaywiegand.github.io/zh-tram-flow/techview.html |
 | Dashboard | https://zh-tram-flow.streamlit.app |
-| Artifact Hub | https://kaywiegand.github.io/zh-tram-flow/ |
+
+All four HTML artifacts are generated from a single source (`public/md/slides.yaml`) — one slide is
+written once, `views: [...]` decides which of the three presentations it appears in, so content can't
+drift between them:
+
+```mermaid
+flowchart TD
+    A["portfolio.md<br/>facts, findings, thesis"] -.reference while writing.-> B
+    B["slides.yaml<br/>slide structure + content + hub block<br/>(single source of truth)"] --> C
+    C["Generator pipeline<br/>mechanical, no parsing"] --> D["Overview<br/>business-focused"]
+    C --> E["StoryView<br/>full narrative"]
+    C --> F["TechView<br/>technical deep-dive"]
+    C --> G["index.html<br/>Hub — KPIs + view cards"]
+    A -.reference.-> G
+```
+
+Built and regenerated via `make portfolio` — full mechanism documented in
+[wgnd-skills/project-case/build-pipeline.md](https://github.com/kaywiegand/wgnd-skills/blob/main/project-case/build-pipeline.md).
 
 ---
 

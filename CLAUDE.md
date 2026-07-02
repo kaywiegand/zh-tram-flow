@@ -80,7 +80,7 @@ DEPLOYMENT.md ← Lese das für Production Setup + Troubleshooting
 
 Hier nur Kurzübersicht. Alles andere (Workflow, Troubleshooting, FAQ, Details) in:
 ```
-/Users/kaywiegand/Workspace/skills/project-case/PORTFOLIO_PIPELINE.md
+/Users/kaywiegand/Workspace/wgnd-skills/project-case/build-pipeline.md
 ```
 
 ### Zwei Quellen, klar getrennt (seit 2026-07-01)
@@ -93,7 +93,7 @@ JSONs von Hand gepflegt (undokumentiert, Ursache für Drift zwischen den Views).
 public/md/portfolio.md   — Fakten: Findings, Recommendations, These (von /project-case story befüllt)
 public/md/slides.yaml    — Slide-Struktur + -Inhalt (Single Source of Truth für die 3 Views)
         ↓
-[skills/project-case/scripts/] archive_portfolio_artifacts.py → public/archive/vN/  (Backup vor Überschreiben)
+[wgnd-skills/project-case/scripts/] archive_portfolio_artifacts.py → public/archive/vN/  (Backup vor Überschreiben)
         ↓
         ├─ generate_json_from_slides.py     → public/json/storyline-{overview,storyview,techview}.json
         ├─ generate_html_from_json.py       → public/{overview,storyview,techview}.html
@@ -102,7 +102,7 @@ public/md/slides.yaml    — Slide-Struktur + -Inhalt (Single Source of Truth f�
         └─ print_slide_matrix.py            → public/md/slides-matrix.md (Audit: Slide × View)
 ```
 
-**Scripts liegen im Skill, nicht im Projekt** (seit 2026-07-01): `/Users/kaywiegand/Workspace/skills/project-case/scripts/`
+**Scripts liegen im Skill, nicht im Projekt** (seit 2026-07-01): `/Users/kaywiegand/Workspace/wgnd-skills/project-case/scripts/`
 — projektübergreifend wiederverwendbar, da sie relativ zum Arbeitsverzeichnis arbeiten. Immer aus
 dem Projekt-Root heraus aufrufen (macht `make portfolio` automatisch).
 
@@ -111,15 +111,15 @@ dem Projekt-Root heraus aufrufen (macht `make portfolio` automatisch).
 - **Hub-Inhalt** (Hero-KPIs, View-Karten) → `public/md/slides.yaml`, Block `hub:` (im Projekt) —
   **nicht** mehr im Template hartcodiert; bei Content-Änderungen mitpflegen!
 - **Fakten/Findings/Recommendations** (Referenz beim Slide-Schreiben) → `public/md/portfolio.md` (im Projekt)
-- **Slide-Design** → `skills/project-case/templates/{slides-template.html,slides.css}` (global, für
+- **Slide-Design** → `wgnd-skills/project-case/templates/{slides-template.html,slides.css}` (global, für
   alle Portfolios identisch) — `public/css/slides.css` hier im Projekt ist nur die Build-Kopie,
   wird bei jedem `make portfolio`-Lauf überschrieben, NIE von Hand editieren
-- **Hub-Layout/Design** → `skills/project-case/templates/index-template.html` (global, seit
+- **Hub-Layout/Design** → `wgnd-skills/project-case/templates/index-template.html` (global, seit
   2026-07-01 nicht mehr im Projekt)
-- **Mechanik** (JSON/HTML/MD generieren) → `skills/project-case/scripts/*.py` (global)
+- **Mechanik** (JSON/HTML/MD generieren) → `wgnd-skills/project-case/scripts/*.py` (global)
 - Generierte `public/*.html` NIE direkt editieren — wird überschrieben (liegt im Archiv).
 - `public/json-backup/` ist retiriert — `slides.yaml` ist die einzige Quelle, kein Backup-Schritt mehr nötig.
-- Details: `skills/project-case/PORTFOLIO_PIPELINE.md`
+- Details: `wgnd-skills/project-case/build-pipeline.md`
 
 **Änderungen machen:**
 1. Kleine Textänderung → direkt in `slides.yaml`/`portfolio.md` editieren. Neue `slides.yaml`
@@ -177,9 +177,9 @@ Alle Zahlen in portfolio.md (und damit in allen generierten Artefakten):
 | `public/md/portfolio.md` | Fakten: Findings, Recommendations, These | Manuell / `/project-case story` |
 | `public/md/slides.yaml` | Single Source of Truth (Slide-Struktur + -Inhalt + Hub-Block) | Manuell |
 | `public/css/slides.css` | **Build-Kopie** (nicht editieren!) | überschrieben bei jedem Lauf aus Skill-Template |
-| `skills/project-case/templates/slides-template.html` | Slide-Layout/CSS-Basis (global) | Manuell, gilt für alle Portfolios |
-| `skills/project-case/templates/slides.css` | Kanonisches Slide-Design (global) | Manuell, gilt für alle Portfolios |
-| `skills/project-case/templates/index-template.html` | Hub-Layout (global, kein Content) | Manuell, gilt für alle Portfolios |
+| `wgnd-skills/project-case/templates/slides-template.html` | Slide-Layout/CSS-Basis (global) | Manuell, gilt für alle Portfolios |
+| `wgnd-skills/project-case/templates/slides.css` | Kanonisches Slide-Design (global) | Manuell, gilt für alle Portfolios |
+| `wgnd-skills/project-case/templates/index-template.html` | Hub-Layout (global, kein Content) | Manuell, gilt für alle Portfolios |
 | `public/json/storyline-*.json` | strukturierte Slide-Extrakte | generiert aus `slides.yaml` (Skill-Script) |
 | `public/{overview,storyview,techview}.html` | Präsentations-Views (Reveal.js) | generiert aus JSON (Skill-Script) |
 | `public/index.html` | Navigation-Hub | generiert aus portfolio.md + slides.yaml["hub"] + Skill-Template |
@@ -187,7 +187,7 @@ Alle Zahlen in portfolio.md (und damit in allen generierten Artefakten):
 | `public/md/slides-matrix.md` | Audit: Slide × View | generiert (Skill-Script `print_slide_matrix.py`) |
 | `public/archive/vN/` | Snapshot vor jedem Lauf (gitignored) | Skill-Script `archive_portfolio_artifacts.py` |
 
-Alle "Skill-Script"-Einträge liegen in `/Users/kaywiegand/Workspace/skills/project-case/scripts/`, nicht im Projekt.
+Alle "Skill-Script"-Einträge liegen in `/Users/kaywiegand/Workspace/wgnd-skills/project-case/scripts/`, nicht im Projekt.
 | `public/img/` | Charts (PNG + interaktive HTML) | Notebook Export-Cells |
 
 ---
