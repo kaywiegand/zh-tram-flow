@@ -2006,3 +2006,35 @@ jetzt auch der fehlende Autoren-Modus).
 
 **Nächster Schritt:** keiner offen. Der Skill deckt jetzt den kompletten Zyklus ab — Notebooks
 → `story` → `slides` (Dialog) → `report` (mechanisch) → fertige Präsentationen.
+
+---
+
+### 2026-07-02 — Doku-Audit: CLAUDE.md zeigte ins Leere, README hatte nie existierende Links
+
+Kay bemerkte beim Lesen von `communication-concept.md`, dass die Artefakt-Tabelle (Landing Page,
+Full Report, Presentation als generische Begriffe) nicht mehr zur echten Pipeline passt. Audit
+über `wgnd-skills/project-case/` + dieses Projekt ergab zwei weitere, unabhängige Funde:
+
+- **`CLAUDE.md` (dieses Projekt):** 11 Stellen zeigten noch auf den bei der `wgnd-skills`-Extraktion
+  gelöschten Symlink `/Users/kaywiegand/Workspace/skills/project-case/...` — Pfad existiert nicht
+  mehr. War bei der Extraktion schlicht vergessen worden, weil die Datei im Projekt-Repo liegt,
+  nicht im Skill-Repo. Alle Stellen auf `wgnd-skills/project-case/...` korrigiert, `PORTFOLIO_PIPELINE.md`
+  → `build-pipeline.md` (war bei der Skill-Umbenennung auch nicht nachgezogen).
+- **`README.md` (dieses Projekt):** "Reports & Artifacts"-Tabelle verlinkte `report.html`,
+  `presentation.html`, `landingpage.html` — Dateien, die es nie gab. Reale Artefakte sind
+  `index.html` (Hub, kombiniert Landing + Navigation) + `overview.html`/`storyview.html`/
+  `techview.html` (aus `slides.yaml` generiert). Tabelle korrigiert, dazu ein Mermaid-Diagramm
+  der Build-Pipeline ergänzt (portfolio.md → slides.yaml → Generator → 3 Views + Hub) — Kay:
+  "wenn wir diagramme haben immer in die readme packen".
+- **`wgnd-skills/project-case/communication-concept.md`:** komplettes Artefakt-Modell (7 Sections)
+  auf das reale 3-View-Modell umgeschrieben — kein "Full Report" mehr (StoryView übernimmt die
+  Rolle), keine separate "Landing Page" (ist `index.html` = Hub).
+- **`wgnd-skills/project-case/build-pipeline.md` + `project-case.md`:** 9 Stellen mit hartem
+  `skills/project-case/...`-Pfad auf `{SKILL_ROOT}/...` nachgezogen — Rest einer unvollständigen
+  Konversion aus der vorherigen Session.
+
+Commits: `a13a0e3` (dieses Repo), `dee9f9a` (`wgnd-skills`, gepusht).
+
+**Nächster Schritt:** keiner offen. `wgnd-skills/README.md` erwähnt noch das alte
+Symlink-Setup (`ln -s ... skills/`) statt der direkten `~/.claude/commands/`-Registrierung —
+nicht in dieser Session gefixt, für nächste `wgnd-skills`-Session vormerken.
