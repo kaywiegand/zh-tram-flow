@@ -6,7 +6,17 @@
     "github": "kaywiegand/zh-tram-flow",
     "presentation_title": "Ergebnisse & Handlungsempfehlungen",
     "audience": "HR · Business · Hiring Manager",
-    "duration_minutes": 10
+    "duration_minutes": 10,
+    "closing_links": [
+      {
+        "href": "https://zh-tram-flow.streamlit.app",
+        "label": "Dashboard-Prototype"
+      },
+      {
+        "href": "network-map.html",
+        "label": "Netzwerk-Karte"
+      }
+    ]
   },
   "chapters": [
     {

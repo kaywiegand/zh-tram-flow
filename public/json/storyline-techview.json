@@ -6,7 +6,17 @@
     "github": "kaywiegand/zh-tram-flow",
     "presentation_title": "Technischer Deep Dive",
     "audience": "Data Scientists · Tech Leads · Interviewer",
-    "duration_minutes": 20
+    "duration_minutes": 20,
+    "closing_links": [
+      {
+        "href": "https://zh-tram-flow.streamlit.app",
+        "label": "Dashboard-Prototype"
+      },
+      {
+        "href": "network-map.html",
+        "label": "Netzwerk-Karte"
+      }
+    ]
   },
   "chapters": [
     {

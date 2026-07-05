@@ -6,7 +6,17 @@
     "github": "kaywiegand/zh-tram-flow",
     "presentation_title": "Der gesamte Daten-Lifecycle",
     "audience": "Portfolio · Konferenz · Vollbild",
-    "duration_minutes": 35
+    "duration_minutes": 35,
+    "closing_links": [
+      {
+        "href": "https://zh-tram-flow.streamlit.app",
+        "label": "Dashboard-Prototype"
+      },
+      {
+        "href": "network-map.html",
+        "label": "Netzwerk-Karte"
+      }
+    ]
   },
   "chapters": [
     {
