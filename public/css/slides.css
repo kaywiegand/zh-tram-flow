@@ -176,8 +176,8 @@ tr.hl td { background: var(--bg-table-hl) !important; font-weight: 600; }
 /* ── Prev / next arrows (flank the tick bar) ───── */
 .nav-arrow {
   position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 12px;
+  height: 60px;
   display: flex;
   align-items: center;
   z-index: 9999;
@@ -188,7 +188,7 @@ tr.hl td { background: var(--bg-table-hl) !important; font-weight: 600; }
   line-height: 1;
   color: rgba(26, 58, 92, 0.55);
   user-select: none;
-  padding: 26px 22px;
+  padding: 0 20px;
   transition: color 0.18s;
 }
 .nav-arrow:hover { color: var(--color-primary); }
