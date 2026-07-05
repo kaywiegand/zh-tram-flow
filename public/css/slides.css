@@ -378,6 +378,12 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .pf-card .pf-title { font-size: 0.7em; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 7px; }
 .pf-card ul { padding-left: 1em; margin: 0; }
 .pf-card li { font-size: 0.81em; color: #444; margin-bottom: 4px; line-height: 1.45; }
+/* Nummern-Badge vor dem Section-Label (sections numbered: true) */
+.pf-num { display: inline-flex; align-items: center; justify-content: center; width: 1.5em; height: 1.5em; border-radius: 50%; background: var(--color-accent); color: #fff; font-size: 0.85em; margin-right: 0.5em; vertical-align: middle; }
+/* Text-Variante (sections layout: text) — Label + Punkte als zweispaltiger Fließtext */
+.sec-text { column-count: 2; column-gap: 2.4em; margin-top: 0.7em; }
+.sec-text-block { break-inside: avoid; margin-bottom: 0.9em; font-size: 0.85em; line-height: 1.5; color: #444; }
+.sec-text-label { display: block; font-weight: 700; color: var(--color-accent); text-transform: uppercase; font-size: 0.82em; letter-spacing: 0.05em; margin-bottom: 2px; }
 
 /* ── Info-cols ────────────────────────────────── */
 .info-cols { display: flex; gap: 12px; margin-top: 1.2em; }
