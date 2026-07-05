@@ -337,12 +337,17 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .kv-text { flex: 1; background: #f8fbfd; border-radius: var(--radius-card); padding: 10px 14px; font-size: 0.82em; color: #444; line-height: 1.55; display: flex; align-items: center; }
 
 /* ── Myth-busting (contrasts) ─────────────────── */
-.myth-rows { display: flex; flex-direction: column; gap: 11px; margin-top: 0.6em; }
+.myth-rows { display: flex; flex-direction: column; gap: 24px; margin-top: 0.6em; }
 .myth-row-pair { display: flex; gap: 10px; align-items: stretch; }
-.myth-assume { background: var(--bg-box-negative); border-radius: var(--radius-box); padding: 11px 12px; font-size: 0.79em; color: #6a1414; line-height: 1.45; }
-.myth-assume::before { content: "✗  "; font-weight: 700; }
-.myth-finding { background: var(--bg-box-positive); border-radius: var(--radius-box); padding: 11px 12px; font-size: 0.79em; color: #1a4a2e; line-height: 1.45; }
-.myth-finding::before { content: "✓  "; font-weight: 700; }
+.myth-assume { background: var(--bg-box-negative); border-radius: var(--radius-box); padding: 12px 14px; color: #6a1414; }
+.myth-finding { background: var(--bg-box-positive); border-radius: var(--radius-box); padding: 12px 14px; color: #1a4a2e; }
+/* Box-Titel (wie pf-title) + Icon mit Abstand zum Text */
+.myth-label { display: block; font-size: 0.68em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 7px; }
+.myth-assume .myth-label { color: #b3403a; }
+.myth-finding .myth-label { color: #2e8a56; }
+.myth-assume .myth-label::before { content: "✗  "; }
+.myth-finding .myth-label::before { content: "✓  "; }
+.myth-text { font-size: 0.8em; line-height: 1.5; }
 .myth-row-pair .myth-assume { flex: 1; margin: 0; }
 .myth-row-pair .myth-arrow { display: flex; align-items: center; color: var(--color-accent); font-size: 1.3em; flex-shrink: 0; padding: 0 2px; }
 .myth-row-pair .myth-finding { flex: 1; margin: 0; }
@@ -408,7 +413,7 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .cols blockquote.statement { text-align: left; max-width: none; margin: 0; font-size: 1.05em; }
 
 /* ── Evidence chain (sequence of reasoning) ───── */
-.ev-chain { display: flex; flex-direction: column; }
+.ev-chain { display: flex; flex-direction: column; gap: 7px; max-width: 62%; margin: 0.6em auto 0; }
 .ev-step { display: flex; align-items: flex-start; gap: 12px; padding: 9px 12px; background: var(--bg-card); border-radius: var(--radius-card); }
 .ev-circle { width: 26px; height: 26px; border-radius: 50%; background: var(--color-accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85em; flex-shrink: 0; margin-top: 1px; }
 .ev-body strong { display: block; color: var(--color-primary); font-size: 0.9em; margin-bottom: 2px; }
