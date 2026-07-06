@@ -56,7 +56,7 @@
 .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
 .reveal h1 { font-size: 2.6em; color: var(--color-title-text); text-align: center; letter-spacing: -0.01em; margin-bottom: 0.2em; }
 .reveal h2 { font-size: 1.65em; color: var(--color-primary); margin: 0 0 1.2em; text-align: left; line-height: 1.2; font-weight: 700; }
-.reveal .subline { font-size: 0.8em; color: var(--color-accent); font-weight: 600; letter-spacing: 0.02em; margin-top: -1.7em; margin-bottom: 1.7em; text-align: left; display: block; }
+.reveal .subline { font-size: 0.8em; color: var(--color-accent); font-weight: 600; letter-spacing: 0.02em; margin-top: -1.7em; margin-bottom: 3.4em; text-align: left; display: block; }
 .slide-kicker { font-size: 0.56em; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #a3acb8; margin-bottom: 0.3em; display: block; text-align: left; }
 .slide-subtitle { font-size: 0.84em; color: var(--text-muted); margin-top: -0.8em; margin-bottom: 1.4em; line-height: 1.5; }
 .reveal p, .reveal li { color: var(--text-body); line-height: 1.58; text-align: left; }
@@ -178,8 +178,10 @@ tr.hl td { background: var(--bg-table-hl) !important; font-weight: 600; }
   position: fixed;
   bottom: 12px;
   height: 60px;
+  width: 60px;
   display: flex;
   align-items: center;
+  justify-content: center;
   z-index: 9999;
   cursor: pointer;
   pointer-events: auto;
@@ -188,12 +190,12 @@ tr.hl td { background: var(--bg-table-hl) !important; font-weight: 600; }
   line-height: 1;
   color: rgba(26, 58, 92, 0.55);
   user-select: none;
-  padding: 0 20px;
+  padding: 0;
   transition: color 0.18s;
 }
 .nav-arrow:hover { color: var(--color-primary); }
-#nav-prev { left: 10px; }
-#nav-next { right: 10px; }
+#nav-prev { left: 16px; }
+#nav-next { right: 16px; }
 .nav-arrow.nav-hidden { display: none; }
 
 /* ── Left nav — Xusni-style (Variant B) ─────────── */
@@ -283,7 +285,7 @@ body.nav-invert #progress-fill                    { background: #fff; }
 
 /* ── Title slide ──────────────────────────────── */
 .title-slide { display: flex !important; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-.title-slide .sub { color: rgba(255,255,255,0.78); font-size: 0.98em; line-height: 2.2; margin-top: 0.5em; }
+.title-slide .sub { color: rgba(255,255,255,0.78); font-size: 0.98em; line-height: 1.5; margin-top: 0.6em; }
 .title-slide .kpi-row { display: flex; gap: 14px; margin-top: 1.8em; justify-content: center; }
 .title-slide .kpi { background: rgba(255,255,255,0.12); border-radius: var(--radius-card); padding: 12px 20px; text-align: center; }
 .title-slide .kpi .v { font-size: 1.8em; font-weight: 700; color: var(--color-title-text); }
@@ -411,6 +413,21 @@ body.nav-invert #progress-fill                    { background: #fff; }
 /* In a two-column layout the statement reads as left-aligned body text */
 .cols .reveal blockquote.statement,
 .cols blockquote.statement { text-align: left; max-width: none; margin: 0; font-size: 1.05em; }
+
+/* ── Reine Text-Slides ─────────────────────────
+   1 Aussage → zentrierte Lead (medium); 2–5 → zweispaltig light, randlos */
+.statement-lead { text-align: center; font-size: 1.3em; font-weight: 500; color: var(--color-primary);
+  max-width: 780px; margin: 0.4em auto 0; line-height: 1.5; }
+.statement-cols { column-count: 2; column-gap: 2.8em; margin-top: 0.2em; }
+.statement-col { break-inside: avoid; margin: 0 0 0.8em; font-weight: 300; font-size: 1.0em;
+  line-height: 1.6; color: #2d3748; }
+
+/* ── Zweispaltiges Bild-Layout (vertikale Bilder): Text links, Bild rechts ── */
+.chart-cols { display: flex; align-items: center; gap: 2.5em; }
+.chart-cols-head { flex: 0 0 40%; }
+.chart-cols-caption { font-size: 0.82em; color: var(--text-muted); line-height: 1.55; margin-top: 0.4em; }
+.chart-cols-img { flex: 1; display: flex; justify-content: center; }
+.chart-cols-img img { max-width: 100%; max-height: 62vh; }
 
 /* ── Evidence chain (sequence of reasoning) ───── */
 .ev-chain { display: flex; flex-direction: column; gap: 7px; max-width: 62%; margin: 0.6em auto 0; }
