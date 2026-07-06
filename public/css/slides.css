@@ -290,6 +290,11 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .title-slide .kpi { background: rgba(255,255,255,0.12); border-radius: var(--radius-card); padding: 12px 20px; text-align: center; }
 .title-slide .kpi .v { font-size: 1.8em; font-weight: 700; color: var(--color-title-text); }
 .title-slide .kpi .l { font-size: 0.62em; color: rgba(255,255,255,0.6); margin-top: 4px; line-height: 1.4; }
+.title-cta { margin-top: 2.2em; cursor: pointer; display: inline-flex; align-items: center;
+  padding: 11px 30px; border-radius: 999px; border: 1.5px solid rgba(255,255,255,0.4);
+  color: #fff; font-size: 0.85em; font-weight: 600; letter-spacing: 0.04em;
+  transition: background 0.18s, border-color 0.18s; }
+.title-cta:hover { background: rgba(255,255,255,0.14); border-color: #fff; }
 .title-slide .kpi.red   .v { color: var(--color-kpi-negative); }
 .title-slide .kpi.amber .v { color: var(--color-kpi-warning); }
 .title-slide .kpi.green .v { color: var(--color-kpi-positive); }
@@ -430,7 +435,7 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .chart-cols-img img { max-width: 100%; max-height: 62vh; }
 
 /* ── Evidence chain (sequence of reasoning) ───── */
-.ev-chain { display: flex; flex-direction: column; gap: 7px; max-width: 62%; margin: 0.6em auto 0; }
+.ev-chain { display: flex; flex-direction: column; gap: 7px; max-width: 54%; margin: 0.6em auto 0; }
 .ev-step { display: flex; align-items: flex-start; gap: 12px; padding: 9px 12px; background: var(--bg-card); border-radius: var(--radius-card); }
 .ev-circle { width: 26px; height: 26px; border-radius: 50%; background: var(--color-accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85em; flex-shrink: 0; margin-top: 1px; }
 .ev-body strong { display: block; color: var(--color-primary); font-size: 0.9em; margin-bottom: 2px; }
