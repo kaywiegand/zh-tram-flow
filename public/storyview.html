@@ -22,13 +22,13 @@
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
-  <link rel="stylesheet" href="css/slides.css?v=1783327062">
+  <link rel="stylesheet" href="css/slides.css?v=1783432731">
 </head>
 <body>
 <div class="reveal">
 <div class="slides">
 <!-- Chapter: Einstieg -->
-<section class="title-slide" data-background="#1a3a5c" data-chapter="0" data-chapter-label="Einstieg"><h1>Zurich Tram Flow</h1><div class="sub">Von der Frage bis zur Empfehlung<br>Data Engineering · EDA · Machine Learning · Dashboard</div><div class="kpi-row"><div class="kpi"><div class="v">94,4 M</div><div class="l">Halt-Ereignisse</div></div><div class="kpi red"><div class="v">87 %</div><div class="l">OTP heute · Ziel: 95 %</div></div><div class="kpi green"><div class="v">18,56 s</div><div class="l">MAE LightGBM v2</div></div><div class="kpi green"><div class="v">−63 %</div><div class="l">vs. Baseline</div></div></div><div class="title-cta" onclick="Reveal.next()">Start &nbsp;&rarr;</div></section><section data-chapter="0"><span class="slide-kicker">Einstieg</span><h2>Die These</h2><p class="subline">Ein Satz, der das gesamte Projekt trägt</p><div class="statement-cols"><p class="statement-col">Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.</p><p class="statement-col">Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.</p></div></section><section data-chapter="0"><div class="agenda-cols"><div class="agenda-head"><h2>Inhalt</h2></div><div class="agenda-list"><div class="ag-item"><span class="ag-num">1</span><span class="ag-label">Ausgangssituation</span></div><div class="ag-item"><span class="ag-num">2</span><span class="ag-label">Data Engineering</span></div><div class="ag-item"><span class="ag-num">3</span><span class="ag-label">Exploration</span></div><div class="ag-item"><span class="ag-num">4</span><span class="ag-label">Die Erkenntnis</span></div><div class="ag-item"><span class="ag-num">5</span><span class="ag-label">Machine Learning</span></div><div class="ag-item"><span class="ag-num">6</span><span class="ag-label">Die Handlungsempfehlungen</span></div><div class="ag-item"><span class="ag-num">7</span><span class="ag-label">Projektrahmen und Workflow</span></div></div></div></section><!-- Chapter: Ausgangssituation -->
+<section class="title-slide" data-background="#1a3a5c" data-chapter="0" data-chapter-label="Einstieg"><h1>Zurich Tram Flow</h1><div class="sub">Von der Frage bis zur Empfehlung<br>Data Engineering · EDA · Machine Learning · Dashboard</div><div class="kpi-row"><div class="kpi"><div class="v">94,4 M</div><div class="l">Halt-Ereignisse</div></div><div class="kpi red"><div class="v">87 %</div><div class="l">OTP heute · Ziel: 95 %</div></div><div class="kpi green"><div class="v">18,56 s</div><div class="l">MAE LightGBM v2</div></div><div class="kpi green"><div class="v">−63 %</div><div class="l">vs. Baseline</div></div></div><div class="title-cta"><span class="c-link" onclick="Reveal.next()">Start</span></div></section><section data-chapter="0"><span class="slide-kicker">Einstieg</span><h2>Die These</h2><p class="subline">Ein Satz, der das gesamte Projekt trägt</p><div class="statement-cols"><p class="statement-col">Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.</p><p class="statement-col">Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.</p></div></section><section data-chapter="0"><div class="agenda-cols"><div class="agenda-head"><h2>Inhalt</h2></div><div class="agenda-list"><div class="ag-item"><span class="ag-num">1</span><span class="ag-label">Ausgangssituation</span></div><div class="ag-item"><span class="ag-num">2</span><span class="ag-label">Data Engineering</span></div><div class="ag-item"><span class="ag-num">3</span><span class="ag-label">Exploration</span></div><div class="ag-item"><span class="ag-num">4</span><span class="ag-label">Die Erkenntnis</span></div><div class="ag-item"><span class="ag-num">5</span><span class="ag-label">Machine Learning</span></div><div class="ag-item"><span class="ag-num">6</span><span class="ag-label">Die Handlungsempfehlungen</span></div><div class="ag-item"><span class="ag-num">7</span><span class="ag-label">Projektrahmen und Workflow</span></div></div></div></section><!-- Chapter: Ausgangssituation -->
 <section data-chapter="1" data-chapter-label="Ausgangssituation"><span class="slide-kicker">Ausgangssituation</span><h2>Strukturelle Lücke im Netz</h2><p class="subline">87 % OTP seit drei Jahren — dauerhaft unter dem VBZ-Ziel von 95 %</p><div class="kv-list"><div class="kv-row"><div class="kv-fact red"><div class="fv">87 %</div><div class="fl">OTP 2023–2025
 (netzweit)</div></div><div class="kv-text">Ist-Zustand 2023–2025: 87 % netzweit. Konstant unter dem VBZ-Zielwert, über alle drei Betriebsjahre ohne erkennbaren Aufwärtstrend.</div></div><div class="kv-row"><div class="kv-fact green"><div class="fv">95 %</div><div class="fl">VBZ-Ziel
 bis 2028</div></div><div class="kv-text">VBZ-Zielwert: 95 % OTP (On-Time Performance, Ankunft ≤ 2 Minuten Verspätung)</div></div><div class="kv-row"><div class="kv-fact red"><div class="fv">−8 %</div><div class="fl">Strukturelle
@@ -62,7 +62,7 @@ Reveal.initialize({
   transition: 'slide',
   transitionSpeed: 'fast',
   margin: 0.07,
-  width: 1280,
+  width: 1024,
   height: 720
 });
 
@@ -121,7 +121,7 @@ function updateNav() {
   });
   // Invert nav colors on dark title / closing slides
   const current = slides[idx];
-  document.body.classList.toggle('nav-invert', !!current && current.classList.contains('title-slide'));
+  document.body.classList.toggle('nav-invert', !!current && (current.classList.contains('title-slide') || current.classList.contains('closing')));
   // Only show the arrow that can actually navigate
   prevArrow.classList.toggle('nav-hidden', idx === 0);
   nextArrow.classList.toggle('nav-hidden', idx === total - 1);
