@@ -255,7 +255,7 @@ body.nav-left       #progress-track        { display: none !important; }
 #progress-track {
   position: fixed;
   bottom: 0;
-  left: 70px; right: 70px;
+  left: 130px; right: 130px;
   height: 10px;
   background: rgba(26, 58, 92, 0.1);
   z-index: 9997;
@@ -290,9 +290,9 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .title-slide .kpi { background: rgba(255,255,255,0.12); border-radius: var(--radius-card); padding: 12px 20px; text-align: center; }
 .title-slide .kpi .v { font-size: 1.8em; font-weight: 700; color: var(--color-title-text); }
 .title-slide .kpi .l { font-size: 0.62em; color: rgba(255,255,255,0.6); margin-top: 4px; line-height: 1.4; }
-/* Start-CTA nutzt denselben Button wie die Closing-Links (.c-link) */
-.title-cta { margin-top: 2.4em; display: flex; justify-content: center; }
-.title-cta .c-link { cursor: pointer; font-size: 1em; padding: 10px 22px; }
+/* Start-CTA: nutzt .closing-links als Wrapper (gleiche Skalierung), nur der margin-top ist eigen */
+.title-cta { margin-top: 2.4em; }
+.title-cta .c-link { cursor: pointer; }
 .title-slide .kpi.red   .v { color: var(--color-kpi-negative); }
 .title-slide .kpi.amber .v { color: var(--color-kpi-warning); }
 .title-slide .kpi.green .v { color: var(--color-kpi-positive); }
