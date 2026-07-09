@@ -1,4 +1,4 @@
-# Slide-Matrix — zh-tram-flow
+# Slide-Matrix — Zurich Tram Flow
 
 Automatisch generiert aus `public/md/slides.yaml` via `scripts/print_slide_matrix.py`. Nicht von Hand editieren — bei jeder Registry-Änderung neu ausführen.
 
