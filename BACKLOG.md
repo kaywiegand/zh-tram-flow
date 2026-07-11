@@ -416,7 +416,7 @@ Beim Dashboard-Ausbau (Phase 5) wurde der Quick Path vollständig ausgeschlossen
 - **stop_sequence + arrival_time:** Beim Cleaning aus test_final entfernt — damit ist Richtungsbestimmung aus IST-Daten allein unmöglich
 - **Konsequenz:** Richtungsmetriken im Dashboard sind aktuell direction-agnostic (stop_agg über alle Trips). Filterung funktioniert nur auf Stop-Listen-Ebene, nicht auf Metriken-Ebene.
 
-**Einziger Weg:** `stop_sequence` im Preprocessing (sf_data-research) behalten → damit Fahrtrichtung aus Terminus-Matching bestimmbar.
+**Einziger Weg:** `stop_sequence` im Preprocessing (zh-tram-data) behalten → damit Fahrtrichtung aus Terminus-Matching bestimmbar.
 
 ### Context: Why This Matters
 
@@ -657,7 +657,7 @@ direction_id | Int64
 - Nur einzelne Linien betroffen
 - Andere Priorities höher (z.B. OP-7 Cascade Mechanics)
 
-**Decision Point:** Nach OP-1 Analyse → OP-1 "Implementation Path Deep" starten (Pipeline-Umbau sf_data-research)
+**Decision Point:** Nach OP-1 Analyse → OP-1 "Implementation Path Deep" starten (Pipeline-Umbau zh-tram-data)
 
 ---
 
@@ -684,14 +684,14 @@ direction_id | Int64
 
 **Implementation Path:** 
 - Quick: Vergleich-Tabellen in Notebook ohne Pipeline-Änderung
-- Deep: Pipeline-Umbau in `sf_data-research` — train_raw + test_final mit direction_id als Dimension. Neue Aggregationen: stop×direction, line×direction. Model v3 Retraining.
+- Deep: Pipeline-Umbau in `zh-tram-data` — train_raw + test_final mit direction_id als Dimension. Neue Aggregationen: stop×direction, line×direction. Model v3 Retraining.
 
 **Dashboard-Implikationen (würde durch diesen Umbau freigeschaltet):**
 - Richtungsabhängige KPIs im "Linie erkunden"-Tab
 - Endstationen ohne IST-Daten (z.B. Tiefenbrunnen) als "k.A." statt 0s anzeigen
 - Direction-Filter im Dashboard reaktivieren — mit echten richtungsspezifischen Metriken
 
-**Warum aktuell nicht umsetzbar:** IST-Format `85:3849:…` vs. GTFS-Format `1.T0.1-10-P-j23-…` — 0 Overlap. Nur Pipeline-Umbau (sf_data-research) kann das beheben.
+**Warum aktuell nicht umsetzbar:** IST-Format `85:3849:…` vs. GTFS-Format `1.T0.1-10-P-j23-…` — 0 Overlap. Nur Pipeline-Umbau (zh-tram-data) kann das beheben.
 
 **Prio:** 2 (interessant, aber nicht blockierend)
 
@@ -825,7 +825,7 @@ Erledigt 2026-06-15:
 
 | # | Beschreibung | Prio | Status |
 | :--- | :--- | :--- | :--- |
-| 34 | **Repo-Referenzen aktualisieren wenn `sf_data-research` umbenannt wird** — README, CLAUDE.md, ROADMAP und alle Notebooks verlinken aktuell auf `sf_data-research`. Bei Umbenennung des Repos zu `zh-tram-data` (oder ähnlich) alle Links und Textstellen ersetzen. Betrifft: README.md (mehrere Stellen), ROADMAP.md Phase 0, 00_introduction.ipynb, 06_prediction_5-comparison.ipynb. | 3 | – |
+| 34 | **Repo-Referenzen aktualisieren wenn `sf_data-research` umbenannt wird** — README, CLAUDE.md, ROADMAP und alle Notebooks verlinken aktuell auf `sf_data-research`. Bei Umbenennung des Repos zu `zh-tram-data` (oder ähnlich) alle Links und Textstellen ersetzen. Betrifft: README.md (mehrere Stellen), ROADMAP.md Phase 0, 00_introduction.ipynb, 06_prediction_5-comparison.ipynb. | 3 | ✅ 2026-07-05 — alle Live-Referenzen auf `zh-tram-data` umgestellt (Notebooks 00/01, README, ROADMAP, CLAUDE.md, DATA_DICTIONARY, DEPLOYMENT, Code) |
 | 71 | **UML-Diagramme für Python-Files** — Klassendiagramme und/oder Modulübersichten für `src/zh_tram_flow/` (analytics/, features/, cleaning.py, etc.) sowie `scripts/` und `apps/dashboard/`. Zeigt Abhängigkeiten + Paketstruktur. Format: SVG oder PNG, eingebunden in Doku (README oder eigene `docs/architecture.md`). Tool-Kandidaten: `pyreverse` (aus pylint) oder `diagrams`. | 2 | – |
 
 ---

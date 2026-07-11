@@ -82,14 +82,14 @@ def get_stops_per_line(year: str, path) -> dict:
 
 
 def load_gtfs(root_path) -> tuple[dict, list]:
-    """Lädt GTFS j23/j24/j25 aus sf_data-research und gibt (gtfs, all_lines) zurück."""
+    """Lädt GTFS j23/j24/j25 aus zh-tram-data und gibt (gtfs, all_lines) zurück."""
     from pathlib import Path
     root_path = Path(root_path)
-    sf_gtfs = root_path.parent / "sf_data-research" / "data" / "raw" / "vbz" / "gtfs"
+    gtfs_root = root_path.parent / "zh-tram-data" / "data" / "raw" / "gtfs"
     years = {
-        "j23": sf_gtfs / "2023_google_transit",
-        "j24": sf_gtfs / "2024_google_transit",
-        "j25": sf_gtfs / "2025_google_transit",
+        "j23": gtfs_root / "2023_google_transit",
+        "j24": gtfs_root / "2024_google_transit",
+        "j25": gtfs_root / "2025_google_transit",
     }
     gtfs = {yr: get_stops_per_line(yr, path) for yr, path in years.items()}
     all_lines = sorted(

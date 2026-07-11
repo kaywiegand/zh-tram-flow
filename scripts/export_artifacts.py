@@ -120,7 +120,7 @@ artifacts:
   report: https://kaywiegand.github.io/zh-tram-flow/report.html
   presentation: https://kaywiegand.github.io/zh-tram-flow/presentation.html
   github: https://github.com/kaywiegand/zh-tram-flow
-  data-engineering: https://github.com/kaywiegand/sf_data-research
+  data-engineering: https://github.com/kaywiegand/zh-tram-data
 notebooks: 12
 notebooks-pdf: docs/exports/notebooks/
 reports-pdf: docs/exports/reports/
@@ -212,7 +212,7 @@ project_meta = {
         "full_report": "https://kaywiegand.github.io/zh-tram-flow/report.html",
         "presentation": "https://kaywiegand.github.io/zh-tram-flow/presentation.html",
         "github": "https://github.com/kaywiegand/zh-tram-flow",
-        "data_engineering": "https://github.com/kaywiegand/sf_data-research",
+        "data_engineering": "https://github.com/kaywiegand/zh-tram-data",
     },
     "exports": {
         "notebooks_pdf": "docs/exports/notebooks/",

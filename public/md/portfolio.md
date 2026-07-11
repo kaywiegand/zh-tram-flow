@@ -480,7 +480,7 @@ data_gap:      VBZ IST trip_id-Format (85:3849:…) inkompatibel mit GTFS trip_i
                (1.T0.1-10-P-j23-…) — direction_id kann nicht nachträglich gejoint werden.
                stop_sequence wurde im Preprocessing entfernt.
 
-unlock_path:   stop_sequence im Preprocessing (sf_data-research) behalten →
+unlock_path:   stop_sequence im Preprocessing (zh-tram-data) behalten →
                Terminus-Matching → direction_id pro Trip → neue Aggregationen:
                stop×direction, line×direction, hour×direction
 
@@ -490,7 +490,7 @@ new_features:  • Richtungsabhängige Delay-Heatmaps
                • Modell v3: direction_id als Dimension
 
 priority:      HIGH — Dashboard-Discovery hat Lücke präzise lokalisiert.
-               Einziger Weg: Pipeline-Umbau in sf_data-research (BACKLOG #68)
+               Einziger Weg: Pipeline-Umbau in zh-tram-data (BACKLOG #68)
 ```
 
 ---

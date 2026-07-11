@@ -21,7 +21,7 @@ jupyter lab
 
 **Prerequisites:** Python 3.10+, [uv](https://docs.astral.sh/uv/)
 
-> **Note:** Raw data not included (541 MB). Data engineering in [`sf_data-research`](https://github.com/kaywiegand/sf_data-research). To run prediction notebooks, download `train_final_v2.parquet` and `test_final_v2.parquet` from release assets.
+> **Note:** Raw data not included (541 MB). Data engineering in [`zh-tram-data`](https://github.com/kaywiegand/zh-tram-data). To run prediction notebooks, download `train_final_v2.parquet` and `test_final_v2.parquet` from release assets.
 
 ---
 
@@ -170,7 +170,7 @@ uv run streamlit run apps/dashboard/app.py
 
 ```bash
 # 1. Get new data
-# Download from sf_data-research or VBZ API
+# Download from zh-tram-data or VBZ API
 # → data/raw/zh-tram-data-master.parquet
 
 # 2. Run feature engineering

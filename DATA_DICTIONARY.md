@@ -2,7 +2,7 @@
 
 **File:** `data/raw/zh-tram-data-master.parquet`
 **Rows:** ~94.4M · **Columns:** 26 · **Period:** 2023–2025
-**Source:** [`sf_data-research`](https://github.com/kaywiegand/sf_data-research)
+**Source:** [`zh-tram-data`](https://github.com/kaywiegand/zh-tram-data)
 
 ---
 

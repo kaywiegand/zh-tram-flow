@@ -28,7 +28,7 @@
 
 ## Datenbasis
 
-Data-Engineering-Phase abgeschlossen — liegt in `sf_data-research`.
+Data-Engineering-Phase abgeschlossen — liegt in `zh-tram-data`.
 
 ```
 data/raw/        ← schreibgeschützt, nie verändern

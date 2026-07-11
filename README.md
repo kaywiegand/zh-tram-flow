@@ -68,7 +68,7 @@ The project covers the full data cycle end-to-end:
 
 | Phase | Scope | Where |
 | :--- | :--- | :--- |
-| **Data Engineering** | Ingest, join, validate 4 data sources (IST · GTFS · Weather · Events) → master dataset | [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) |
+| **Data Engineering** | Ingest, join, validate 4 data sources (IST · GTFS · Weather · Events) → master dataset | [`zh-tram-data`](https://github.com/kaywiegand/zh-tram-data) |
 | **Data Analysis** | 6 analysis dimensions · 66 structured findings | [`03_analysis_0-overview`](notebooks/03_analysis_0-overview.ipynb) |
 | **Data Science** | Feature engineering → LightGBM v1 + v2 → evaluation | [`06_prediction_0-overview`](notebooks/06_prediction_0-overview.ipynb) |
 | **Data Storytelling** | Overview · StoryView · TechView · Dashboard · Hub | [`public/index.html`](https://kaywiegand.github.io/zh-tram-flow/) |
@@ -102,7 +102,7 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 
 ## Dataset
 
-**Final dataset:** `data/raw/zh-tram-data-master.parquet` — produced by [`sf_data-research`](https://github.com/kaywiegand/sf_data-research)
+**Final dataset:** `data/raw/zh-tram-data-master.parquet` — produced by [`zh-tram-data`](https://github.com/kaywiegand/zh-tram-data)
 
 | Property | Value |
 | :--- | :--- |
@@ -133,7 +133,7 @@ The goal is not just a model, but a full analytical story: **analysis dictates t
 
 ### Data Engineering
 
-*(in [`sf_data-research`](https://github.com/kaywiegand/sf_data-research))*
+*(in [`zh-tram-data`](https://github.com/kaywiegand/zh-tram-data))*
 
 - **Feasibility check** — do the data sources exist, in what format and granularity, and can they be meaningfully joined?
 - **Pipeline** — 36 ZIP files → ~38 GB raw → filtered, cleaned, joined with GTFS + Meteo + Events → `vbz_master.parquet`
@@ -298,4 +298,4 @@ jupyter lab
 Senior Consultant · Data Scientist · Berlin
 [LinkedIn](https://de.linkedin.com/in/kaywiegand) · [GitHub](https://github.com/kaywiegand)
 
-*Data engineering in [`sf_data-research`](https://github.com/kaywiegand/sf_data-research) · built with [`wgnd-toolkit`](https://github.com/kaywiegand/wgnd-toolkit) and [`wgnd-scaffolding`](https://github.com/kaywiegand/wgnd-scaffolding).*
+*Data engineering in [`zh-tram-data`](https://github.com/kaywiegand/zh-tram-data) · built with [`wgnd-toolkit`](https://github.com/kaywiegand/wgnd-toolkit) and [`wgnd-scaffolding`](https://github.com/kaywiegand/wgnd-scaffolding).*

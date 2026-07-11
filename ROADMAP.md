@@ -3,7 +3,7 @@
 ---
 
 ## Phase 0 — Research & Data Foundation ✅ ABGESCHLOSSEN
-> Vollständig dokumentiert in [`sf_data-research`](https://github.com/kaywiegand/sf_data-research)
+> Vollständig dokumentiert in [`zh-tram-data`](https://github.com/kaywiegand/zh-tram-data)
 
 - ✅ IST-Daten: Download, Filter, Parquet-Konvertierung
 - ✅ IST-Daten: 8 Spalten, ~94 Mio. Zeilen, 1.096 Parquets, ~1,44 GB
@@ -20,7 +20,7 @@
 ## Phase 1 — Setup & Dateneinstieg ✅ ABGESCHLOSSEN
 
 - ✅ Projektstruktur mit wgnd-scaffolding aufgesetzt
-- ✅ Datenbasis aus sf_data-research übernommen
+- ✅ Datenbasis aus zh-tram-data übernommen
   - `data/raw/zh-tram-data-master.parquet`
   - `data/raw/gtfs/`
 - ✅ `00_introduction.ipynb` mit Projektkontext und Data Dictionary gefüllt
