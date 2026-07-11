@@ -146,7 +146,13 @@
                   "context": "Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre."
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "title": "Wie wir vorgehen",
+          "subtitle": "Von der Ursachenanalyse zur Vorhersage",
+          "content": [
             {
               "type": "steps",
               "items": [
@@ -171,7 +177,7 @@
       "slides": [
         {
           "title": "Datenstrategie",
-          "subtitle": "Vier Quellen, ein temporaler Join, 94,4 Millionen Zeilen",
+          "subtitle": "Primärquellen: VBZ IST-Daten und GTFS-Fahrplan",
           "content": [
             {
               "type": "sections",
@@ -191,7 +197,18 @@
                     "Liniengeometrien und Haltestellen-Koordinaten (lat/lon)",
                     "Join-Key: trip_id × stop_id × service_date"
                   ]
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Datenstrategie",
+          "subtitle": "Kontextquellen: Wetter und Grossveranstaltungen",
+          "content": [
+            {
+              "type": "sections",
+              "items": [
                 {
                   "label": "Meteo Schweiz",
                   "points": [
@@ -214,7 +231,7 @@
         },
         {
           "title": "Datenstrategie",
-          "subtitle": "Cleaning-Entscheidungen und ihre Begründungen",
+          "subtitle": "Cleaning-Entscheidungen und ihre Begründungen (1/2)",
           "content": [
             {
               "type": "contrasts",
@@ -226,7 +243,18 @@
                 {
                   "assumption": "Shuffle-Split für mehr Trainingsdaten",
                   "finding": "Temporal Split: Zukunft darf Vergangenheit nicht kennen. Shuffle würde Data Leakage erzeugen"
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Datenstrategie",
+          "subtitle": "Cleaning-Entscheidungen und ihre Begründungen (2/2)",
+          "content": [
+            {
+              "type": "contrasts",
+              "items": [
                 {
                   "assumption": "arrival_delay winsorisieren (Extremwerte kappen)",
                   "finding": "Kein Capping: MAE belohnt Präzision auch bei Extremwerten. Winsorisierung würde Systemfehler verbergen"
@@ -352,7 +380,7 @@
       "slides": [
         {
           "title": "Modellauswahl und -Anpassung",
-          "subtitle": "Warum LightGBM, warum kein Hyperparameter-Tuning",
+          "subtitle": "Warum LightGBM (1/2)",
           "content": [
             {
               "type": "contrasts",
@@ -364,7 +392,18 @@
                 {
                   "assumption": "Native Categoricals über One-Hot Encoding",
                   "finding": "LightGBM verarbeitet Kategorien nativ — kein One-Hot für line_name, stop_name, event_type. Weniger Speicher, schnelleres Training, keine künstliche Sparsität."
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Modellauswahl und -Anpassung",
+          "subtitle": "Warum kein Hyperparameter-Tuning (2/2)",
+          "content": [
+            {
+              "type": "contrasts",
+              "items": [
                 {
                   "assumption": "Hyperparameter-Tuning vor Feature Engineering",
                   "finding": "Bewusste Entscheidung dagegen: Feature Engineering bringt mehr als Tuning auf schwachen Features. prev_trip_delay allein liefert −27s MAE. Tuning käme danach."
@@ -426,7 +465,7 @@
             {
               "type": "statement",
               "sentiment": "positive",
-              "text": "v1 war systematisch zu optimistisch (MBE +8,3 s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0,69 s. Der MAE-Sprung von 45,7 s auf 18,56 s entspricht −63 % und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature."
+              "text": "v1 war systematisch zu optimistisch (MBE +8,3 s) — v2 kalibriert auf MBE −0,69 s. Der Sprung auf 18,56 s MAE (−63 %) erklärt sich vollständig durch prev_trip_delay."
             }
           ]
         },
@@ -499,7 +538,7 @@
       "slides": [
         {
           "title": "Produktionsreife und Reflexion",
-          "subtitle": "Was produktionsreif ist, was offen bleibt",
+          "subtitle": "Was produktionsreif ist (1/2)",
           "content": [
             {
               "type": "contrasts",
@@ -511,7 +550,18 @@
                 {
                   "assumption": "Offen: Hyperparameter-Tuning",
                   "finding": "Wurde bewusst zurückgestellt. Nächster Schritt nach Feature Engineering. Potenziell weitere −2 bis −4s MAE erreichbar."
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Produktionsreife und Reflexion",
+          "subtitle": "Was offen bleibt (2/2)",
+          "content": [
+            {
+              "type": "contrasts",
+              "items": [
                 {
                   "assumption": "Offen: v2 im Streamlit-Predictor",
                   "finding": "Dashboard nutzt aktuell v1 (Pre-Trip-Use-Case ohne prev_trip_delay). v2 erfordert Live-Signal aus VBZ-Betriebssystem — setzt Daten-Integration voraus."
@@ -541,8 +591,7 @@
                   "title": "Standzeit-Puffer L11 an Koppelstellen",
                   "points": [
                     "dwell_time = 0s an 71,3 % aller Haltestellen ist das Root-Cause-Feature",
-                    "+10s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt",
-                    "L11: OTP 82 %, Ø 68,7 s — Hebel Nr. 1 aus Analyse und Modell"
+                    "+10s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt"
                   ]
                 },
                 {
@@ -550,7 +599,6 @@
                   "title": "prev_trip_delay als Echtzeit-Signal im Dispatching",
                   "points": [
                     "prev_trip_delay ist das stärkste Feature — und in Echtzeit aus VBZ-System verfügbar",
-                    "LightGBM v2 Inferenz: Millisekunden pro Vorhersage, keine Latenz-Probleme",
                     "MAE 18,56 s auf Test 2025: Produktionsreife bereits nachgewiesen"
                   ]
                 },
@@ -559,7 +607,6 @@
                   "title": "Taktanpassung 20–22h auf L11 und L8",
                   "points": [
                     "Peak 21h: 67,9 s — nicht der Morgen (7h: 48,9 s unter Netzschnitt)",
-                    "Donnerstag + Grossevent: kritischste Kombination im Netz",
                     "Spitzenlastmomente sind kalendarisch planbar"
                   ]
                 },
@@ -568,8 +615,7 @@
                   "title": "Stadtkreise 11 und 12 als strukturelle Prioritätszonen",
                   "points": [
                     "Kreis 11: OTP 83 %, Ø 68,3 s — strukturell benachteiligt, nicht situativ",
-                    "district_nr gehört zu den Top-Features im Modell — räumliche Struktur ist lernbar und persistent",
-                    "Kombination mit Prediction-Modell: proaktive Steuerung statt reaktive Entstörung"
+                    "district_nr gehört zu den Top-Features im Modell"
                   ]
                 }
               ]
@@ -594,20 +640,14 @@
               "type": "sections",
               "items": [
                 {
-                  "label": "4 von 7 Forschungsmöglichkeiten (Auswahl)",
+                  "label": "3 von 7 Forschungsmöglichkeiten — Details in BACKLOG.md",
                   "points": [
                     "OP-1: Direction-Asymmetrie (~10s Delta zwischen Richtung A/B)",
                     "OP-2: Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)",
-                    "OP-3: Linienlänge ↔ Delay nicht-linear",
                     "OP-7: Kaskaden-Verstärker vs. -Dämpfer pro Linie"
                   ]
                 }
               ]
-            },
-            {
-              "type": "statement",
-              "sentiment": "neutral",
-              "text": "Detaillierte Hypothesen, Implementation Paths und Prioritäten → BACKLOG.md, Sektion Research Opportunities."
             }
           ]
         }

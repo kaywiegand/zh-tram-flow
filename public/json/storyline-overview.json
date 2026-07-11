@@ -112,7 +112,13 @@
                   "context": "Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre."
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "title": "Wie wir vorgehen",
+          "subtitle": "Von der Ursachenanalyse zur Vorhersage",
+          "content": [
             {
               "type": "steps",
               "items": [
@@ -200,7 +206,7 @@
                 {
                   "label": "Verspätungshotspots nach Haltestelle",
                   "source": "spatial-stop-delay-map",
-                  "caption": "Ø Ankunftsverspätung pro Haltestelle. Hotspots ausschliesslich in peripheren Stadtkreisen 7, 11 und 12. Null Überschneidung mit höchster Liniendichte."
+                  "caption": "Ø Ankunftsverspätung pro Haltestelle. Hotspots ausschliesslich in peripheren Stadtkreisen 7, 11, 12."
                 }
               ]
             }
@@ -229,7 +235,7 @@
       "slides": [
         {
           "title": "Die Kaskade bei den Verspätungen",
-          "subtitle": "Ohne Puffer im Fahrplan überträgt sich jede Verspätung auf die Folgefahrten — in vier Schritten bewiesen",
+          "subtitle": "Ohne Puffer im Fahrplan überträgt sich jede Verspätung auf die Folgefahrten — in Zahlen",
           "content": [
             {
               "type": "figures",
@@ -255,7 +261,13 @@
                   "sentiment": "negative"
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "title": "Wie sich die Kaskade aufbaut",
+          "subtitle": "Vier Schritte, vom ersten Anzeichen bis zum netzweiten Beweis",
+          "content": [
             {
               "type": "sequence",
               "items": [
@@ -276,12 +288,24 @@
                   "text": "Pearson r ≥ 0,85 zwischen aufeinanderfolgenden Halts auf allen 16 Linien. Systematisch, kein Einzelfall."
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "title": "Ein Fahrplan-Design-Thema",
+          "subtitle": "Nicht Betriebsversagen — strukturell angelegt",
+          "content": [
             {
               "type": "statement",
               "sentiment": "neutral",
               "text": "Das ist kein Betriebsversagen. Es ist ein Fahrplan-Design-Thema. Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden."
-            },
+            }
+          ]
+        },
+        {
+          "title": "Externe Faktoren verstärken, ändern aber nichts Grundlegendes",
+          "subtitle": "Wetter und Grossevents wirken, das Grundproblem bleibt strukturell",
+          "content": [
             {
               "type": "statement",
               "sentiment": "warning",
@@ -300,14 +324,22 @@
       "nav_label": "Das Modell",
       "slides": [
         {
-          "title": "Drei Iterationen der Modellierung",
-          "subtitle": "Von der Baseline über Feature Engineering zum finalen Ensemble-Modell",
+          "title": "Warum Machine Learning?",
+          "subtitle": "Drei Iterationen der Modellierung — von der Baseline zum finalen Modell",
           "content": [
             {
               "type": "statement",
               "sentiment": "neutral",
-              "text": "Warum ML? Weil die Struktur der Daten nichtlinear ist: Linie × Haltestelle × Tageszeit × Wetter × Event interagieren auf eine Weise, die kein handcodiertes Modell erfassen kann. Und weil prev_trip_delay ein Echtzeit-Signal ist, das einen Feedback-Loop im Modell ermöglicht."
-            },
+              "layout": "lead_copy",
+              "text": "Die Struktur der Daten ist nichtlinear.",
+              "copy": "Linie × Haltestelle × Tageszeit × Wetter × Event interagieren auf eine Weise, die kein handcodiertes Modell erfassen kann — und prev_trip_delay liefert ein Echtzeit-Signal für einen Feedback-Loop im Modell."
+            }
+          ]
+        },
+        {
+          "title": "Drei Iterationen der Modellierung",
+          "subtitle": "Von der Baseline über Feature Engineering zum finalen Ensemble-Modell",
+          "content": [
             {
               "type": "comparison_table",
               "columns": [
@@ -445,8 +477,7 @@
                   "title": "Standzeit-Puffer L11 an Koppelstellen",
                   "points": [
                     "dwell_time = 0s an 71,3 % aller Haltestellen ist das Root-Cause-Feature",
-                    "+10s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt",
-                    "L11: OTP 82 %, Ø 68,7 s — Hebel Nr. 1 aus Analyse und Modell"
+                    "+10s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt"
                   ]
                 },
                 {
@@ -454,7 +485,6 @@
                   "title": "prev_trip_delay als Echtzeit-Signal im Dispatching",
                   "points": [
                     "prev_trip_delay ist das stärkste Feature — und in Echtzeit aus VBZ-System verfügbar",
-                    "LightGBM v2 Inferenz: Millisekunden pro Vorhersage, keine Latenz-Probleme",
                     "MAE 18,56 s auf Test 2025: Produktionsreife bereits nachgewiesen"
                   ]
                 },
@@ -463,7 +493,6 @@
                   "title": "Taktanpassung 20–22h auf L11 und L8",
                   "points": [
                     "Peak 21h: 67,9 s — nicht der Morgen (7h: 48,9 s unter Netzschnitt)",
-                    "Donnerstag + Grossevent: kritischste Kombination im Netz",
                     "Spitzenlastmomente sind kalendarisch planbar"
                   ]
                 },
@@ -472,8 +501,7 @@
                   "title": "Stadtkreise 11 und 12 als strukturelle Prioritätszonen",
                   "points": [
                     "Kreis 11: OTP 83 %, Ø 68,3 s — strukturell benachteiligt, nicht situativ",
-                    "district_nr gehört zu den Top-Features im Modell — räumliche Struktur ist lernbar und persistent",
-                    "Kombination mit Prediction-Modell: proaktive Steuerung statt reaktive Entstörung"
+                    "district_nr gehört zu den Top-Features im Modell"
                   ]
                 }
               ]
@@ -515,8 +543,8 @@
       "nav_label": "Projektrahmen",
       "slides": [
         {
-          "title": "Offen & reproduzierbar",
-          "subtitle": "Open Data, AI-Workflow, vollständig reproduzierbar",
+          "title": "Daten & Stack",
+          "subtitle": "Umfang der Datenbasis und eingesetzte Technologie",
           "content": [
             {
               "type": "sections",
@@ -537,7 +565,18 @@
                     "LightGBM (Modellierung) · Plotly (Visualisierung) · Streamlit (Dashboard)",
                     "Trainingszeit LightGBM v2: ca. 18 Minuten auf Consumer-Hardware"
                   ]
-                },
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Offen & reproduzierbar",
+          "subtitle": "Open Data, AI-Workflow, vollständig reproduzierbar",
+          "content": [
+            {
+              "type": "sections",
+              "items": [
                 {
                   "label": "AI-Workflow als Differenziator",
                   "points": [

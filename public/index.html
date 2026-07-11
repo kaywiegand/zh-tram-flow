@@ -4,38 +4,46 @@
   NICHT public/index.html direkt editieren — wird beim nächsten Lauf überschrieben.
   Layout + kuratierte Hub-Copy hier im Template ändern.
   Dynamische Werte ({{...}}) kommen aus portfolio.md (Name, Zeitraum, URLs).
+
+  Farb-/Typo-Tokens kommen per <link> aus css/slides.css (selbe Datei wie die Slides,
+  wird von generate_html_from_json.py bereits nach public/css/ kopiert) — ein Theme-
+  Wechsel (--card/--card-border in slides.css) zieht damit Hub und Slides gleichzeitig.
 -->
 <html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zurich Tram Flow — Portfolio</title>
+  <link rel="stylesheet" href="css/slides.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      color: #2d3748; line-height: 1.6; background: #f8fafc;
+      font-family: var(--font-ui);
+      color: var(--ink); line-height: 1.6; background: #FAFAFA;
     }
 
     /* ─── Header ─────────────────────────────── */
     header {
-      background: #1a3a5c;
+      background: var(--navy);
       color: white; padding: 4rem 2rem 3.5rem;
     }
     .header-inner { max-width: 900px; margin: 0 auto; }
-    header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.35rem; }
+    header h1 { font-size: 2.2rem; font-weight: 500; margin-bottom: 0.35rem; }
     header .tagline  { font-size: 1rem; opacity: 0.85; margin-bottom: 0.15rem; }
     header .subtitle { font-size: 1rem; opacity: 0.85; margin-bottom: 0; }
 
-    .kpi-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 1.6rem; }
-    .kpi { background: #fff; border: 1px solid #dde8f0;
-           border-radius: 5px; padding: 10px 18px; text-align: center; min-width: 110px; }
-    .kpi .v { font-size: 1.5rem; font-weight: 700; color: #1a3a5c; }
-    .kpi .l { font-size: 0.68rem; color: #888; letter-spacing: 0.04em; margin-top: 2px; }
-    .kpi.positive .v { color: #27ae60; }
-    .kpi.negative .v { color: #c0392b; }
-    .kpi.warning .v { color: #e67e22; }
+    /* KPI-Reihe wie E1 im Slide-System: Border-Left-Akzent, kein Kasten */
+    .kpi-row { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 2rem; }
+    .kpi { border-left: 3px solid rgba(255,255,255,0.25); padding-left: 14px; text-align: left; }
+    .kpi .v { font-size: 1.6rem; font-weight: 500; color: #fff; line-height: 1; }
+    .kpi .l { font-size: 0.68rem; color: rgba(255,255,255,0.6); letter-spacing: 0.04em; margin-top: 6px; }
+    .kpi.positive { border-left-color: var(--color-kpi-positive); }
+    .kpi.positive .v { color: var(--color-kpi-positive); }
+    .kpi.negative { border-left-color: var(--color-kpi-negative); }
+    .kpi.negative .v { color: var(--color-kpi-negative); }
+    .kpi.warning { border-left-color: var(--color-kpi-warning); }
+    .kpi.warning .v { color: var(--color-kpi-warning); }
 
     /* ─── Main rhythm ────────────────────────────
        First block ↔ header  ==  block ↔ block  ==  last block ↔ footer  ==  4rem */
@@ -43,45 +51,45 @@
     section { margin-bottom: 4rem; }
 
     .section-label {
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em;
-      color: #2E86AB; margin-bottom: 0.5rem;
+      font-size: 0.72rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.6em;
     }
-    h2 { font-size: 1.35rem; font-weight: 700; color: #1a3a5c; margin-bottom: 0.5rem; }
-    .section-intro { font-size: 0.92rem; color: #555; margin-bottom: 0.5rem; line-height: 1.6; }
+    h2 { font-size: 1.35rem; font-weight: 500; color: var(--navy); margin-bottom: 0.5rem; }
+    .section-intro { font-size: 0.92rem; color: var(--ink-body); margin-bottom: 0.5rem; line-height: 1.6; }
 
-    /* ─── View Cards Grid (3 columns) ─────────────── */
+    /* ─── View Cards Grid (3 columns) — wie E2/E3 Karten: gefüllte Fläche, kein Rahmen ── */
     .view-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 16px;
-      margin-top: 1.2rem;
+      gap: 22px;
+      margin-top: 1.4rem;
     }
     @media (max-width: 760px) {
       .view-grid { grid-template-columns: 1fr; }
     }
 
     .view-card {
-      background: #fff; border: 1px solid #dde8f0;
-      padding: 22px; border-top: 4px solid #2E86AB;
-      border-radius: 5px;
+      background: var(--card);
+      padding: 22px 24px;
+      border-radius: var(--radius-card);
       text-decoration: none; color: inherit;
-      transition: box-shadow 0.18s, transform 0.18s;
+      transition: background 0.15s, transform 0.15s;
       display: flex; flex-direction: column;
     }
-    .view-card:hover { box-shadow: 0 4px 24px rgba(46,134,171,0.2); transform: translateY(-2px); }
+    .view-card:hover { background: var(--card-border); transform: translateY(-2px); }
 
     .view-label {
-      font-size: 0.74rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 8px;
-      color: #2E86AB;
+      font-size: 0.68rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 1em; color: var(--accent);
     }
 
-    .view-card h3 { font-size: 1.15rem; color: #1a3a5c; margin-bottom: 6px; }
-    .view-card .view-desc { font-size: 0.85rem; color: #555; margin-bottom: 14px; line-height: 1.5; flex-grow: 1; }
+    .view-card h3 { font-size: 1.15rem; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+    .view-card .view-desc { font-size: 0.85rem; color: var(--ink-body); margin-bottom: 14px; line-height: 1.5; flex-grow: 1; }
     .view-meta { display: flex; gap: 12px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
-    .view-time { font-size: 0.75rem; color: #888; font-weight: 500; }
+    .view-time { font-size: 0.75rem; color: var(--ink-soft); font-weight: 500; }
     .view-badge {
-      font-size: 0.7rem; font-weight: 600; padding: 3px 9px; border-radius: 5px;
-      background: #e6f3ff; color: #0066cc;
+      font-size: 0.7rem; font-weight: 600; padding: 3px 9px; border-radius: var(--radius-box);
+      background: #fff; color: var(--navy);
     }
 
     /* ─── Quick Links ─────────────────────────── */
@@ -95,22 +103,22 @@
     }
     .quick-link {
       display: flex; align-items: center; gap: 10px;
-      padding: 12px 14px; border-radius: 5px;
-      text-decoration: none; color: #2E86AB;
-      background: #f0f7fb; border: 1px solid #c8e0ef;
+      padding: 12px 14px; border-radius: var(--radius-card);
+      text-decoration: none; color: var(--accent);
+      background: var(--bg-box-default);
       transition: background 0.15s, color 0.15s;
       font-size: 0.9rem; font-weight: 500;
     }
-    .quick-link:hover { background: #dde8f0; color: #1a3a5c; }
+    .quick-link:hover { background: var(--card-border); color: var(--navy); }
     .quick-link::before { content: "→"; font-weight: 700; }
 
     /* ─── Footer ─────────────────────────── */
     footer {
-      background: #f0f5f9; border-top: 1px solid #dde8f0;
-      padding: 2rem; text-align: center; color: #888; font-size: 0.85rem;
+      background: var(--bg-box-default); border-top: 1px solid var(--card-border);
+      padding: 2rem; text-align: center; color: var(--ink-soft); font-size: 0.85rem;
       margin-top: 4rem;
     }
-    footer a { color: #2E86AB; text-decoration: none; }
+    footer a { color: var(--accent); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
   </style>
 </head>

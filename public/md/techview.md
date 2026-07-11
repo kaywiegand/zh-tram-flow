@@ -66,13 +66,17 @@ Lücke
 verspätung
   - Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre.
 
+## Wie wir vorgehen
+*Von der Ursachenanalyse zur Vorhersage*
+
+
 
 ---
 
 ### Datenstrategie
 
 ## Datenstrategie
-*Vier Quellen, ein temporaler Join, 94,4 Millionen Zeilen*
+*Primärquellen: VBZ IST-Daten und GTFS-Fahrplan*
 
 * **VBZ IST-Daten (Primärquelle)**
   - Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025
@@ -82,6 +86,10 @@ verspätung
   - Geplante Ankunfts-/Abfahrtszeiten, dwell_time, stop_sequence
   - Liniengeometrien und Haltestellen-Koordinaten (lat/lon)
   - Join-Key: trip_id × stop_id × service_date
+
+## Datenstrategie
+*Kontextquellen: Wetter und Grossveranstaltungen*
+
 * **Meteo Schweiz**
   - Stündliche Messwerte: Temperatur, Niederschlag, Windgeschwindigkeit
   - Join über Zeitstempel (hour-level) auf IST-Daten
@@ -92,7 +100,11 @@ verspätung
   - Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet
 
 ## Datenstrategie
-*Cleaning-Entscheidungen und ihre Begründungen*
+*Cleaning-Entscheidungen und ihre Begründungen (1/2)*
+
+
+## Datenstrategie
+*Cleaning-Entscheidungen und ihre Begründungen (2/2)*
 
 
 
@@ -136,13 +148,17 @@ verspätung
 ### Modellauswahl
 
 ## Modellauswahl und -Anpassung
-*Warum LightGBM, warum kein Hyperparameter-Tuning*
+*Warum LightGBM (1/2)*
+
+
+## Modellauswahl und -Anpassung
+*Warum kein Hyperparameter-Tuning (2/2)*
 
 
 ## Modellauswahl und -Anpassung
 *v1 zu v2: der Sprung kam aus der Analyse, nicht aus dem Algorithmus*
 
-> v1 war systematisch zu optimistisch (MBE +8,3 s). v2 mit Isotonic-Regression-Kalibrierung: MBE −0,69 s. Der MAE-Sprung von 45,7 s auf 18,56 s entspricht −63 % und erklärt sich vollständig durch prev_trip_delay — das stärkste neue Feature.
+> v1 war systematisch zu optimistisch (MBE +8,3 s) — v2 kalibriert auf MBE −0,69 s. Der Sprung auf 18,56 s MAE (−63 %) erklärt sich vollständig durch prev_trip_delay.
 
 ## Robustheits-Check
 *XGBoost-Vergleich und Stabilitätsprüfung*
@@ -169,7 +185,11 @@ verspätung
 ### Evaluation
 
 ## Produktionsreife und Reflexion
-*Was produktionsreif ist, was offen bleibt*
+*Was produktionsreif ist (1/2)*
+
+
+## Produktionsreife und Reflexion
+*Was offen bleibt (2/2)*
 
 
 
@@ -190,12 +210,10 @@ verspätung
 *Dashboard-Exploration offenbarte 7 systematische Forschungsmöglichkeiten*
 
 > Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie? Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale.
-* **4 von 7 Forschungsmöglichkeiten (Auswahl)**
+* **3 von 7 Forschungsmöglichkeiten — Details in BACKLOG.md**
   - OP-1: Direction-Asymmetrie (~10s Delta zwischen Richtung A/B)
   - OP-2: Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)
-  - OP-3: Linienlänge ↔ Delay nicht-linear
   - OP-7: Kaskaden-Verstärker vs. -Dämpfer pro Linie
-> Detaillierte Hypothesen, Implementation Paths und Prioritäten → BACKLOG.md, Sektion Research Opportunities.
 
 
 ---

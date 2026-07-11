@@ -57,6 +57,10 @@ Lücke
 verspätung
   - Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre.
 
+## Wie wir vorgehen
+*Von der Ursachenanalyse zur Vorhersage*
+
+
 ## Alle 16 Linien im Soll
 *Keine einzige Linie erreicht das Ziel — die Lücke zieht sich durch das gesamte Netz*
 
@@ -88,13 +92,25 @@ verspätung
 ### Erkenntnis
 
 ## Die Kaskade bei den Verspätungen
-*Ohne Puffer im Fahrplan überträgt sich jede Verspätung auf die Folgefahrten — in vier Schritten bewiesen*
+*Ohne Puffer im Fahrplan überträgt sich jede Verspätung auf die Folgefahrten — in Zahlen*
 
 * **71,5 %** — Halte akkumulieren Delay
 * **L11** — 68,7 s · OTP 82 % — stärkste Akkumulation
 * **71,3 %** — Haltestellen ohne Standzeit (0s)
 * **r ≥ 0,85** — Kaskadenkorrelation alle 16 Linien
+
+## Wie sich die Kaskade aufbaut
+*Vier Schritte, vom ersten Anzeichen bis zum netzweiten Beweis*
+
+
+## Ein Fahrplan-Design-Thema
+*Nicht Betriebsversagen — strukturell angelegt*
+
 > Das ist kein Betriebsversagen. Es ist ein Fahrplan-Design-Thema. Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden.
+
+## Externe Faktoren verstärken, ändern aber nichts Grundlegendes
+*Wetter und Grossevents wirken, das Grundproblem bleibt strukturell*
+
 > Zwei externe Einflussfaktoren sind messbar und erheblich: Schnee (+54s) und Grossevents (bis +66s bei Fachmessen). Doch das Grundniveau der Verspätung bleibt auch bei optimalen Bedingungen konstant hoch. Externe Faktoren verstärken, was intern bereits strukturell angelegt ist.
 > Trotz Bauphasen, Streckensperrungen und Fahrplanumstellungen hält die VBZ das System bemerkenswert stabil. Die Verspätungslevel schwanken durch diese Eingriffe kaum. Die Ursache liegt nicht in externen Störungen, sondern im Fahrplan-Design selbst.
 
@@ -103,10 +119,14 @@ verspätung
 
 ### Das Modell
 
+## Warum Machine Learning?
+*Drei Iterationen der Modellierung — von der Baseline zum finalen Modell*
+
+> Die Struktur der Daten ist nichtlinear.
+
 ## Drei Iterationen der Modellierung
 *Von der Baseline über Feature Engineering zum finalen Ensemble-Modell*
 
-> Warum ML? Weil die Struktur der Daten nichtlinear ist: Linie × Haltestelle × Tageszeit × Wetter × Event interagieren auf eine Weise, die kein handcodiertes Modell erfassen kann. Und weil prev_trip_delay ein Echtzeit-Signal ist, das einen Feedback-Loop im Modell ermöglicht.
 > Der Sprung von v1 auf v2 kam nicht durch einen besseren Algorithmus, sondern durch das richtige Signal aus der Analyse: den Kaskadenindikator (prev_trip_delay).
 
 ## 18,56 Sekunden MAE
@@ -150,8 +170,8 @@ verspätung
 
 ### Projektrahmen
 
-## Offen & reproduzierbar
-*Open Data, AI-Workflow, vollständig reproduzierbar*
+## Daten & Stack
+*Umfang der Datenbasis und eingesetzte Technologie*
 
 * **Datenbasis und Umfang**
   - VBZ IST-Daten · GTFS · Meteo Schweiz · Event-Kalender
@@ -162,6 +182,10 @@ verspätung
   - Python · Polars (85 Mio. Zeilen, lazy evaluation) · Jupyter · uv
   - LightGBM (Modellierung) · Plotly (Visualisierung) · Streamlit (Dashboard)
   - Trainingszeit LightGBM v2: ca. 18 Minuten auf Consumer-Hardware
+
+## Offen & reproduzierbar
+*Open Data, AI-Workflow, vollständig reproduzierbar*
+
 * **AI-Workflow als Differenziator**
   - Claude Code für iterative Analyse, Code-Refactoring, Dokumentation
   - Promptbasiertes Scaffolding: von der Idee zur Notebook-Struktur in Minuten
