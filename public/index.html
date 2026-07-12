@@ -57,16 +57,21 @@
     h2 { font-size: 1.35rem; font-weight: 500; color: var(--navy); margin-bottom: 0.5rem; }
     .section-intro { font-size: 0.92rem; color: var(--ink-body); margin-bottom: 0.5rem; line-height: 1.6; }
 
-    /* "Das Projekt" — zweispaltig, wie E14 im Slide-System (Headline + Absatz je Spalte) */
+    /* "Das Projekt" — zweispaltiger Textfluss (wie .sec-text im Slide-System): jede
+       Spalte folgt ihrer eigenen Höhe statt Zeilen zu erzwingen, die nicht zum
+       Textfluss passen (kein CSS-Grid mit gleich hohen Reihen). */
     .about-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem 3rem;
+      column-count: 2; column-gap: 3rem;
       margin-top: 1.2rem;
     }
     @media (max-width: 760px) {
-      .about-grid { grid-template-columns: 1fr; }
+      .about-grid { column-count: 1; }
     }
-    .about-item { font-size: 0.92rem; color: var(--ink-body); line-height: 1.6; }
-    .about-item strong { display: block; color: var(--navy); font-weight: 500; margin-bottom: 0.4em; }
+    .about-item {
+      font-size: 0.92rem; color: var(--ink-body); line-height: 1.7;
+      break-inside: avoid; margin-bottom: 1.5rem;
+    }
+    .about-item strong { display: block; color: var(--navy); font-weight: 500; margin-bottom: 0.2em; }
 
     /* ─── View Cards Grid (3 columns) — wie E2/E3 Karten: gefüllte Fläche, kein Rahmen ── */
     .view-grid {
@@ -168,11 +173,11 @@
     <div class="section-label">Motivation & Ansatz</div>
     <h2>Das Projekt</h2>
     <div class="about-grid">
-      <div class="about-item"><strong>Motivation</strong><br>Öffentliche Verkehrsmittel sind Alltagserlebnis. Verspätungen lassen sich nicht abstrakt erklären — sondern direkt erleben. Das macht sie zum idealen Subject für datengesteuerte Analyse und Vorhersage.</div>
-      <div class="about-item"><strong>Kernfrage</strong><br>Sind Verspätungen im Zürcher Tramnetz vorhersagbar? <strong>Ja</strong> — weil sie im Fahrplan-Design verankert sind. 71,3% aller Haltestellen haben 0s dwell_time (keinen Puffer). Das ist kein Wetter- oder Event-Problem, sondern ein strukturelles Design-Problem.</div>
-      <div class="about-item"><strong>Identifikation & Ursachen</strong><br>6 Analysedimensionen (Temporal · Spatial · Network · Meteorology · Events · Target) offenbaren die Struktur: Periphere Korridore mit höchsten Delays · Pearson r ≥ 0,85 Delay-Kaskade zwischen aufeinanderfolgenden Halten · Schnee +54s Effekt geografisch separierbar von Regen. 66 strukturierte Findings dokumentieren Patterns und Hebel.</div>
-      <div class="about-item"><strong>Ergebnisse</strong><br>LightGBM v2 erreicht 18,56 s MAE (−63% vs. Baseline). Das Modell bestätigt die Analyse: Delay ist vorhersagbar, weil es strukturell ist. 4 Datenquellen über 94,4M Halt-Ereignisse (2023–2025).</div>
-      <div class="about-item"><strong>Data Cycle</strong><br>Data Engineering (4 Quellen) → Data Analysis (6 Dimensionen) → Data Science (Modell) → Data Storytelling (Report, Dashboard, Insights).</div>
+      <div class="about-item"><strong>Motivation</strong>Öffentliche Verkehrsmittel sind Alltagserlebnis. Verspätungen lassen sich nicht abstrakt erklären — sondern direkt erleben. Das macht sie zum idealen Subject für datengesteuerte Analyse und Vorhersage.</div>
+      <div class="about-item"><strong>Kernfrage</strong>Sind Verspätungen im Zürcher Tramnetz vorhersagbar? <strong>Ja</strong> — weil sie im Fahrplan-Design verankert sind. 71,3% aller Haltestellen haben 0s dwell_time (keinen Puffer). Das ist kein Wetter- oder Event-Problem, sondern ein strukturelles Design-Problem.</div>
+      <div class="about-item"><strong>Identifikation & Ursachen</strong>6 Analysedimensionen (Temporal · Spatial · Network · Meteorology · Events · Target) offenbaren die Struktur: Periphere Korridore mit höchsten Delays · Pearson r ≥ 0,85 Delay-Kaskade zwischen aufeinanderfolgenden Halten · Schnee +54s Effekt geografisch separierbar von Regen. 66 strukturierte Findings dokumentieren Patterns und Hebel.</div>
+      <div class="about-item"><strong>Ergebnisse</strong>LightGBM v2 erreicht 18,56 s MAE (−63% vs. Baseline). Das Modell bestätigt die Analyse: Delay ist vorhersagbar, weil es strukturell ist. 4 Datenquellen über 94,4M Halt-Ereignisse (2023–2025).</div>
+      <div class="about-item"><strong>Data Cycle</strong>Data Engineering (4 Quellen) → Data Analysis (6 Dimensionen) → Data Science (Modell) → Data Storytelling (Report, Dashboard, Insights).</div>
     </div>
   </section>
 
