@@ -887,7 +887,7 @@ hub:
     - label: "Motivation"
       text: "Öffentliche Verkehrsmittel sind Alltagserlebnis. Verspätungen lassen sich nicht abstrakt erklären — sondern direkt erleben. Das macht sie zum idealen Subject für datengesteuerte Analyse und Vorhersage."
     - label: "Kernfrage"
-      text: "Sind Verspätungen im Zürcher Tramnetz vorhersagbar? <strong>Ja</strong> — weil sie im Fahrplan-Design verankert sind. 71,3% aller Haltestellen haben 0s dwell_time (keinen Puffer). Das ist kein Wetter- oder Event-Problem, sondern ein strukturelles Design-Problem."
+      text: "Sind Verspätungen im Zürcher Tramnetz vorhersagbar? Ja — weil sie im Fahrplan-Design verankert sind. 71,3% aller Haltestellen haben 0s dwell_time (keinen Puffer). Das ist kein Wetter- oder Event-Problem, sondern ein strukturelles Design-Problem."
     - label: "Identifikation & Ursachen"
       text: "6 Analysedimensionen (Temporal · Spatial · Network · Meteorology · Events · Target) offenbaren die Struktur: Periphere Korridore mit höchsten Delays · Pearson r ≥ 0,85 Delay-Kaskade zwischen aufeinanderfolgenden Halten · Schnee +54s Effekt geografisch separierbar von Regen. 66 strukturierte Findings dokumentieren Patterns und Hebel."
     - label: "Ergebnisse"
