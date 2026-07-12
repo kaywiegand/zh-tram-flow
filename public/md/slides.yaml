@@ -885,7 +885,7 @@ hub:
   footer_tagline: "Verspätungsvorhersage & Fahrplan-Optimierung"
   about:
     - label: "Motivation"
-      text: "Öffentliche Verkehrsmittel sind Alltagserlebnis. Verspätungen lassen sich nicht abstrakt erklären — sondern direkt erleben. Das macht sie zum idealen Subject für datengesteuerte Analyse und Vorhersage."
+      text: "Öffentliche Verkehrsmittel sind Alltagserlebnis. Verspätungen lassen sich nicht abstrakt erklären — sondern direkt erleben. Das macht sie zum idealen Subject für datengesteuerte Analyse und Vorhersage, mit nachhaltigem Impact für die Bevölkerung."
     - label: "Kernfrage"
       text: "Sind Verspätungen im Zürcher Tramnetz vorhersagbar? Ja — weil sie im Fahrplan-Design verankert sind. 71,3% aller Haltestellen haben 0s dwell_time (keinen Puffer). Das ist kein Wetter- oder Event-Problem, sondern ein strukturelles Design-Problem."
     - label: "Identifikation & Ursachen"
@@ -893,7 +893,7 @@ hub:
     - label: "Ergebnisse"
       text: "LightGBM v2 erreicht 18,56 s MAE (−63% vs. Baseline). Das Modell bestätigt die Analyse: Delay ist vorhersagbar, weil es strukturell ist. 4 Datenquellen über 94,4M Halt-Ereignisse (2023–2025)."
     - label: "Data Cycle"
-      text: "Data Engineering (4 Quellen) → Data Analysis (6 Dimensionen) → Data Science (Modell) → Data Storytelling (Report, Dashboard, Insights)."
+      text: "Data Engineering (4 Quellen) → Data Analysis (6 Dimensionen) → Data Science (Modell) → Data Storytelling (Präsentationen, Dashboard, Insights)."
   quick_links:
     - {href: "https://zh-tram-flow.streamlit.app", label: "Dashboard-Prototype"}
     - {href: "network-map.html", label: "Netzwerk-Karte"}
