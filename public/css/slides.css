@@ -67,7 +67,7 @@
 .reveal { font-size: var(--font-base-size); font-family: var(--font-ui); }
 .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
 /* kein h1 mehr im Generator — Title-Slide nutzt jetzt render_head() wie jede andere Slide */
-.reveal h2 { font-size: 1.85em; color: var(--navy); margin: 0 0 0.4em; text-align: left; line-height: 1.3; font-weight: 500; }
+.reveal h2 { font-size: 1.85em; color: var(--navy); margin: 0 0 0.4em; text-align: left; line-height: 1.3; font-weight: 500; font-family: var(--font-ui); }
 .reveal .subline { font-size: 0.86em; color: var(--ink-body); font-weight: 400; letter-spacing: normal; margin-top: 0; margin-bottom: 0; max-width: 68ch; text-align: left; display: block; line-height: 1.5; }
 .slide-kicker { font-size: 0.68em; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6em; display: block; text-align: left; }
 .slide-subtitle { font-size: 0.84em; color: var(--ink-body); margin-top: -0.8em; margin-bottom: 1.4em; line-height: 1.5; }
@@ -545,13 +545,26 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .reveal blockquote.statement {
   font-size: 1.12em; line-height: 1.55; color: var(--navy);
   font-weight: 400; text-align: center; max-width: 860px;
-  margin: 3em auto; padding: 0.4em 0.6em;
+  margin: 0.7em auto; padding: 0.4em 0.6em;
   background: none; box-shadow: none; border: none; font-style: normal;
 }
-/* 3em ist für "nach KPI-Row/Tabelle/Steps" gedacht — bei gestapelten Callout-
-   Statements (layout: callout, mehrere blockquote.statement direkt hinter-
-   einander) wäre das kumulativ (3em + 3em) viel zu viel Abstand dazwischen. */
-.reveal blockquote.statement + blockquote.statement { margin-top: 0.7em; }
+/* Größerer Abstand NUR nach einem "schweren" Vorgänger-Element (KPI-Row,
+   Tabelle, Steps, Empfehlungen) — als eigene Regel auf margin-top, statt den
+   Basiswert selbst zu erhöhen. Grund: .content-zone ist ein Flex-Container,
+   dort kollabieren Margins zwischen Geschwistern NICHT (anders als im
+   normalen Blockfluss) — würde man stattdessen die Basis auf 3em setzen und
+   bei gestapelten Callout-Statements (mehrere blockquote.statement
+   hintereinander) nur den margin-top der zweiten Blockquote wieder senken,
+   bliebe trotzdem margin-bottom:3em an der ersten stehen und die Lücke
+   summiert sich auf ~3.7em statt der gewünschten ~0.7em. */
+/* .reveal-Präfix ist Pflicht, nicht Kosmetik: ".reveal blockquote.statement"
+   hat 2 Klassen (0,2,1) — ohne den Präfix hätte z.B. "table + blockquote.statement"
+   nur 1 Klasse (0,1,2) und würde TROTZ passendem Selektor gegen die Basisregel
+   verlieren (Klassenzahl schlägt Elementzahl bei der CSS-Spezifität). */
+.reveal .metric-row + blockquote.statement,
+.reveal table + blockquote.statement,
+.reveal .steps + blockquote.statement,
+.reveal .reco-grid + blockquote.statement { margin-top: 3em; }
 .reveal blockquote.statement::before,
 .reveal blockquote.statement::after { content: none; }
 /* In a two-column layout the statement reads as left-aligned body text */
