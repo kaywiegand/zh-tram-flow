@@ -2038,3 +2038,19 @@ Commits: `a13a0e3` (dieses Repo), `dee9f9a` (`wgnd-skills`, gepusht).
 **Nächster Schritt:** keiner offen. `wgnd-skills/README.md` erwähnt noch das alte
 Symlink-Setup (`ln -s ... skills/`) statt der direkten `~/.claude/commands/`-Registrierung —
 nicht in dieser Session gefixt, für nächste `wgnd-skills`-Session vormerken.
+
+---
+
+### 2026-07-13 — Styleguide v2 (globale Fixes passiv übernommen)
+
+Der eigentliche Styleguide-v2-Review lief auf `zh-tram-data`/Storyview (siehe dortiges
+`PROCESS_LOG.md`) — dieses Projekt hat nur die **globalen** Fixes aus dem gemeinsamen
+`wgnd-skills/project-case`-Template übernommen (Titel-Slide-Typografie an den Hub angeglichen,
+Kopf-/Content-Zone-Konsistenz, KPI-Row-Zentrierung, Blockquote-Abstände, Tabellen-Farbe).
+Projektspezifisch **unverändert**: die Closing-These ("Was vorhersagbar ist, ist steuerbar.")
+ist bewusst NICHT auf das neue `title_from_hub`-Opt-in umgestellt — behält ihren eigenen
+Wortlaut statt der Hub-Formulierung, wie bereits bei der Feature-Entwicklung entschieden.
+
+**Nächster Schritt:** Kein eigener Review dieses Projekts in dieser Session — falls
+`wgnd-skills`-Branch `feature/styleguide-v2` gemerged wird, lohnt ein kurzer visueller
+Gegencheck der eigenen Views (overview/storyview/techview).
