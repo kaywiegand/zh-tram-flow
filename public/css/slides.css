@@ -353,11 +353,12 @@ body.nav-invert #progress-fill                    { background: #fff; }
    die GANZE Slide-Höhe als Zeile auf, nicht Kopfzone+Content-Zone übereinander,
    die starre 150px-Kopfzonen-Regel passt hier nicht (gleiche Ausnahme-Logik wie
    bei .chart-cols, siehe dort). */
-.title-split { display: flex !important; flex-direction: row !important; align-items: center; gap: 48px; height: 100%; text-align: left !important; }
+/* L6-Experiment v2: Titel/Subline sitzen jetzt in der normalen Kopfzone
+   (render_head(), Standard-.slide-head) — .title-split ist nur noch der
+   Wrapper für die zweispaltige Content-Zone (Teaser+Start links, KPI-Row rechts). */
+.title-split-cols { display: flex; align-items: center; gap: 48px; height: 100%; text-align: left; }
 .title-split-left { flex: 0 0 33.33%; display: flex; flex-direction: column; justify-content: center; }
-.title-split-left h2 { font-size: 3.29em; font-weight: 100; color: #fff; letter-spacing: -0.01em; line-height: 1.15; margin: 0 0 0.3em; }
-.title-split-left .subline { font-size: 0.94em; color: rgba(255,255,255,0.78); margin: 0; }
-.title-split-left .view-teaser { text-align: left; margin-top: 1.6em; }
+.title-split-left .view-teaser { text-align: left; margin-top: 0; }
 .title-split-left .view-teaser-desc { margin: 0; max-width: none; }
 .title-split-left .closing-links { justify-content: flex-start; }
 .title-split-right { flex: 1; display: flex; align-items: center; justify-content: center; }
