@@ -26,10 +26,10 @@ chapters:
       - id: einstieg-title-overview
         views: [overview]
         role: title
-        title: "Zurich Tram Flow"
-        subtitle:
-          - "Verspätungsvorhersage im Zürcher Tramnetz"
-          - "Datengetriebenes Analyse- und ML-Projekt"
+        # title/subtitle werden für die Opening-Titel-Slide automatisch aus
+        # hub.tagline/hub.subtitle + view_meta.{view}.project/period generiert
+        # (generate_json_from_slides.py) — hier keine Werte pflegen, sie werden
+        # überschrieben. Content (KPIs) bleibt view-spezifisch von Hand gepflegt.
         content:
           - type: figures
             items:
@@ -41,10 +41,7 @@ chapters:
       - id: einstieg-title-storyview
         views: [storyview]
         role: title
-        title: "Zurich Tram Flow"
-        subtitle:
-          - "Von der Frage bis zur Empfehlung"
-          - "Data Engineering · EDA · Machine Learning · Dashboard"
+        # title/subtitle automatisch aus hub (siehe Kommentar oben)
         content:
           - type: figures
             items:
@@ -56,10 +53,7 @@ chapters:
       - id: einstieg-title-techview
         views: [techview]
         role: title
-        title: "Zurich Tram Flow"
-        subtitle:
-          - "Das Projekt als End-to-End ML Case"
-          - "Data Engineering · EDA · Feature Engineering · LightGBM"
+        # title/subtitle automatisch aus hub (siehe Kommentar oben)
         content:
           - type: figures
             items:

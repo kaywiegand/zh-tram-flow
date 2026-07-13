@@ -24,11 +24,6 @@
       "slides": [
         {
           "role": "title",
-          "title": "Zurich Tram Flow",
-          "subtitle": [
-            "Verspätungsvorhersage im Zürcher Tramnetz",
-            "Datengetriebenes Analyse- und ML-Projekt"
-          ],
           "content": [
             {
               "type": "figures",
@@ -54,7 +49,18 @@
                   "sentiment": "positive"
                 }
               ]
+            },
+            {
+              "type": "view_teaser",
+              "label": "Basic Information",
+              "badge": "HR · Business",
+              "description": "Ergebnisse & Handlungsempfehlungen für Stakeholder. Fokus auf Business-Impact und konkrete Maßnahmen."
             }
+          ],
+          "title": "Zurich Tram Flow",
+          "subtitle": [
+            "Verspätungsvorhersage im Zürcher Tramnetz",
+            "Datengetriebenes Analyse- und ML-Projekt | 2023–2025"
           ]
         },
         {
