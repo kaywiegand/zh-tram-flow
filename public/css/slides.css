@@ -658,7 +658,7 @@ body.nav-invert #progress-fill                    { background: #fff; }
    linksbündig (per .reveal h2/.reveal .subline). */
 .closing h2 { font-size: 3.29em; font-weight: 100; color: #fff; letter-spacing: -0.01em; line-height: 1.2; }
 .closing .subline { font-size: 0.94em; color: rgba(255,255,255,0.78); }
-.closing blockquote.statement { color: rgba(255,255,255,0.92); max-width: 720px; font-weight: 500; margin: 0.5em auto 0; }
+.closing blockquote.statement { color: rgba(255,255,255,0.92); max-width: 720px; font-weight: 300; margin: 0.5em auto 0; }
 .closing .arrow-row { display: flex; gap: 18px; margin-top: 1.8em; justify-content: center; align-items: center; }
 /* KPI-Box wie E1 im Slide-System: Border-Left-Akzent statt Box-Pille */
 .closing .kpi-box { border-left: 3px solid rgba(255,255,255,0.25); padding-left: 14px; text-align: left; min-width: 0; }
