@@ -40,7 +40,7 @@
   --bg-box-positive:    #eef6f0;
   --bg-box-negative:    #fbeeec;
   --bg-box-warning:     #faf0e3;
-  --bg-table-alt:       #FAF8F4;
+  --bg-table-alt:       #F5F7F9;
   --bg-table-hl:        #eef6f0;
 
   /* Typography */
@@ -527,6 +527,7 @@ body.nav-invert #progress-fill                    { background: #fff; }
 /* ── E11 — Process Arrows (kompakt, ohne Erklärtext) ── */
 .arrows { display: flex; gap: 14px; }
 .arrow-chip { flex: 1; background: var(--card); border: 1px solid var(--card-border); padding: 18px 22px; text-align: center; font-weight: 800; font-size: 0.88em; color: var(--ink); clip-path: polygon(0 0, 92% 0, 100% 50%, 92% 100%, 0 100%, 8% 50%); }
+.arrow-chip.current { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 /* ── E12 — Value-Row (große Zahlen, optional Zitat) ── */
 .value-row { display: grid; gap: 28px; justify-items: center; }
