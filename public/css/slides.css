@@ -385,7 +385,6 @@ body.nav-invert #progress-fill                    { background: #fff; }
    flex+center statt grid(4) — sonst wirkt eine Reihe mit weniger als 4 Werten
    linksbündig statt als zentrierte Gruppe (gleiches Muster wie .title-slide .kpi-row). */
 .metric-row { display: flex; justify-content: center; gap: 24px; }
-.metric-row + blockquote.statement { margin-top: 3em; }
 .metric { border-left: 3px solid var(--card-border); padding-left: 18px; text-align: left; display: flex; flex-direction: column; justify-content: center; }
 .metric .val { font-size: 2em; font-weight: 800; color: var(--ink); line-height: 1; }
 .metric .lbl { font-size: 0.62em; color: var(--ink-soft); margin-top: 8px; line-height: 1.4; }
@@ -402,6 +401,10 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .agenda-head { flex: 0 0 36%; }
 .agenda-head .subline { margin-bottom: 0; }
 .agenda-list { flex: 1; display: flex; flex-direction: column; }
+/* L1-Agenda-Variante: Liste horizontal zentrieren statt volle Breite zu füllen
+   (vertikale Zentrierung kommt bereits von .content-zone). align-self statt
+   margin:auto, weil .agenda-list in .content-zone (flex-column) sitzt. */
+.agenda-list-center { flex: 0 0 auto; align-self: center; }
 .agenda-list .ag-item { display: flex; align-items: baseline; gap: 14px; padding: 7px 0; }
 .agenda-list .ag-num { color: var(--accent); font-weight: 700; font-size: 0.85em; min-width: 1.5em; font-variant-numeric: tabular-nums; }
 .agenda-list .ag-label { color: var(--navy); font-weight: 600; font-size: 0.98em; }
@@ -542,7 +545,7 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .reveal blockquote.statement {
   font-size: 1.12em; line-height: 1.55; color: var(--navy);
   font-weight: 400; text-align: center; max-width: 860px;
-  margin: 0.7em auto; padding: 0.4em 0.6em;
+  margin: 3em auto; padding: 0.4em 0.6em;
   background: none; box-shadow: none; border: none; font-style: normal;
 }
 .reveal blockquote.statement::before,
@@ -629,8 +632,13 @@ body.nav-invert #progress-fill                    { background: #fff; }
 /* ── Closing — gleiche Kopfzone/Content-Zone-Struktur wie jede andere Slide,
    nur Farben invertiert (dunkler Hintergrund, helle Schrift). ── */
 .closing { display: flex !important; flex-direction: column; text-align: center; }
-.closing h2 { font-size: 3.29em; font-weight: 100; color: #fff; letter-spacing: -0.01em; line-height: 1.2; max-width: 760px; margin-left: auto; margin-right: auto; }
-.closing .subline { font-size: 0.94em; color: rgba(255,255,255,0.78); max-width: 640px; margin-left: auto; margin-right: auto; }
+/* Kein max-width/margin:auto-Box-Centering mehr — das hat h2 (760px) und
+   .subline (640px) auf UNTERSCHIEDLICHE Boxbreiten zentriert, wodurch beide
+   Boxen verschieden weit links anfingen (Subline wirkte "mittig" statt mit
+   dem Titel linksbündig). Jetzt wie .title-slide: volle Breite, Text darin
+   linksbündig (per .reveal h2/.reveal .subline). */
+.closing h2 { font-size: 3.29em; font-weight: 100; color: #fff; letter-spacing: -0.01em; line-height: 1.2; }
+.closing .subline { font-size: 0.94em; color: rgba(255,255,255,0.78); }
 .closing blockquote.statement { color: rgba(255,255,255,0.92); max-width: 720px; font-weight: 500; margin: 0.5em auto 0; }
 .closing .arrow-row { display: flex; gap: 18px; margin-top: 1.8em; justify-content: center; align-items: center; }
 /* KPI-Box wie E1 im Slide-System: Border-Left-Akzent statt Box-Pille */
