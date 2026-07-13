@@ -565,7 +565,8 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .reveal .metric-row + blockquote.statement,
 .reveal table + blockquote.statement,
 .reveal .steps + blockquote.statement,
-.reveal .reco-grid + blockquote.statement { margin-top: 3em; }
+.reveal .reco-grid + blockquote.statement,
+.reveal .arrows + blockquote.statement { margin-top: 3em; }
 .reveal blockquote.statement::before,
 .reveal blockquote.statement::after { content: none; }
 /* In a two-column layout the statement reads as left-aligned body text */
