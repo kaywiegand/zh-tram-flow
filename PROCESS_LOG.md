@@ -2054,3 +2054,27 @@ Wortlaut statt der Hub-Formulierung, wie bereits bei der Feature-Entwicklung ent
 **Nächster Schritt:** Kein eigener Review dieses Projekts in dieser Session — falls
 `wgnd-skills`-Branch `feature/styleguide-v2` gemerged wird, lohnt ein kurzer visueller
 Gegencheck der eigenen Views (overview/storyview/techview).
+
+---
+
+### 2026-07-14 — `wgnd-skills` gemerged + gepusht, Deployment-Fix, alles gepusht
+
+`wgnd-skills`-Branch `feature/styleguide-v2` ist gemerged (in der `zh-tram-data`-Session) und
+jetzt auch nach `origin/main` gepusht. Dieses Projekt hat alle bereits lokal vorhandenen
+Styleguide-v2-Commits (28 Stück, siehe letzter Eintrag) + einen zusätzlichen Deployment-Fix
+in einem Rutsch nach `origin/main` gepusht.
+
+**Deployment-Bug** (identisch zu `zh-tram-data`, siehe dortiges `PROCESS_LOG.md` für die volle
+Herleitung): GitHub Pages' "Deploy from a branch" bietet nur `/` oder `/docs` als Ordner an,
+`/public` ist nicht wählbar — Pages lief bisher von Repo-Root via Jekyll statt der echten
+Artefakte, `overview`/`storyview`/`techview.html` waren nie erreichbar. Fix: `public/.nojekyll`
++ `.github/workflows/pages.yml` (GitHub-Actions-Deployment, published `public/` direkt als
+Artefakt). `DEPLOYMENT.md` korrigiert (dokumentierte bisher den nicht-funktionierenden
+"Folder: /public"-Weg über "Deploy from a branch").
+
+**Noch offen (bei Kay):** Repo-Settings → Pages → Source auf "GitHub Actions" umstellen,
+danach den Workflow einmal manuell auslösen (Actions-Tab → "Deploy Pages" → Run workflow) —
+Umstellen allein triggert noch keinen Lauf.
+
+**Nächster Schritt:** Kay reviewed `public/` (Design + Inhalt) eigenständig in einer neuen
+Session — analog zum kompletten Storyview/Overview/Techview-Durchgang bei `zh-tram-data`.

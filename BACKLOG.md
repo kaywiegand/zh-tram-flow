@@ -219,6 +219,8 @@ Status: [ ] 2–3 Charts gewählt
 | 50 | **`overview.html` neu generieren** — `/project-case report` ausführen. Scan + Dive + Deep-Dive Ebenen mit eingebetteten Charts. Ziel: 150–300 KB. | 1 |
 | 51 | **Weitere Presentation Views** — Falls nötig nach Review. Storytelling-JSONs sind Single Source of Truth. | 2 |
 | 60 | **public/pdf/ aufräumen** — PDF-Exporte sind Temp-Dateien (6 MB). Nur Portfolio-relevante PDF behalten, Rest entfernen. | 3 |
+| 94 | **Repo-Settings: Pages-Source auf "GitHub Actions" umstellen** — Workflow (`.github/workflows/pages.yml`) ist gepusht, aber Settings → Pages zeigt noch auf "Deploy from a branch" (Root/Jekyll). Nach Umstellung einmal manuell auslösen (Actions-Tab → "Deploy Pages" → Run workflow). Siehe `PROCESS_LOG.md` 2026-07-14. | 1 |
+| 95 | **`public/` (Design + Inhalt) eigenständig reviewen** — analog zum kompletten Storyview/Overview/Techview-Durchgang bei `zh-tram-data` (Styleguide v2 jetzt vollständig übernommen). Neue Elemente (`box_grid`/`process_arrows`/`layout: callout`/Titel-L6) sind nirgends in diesem Projekt referenziert — gezielt prüfen wo sie bestehende Slides verbessern würden. | 1 |
 
 ---
 
