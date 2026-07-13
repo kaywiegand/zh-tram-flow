@@ -28,7 +28,9 @@
   --color-kpi-negative: #ff7a7a;   /* bright red on dark bg */
   --color-kpi-warning:  #ffc66d;   /* bright amber on dark bg */
 
-  /* Card surfaces — swap these two to retheme (Beige/Blau/Grün, siehe Styleguide §5) */
+  /* Card surfaces — Standard-Theme ist Blau-Grau (Kay-Entscheidung 2026-07-13).
+     Swap diese zwei Variablen um zu retheme, Alternativen: Beige (#F3F1EC/#E4E0D6),
+     Grün — siehe Styleguide §5. */
   --card:               #EDEFF2;
   --card-border:        #DCE2E8;
 
@@ -336,7 +338,7 @@ body.nav-invert #progress-fill                    { background: #fff; }
    Start-CTA — derselbe Text, den die Hub-Karte für diese View zeigt. */
 .view-teaser { margin-top: 2em; text-align: center; }
 .view-teaser-heading { font-size: 0.85em; font-weight: 500; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5em; }
-.view-teaser-desc { font-size: 0.88em; color: rgba(255,255,255,0.75); max-width: 52ch; margin: 0 auto; line-height: 1.5; }
+.title-slide .view-teaser-desc { font-size: 0.88em; color: rgba(255,255,255,0.75); max-width: 52ch; margin: 0 auto; line-height: 1.5; }
 .title-cta .c-link { cursor: pointer; }
 .title-slide .kpi.red   .v { color: var(--color-kpi-negative); }
 .title-slide .kpi.amber .v { color: var(--color-kpi-warning); }
