@@ -362,6 +362,21 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .title-split-left .view-teaser-desc { margin: 0; max-width: none; }
 .title-split-left .closing-links { justify-content: flex-start; }
 .title-split-right { flex: 1; display: flex; align-items: center; justify-content: center; }
+/* Bei 4 KPIs mit längeren Labels reicht die Breite der rechten Spalte nicht immer für
+   eine Reihe — nowrap (Standard bei .kpi-row) hätte den Wert selbst mitten im Text
+   umgebrochen. Wrap erlauben, dann geht's als 2×2 auf statt Text zu quetschen. */
+/* Grid statt Flex-Wrap: flex-wrap bricht "greedy" um (so viele wie in eine
+   Zeile passen, z.B. 3+1) — Grid mit auto-fit erzwingt ein sauberes 2×2,
+   sobald 4 KPIs nicht mehr in eine Reihe passen (Kay: "2 Reihen 2 Spalten"). */
+.title-split-right .kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, max-content));
+  justify-content: center;
+  gap: 1.6em 28px;
+  /* Als Flex-Kind hat der Grid-Container sonst keine echte Breite, gegen die
+     auto-fit rechnen kann — kollabiert dann auf 1 Spalte statt 2. */
+  width: 100%;
+}
 
 /* ── Layout ───────────────────────────────────── */
 .cols { display: flex; gap: 26px; align-items: flex-start; }
@@ -499,6 +514,9 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .pf-num { display: inline-flex; align-items: center; justify-content: center; width: 1.5em; height: 1.5em; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.85em; margin-right: 0.5em; vertical-align: middle; }
 /* Text-Variante (sections layout: text) — Label + Punkte als zweispaltiger Fließtext */
 .sec-text { column-count: 2; column-gap: 2.4em; margin-top: 0.7em; }
+/* Nach einer Karten-Reihe (.pf-grid) braucht der Text mehr Abstand — gleiches
+   Muster wie bei KPI-Row/Tabelle/Steps + folgendem Statement. */
+.reveal .pf-grid + .sec-text { margin-top: 3em; }
 .sec-text-block { break-inside: avoid; margin-bottom: 0.9em; font-size: 0.85em; line-height: 1.5; color: var(--ink-body); }
 .sec-text-label { display: block; font-weight: 700; color: var(--accent); text-transform: uppercase; font-size: 0.82em; letter-spacing: 0.05em; margin-bottom: 2px; }
 
@@ -567,7 +585,8 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .reveal table + blockquote.statement,
 .reveal .steps + blockquote.statement,
 .reveal .reco-grid + blockquote.statement,
-.reveal .arrows + blockquote.statement { margin-top: 3em; }
+.reveal .arrows + blockquote.statement,
+.reveal .arrows + .pf-grid { margin-top: 3em; }
 .reveal blockquote.statement::before,
 .reveal blockquote.statement::after { content: none; }
 /* In a two-column layout the statement reads as left-aligned body text */
