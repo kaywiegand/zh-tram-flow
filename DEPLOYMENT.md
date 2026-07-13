@@ -43,11 +43,17 @@ jupyter lab
 
 ### One-Time Setup
 
-1. Go to **Settings → Pages**
-2. **Source:** Deploy from a branch · **Branch:** `main` · **Folder:** `/public`
-3. Click **Save**
+"Deploy from a branch" only offers `/` (root) or `/docs` as folder choices — `/public` isn't
+selectable there, which left Pages serving the repo root via Jekyll instead of our actual
+artifacts. Fixed via a GitHub Actions workflow (`.github/workflows/pages.yml`) that publishes
+`public/` directly, independent of the folder-picker limitation.
 
-GitHub auto-deploys whenever you push to `main`.
+1. Go to **Settings → Pages**
+2. **Source:** switch to **GitHub Actions** (not "Deploy from a branch")
+3. Save, then trigger the workflow once manually: **Actions tab → "Deploy Pages" → Run workflow**
+   (switching the source alone doesn't trigger a run)
+
+After that, every push touching `public/**` on `main` auto-deploys.
 
 ### Files Deployed
 
