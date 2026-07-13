@@ -548,6 +548,10 @@ body.nav-invert #progress-fill                    { background: #fff; }
   margin: 3em auto; padding: 0.4em 0.6em;
   background: none; box-shadow: none; border: none; font-style: normal;
 }
+/* 3em ist für "nach KPI-Row/Tabelle/Steps" gedacht — bei gestapelten Callout-
+   Statements (layout: callout, mehrere blockquote.statement direkt hinter-
+   einander) wäre das kumulativ (3em + 3em) viel zu viel Abstand dazwischen. */
+.reveal blockquote.statement + blockquote.statement { margin-top: 0.7em; }
 .reveal blockquote.statement::before,
 .reveal blockquote.statement::after { content: none; }
 /* In a two-column layout the statement reads as left-aligned body text */
