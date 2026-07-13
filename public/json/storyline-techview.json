@@ -53,7 +53,6 @@
             {
               "type": "view_teaser",
               "label": "Technical Insights",
-              "badge": "Data Science",
               "description": "Technischer Deep-Dive für Data Scientists. Feature-Engineering, Modellauswahl, Evaluation im Detail."
             }
           ],
