@@ -17,16 +17,16 @@
 
 # Zurich Tram Flow
 
-**Das Projekt als End-to-End ML Case**
-**Data Engineering · EDA · Feature Engineering · LightGBM**
+**Verspätungsvorhersage im Zürcher Tramnetz**
+**Datengetriebenes Analyse- und ML-Projekt | 2023–2025**
 
 * **94,4 M** — Halt-Ereignisse, 4 Datenquellen
 * **50,0 s** — Baseline MAE (Stop Mean)
 * **18,56 s** — LightGBM v2 MAE (Test 2025)
 * **−63 %** — Verbesserung vs. Baseline
 
-## Inhalt
-*Sechs Abschnitte, ein durchgehender ML-Workflow*
+## Inhaltsübersicht
+*Die wichtigsten Technical Insights als Data-Science Deep-Dive*
 
 * **Ausgangssituation**
   - OTP-Lücke und Datenlage
@@ -66,7 +66,7 @@ Lücke
 verspätung
   - Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre.
 
-## Wie wir vorgehen
+## Vorgehen in zwei Schritten
 *Von der Ursachenanalyse zur Vorhersage*
 
 
@@ -75,8 +75,12 @@ verspätung
 
 ### Datenstrategie
 
-## Datenstrategie
-*Primärquellen: VBZ IST-Daten und GTFS-Fahrplan*
+## Die Datenstrategie
+*Fünf Quellen, ein reproduzierbarer Weg zum Master-Datensatz*
+
+
+## Master-Datensatz und GTFS-Fahrplandaten
+*Data Refinement als Fundament mit initialen Master-Datensatz und GTFS Fahrplandaten*
 
 * **VBZ IST-Daten (Primärquelle)**
   - Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025
@@ -87,8 +91,8 @@ verspätung
   - Liniengeometrien und Haltestellen-Koordinaten (lat/lon)
   - Join-Key: trip_id × stop_id × service_date
 
-## Datenstrategie
-*Kontextquellen: Wetter und Grossveranstaltungen*
+## Kontextquellen der Dimensionen
+*Für jede Analysedimension wurden die Datenquellen im Vorfeld im Master-Datensatz schon kontextuell angereichert*
 
 * **Meteo Schweiz**
   - Stündliche Messwerte: Temperatur, Niederschlag, Windgeschwindigkeit
@@ -98,6 +102,14 @@ verspätung
   - Grossveranstaltungen Zürich 2023–2025: Konzerte, Messen, Sport
   - Kategorisierung: event_type, event_size, event_weight
   - Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet
+* **Network**
+  - Linientopologie: 16 Linien, ca. 190 Haltestellen
+  - Kontext-Features: n_lines_at_stop, n_stops_line
+  - Basis für linienübergreifendes Lernen (stop_sequence_pct)
+* **Target**
+  - arrival_delay in Sekunden, aus IST- vs. Soll-Zeit berechnet
+  - OTP-Schwellwert: Ankunft ≤ 2 Minuten Verspätung
+  - canceled = True bewusst als Extremfall im Target erhalten
 
 ## Datenstrategie
 *Cleaning-Entscheidungen und ihre Begründungen (1/2)*
@@ -115,7 +127,7 @@ verspätung
 ## Baseline
 *Stop Mean als sinnvollster naiver Benchmark*
 
-> Stop Mean gewinnt, weil Haltestellen strukturell unterschiedliche Delay-Level haben. Jedes Modell muss diesen Benchmark schlagen. Grand Mean, Hour Mean und Line Mean liegen alle < 1s voneinander entfernt — reine Mittelwert-Strategien bringen keinen Vorteil.
+> Stop Mean gewinnt —<br>weil Haltestellen strukturell unterschiedlich sind.
 
 
 ---
@@ -158,7 +170,7 @@ verspätung
 ## Modellauswahl und -Anpassung
 *v1 zu v2: der Sprung kam aus der Analyse, nicht aus dem Algorithmus*
 
-> v1 war systematisch zu optimistisch (MBE +8,3 s) — v2 kalibriert auf MBE −0,69 s. Der Sprung auf 18,56 s MAE (−63 %) erklärt sich vollständig durch prev_trip_delay.
+> Der Sprung kam aus der Analyse, nicht aus dem Algorithmus.
 
 ## Robustheits-Check
 *XGBoost-Vergleich und Stabilitätsprüfung*
@@ -167,7 +179,7 @@ verspätung
 * **90+ Min** — XGBoost Trainingszeit auf 85M Zeilen
 * **18 Min** — LightGBM v2 Trainingszeit
 * **18,56 s** — LightGBM v2 Test MAE (2025)
-> XGBoost erreicht auf dem Validation-Set vergleichbare Qualität, braucht aber 5× mehr Zeit. Für iteratives Feature Engineering über mehrere Wochen ist LightGBM die klar überlegene Wahl. Das ist eine Workflow-Entscheidung, keine Qualitätskompromittierung.
+> Eine Workflow-Entscheidung, keine Qualitätskompromittierung.
 
 
 ---
@@ -175,7 +187,7 @@ verspätung
 ### Feature Importance
 
 ## Feature Importance
-*prev_trip_delay dominiert — die Analyse hat recht behalten*
+*prev_trip_delay und stop_sequence_pct dominieren<br>Temporale und Wetter-Features zeigen konsistente, aber schwächere Beiträge*
 
 > Die Kaskadenanalyse (r ≥ 0,85 netzweit) hat die Feature-Wichtigkeit korrekt antizipiert. Das Modell bestätigt: Das Signal steckt in den Daten, nicht im Algorithmus.
 
@@ -197,7 +209,7 @@ verspätung
 
 ### Empfehlungen
 
-## Vier direkte Hebel nutzen
+## Konkrete Handlungsempfehlungen
 *Jede Empfehlung ist direkt durch einen Befund aus der Analyse gedeckt*
 
 
@@ -209,23 +221,20 @@ verspätung
 ## Was noch zu erforschen ist
 *Dashboard-Exploration offenbarte 7 systematische Forschungsmöglichkeiten*
 
-> Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie? Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale.
-* **3 von 7 Forschungsmöglichkeiten — Details in BACKLOG.md**
-  - OP-1: Direction-Asymmetrie (~10s Delta zwischen Richtung A/B)
-  - OP-2: Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)
-  - OP-7: Kaskaden-Verstärker vs. -Dämpfer pro Linie
+> Warum sind Fahrtrichtungen asymmetrisch?<br>Welche Linien dämpfen Delays, welche verstärken sie?
+* **OP-1**
+  - Direction-Asymmetrie (~10 s Delta zwischen Richtung A/B)
+* **OP-2**
+  - Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)
+* **OP-7**
+  - Kaskaden-Verstärker vs. -Dämpfer pro Linie
 
 
 ---
 
-### Ende
+### Resultat
 
 ## Zurich Tram Flow
-*Kay Wiegand · 2023–2025*
+*Verspätungsvorhersage im Zürcher Tramnetz<br>Datengetriebenes Analyse- und ML-Projekt | 2023–2025*
 
-* **94,4 M** — Halt-Ereignisse
-* **41,2 M** — Trainings-Fahrten
-* **~29 M** — Test-Fahrten (2025)
-* **34** — Features (v2)
-* **18,56 s** — MAE · LightGBM v2
-* **−63 %** — vs. Baseline
+> Was vorhersagbar ist, ist steuerbar.

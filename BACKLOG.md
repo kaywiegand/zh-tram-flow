@@ -33,7 +33,7 @@ Content-Types die rendern, aber bessere Styleguide-Elemente hätten:
 
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
-| 51 | **README Reports & Artifacts Links aktualisieren** — Veraltete Links (report.html, presentation.html, landingpage.html existieren nicht). Korrekte Links: Overview/StoryView/TechView/SocialView (in public/), Network Map, Artifact Hub, Dashboard. Table in README.md Zeile ~250 korrigieren. | 1 |
+| 94 | **GitHub Pages Source umstellen** — Repo läuft noch auf "Deploy from a branch", `overview`/`storyview`/`techview.html` sind live 404 (nur Hub erreichbar, per curl verifiziert 2026-07-15). Fix: github.com/kaywiegand/zh-tram-flow/settings/pages → Source auf "GitHub Actions", danach Workflow einmal manuell auslösen. Workflow (`.github/workflows/pages.yml`) und `.nojekyll` sind bereits vorhanden — nur die manuelle UI-Umstellung fehlt noch. | 1 |
 
 ---
 

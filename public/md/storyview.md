@@ -17,30 +17,31 @@
 
 # Zurich Tram Flow
 
-**Von der Frage bis zur Empfehlung**
-**Data Engineering · EDA · Machine Learning · Dashboard**
+**Verspätungsvorhersage im Zürcher Tramnetz**
+**Datengetriebenes Analyse- und ML-Projekt | 2023–2025**
 
 * **94,4 M** — Halt-Ereignisse
 * **87 %** — OTP heute · Ziel: 95 %
 * **18,56 s** — MAE LightGBM v2
 * **−63 %** — vs. Baseline
 
-## Die These
+## Übergreifende These
 *Ein Satz, der das gesamte Projekt trägt*
 
 > Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.
-> Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel.
 
-## Inhalt
-*Sieben Kapitel, ein durchgehender Datenpfad*
+## Inhaltsübersicht
+*Der gesamte Daten-Lifecycle von Rohdaten bis Vorhersage-Modell*
 
 1. Ausgangssituation
-2. Data Engineering
-3. Exploration
-4. Die Erkenntnis
+2. Exploration / EDA
+3. Data Preprocessing
+4. Analyse & Erkenntnisse
 5. Machine Learning
-6. Die Handlungsempfehlungen
-7. Projektrahmen und Workflow
+6. Praxisanwendung
+7. Empfehlungen
+8. Technische Umsetzung
+9. Ausblick
 
 
 ---
@@ -63,43 +64,54 @@ Lücke
 verspätung
   - Jede achte Tramfahrt überschreitet den 2-Minuten-Schwellwert. Stabil über alle drei Betriebsjahre.
 
-## Wie wir vorgehen
+## Vorgehen in zwei Schritten
 *Von der Ursachenanalyse zur Vorhersage*
 
 
+## Alle Linien nicht im Soll
+*Keine einzige Linie erreicht dauerhaft das Ziel<br>Die Lücke zieht sich durch das gesamte Netz*
+
+
+## Kein Aufwärtstrend erkennbar
+*OTP schwankt saisonal, aber der Mittelwert bewegt sich seit 2023 nicht*
+
+
 
 ---
 
-### Exploration
+### Exploration / EDA
 
 ## Widerlegte Annahmen
-*Drei Erwartungen, die die Daten klar widerlegen*
+*Drei initiale Annahmen wurden mit Befunden aus den Daten klar widerlegt*
 
 
-## Die Innenstadt ist pünktlicher
-*Verspätungs-Hotspots liegen an der Peripherie, nicht im Stadtzentrum*
+## Innenstadt ist pünktlicher
+*Räumlich: Verspätungs-Hotspots liegen an der Peripherie, nicht im Stadtzentrum*
 
 
-## Der Peak am Abend
-*Um 21 Uhr entstehen die höchsten Verspätungen — nicht im Morgenrush*
+## Peak am Abend
+*Temporal: Um 21 Uhr entstehen die höchsten Verspätungen — nicht im Morgenrush<br>Der Peak um 2 Uhr ist ein Artefakt des Nachtbetriebs — bei minimaler Fahrtenzahl wirkt jede einzelne Verspätung überproportional gross*
 
 
-## Exploration
-*Wetter: Schnee und Regen treffen unterschiedliche Stadtteile*
+## Weitere Eindrücke
+*Erste Kennzahlen aus der explorativen Datenanalyse*
 
-* **+54s** — Schnee-Effekt netzweit
+* **+54 s** — Schnee-Effekt netzweit
 * **+23,3 s** — Regen-Effekt netzweit
 * **−9,9 s** — Feiertage vs. Normal
 * **66,0 s** — Fachmessen (schlechteste Event-Kategorie)
-> Feiertage sind der beste Tagestyp: −9,9 s vs. Normal. Der MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied.
+* **Einordnung**
+  - Feiertage sind der beste Tagestyp: −9,9 s vs. Normal
+  - Der Rückgang des motorisierten Individualverkehrs (MIV) an Feiertagen überwiegt jeden Event-Effekt
+  - Event-Wirkung ist ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied
 
 
 ---
 
-### Data Engineering
+### Data Preprocessing
 
-## Datenstrategie
-*Primärquellen: VBZ IST-Daten und GTFS-Fahrplan*
+## Master-Datensatz und GTFS-Fahrplandaten
+*Data Refinement als Fundament mit initialen Master-Datensatz und GTFS Fahrplandaten*
 
 * **VBZ IST-Daten (Primärquelle)**
   - Reale Ankunfts- und Abfahrtszeiten aller Tramhalte 2023–2025
@@ -110,8 +122,8 @@ verspätung
   - Liniengeometrien und Haltestellen-Koordinaten (lat/lon)
   - Join-Key: trip_id × stop_id × service_date
 
-## Datenstrategie
-*Kontextquellen: Wetter und Grossveranstaltungen*
+## Kontextquellen der Dimensionen
+*Für jede Analysedimension wurden die Datenquellen im Vorfeld im Master-Datensatz schon kontextuell angereichert*
 
 * **Meteo Schweiz**
   - Stündliche Messwerte: Temperatur, Niederschlag, Windgeschwindigkeit
@@ -121,37 +133,46 @@ verspätung
   - Grossveranstaltungen Zürich 2023–2025: Konzerte, Messen, Sport
   - Kategorisierung: event_type, event_size, event_weight
   - Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet
+* **Network**
+  - Linientopologie: 16 Linien, ca. 190 Haltestellen
+  - Kontext-Features: n_lines_at_stop, n_stops_line
+  - Basis für linienübergreifendes Lernen (stop_sequence_pct)
+* **Target**
+  - arrival_delay in Sekunden, aus IST- vs. Soll-Zeit berechnet
+  - OTP-Schwellwert: Ankunft ≤ 2 Minuten Verspätung
+  - canceled = True bewusst als Extremfall im Target erhalten
 
-## Data Engineering
-*Cleaning als Forschungsentscheidung, nicht als Routine*
+## Cleaning, Split und Encoding
+*Mit der passenden Data Preparation zur finalen Struktur für das Modell*
 
 
 
 ---
 
-### Erkenntnis
+### Analyse & Erkenntnisse
 
-## Die Kaskade bei den Verspätungen
+## Kaskade der Verspätungen
 *Ohne Puffer im Fahrplan überträgt sich jede Verspätung auf die Folgefahrten — in Zahlen*
 
 * **71,5 %** — Halte akkumulieren Delay
 * **L11** — 68,7 s · OTP 82 % — stärkste Akkumulation
-* **71,3 %** — Haltestellen ohne Standzeit (0s)
+* **71,3 %** — Haltestellen ohne Standzeit (0 s)
 * **r ≥ 0,85** — Kaskadenkorrelation alle 16 Linien
+> Was an einem Halt beginnt, endet nicht dort:
 
-## Wie sich die Kaskade aufbaut
+## Aufbau der Kaskade
 *Vier Schritte, vom ersten Anzeichen bis zum netzweiten Beweis*
 
 
-## Ein Fahrplan-Design-Thema
-*Nicht Betriebsversagen — strukturell angelegt*
+## Fahrplan-Design-Thema
+*Die Verspätungen sind durch die Fahrplangestaltung strukturell angelegt*
 
-> Das ist kein Betriebsversagen. Es ist ein Fahrplan-Design-Thema. Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden.
+> <span class="sw-normal">Das ist kein Betriebsversagen.</span><br><br>Es ist ein Fahrplan-Design-Thema.<br><span class="sw-normal">Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden.</span>
 
-## Externe Faktoren verstärken, ändern aber nichts Grundlegendes
+## Einfluss externer Faktoren
 *Wetter und Grossevents wirken, das Grundproblem bleibt strukturell*
 
-> Zwei externe Einflussfaktoren sind messbar und erheblich: Schnee (+54s) und Grossevents (bis +66s bei Fachmessen). Doch das Grundniveau der Verspätung bleibt auch bei optimalen Bedingungen konstant hoch. Externe Faktoren verstärken, was intern bereits strukturell angelegt ist.
+> Zwei externe Einflussfaktoren sind messbar und erheblich: Schnee (+54 s) und Grossevents (bis +66 s bei Fachmessen). Doch das Grundniveau der Verspätung bleibt auch bei optimalen Bedingungen konstant hoch. Externe Faktoren verstärken, was intern bereits strukturell angelegt ist.
 > Trotz Bauphasen, Streckensperrungen und Fahrplanumstellungen hält die VBZ das System bemerkenswert stabil. Die Verspätungslevel schwanken durch diese Eingriffe kaum. Die Ursache liegt nicht in externen Störungen, sondern im Fahrplan-Design selbst.
 
 
@@ -159,15 +180,15 @@ verspätung
 
 ### Machine Learning
 
-## Warum Machine Learning?
-*Drei Iterationen der Modellierung — von der Baseline zum finalen Modell*
+## Dynamische Modelle statt starrer Regeln
+*Herkömmliche Systeme scheitern an nichtlinearen Daten*
 
-> Die Struktur der Daten ist nichtlinear.
+> Die Struktur der Daten ist nicht linear.
 
 ## Drei Iterationen der Modellierung
 *Von der Baseline über Feature Engineering zum finalen Ensemble-Modell*
 
-> Der Sprung von v1 auf v2 kam nicht durch einen besseren Algorithmus, sondern durch das richtige Signal aus der Analyse: den Kaskadenindikator (prev_trip_delay).
+> Feature Engineering schlägt Hyperparameter-Tuning.
 
 ## 18,56 Sekunden MAE
 *Mittlerer Vorhersagefehler auf einem vollständigen, ungesehenen Testjahr — 63 % unter der Baseline*
@@ -175,22 +196,17 @@ verspätung
 * **41 Mio.** — Trainings-Fahrten 2023–Jun 2024
 * **~29 Mio.** — Test-Fahrten vollständiges Jahr 2025
 * **−0,69 s** — MBE nach Isotonic-Regression-Kalibrierung
-> prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45,7 s auf 18,56 s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt.
-
-
----
-
-### Feature Importance
+> 18,56 Sekunden bestätigen die Analyse.
 
 ## Feature Importance
-*prev_trip_delay dominiert — die Analyse hat recht behalten*
+*prev_trip_delay und stop_sequence_pct dominieren<br>Temporale und Wetter-Features zeigen konsistente, aber schwächere Beiträge*
 
-> Die Kaskadenanalyse (r ≥ 0,85 netzweit) hat die Feature-Wichtigkeit korrekt antizipiert. Das Modell bestätigt: Das Signal steckt in den Daten, nicht im Algorithmus.
+> Die Kaskadenanalyse (r ≥ 0,85) hat die Feature-Wichtigkeit korrekt antizipiert — das Signal steckt in den Daten, nicht im Algorithmus.
 
 
 ---
 
-### Anwendung
+### Praxisanwendung
 
 ## Konkreter Nutzen in der Praxis
 *Konkrete Vorhersagen für reale Betriebssituationen zeigen die operative Relevanz*
@@ -202,25 +218,16 @@ verspätung
 
 ### Empfehlungen
 
-## Vier direkte Hebel nutzen
+## Konkrete Handlungsempfehlungen
 *Jede Empfehlung ist direkt durch einen Befund aus der Analyse gedeckt*
 
 
 
 ---
 
-### Resultat
+### Technische Umsetzung
 
-## Was vorhersagbar ist, ist steuerbar.
-*Ein Projekt, das zeigt: Datengetriebene Analyse ist kein akademisches Artefakt — sie liefert operative Entscheidungsgrundlagen.*
-
-
-
----
-
-### Projektrahmen
-
-## Daten & Stack
+## Datenbasis & TechStack
 *Umfang der Datenbasis und eingesetzte Technologie*
 
 * **Datenbasis und Umfang**
@@ -233,7 +240,7 @@ verspätung
   - LightGBM (Modellierung) · Plotly (Visualisierung) · Streamlit (Dashboard)
   - Trainingszeit LightGBM v2: ca. 18 Minuten auf Consumer-Hardware
 
-## Offen & reproduzierbar
+## AI Workflow & Pipeline
 *Open Data, AI-Workflow, vollständig reproduzierbar*
 
 * **AI-Workflow als Differenziator**
@@ -248,28 +255,25 @@ verspätung
 
 ---
 
-### Weitere Potenziale
+### Ausblick
 
 ## Was noch zu erforschen ist
 *Dashboard-Exploration offenbarte 7 systematische Forschungsmöglichkeiten*
 
-> Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie? Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale.
-* **3 von 7 Forschungsmöglichkeiten — Details in BACKLOG.md**
-  - OP-1: Direction-Asymmetrie (~10s Delta zwischen Richtung A/B)
-  - OP-2: Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)
-  - OP-7: Kaskaden-Verstärker vs. -Dämpfer pro Linie
+> Warum sind Fahrtrichtungen asymmetrisch?<br>Welche Linien dämpfen Delays, welche verstärken sie?
+* **OP-1**
+  - Direction-Asymmetrie (~10 s Delta zwischen Richtung A/B)
+* **OP-2**
+  - Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)
+* **OP-7**
+  - Kaskaden-Verstärker vs. -Dämpfer pro Linie
 
 
 ---
 
-### Ende
+### Resultat
 
 ## Zurich Tram Flow
-*Kay Wiegand · 2023–2025*
+*Verspätungsvorhersage im Zürcher Tramnetz<br>Datengetriebenes Analyse- und ML-Projekt | 2023–2025*
 
-* **94,4 M** — Halt-Ereignisse
-* **16** — Tramlinien
-* **66** — Befunde
-* **12** — Notebooks
-* **18,56 s** — MAE · LightGBM v2
-* **−63 %** — vs. Baseline
+> Was vorhersagbar ist, ist steuerbar.

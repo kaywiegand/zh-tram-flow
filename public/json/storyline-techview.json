@@ -21,9 +21,11 @@
   "chapters": [
     {
       "nav_label": "Einstieg",
+      "nav_tick_label": "Einstieg",
       "slides": [
         {
           "role": "title",
+          "layout": "L6",
           "content": [
             {
               "type": "figures",
@@ -63,8 +65,10 @@
           ]
         },
         {
-          "title": "Inhalt",
-          "subtitle": "Sechs Abschnitte, ein durchgehender ML-Workflow",
+          "layout": "L6",
+          "kicker": "Agenda",
+          "title": "Inhaltsübersicht",
+          "subtitle": "Die wichtigsten Technical Insights als Data-Science Deep-Dive",
           "content": [
             {
               "type": "agenda",
@@ -118,6 +122,7 @@
     },
     {
       "nav_label": "Ausgangssituation",
+      "nav_tick_label": "Ausgangssituation",
       "slides": [
         {
           "title": "Strukturelle Lücke im Netz",
@@ -155,21 +160,19 @@
           ]
         },
         {
-          "title": "Wie wir vorgehen",
+          "title": "Vorgehen in zwei Schritten",
           "subtitle": "Von der Ursachenanalyse zur Vorhersage",
           "content": [
             {
-              "type": "steps",
+              "type": "h_timeline",
               "items": [
                 {
-                  "step": "1",
-                  "label": "Analyse der Entstehungsmuster und Einflussfaktoren",
-                  "detail": "Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition"
+                  "label": "Analyse",
+                  "text": "Identifikation der Entstehungsmuster und Einflussfaktoren. Analyse in 6 Dimensionen: Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition."
                 },
                 {
-                  "step": "2",
-                  "label": "Verspätungen vorhersagen",
-                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s (arrival_delay in Sekunden), −63 % vs. Baseline"
+                  "label": "Vorhersage",
+                  "text": "Machine-Learning Modelling für die Verspätungsvorhersage. Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s (arrival_delay in Sekunden), −63 % vs. Baseline."
                 }
               ]
             }
@@ -179,10 +182,27 @@
     },
     {
       "nav_label": "Datenstrategie",
+      "nav_tick_label": "Datenstrategie",
       "slides": [
         {
-          "title": "Datenstrategie",
-          "subtitle": "Primärquellen: VBZ IST-Daten und GTFS-Fahrplan",
+          "title": "Die Datenstrategie",
+          "subtitle": "Fünf Quellen, ein reproduzierbarer Weg zum Master-Datensatz",
+          "content": [
+            {
+              "type": "chart_refs",
+              "items": [
+                {
+                  "label": "VBZ Data Pipeline — Big Picture",
+                  "source": "vbz_strategy.svg",
+                  "caption": "Von den Rohdaten (IST-Daten, GTFS, Meteo, Events, Geo) über Filterung und Interim-Parquets bis zum gemeinsamen Merge auf vbz_master.parquet — die vollständige Herkunft und Genese der Daten, bevor die einzelnen Quellen auf den folgenden Slides im Detail folgen.<br>Quelle: Datenpipeline aus dem Schwesterprojekt zh-tram-data."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Master-Datensatz und GTFS-Fahrplandaten",
+          "subtitle": "Data Refinement als Fundament mit initialen Master-Datensatz und GTFS Fahrplandaten",
           "content": [
             {
               "type": "sections",
@@ -204,12 +224,25 @@
                   ]
                 }
               ]
+            },
+            {
+              "type": "text_columns",
+              "items": [
+                {
+                  "heading": "Master-Datensatz",
+                  "text": "Der Master-Datensatz entsteht in zh-tram-data aus den VBZ IST-Daten, angereichert um GTFS, Meteo Schweiz und Event-Kalender — 94,4 Mio. Zeilen, 26 Features. Er liefert die Basis für alle Analysen in diesem Projekt."
+                },
+                {
+                  "heading": "GTFS (Fahrplandaten)",
+                  "text": "Für Karten, Geo-Visualisierungen und Tramlinien-Darstellungen wurde GTFS zusätzlich gesondert geladen — der Master-Datensatz allein liefert keine Liniengeometrien und Streckenverläufe."
+                }
+              ]
             }
           ]
         },
         {
-          "title": "Datenstrategie",
-          "subtitle": "Kontextquellen: Wetter und Grossveranstaltungen",
+          "title": "Kontextquellen der Dimensionen",
+          "subtitle": "Für jede Analysedimension wurden die Datenquellen im Vorfeld im Master-Datensatz schon kontextuell angereichert",
           "content": [
             {
               "type": "sections",
@@ -229,6 +262,22 @@
                     "Kategorisierung: event_type, event_size, event_weight",
                     "Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet"
                   ]
+                },
+                {
+                  "label": "Network",
+                  "points": [
+                    "Linientopologie: 16 Linien, ca. 190 Haltestellen",
+                    "Kontext-Features: n_lines_at_stop, n_stops_line",
+                    "Basis für linienübergreifendes Lernen (stop_sequence_pct)"
+                  ]
+                },
+                {
+                  "label": "Target",
+                  "points": [
+                    "arrival_delay in Sekunden, aus IST- vs. Soll-Zeit berechnet",
+                    "OTP-Schwellwert: Ankunft ≤ 2 Minuten Verspätung",
+                    "canceled = True bewusst als Extremfall im Target erhalten"
+                  ]
                 }
               ]
             }
@@ -242,10 +291,12 @@
               "type": "contrasts",
               "items": [
                 {
+                  "topic": "Canceled-Flag",
                   "assumption": "Canceled-Fahrten entfernen",
                   "finding": "Behalten: canceled = True Zeilen sind relevante Extremfälle — Modell soll auch Ausfälle antizipieren können"
                 },
                 {
+                  "topic": "Split-Type",
                   "assumption": "Shuffle-Split für mehr Trainingsdaten",
                   "finding": "Temporal Split: Zukunft darf Vergangenheit nicht kennen. Shuffle würde Data Leakage erzeugen"
                 }
@@ -261,10 +312,12 @@
               "type": "contrasts",
               "items": [
                 {
+                  "topic": "Extremwert-Capping",
                   "assumption": "arrival_delay winsorisieren (Extremwerte kappen)",
                   "finding": "Kein Capping: MAE belohnt Präzision auch bei Extremwerten. Winsorisierung würde Systemfehler verbergen"
                 },
                 {
+                  "topic": "OHE für Haltestellen",
                   "assumption": "Alle Haltestellen gleich behandeln",
                   "finding": "stop_sequence_pct als normierter Streckenfortschritt — erlaubt linienübergreifendes Lernen ohne One-Hot-Explosion"
                 }
@@ -276,6 +329,7 @@
     },
     {
       "nav_label": "Baseline",
+      "nav_tick_label": "Baseline",
       "slides": [
         {
           "title": "Baseline",
@@ -326,7 +380,10 @@
             {
               "type": "statement",
               "sentiment": "neutral",
-              "text": "Stop Mean gewinnt, weil Haltestellen strukturell unterschiedliche Delay-Level haben. Jedes Modell muss diesen Benchmark schlagen. Grand Mean, Hour Mean und Line Mean liegen alle < 1s voneinander entfernt — reine Mittelwert-Strategien bringen keinen Vorteil."
+              "layout": "lead_copy",
+              "align": "left",
+              "text": "Stop Mean gewinnt —<br>weil Haltestellen strukturell unterschiedlich sind.",
+              "copy": "Grand Mean, Hour Mean und Line Mean liegen alle innerhalb 1 Sekunde beieinander — reine Mittelwert-Strategien nach Zeit oder Linie bringen keinen Vorteil. Erst die Aufschlüsselung nach Haltestelle trifft den strukturellen Unterschied im Delay-Level. Jedes Modell muss diesen Benchmark schlagen."
             }
           ]
         }
@@ -334,6 +391,7 @@
     },
     {
       "nav_label": "Feature Engineering",
+      "nav_tick_label": "Feature Engineering",
       "slides": [
         {
           "title": "Feature Engineering",
@@ -368,6 +426,7 @@
                 },
                 {
                   "label": "Kaskaden-Features (neu in v2)",
+                  "highlight": true,
                   "points": [
                     "prev_trip_delay: Verspätung des Vorgänger-Trips an diesem Halt — echtzeit-verfügbar",
                     "stop_sequence_pct: normierter Streckenfortschritt (0–1) — linienübergreifend lernbar",
@@ -382,6 +441,7 @@
     },
     {
       "nav_label": "Modellauswahl",
+      "nav_tick_label": "Modellauswahl",
       "slides": [
         {
           "title": "Modellauswahl und -Anpassung",
@@ -470,7 +530,10 @@
             {
               "type": "statement",
               "sentiment": "positive",
-              "text": "v1 war systematisch zu optimistisch (MBE +8,3 s) — v2 kalibriert auf MBE −0,69 s. Der Sprung auf 18,56 s MAE (−63 %) erklärt sich vollständig durch prev_trip_delay."
+              "layout": "lead_copy",
+              "align": "left",
+              "text": "Der Sprung kam aus der Analyse, nicht aus dem Algorithmus.",
+              "copy": "v1 war systematisch zu optimistisch (MBE +8,3 s), v2 kalibriert auf MBE −0,69 s. Der Sprung auf 18,56 s MAE (−63 %) erklärt sich vollständig durch das neue Feature prev_trip_delay — nicht durch ein besseres Modell."
             }
           ]
         },
@@ -506,7 +569,10 @@
             {
               "type": "statement",
               "sentiment": "neutral",
-              "text": "XGBoost erreicht auf dem Validation-Set vergleichbare Qualität, braucht aber 5× mehr Zeit. Für iteratives Feature Engineering über mehrere Wochen ist LightGBM die klar überlegene Wahl. Das ist eine Workflow-Entscheidung, keine Qualitätskompromittierung."
+              "layout": "lead_copy",
+              "align": "left",
+              "text": "Eine Workflow-Entscheidung, keine Qualitätskompromittierung.",
+              "copy": "XGBoost erreicht auf dem Validation-Set vergleichbare Qualität, braucht aber 5× mehr Trainingszeit. Für iteratives Feature Engineering über mehrere Wochen ist LightGBM die klar überlegene Wahl."
             }
           ]
         }
@@ -514,18 +580,19 @@
     },
     {
       "nav_label": "Feature Importance",
+      "nav_tick_label": "Feature Importance",
       "slides": [
         {
           "title": "Feature Importance",
-          "subtitle": "prev_trip_delay dominiert — die Analyse hat recht behalten",
+          "subtitle": "prev_trip_delay und stop_sequence_pct dominieren<br>Temporale und Wetter-Features zeigen konsistente, aber schwächere Beiträge",
           "content": [
             {
               "type": "chart_refs",
+              "layout": "image_left",
               "items": [
                 {
                   "label": "Feature Importance LightGBM v2",
-                  "source": "model-feature-importance",
-                  "caption": "Feature Importance (Gain). prev_trip_delay und stop_sequence_pct dominieren. Temporale und Wetter-Features zeigen konsistente, aber deutlich schwächere Beiträge."
+                  "source": "model-feature-importance"
                 }
               ]
             },
@@ -540,6 +607,7 @@
     },
     {
       "nav_label": "Evaluation",
+      "nav_tick_label": "Evaluation",
       "slides": [
         {
           "title": "Produktionsreife und Reflexion",
@@ -583,9 +651,10 @@
     },
     {
       "nav_label": "Empfehlungen",
+      "nav_tick_label": "Empfehlungen",
       "slides": [
         {
-          "title": "Vier direkte Hebel nutzen",
+          "title": "Konkrete Handlungsempfehlungen",
           "subtitle": "Jede Empfehlung ist direkt durch einen Befund aus der Analyse gedeckt",
           "content": [
             {
@@ -595,8 +664,8 @@
                   "category": "R1 · Fahrplan-Design",
                   "title": "Standzeit-Puffer L11 an Koppelstellen",
                   "points": [
-                    "dwell_time = 0s an 71,3 % aller Haltestellen ist das Root-Cause-Feature",
-                    "+10s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt"
+                    "dwell_time = 0 s an 71,3 % aller Haltestellen ist das Root-Cause-Feature",
+                    "+10 s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt"
                   ]
                 },
                 {
@@ -631,6 +700,7 @@
     },
     {
       "nav_label": "Weitere Potenziale",
+      "nav_tick_label": "Weitere Potenziale",
       "slides": [
         {
           "title": "Was noch zu erforschen ist",
@@ -639,17 +709,32 @@
             {
               "type": "statement",
               "sentiment": "neutral",
-              "text": "Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie? Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale."
+              "layout": "lead_copy",
+              "align": "left",
+              "text": "Warum sind Fahrtrichtungen asymmetrisch?<br>Welche Linien dämpfen Delays, welche verstärken sie?",
+              "copy": "Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen. Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale und wurden bereits in 7 Opportunities formuliert."
             },
             {
               "type": "sections",
+              "layout": "columns",
+              "heading": "3 von 7 der Opportunities",
               "items": [
                 {
-                  "label": "3 von 7 Forschungsmöglichkeiten — Details in BACKLOG.md",
+                  "label": "OP-1",
                   "points": [
-                    "OP-1: Direction-Asymmetrie (~10s Delta zwischen Richtung A/B)",
-                    "OP-2: Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)",
-                    "OP-7: Kaskaden-Verstärker vs. -Dämpfer pro Linie"
+                    "Direction-Asymmetrie (~10 s Delta zwischen Richtung A/B)"
+                  ]
+                },
+                {
+                  "label": "OP-2",
+                  "points": [
+                    "Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)"
+                  ]
+                },
+                {
+                  "label": "OP-7",
+                  "points": [
+                    "Kaskaden-Verstärker vs. -Dämpfer pro Linie"
                   ]
                 }
               ]
@@ -659,65 +744,33 @@
       ]
     },
     {
-      "nav_label": "Ende",
+      "nav_label": "Resultat",
+      "nav_tick_label": "Resultat",
       "slides": [
         {
-          "role": "abbinder",
+          "role": "closing",
+          "layout": "split",
           "title": "Zurich Tram Flow",
-          "subtitle": "Kay Wiegand · 2023–2025",
+          "subtitle": "Verspätungsvorhersage im Zürcher Tramnetz<br>Datengetriebenes Analyse- und ML-Projekt | 2023–2025",
+          "closing_primary_link": {
+            "label": "Interaktives Dashboard",
+            "href": "https://zh-tram-flow.streamlit.app",
+            "target": "_blank"
+          },
+          "closing_extra_links": [
+            {
+              "label": "LinkedIn-Profil",
+              "href": "https://www.linkedin.com/in/kaywiegand/",
+              "target": "_blank"
+            }
+          ],
           "content": [
             {
-              "type": "figures",
-              "items": [
-                {
-                  "value": "94,4 M",
-                  "label": "Halt-Ereignisse",
-                  "sentiment": "neutral"
-                },
-                {
-                  "value": "41,2 M",
-                  "label": "Trainings-Fahrten",
-                  "sentiment": "neutral"
-                },
-                {
-                  "value": "~29 M",
-                  "label": "Test-Fahrten (2025)",
-                  "sentiment": "neutral"
-                },
-                {
-                  "value": "34",
-                  "label": "Features (v2)",
-                  "sentiment": "neutral"
-                },
-                {
-                  "value": "18,56 s",
-                  "label": "MAE · LightGBM v2",
-                  "sentiment": "positive"
-                },
-                {
-                  "value": "−63 %",
-                  "label": "vs. Baseline",
-                  "sentiment": "positive"
-                }
-              ]
-            },
-            {
-              "type": "links",
-              "primary": "https://github.com/kaywiegand/zh-tram-flow",
-              "items": [
-                {
-                  "label": "Ergebnisübersicht (HR/Business)",
-                  "href": "overview.html"
-                },
-                {
-                  "label": "Projektverlauf (Portfolio)",
-                  "href": "storyview.html"
-                },
-                {
-                  "label": "Dashboard-Prototype",
-                  "href": "https://zh-tram-flow.streamlit.app"
-                }
-              ]
+              "type": "statement",
+              "sentiment": "neutral",
+              "layout": "lead_copy",
+              "text": "Was vorhersagbar ist, ist steuerbar.",
+              "copy": "Dieses Projekt zeigt: Datenanalyse ist kein akademisches Artefakt, sondern das Fundament für operative Entscheidungen. Das interaktive Dashboard macht diese Erkenntnisse direkt steuerbar — Szenarien lassen sich simulieren, um Entscheidungen fundiert zu begründen.<br><br><strong>Linien erkunden · Linien vergleichen · Verspätungen vorhersagen</strong>"
             }
           ]
         }

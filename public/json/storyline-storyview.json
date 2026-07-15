@@ -7,23 +7,22 @@
     "presentation_title": "Der gesamte Daten-Lifecycle",
     "audience": "Portfolio · Konferenz · Vollbild",
     "duration_minutes": 35,
+    "linkedin": "https://www.linkedin.com/in/kaywiegand/",
     "closing_links": [
       {
-        "href": "https://zh-tram-flow.streamlit.app",
-        "label": "Dashboard-Prototype"
-      },
-      {
-        "href": "network-map.html",
-        "label": "Netzwerk-Karte"
+        "label": "LinkedIn-Profil",
+        "href": "https://www.linkedin.com/in/kaywiegand/"
       }
     ]
   },
   "chapters": [
     {
       "nav_label": "Einstieg",
+      "nav_tick_label": "Einstieg",
       "slides": [
         {
           "role": "title",
+          "layout": "L6",
           "content": [
             {
               "type": "figures",
@@ -63,35 +62,36 @@
           ]
         },
         {
-          "title": "Die These",
+          "title": "Übergreifende These",
           "subtitle": "Ein Satz, der das gesamte Projekt trägt",
           "content": [
             {
               "type": "statement",
               "sentiment": "neutral",
-              "text": "Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb."
-            },
-            {
-              "type": "statement",
-              "sentiment": "positive",
-              "text": "Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel."
+              "layout": "lead_copy",
+              "text": "Die Verspätungen im Zürcher Tramnetz sind vorhersagbar — weil sie im Fahrplan-Design verankert sind, nicht im zufälligen Betrieb.",
+              "copy": "Was vorhersagbar ist, ist steuerbar. Das Modell bestätigt die Analyse: prev_trip_delay ist das stärkste neue Feature in v2, MAE sinkt von 45,7 s auf 18,56 s. Fahrplan-Redesign an L11 ist der Hebel."
             }
           ]
         },
         {
-          "title": "Inhalt",
-          "subtitle": "Sieben Kapitel, ein durchgehender Datenpfad",
+          "layout": "L6",
+          "kicker": "Agenda",
+          "title": "Inhaltsübersicht",
+          "subtitle": "Der gesamte Daten-Lifecycle von Rohdaten bis Vorhersage-Modell",
           "content": [
             {
               "type": "agenda",
               "items": [
                 "Ausgangssituation",
-                "Data Engineering",
-                "Exploration",
-                "Die Erkenntnis",
+                "Exploration / EDA",
+                "Data Preprocessing",
+                "Analyse & Erkenntnisse",
                 "Machine Learning",
-                "Die Handlungsempfehlungen",
-                "Projektrahmen und Workflow"
+                "Praxisanwendung",
+                "Empfehlungen",
+                "Technische Umsetzung",
+                "Ausblick"
               ]
             }
           ]
@@ -100,6 +100,7 @@
     },
     {
       "nav_label": "Ausgangssituation",
+      "nav_tick_label": "Ausgangssituation",
       "slides": [
         {
           "title": "Strukturelle Lücke im Netz",
@@ -137,21 +138,51 @@
           ]
         },
         {
-          "title": "Wie wir vorgehen",
+          "title": "Vorgehen in zwei Schritten",
           "subtitle": "Von der Ursachenanalyse zur Vorhersage",
           "content": [
             {
-              "type": "steps",
+              "type": "h_timeline",
               "items": [
                 {
-                  "step": "1",
-                  "label": "Analyse der Entstehungsmuster und Einflussfaktoren",
-                  "detail": "Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition"
+                  "label": "Analyse",
+                  "text": "Identifikation der Entstehungsmuster und Einflussfaktoren. Analyse in 6 Dimensionen: Temporal · Räumlich · Netzwerk · Meteorologie · Events · Zieldefinition."
                 },
                 {
-                  "step": "2",
-                  "label": "Verspätungen vorhersagen",
-                  "detail": "Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s (arrival_delay in Sekunden), −63 % vs. Baseline"
+                  "label": "Vorhersage",
+                  "text": "Machine-Learning Modelling für die Verspätungsvorhersage. Folgen sie Mustern, die ein Modell lernen kann? — LightGBM, MAE 18,56 s (arrival_delay in Sekunden), −63 % vs. Baseline."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Alle Linien nicht im Soll",
+          "subtitle": "Keine einzige Linie erreicht dauerhaft das Ziel<br>Die Lücke zieht sich durch das gesamte Netz",
+          "content": [
+            {
+              "type": "chart_refs",
+              "items": [
+                {
+                  "label": "OTP nach Tramlinien",
+                  "source": "target-otp-per-line",
+                  "caption": "OTP nach Tramlinien, 2023–2025. Alle 16 Linien liegen unter dem 95 %-Ziel."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Kein Aufwärtstrend erkennbar",
+          "subtitle": "OTP schwankt saisonal, aber der Mittelwert bewegt sich seit 2023 nicht",
+          "content": [
+            {
+              "type": "chart_refs",
+              "items": [
+                {
+                  "label": "OTP Jahresverlauf",
+                  "source": "target-otp",
+                  "caption": "OTP-Jahresverlauf netzweit. Die Lücke zum VBZ-Ziel ist konstant und zeigt keinen Aufwärtstrend."
                 }
               ]
             }
@@ -160,37 +191,42 @@
       ]
     },
     {
-      "nav_label": "Exploration",
+      "nav_label": "Exploration / EDA",
+      "nav_tick_label": "Exploration",
       "slides": [
         {
           "title": "Widerlegte Annahmen",
-          "subtitle": "Drei Erwartungen, die die Daten klar widerlegen",
+          "subtitle": "Drei initiale Annahmen wurden mit Befunden aus den Daten klar widerlegt",
           "content": [
             {
               "type": "contrasts",
               "items": [
                 {
+                  "topic": "Stadtzentrum",
                   "assumption": "Die Innenstadt ist der Verspätungs-Hotspot",
                   "finding": "Central (48,3 s) und Paradeplatz (48,2 s) liegen unter dem Netzschnitt. Hotspots: Enzenbühl 93,8 s, Balgrist 85,2 s — periphere Aussenkorridore"
                 },
                 {
+                  "topic": "Berufsverkehr",
                   "assumption": "Der Morgenrush ist das grösste Zeitproblem",
                   "finding": "7h liegt mit 48,9 s unter Netzschnitt. Echter Peak: 21h (67,9 s) durch Abreisewellen nach Veranstaltungen. Donnerstag ist der schlechteste Wochentag"
                 },
                 {
+                  "topic": "Wettereinfluss",
                   "assumption": "Schlechtes Wetter ist die Hauptursache",
-                  "finding": "Schnee ist ein Verstärker (+54s), Regen +23,3 s. Geografisch trennbar: Schnee trifft Höhenlagen (K10/K12), Regen Flusstäler (K5). Grundrauschen bleibt wetterunabhängig"
+                  "finding": "Schnee ist ein Verstärker (+54 s), Regen +23,3 s. Geografisch trennbar: Schnee trifft Höhenlagen (K10/K12), Regen Flusstäler (K5). Grundrauschen bleibt wetterunabhängig"
                 }
               ]
             }
           ]
         },
         {
-          "title": "Die Innenstadt ist pünktlicher",
-          "subtitle": "Verspätungs-Hotspots liegen an der Peripherie, nicht im Stadtzentrum",
+          "title": "Innenstadt ist pünktlicher",
+          "subtitle": "Räumlich: Verspätungs-Hotspots liegen an der Peripherie, nicht im Stadtzentrum",
           "content": [
             {
               "type": "chart_refs",
+              "layout": "image_right",
               "items": [
                 {
                   "label": "Verspätungshotspots nach Haltestelle",
@@ -202,8 +238,8 @@
           ]
         },
         {
-          "title": "Der Peak am Abend",
-          "subtitle": "Um 21 Uhr entstehen die höchsten Verspätungen — nicht im Morgenrush",
+          "title": "Peak am Abend",
+          "subtitle": "Temporal: Um 21 Uhr entstehen die höchsten Verspätungen — nicht im Morgenrush<br>Der Peak um 2 Uhr ist ein Artefakt des Nachtbetriebs — bei minimaler Fahrtenzahl wirkt jede einzelne Verspätung überproportional gross",
           "content": [
             {
               "type": "chart_refs",
@@ -218,14 +254,14 @@
           ]
         },
         {
-          "title": "Exploration",
-          "subtitle": "Wetter: Schnee und Regen treffen unterschiedliche Stadtteile",
+          "title": "Weitere Eindrücke",
+          "subtitle": "Erste Kennzahlen aus der explorativen Datenanalyse",
           "content": [
             {
               "type": "figures",
               "items": [
                 {
-                  "value": "+54s",
+                  "value": "+54 s",
                   "label": "Schnee-Effekt netzweit",
                   "sentiment": "negative"
                 },
@@ -247,20 +283,30 @@
               ]
             },
             {
-              "type": "statement",
-              "sentiment": "neutral",
-              "text": "Feiertage sind der beste Tagestyp: −9,9 s vs. Normal. Der MIV-Rückgang überwiegt jeden Event-Effekt. Event-Wirkung ist ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied."
+              "type": "sections",
+              "layout": "columns",
+              "items": [
+                {
+                  "label": "Einordnung",
+                  "points": [
+                    "Feiertage sind der beste Tagestyp: −9,9 s vs. Normal",
+                    "Der Rückgang des motorisierten Individualverkehrs (MIV) an Feiertagen überwiegt jeden Event-Effekt",
+                    "Event-Wirkung ist ein Abend-Phänomen (18–22h): tagsüber kein messbarer Unterschied"
+                  ]
+                }
+              ]
             }
           ]
         }
       ]
     },
     {
-      "nav_label": "Data Engineering",
+      "nav_label": "Data Preprocessing",
+      "nav_tick_label": "Data Preprocessing",
       "slides": [
         {
-          "title": "Datenstrategie",
-          "subtitle": "Primärquellen: VBZ IST-Daten und GTFS-Fahrplan",
+          "title": "Master-Datensatz und GTFS-Fahrplandaten",
+          "subtitle": "Data Refinement als Fundament mit initialen Master-Datensatz und GTFS Fahrplandaten",
           "content": [
             {
               "type": "sections",
@@ -282,12 +328,25 @@
                   ]
                 }
               ]
+            },
+            {
+              "type": "text_columns",
+              "items": [
+                {
+                  "heading": "Master-Datensatz",
+                  "text": "Der Master-Datensatz entsteht in zh-tram-data aus den VBZ IST-Daten, angereichert um GTFS, Meteo Schweiz und Event-Kalender — 94,4 Mio. Zeilen, 26 Features. Er liefert die Basis für alle Analysen in diesem Projekt."
+                },
+                {
+                  "heading": "GTFS (Fahrplandaten)",
+                  "text": "Für Karten, Geo-Visualisierungen und Tramlinien-Darstellungen wurde GTFS zusätzlich gesondert geladen — der Master-Datensatz allein liefert keine Liniengeometrien und Streckenverläufe."
+                }
+              ]
             }
           ]
         },
         {
-          "title": "Datenstrategie",
-          "subtitle": "Kontextquellen: Wetter und Grossveranstaltungen",
+          "title": "Kontextquellen der Dimensionen",
+          "subtitle": "Für jede Analysedimension wurden die Datenquellen im Vorfeld im Master-Datensatz schon kontextuell angereichert",
           "content": [
             {
               "type": "sections",
@@ -307,27 +366,46 @@
                     "Kategorisierung: event_type, event_size, event_weight",
                     "Ergebnis: 94,4 Mio. Zeilen · 26 Features · 541 MB Parquet"
                   ]
+                },
+                {
+                  "label": "Network",
+                  "points": [
+                    "Linientopologie: 16 Linien, ca. 190 Haltestellen",
+                    "Kontext-Features: n_lines_at_stop, n_stops_line",
+                    "Basis für linienübergreifendes Lernen (stop_sequence_pct)"
+                  ]
+                },
+                {
+                  "label": "Target",
+                  "points": [
+                    "arrival_delay in Sekunden, aus IST- vs. Soll-Zeit berechnet",
+                    "OTP-Schwellwert: Ankunft ≤ 2 Minuten Verspätung",
+                    "canceled = True bewusst als Extremfall im Target erhalten"
+                  ]
                 }
               ]
             }
           ]
         },
         {
-          "title": "Data Engineering",
-          "subtitle": "Cleaning als Forschungsentscheidung, nicht als Routine",
+          "title": "Cleaning, Split und Encoding",
+          "subtitle": "Mit der passenden Data Preparation zur finalen Struktur für das Modell",
           "content": [
             {
               "type": "contrasts",
               "items": [
                 {
+                  "topic": "Canceled-Flag",
                   "assumption": "Canceled-Fahrten entfernen",
                   "finding": "Bewusst behalten: canceled = True Fahrten sind Extremfälle, die das Modell kennen muss. Entfernen würde die Realität des Netzes verfälschen."
                 },
                 {
+                  "topic": "Split-Type",
                   "assumption": "Shuffle-Split für mehr Trainingsdaten",
                   "finding": "Temporal Split (kein Shuffle): Train 2023–Jun 2024 / Val Jul–Dez 2024 / Test 2025. Data Leakage wäre sonst unvermeidbar."
                 },
                 {
+                  "topic": "OHE für Haltestellen",
                   "assumption": "Haltestellen über One-Hot Encoding",
                   "finding": "Native Categoricals in LightGBM: stop_name, line_name, event_type direkt als Kategorie. Kein Dimensionsproblem, schnelleres Training."
                 }
@@ -338,10 +416,11 @@
       ]
     },
     {
-      "nav_label": "Erkenntnis",
+      "nav_label": "Analyse & Erkenntnisse",
+      "nav_tick_label": "Analyse & Erkenntnisse",
       "slides": [
         {
-          "title": "Die Kaskade bei den Verspätungen",
+          "title": "Kaskade der Verspätungen",
           "subtitle": "Ohne Puffer im Fahrplan überträgt sich jede Verspätung auf die Folgefahrten — in Zahlen",
           "content": [
             {
@@ -359,7 +438,7 @@
                 },
                 {
                   "value": "71,3 %",
-                  "label": "Haltestellen ohne Standzeit (0s)",
+                  "label": "Haltestellen ohne Standzeit (0 s)",
                   "sentiment": "warning"
                 },
                 {
@@ -368,11 +447,18 @@
                   "sentiment": "negative"
                 }
               ]
+            },
+            {
+              "type": "statement",
+              "sentiment": "negative",
+              "layout": "lead_copy",
+              "text": "Was an einem Halt beginnt, endet nicht dort:",
+              "copy": "Ohne Standzeit-Puffer überträgt sich jede Verspätung strukturell auf die Folgefahrt — messbar auf allen 16 Linien, am stärksten auf L11."
             }
           ]
         },
         {
-          "title": "Wie sich die Kaskade aufbaut",
+          "title": "Aufbau der Kaskade",
           "subtitle": "Vier Schritte, vom ersten Anzeichen bis zum netzweiten Beweis",
           "content": [
             {
@@ -392,6 +478,7 @@
                 },
                 {
                   "label": "Kaskade",
+                  "sentiment": "negative",
                   "text": "Pearson r ≥ 0,85 zwischen aufeinanderfolgenden Halts auf allen 16 Linien. Systematisch, kein Einzelfall."
                 }
               ]
@@ -399,28 +486,30 @@
           ]
         },
         {
-          "title": "Ein Fahrplan-Design-Thema",
-          "subtitle": "Nicht Betriebsversagen — strukturell angelegt",
+          "title": "Fahrplan-Design-Thema",
+          "subtitle": "Die Verspätungen sind durch die Fahrplangestaltung strukturell angelegt",
           "content": [
             {
               "type": "statement",
               "sentiment": "neutral",
-              "text": "Das ist kein Betriebsversagen. Es ist ein Fahrplan-Design-Thema. Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden."
+              "text": "<span class=\"sw-normal\">Das ist kein Betriebsversagen.</span><br><br>Es ist ein Fahrplan-Design-Thema.<br><span class=\"sw-normal\">Was im Fahrplan nicht vorgesehen ist, kann im Betrieb nicht ausgeglichen werden.</span>"
             }
           ]
         },
         {
-          "title": "Externe Faktoren verstärken, ändern aber nichts Grundlegendes",
+          "title": "Einfluss externer Faktoren",
           "subtitle": "Wetter und Grossevents wirken, das Grundproblem bleibt strukturell",
           "content": [
             {
               "type": "statement",
               "sentiment": "warning",
-              "text": "Zwei externe Einflussfaktoren sind messbar und erheblich: Schnee (+54s) und Grossevents (bis +66s bei Fachmessen). Doch das Grundniveau der Verspätung bleibt auch bei optimalen Bedingungen konstant hoch. Externe Faktoren verstärken, was intern bereits strukturell angelegt ist."
+              "heading": "Wetter & Events",
+              "text": "Zwei externe Einflussfaktoren sind messbar und erheblich: Schnee (+54 s) und Grossevents (bis +66 s bei Fachmessen). Doch das Grundniveau der Verspätung bleibt auch bei optimalen Bedingungen konstant hoch. Externe Faktoren verstärken, was intern bereits strukturell angelegt ist."
             },
             {
               "type": "statement",
               "sentiment": "positive",
+              "heading": "Betriebsbedingte Faktoren",
               "text": "Trotz Bauphasen, Streckensperrungen und Fahrplanumstellungen hält die VBZ das System bemerkenswert stabil. Die Verspätungslevel schwanken durch diese Eingriffe kaum. Die Ursache liegt nicht in externen Störungen, sondern im Fahrplan-Design selbst."
             }
           ]
@@ -429,16 +518,17 @@
     },
     {
       "nav_label": "Machine Learning",
+      "nav_tick_label": "Machine Learning",
       "slides": [
         {
-          "title": "Warum Machine Learning?",
-          "subtitle": "Drei Iterationen der Modellierung — von der Baseline zum finalen Modell",
+          "title": "Dynamische Modelle statt starrer Regeln",
+          "subtitle": "Herkömmliche Systeme scheitern an nichtlinearen Daten",
           "content": [
             {
               "type": "statement",
               "sentiment": "neutral",
               "layout": "lead_copy",
-              "text": "Die Struktur der Daten ist nichtlinear.",
+              "text": "Die Struktur der Daten ist nicht linear.",
               "copy": "Linie × Haltestelle × Tageszeit × Wetter × Event interagieren auf eine Weise, die kein handcodiertes Modell erfassen kann — und prev_trip_delay liefert ein Echtzeit-Signal für einen Feedback-Loop im Modell."
             }
           ]
@@ -488,7 +578,9 @@
             {
               "type": "statement",
               "sentiment": "positive",
-              "text": "Der Sprung von v1 auf v2 kam nicht durch einen besseren Algorithmus, sondern durch das richtige Signal aus der Analyse: den Kaskadenindikator (prev_trip_delay)."
+              "layout": "lead_copy",
+              "text": "Feature Engineering schlägt Hyperparameter-Tuning.",
+              "copy": "Der Sprung von v1 auf v2 kam nicht durch einen besseren Algorithmus. Das richtige Signal aus der Analyse wurde mit dem Kaskadenindikator (prev_trip_delay) sichtbar gemacht."
             }
           ]
         },
@@ -500,7 +592,7 @@
               "type": "figures",
               "hero": {
                 "value": "18,56 s",
-                "label": "MAE · LightGBM v2 · Test 2025 (~29M Fahrten)",
+                "label": "MAE · LightGBM v2 · Test 2025 (~29 M Fahrten)",
                 "sentiment": "positive"
               },
               "items": [
@@ -524,40 +616,38 @@
             {
               "type": "statement",
               "sentiment": "positive",
-              "text": "prev_trip_delay ist das stärkste neue Feature in v2 und erklärt den Sprung von 45,7 s auf 18,56 s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt."
+              "layout": "lead_copy",
+              "text": "18,56 Sekunden bestätigen die Analyse.",
+              "copy": "prev_trip_delay erklärt den Sprung von 45,7 s auf 18,56 s MAE. Das Signal war in den Daten — die EDA hat es zuerst aufgezeigt, das Modell hat es bestätigt."
             }
           ]
-        }
-      ]
-    },
-    {
-      "nav_label": "Feature Importance",
-      "slides": [
+        },
         {
           "title": "Feature Importance",
-          "subtitle": "prev_trip_delay dominiert — die Analyse hat recht behalten",
+          "subtitle": "prev_trip_delay und stop_sequence_pct dominieren<br>Temporale und Wetter-Features zeigen konsistente, aber schwächere Beiträge",
           "content": [
             {
               "type": "chart_refs",
+              "layout": "image_left",
               "items": [
                 {
                   "label": "Feature Importance LightGBM v2",
-                  "source": "model-feature-importance",
-                  "caption": "Feature Importance (Gain). prev_trip_delay und stop_sequence_pct dominieren. Temporale und Wetter-Features zeigen konsistente, aber deutlich schwächere Beiträge."
+                  "source": "model-feature-importance"
                 }
               ]
             },
             {
               "type": "statement",
               "sentiment": "positive",
-              "text": "Die Kaskadenanalyse (r ≥ 0,85 netzweit) hat die Feature-Wichtigkeit korrekt antizipiert. Das Modell bestätigt: Das Signal steckt in den Daten, nicht im Algorithmus."
+              "text": "Die Kaskadenanalyse (r ≥ 0,85) hat die Feature-Wichtigkeit korrekt antizipiert — das Signal steckt in den Daten, nicht im Algorithmus."
             }
           ]
         }
       ]
     },
     {
-      "nav_label": "Anwendung",
+      "nav_label": "Praxisanwendung",
+      "nav_tick_label": "Praxisanwendung",
       "slides": [
         {
           "title": "Konkreter Nutzen in der Praxis",
@@ -580,7 +670,7 @@
                 {
                   "conditions": "Dienstag · 17h · Paradeplatz · leichter Regen",
                   "prediction_seconds": 48,
-                  "interpretation": null,
+                  "interpretation": "Verspätung im Akzeptanzbereich",
                   "sentiment": "neutral"
                 },
                 {
@@ -597,9 +687,10 @@
     },
     {
       "nav_label": "Empfehlungen",
+      "nav_tick_label": "Empfehlungen",
       "slides": [
         {
-          "title": "Vier direkte Hebel nutzen",
+          "title": "Konkrete Handlungsempfehlungen",
           "subtitle": "Jede Empfehlung ist direkt durch einen Befund aus der Analyse gedeckt",
           "content": [
             {
@@ -609,8 +700,8 @@
                   "category": "R1 · Fahrplan-Design",
                   "title": "Standzeit-Puffer L11 an Koppelstellen",
                   "points": [
-                    "dwell_time = 0s an 71,3 % aller Haltestellen ist das Root-Cause-Feature",
-                    "+10s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt"
+                    "dwell_time = 0 s an 71,3 % aller Haltestellen ist das Root-Cause-Feature",
+                    "+10 s Puffer an 3–5 kritischen Koppelstellen unterbricht den Kaskadeneffekt"
                   ]
                 },
                 {
@@ -644,39 +735,11 @@
       ]
     },
     {
-      "nav_label": "Resultat",
+      "nav_label": "Technische Umsetzung",
+      "nav_tick_label": "Technische Umsetzung",
       "slides": [
         {
-          "role": "closing",
-          "title": "Was vorhersagbar ist, ist steuerbar.",
-          "subtitle": "Ein Projekt, das zeigt: Datengetriebene Analyse ist kein akademisches Artefakt — sie liefert operative Entscheidungsgrundlagen.",
-          "content": [
-            {
-              "type": "tools",
-              "items": [
-                {
-                  "label": "Linie erkunden",
-                  "description": "Delay-Profil · Map · Hotspots\nEmpfehlungsbox pro Linie"
-                },
-                {
-                  "label": "Linien vergleichen",
-                  "description": "KPIs · Delay-Verteilung\nPriorisierungsentscheidung"
-                },
-                {
-                  "label": "Delay vorhersagen",
-                  "description": "Szenario A vs. B live\nWas-wäre-wenn-Analyse"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "nav_label": "Projektrahmen",
-      "slides": [
-        {
-          "title": "Daten & Stack",
+          "title": "Datenbasis & TechStack",
           "subtitle": "Umfang der Datenbasis und eingesetzte Technologie",
           "content": [
             {
@@ -704,7 +767,7 @@
           ]
         },
         {
-          "title": "Offen & reproduzierbar",
+          "title": "AI Workflow & Pipeline",
           "subtitle": "Open Data, AI-Workflow, vollständig reproduzierbar",
           "content": [
             {
@@ -733,7 +796,8 @@
       ]
     },
     {
-      "nav_label": "Weitere Potenziale",
+      "nav_label": "Ausblick",
+      "nav_tick_label": "Ausblick",
       "slides": [
         {
           "title": "Was noch zu erforschen ist",
@@ -742,17 +806,32 @@
             {
               "type": "statement",
               "sentiment": "neutral",
-              "text": "Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen: Warum sind Fahrtrichtungen asymmetrisch? Welche Linien dämpfen Delays, welche verstärken sie? Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale."
+              "layout": "lead_copy",
+              "align": "left",
+              "text": "Warum sind Fahrtrichtungen asymmetrisch?<br>Welche Linien dämpfen Delays, welche verstärken sie?",
+              "copy": "Beim interaktiven Erkunden der 16 Linien entstehen neue Fragen. Diese Ad-hoc-Entdeckungen sind Signale für strukturelle Potenziale und wurden bereits in 7 Opportunities formuliert."
             },
             {
               "type": "sections",
+              "layout": "columns",
+              "heading": "3 von 7 der Opportunities",
               "items": [
                 {
-                  "label": "3 von 7 Forschungsmöglichkeiten — Details in BACKLOG.md",
+                  "label": "OP-1",
                   "points": [
-                    "OP-1: Direction-Asymmetrie (~10s Delta zwischen Richtung A/B)",
-                    "OP-2: Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)",
-                    "OP-7: Kaskaden-Verstärker vs. -Dämpfer pro Linie"
+                    "Direction-Asymmetrie (~10 s Delta zwischen Richtung A/B)"
+                  ]
+                },
+                {
+                  "label": "OP-2",
+                  "points": [
+                    "Stop-Variabilität (Puffer-Stops vs. zeitkritische Stops)"
+                  ]
+                },
+                {
+                  "label": "OP-7",
+                  "points": [
+                    "Kaskaden-Verstärker vs. -Dämpfer pro Linie"
                   ]
                 }
               ]
@@ -762,65 +841,33 @@
       ]
     },
     {
-      "nav_label": "Ende",
+      "nav_label": "Resultat",
+      "nav_tick_label": "Resultat",
       "slides": [
         {
-          "role": "abbinder",
+          "role": "closing",
+          "layout": "split",
           "title": "Zurich Tram Flow",
-          "subtitle": "Kay Wiegand · 2023–2025",
+          "subtitle": "Verspätungsvorhersage im Zürcher Tramnetz<br>Datengetriebenes Analyse- und ML-Projekt | 2023–2025",
+          "closing_primary_link": {
+            "label": "Interaktives Dashboard",
+            "href": "https://zh-tram-flow.streamlit.app",
+            "target": "_blank"
+          },
+          "closing_extra_links": [
+            {
+              "label": "LinkedIn-Profil",
+              "href": "https://www.linkedin.com/in/kaywiegand/",
+              "target": "_blank"
+            }
+          ],
           "content": [
             {
-              "type": "figures",
-              "items": [
-                {
-                  "value": "94,4 M",
-                  "label": "Halt-Ereignisse",
-                  "sentiment": "neutral"
-                },
-                {
-                  "value": "16",
-                  "label": "Tramlinien",
-                  "sentiment": "neutral"
-                },
-                {
-                  "value": "66",
-                  "label": "Befunde",
-                  "sentiment": "neutral"
-                },
-                {
-                  "value": "12",
-                  "label": "Notebooks",
-                  "sentiment": "neutral"
-                },
-                {
-                  "value": "18,56 s",
-                  "label": "MAE · LightGBM v2",
-                  "sentiment": "positive"
-                },
-                {
-                  "value": "−63 %",
-                  "label": "vs. Baseline",
-                  "sentiment": "positive"
-                }
-              ]
-            },
-            {
-              "type": "links",
-              "primary": "https://github.com/kaywiegand/zh-tram-flow",
-              "items": [
-                {
-                  "label": "Ergebnisübersicht (HR/Business)",
-                  "href": "overview.html"
-                },
-                {
-                  "label": "Technischer Deep Dive",
-                  "href": "techview.html"
-                },
-                {
-                  "label": "Dashboard-Prototype",
-                  "href": "https://zh-tram-flow.streamlit.app"
-                }
-              ]
+              "type": "statement",
+              "sentiment": "neutral",
+              "layout": "lead_copy",
+              "text": "Was vorhersagbar ist, ist steuerbar.",
+              "copy": "Dieses Projekt zeigt: Datenanalyse ist kein akademisches Artefakt, sondern das Fundament für operative Entscheidungen. Das interaktive Dashboard macht diese Erkenntnisse direkt steuerbar — Szenarien lassen sich simulieren, um Entscheidungen fundiert zu begründen.<br><br><strong>Linien erkunden · Linien vergleichen · Verspätungen vorhersagen</strong>"
             }
           ]
         }

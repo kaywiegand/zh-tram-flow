@@ -2078,3 +2078,46 @@ Umstellen allein triggert noch keinen Lauf.
 
 **Nächster Schritt:** Kay reviewed `public/` (Design + Inhalt) eigenständig in einer neuen
 Session — analog zum kompletten Storyview/Overview/Techview-Durchgang bei `zh-tram-data`.
+
+---
+
+### 2026-07-15 — Kompletter Slide-Review-Marathon (5 Runden) + Deployment-Status verifiziert
+
+Mehrere aufeinanderfolgende Feedback-Runden zu StoryView/Overview/TechView, slide-für-slide.
+Details (Wortlaut, exakte Slide-IDs) stehen nicht hier — Pointer auf `public/md/slides.yaml`
+(Kommentare markieren Kay-Entscheidungen inline) und `public/md/slides-matrix.md` (aktuelle
+Slide×View-Belegung). Zusammengefasst:
+
+- **Struktur:** Overview strukturell voll an StoryView angeglichen (gleiche Kapitelfolge/-namen);
+  eine einzige geteilte Closing-Slide für alle 3 Views (`resultat-closing-thesis`, ersetzt 4
+  vorher getrennte Varianten); Feature Importance in StoryView in die Machine-Learning-Erzählung
+  integriert statt eigenes Kapitel (TechView behält eigenes Kapitel).
+- **TechView-Intro:** neue erste Datenstrategie-Slide mit `vbz_strategy.svg` (aus `zh-tram-data`
+  übernommen, Quelle jetzt auch in der Caption genannt) statt der schmalen 3-Joins-Grafik —
+  zeigt die komplette Datengenese vor den Detail-Slides.
+  Legende:
+- **Generator (`wgnd-skills/project-case/scripts/generate_html_from_json.py`):** `nav_tick_by_view`
+  (kurzes Nav-Label getrennt vom langen sichtbaren Kicker), `kicker`-Override bekommt eigenen
+  Nav-Tick, `image_left`/`image_right` rendern Kopfzone jetzt standardkonform (nicht mehr Teil
+  des Splits), `sections.heading`/`.highlight`, `text_columns` (E14), `align: left` für E17.
+- **CSS (`wgnd-skills/project-case/templates/slides.css`):** Text-Hierarchie fixiert (h2 1.5em/300,
+  subline 200, Kicker 100, "große" Statement-Klassen 1.8em); `.sw-bold`/`.sw-normal`/`.sw-thin`
+  Utility-Klassen für gemischte Textgewichte innerhalb eines Statements (neu); 3em-Abstandsregel
+  um `table + .text-lead-copy` / `.metric-row + .text-lead-copy` erweitert (vorher nur für
+  `blockquote.statement` abgedeckt); Agenda-Layout `L6` ist jetzt der produktive Standard für
+  alle 3 Views (Titel/Subline links neben der Liste statt oben in eigener Kopfzone).
+- **Styleguide (`wgnd-skills/project-case/templates/styleguide.html`):** auf den aktuellen
+  Stand nachgezogen — Closing-Slide-Demo zeigt jetzt die echte `zh-tram-flow`-Struktur
+  (closing-split + E17 + Teaser-Absatz + gleich breite Links), Title-Slide-Demo mit
+  linksbündiger Kicker/Copy-Ausrichtung, 3 neue Statement-Gewichts-Demos, Agenda-L6 als
+  "Standard" markiert (vorher L1).
+
+**Deployment-Status verifiziert (curl gegen die Live-URLs):** `zh-tram-data` ist vollständig live
+(Hub + alle 3 Views → 200). `zh-tram-flow` liefert nur den Hub live (200), `overview`/`storyview`/
+`techview.html` sind weiterhin 404 — der am 2026-07-14 dokumentierte offene Punkt ("Pages-Source
+auf GitHub Actions umstellen + Workflow einmal manuell auslösen") ist noch nicht erledigt.
+
+**Nächster Schritt:** Kay stellt in den Repo-Settings (github.com/kaywiegand/zh-tram-flow/settings/pages)
+"Build and deployment → Source" auf "GitHub Actions" um, dann einmal im Actions-Tab "Deploy Pages"
+→ "Run workflow" manuell auslösen (oder einfach erneut in `public/**` pushen, der Workflow triggert
+dann automatisch). Danach `overview.html`/`storyview.html`/`techview.html` erneut per curl prüfen.

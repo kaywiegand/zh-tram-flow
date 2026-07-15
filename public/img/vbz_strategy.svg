@@ -1,0 +1,182 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 520" width="780" style="font-family: system-ui, -apple-system, sans-serif; font-size: 11px; background: #ffffff;">
+
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="390" y="24" text-anchor="middle" font-size="14" font-weight="600" fill="#1a1a1a">VBZ Data Pipeline — Big Picture</text>
+
+  <!-- ══ COLUMN HEADERS ══ -->
+  <text x="75"  y="48" text-anchor="middle" font-size="10" fill="#888" font-weight="500">RAW</text>
+  <text x="230" y="48" text-anchor="middle" font-size="10" fill="#888" font-weight="500">INGESTION &amp; FILTER</text>
+  <text x="420" y="48" text-anchor="middle" font-size="10" fill="#888" font-weight="500">INTERIM</text>
+  <text x="590" y="48" text-anchor="middle" font-size="10" fill="#888" font-weight="500">MERGE</text>
+  <text x="720" y="48" text-anchor="middle" font-size="10" fill="#888" font-weight="500">OUTPUT</text>
+
+  <!-- Column dividers -->
+  <line x1="148" y1="35" x2="148" y2="510" stroke="#f0f0f0" stroke-width="1"/>
+  <line x1="315" y1="35" x2="315" y2="510" stroke="#f0f0f0" stroke-width="1"/>
+  <line x1="510" y1="35" x2="510" y2="510" stroke="#f0f0f0" stroke-width="1"/>
+  <line x1="655" y1="35" x2="655" y2="510" stroke="#f0f0f0" stroke-width="1"/>
+
+  <!-- ══ ROW 1: IST-DATEN ══ -->
+  <!-- Raw -->
+  <rect x="15" y="60" width="118" height="52" rx="6" fill="#FFF8E1" stroke="#F9A825" stroke-width="0.8"/>
+  <text x="74" y="79" text-anchor="middle" font-weight="500" fill="#5d4000">IST-Daten</text>
+  <text x="74" y="93" text-anchor="middle" fill="#7a5500">36 ZIPs · 38 GB</text>
+  <text x="74" y="106" text-anchor="middle" fill="#7a5500">schweizweit · CSV</text>
+
+  <!-- Arrow -->
+  <line x1="133" y1="86" x2="158" y2="86" stroke="#aaa" stroke-width="1" marker-end="url(#arr)"/>
+
+  <!-- Ingestion -->
+  <rect x="160" y="60" width="142" height="52" rx="6" fill="#f8f8f8" stroke="#ccc" stroke-width="0.8"/>
+  <text x="231" y="79" text-anchor="middle" font-weight="500" fill="#333">Filter: VBZ &amp; Tram</text>
+  <text x="231" y="93" text-anchor="middle" fill="#555">22 → 10 Spalten</text>
+  <text x="231" y="106" text-anchor="middle" fill="#555">process_ist_daten.py</text>
+
+  <!-- Arrow -->
+  <line x1="302" y1="86" x2="327" y2="86" stroke="#aaa" stroke-width="1" marker-end="url(#arr)"/>
+
+  <!-- Interim -->
+  <rect x="330" y="60" width="168" height="52" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+  <text x="414" y="79" text-anchor="middle" font-weight="500" fill="#085041">1.096 Parquets</text>
+  <text x="414" y="93" text-anchor="middle" fill="#085041">92,9 Mio Zeilen · tagesweise</text>
+  <text x="414" y="106" text-anchor="middle" fill="#085041">608 MB · Polars</text>
+
+  <!-- ══ ROW 2: GTFS ══ -->
+  <rect x="15" y="130" width="118" height="52" rx="6" fill="#FFF8E1" stroke="#F9A825" stroke-width="0.8"/>
+  <text x="74" y="149" text-anchor="middle" font-weight="500" fill="#5d4000">GTFS-Feeds</text>
+  <text x="74" y="163" text-anchor="middle" fill="#7a5500">3 Jahre · TXT</text>
+  <text x="74" y="176" text-anchor="middle" fill="#7a5500">ZVV-Netz gesamt</text>
+
+  <line x1="133" y1="156" x2="158" y2="156" stroke="#aaa" stroke-width="1" marker-end="url(#arr)"/>
+
+  <rect x="160" y="130" width="142" height="52" rx="6" fill="#f8f8f8" stroke="#ccc" stroke-width="0.8"/>
+  <text x="231" y="149" text-anchor="middle" font-weight="500" fill="#333">Filter: Tram VBZ</text>
+  <text x="231" y="163" text-anchor="middle" fill="#555">4 Tabellen × 3 Jahre</text>
+  <text x="231" y="176" text-anchor="middle" fill="#555">vbz-gtfs-data.ipynb</text>
+
+  <line x1="302" y1="156" x2="327" y2="156" stroke="#aaa" stroke-width="1" marker-end="url(#arr)"/>
+
+  <rect x="330" y="130" width="168" height="52" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.8"/>
+  <text x="414" y="149" text-anchor="middle" font-weight="500" fill="#0C447C">4 Parquets</text>
+  <text x="414" y="163" text-anchor="middle" fill="#0C447C">routes · stops · shapes · trips</text>
+  <text x="414" y="176" text-anchor="middle" fill="#0C447C">year-Spalte (2023–2025)</text>
+
+  <!-- ══ ROW 3: METEO ══ -->
+  <rect x="15" y="200" width="118" height="64" rx="6" fill="#FFF8E1" stroke="#F9A825" stroke-width="0.8"/>
+  <text x="74" y="219" text-anchor="middle" font-weight="500" fill="#5d4000">Meteo</text>
+  <text x="74" y="233" text-anchor="middle" fill="#7a5500">UGZ · CSV</text>
+  <text x="74" y="247" text-anchor="middle" fill="#7a5500">Wapo · Parquet</text>
+  <text x="74" y="261" text-anchor="middle" fill="#7a5500">ERZ · CSV</text>
+
+  <line x1="133" y1="232" x2="158" y2="232" stroke="#aaa" stroke-width="1" marker-end="url(#arr)"/>
+
+  <rect x="160" y="200" width="142" height="64" rx="6" fill="#f8f8f8" stroke="#ccc" stroke-width="0.8"/>
+  <text x="231" y="219" text-anchor="middle" font-weight="500" fill="#333">3 Quellen konsolidieren</text>
+  <text x="231" y="233" text-anchor="middle" fill="#555">Join auf Stunde</text>
+  <text x="231" y="247" text-anchor="middle" fill="#555">11 Spalten</text>
+  <text x="231" y="261" text-anchor="middle" fill="#555">vbz-meteo-data.ipynb</text>
+
+  <line x1="302" y1="232" x2="327" y2="232" stroke="#aaa" stroke-width="1" marker-end="url(#arr)"/>
+
+  <rect x="330" y="200" width="168" height="64" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.8"/>
+  <text x="414" y="219" text-anchor="middle" font-weight="500" fill="#0C447C">meteo-master.parquet</text>
+  <text x="414" y="233" text-anchor="middle" fill="#0C447C">stündlich · 2023–2025</text>
+  <text x="414" y="247" text-anchor="middle" fill="#0C447C">temperature · rain · wind</text>
+  <text x="414" y="261" text-anchor="middle" fill="#0C447C">precipitation · flood_intensity</text>
+
+  <!-- ══ ROW 4: EVENTS ══ -->
+  <rect x="15" y="282" width="118" height="52" rx="6" fill="#FFF8E1" stroke="#F9A825" stroke-width="0.8"/>
+  <text x="74" y="301" text-anchor="middle" font-weight="500" fill="#5d4000">Events</text>
+  <text x="74" y="315" text-anchor="middle" fill="#7a5500">Manueller Crawl</text>
+  <text x="74" y="328" text-anchor="middle" fill="#7a5500">5 Kategorien</text>
+
+  <line x1="133" y1="308" x2="158" y2="308" stroke="#aaa" stroke-width="1" marker-end="url(#arr)"/>
+
+  <rect x="160" y="282" width="142" height="52" rx="6" fill="#f8f8f8" stroke="#ccc" stroke-width="0.8"/>
+  <text x="231" y="301" text-anchor="middle" font-weight="500" fill="#333">Kategorisieren</text>
+  <text x="231" y="315" text-anchor="middle" fill="#555">Gewichtung 1–3</text>
+  <text x="231" y="328" text-anchor="middle" fill="#555">vbz-events-data.ipynb</text>
+
+  <line x1="302" y1="308" x2="327" y2="308" stroke="#aaa" stroke-width="1" marker-end="url(#arr)"/>
+
+  <rect x="330" y="282" width="168" height="52" rx="6" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.8"/>
+  <text x="414" y="301" text-anchor="middle" font-weight="500" fill="#0C447C">events-master.csv</text>
+  <text x="414" y="315" text-anchor="middle" fill="#0C447C">~251 Einträge</text>
+  <text x="414" y="328" text-anchor="middle" fill="#0C447C">tagesgenau · 2023–2025</text>
+
+  <!-- ══ MERGE ARROWS (all interim → merge box) ══ -->
+  <path d="M498 86  L530 86  L530 230" fill="none" stroke="#aaa" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <path d="M498 156 L520 156 L520 230" fill="none" stroke="#aaa" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <path d="M498 232 L530 232" fill="none" stroke="#aaa" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <path d="M498 308 L530 308 L530 250" fill="none" stroke="#aaa" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+
+  <!-- ══ MERGE BOX ══ -->
+  <rect x="532" y="150" width="110" height="160" rx="8" fill="#F3F0FE" stroke="#534AB7" stroke-width="1"/>
+  <text x="587" y="175" text-anchor="middle" font-weight="600" fill="#3C3489">Merge</text>
+  <text x="587" y="193" text-anchor="middle" fill="#534AB7">Polars</text>
+  <text x="587" y="209" text-anchor="middle" fill="#534AB7">left join</text>
+  <line x1="552" y1="218" x2="622" y2="218" stroke="#ddd" stroke-width="0.8"/>
+  <text x="587" y="233" text-anchor="middle" fill="#534AB7" font-size="10">BPUIC = stop_id</text>
+  <text x="587" y="248" text-anchor="middle" fill="#534AB7" font-size="10">floor(ts,1h) = dt</text>
+  <text x="587" y="263" text-anchor="middle" fill="#534AB7" font-size="10">date(bt) = Datum</text>
+  <text x="587" y="284" text-anchor="middle" fill="#534AB7" font-size="9">vbz-data-preparation</text>
+  <text x="587" y="298" text-anchor="middle" fill="#534AB7" font-size="9">.ipynb</text>
+
+  <!-- ══ MERGE → OUTPUT ══ -->
+  <line x1="642" y1="230" x2="666" y2="230" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- ══ OUTPUT BOX ══ -->
+  <rect x="668" y="170" width="100" height="120" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="1.2"/>
+  <text x="718" y="195" text-anchor="middle" font-weight="600" fill="#3C3489">vbz_master</text>
+  <text x="718" y="211" text-anchor="middle" font-weight="600" fill="#3C3489">.parquet</text>
+  <line x1="682" y1="220" x2="754" y2="220" stroke="#ccc" stroke-width="0.8"/>
+  <text x="718" y="237" text-anchor="middle" fill="#534AB7">94,4 Mio Zeilen</text>
+  <text x="718" y="253" text-anchor="middle" fill="#534AB7">26 Spalten</text>
+  <text x="718" y="269" text-anchor="middle" fill="#534AB7">567 MB</text>
+
+  <!-- ══ OUTPUT → NEXT ══ -->
+  <line x1="718" y1="290" x2="718" y2="318" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- ══ NEXT STEPS ══ -->
+  <rect x="658" y="320" width="112" height="96" rx="6" fill="#f8f8f8" stroke="#ccc" stroke-width="0.8"/>
+  <text x="714" y="340" text-anchor="middle" font-weight="500" fill="#333">Nächste Schritte</text>
+  <line x1="668" y1="348" x2="760" y2="348" stroke="#eee" stroke-width="0.8"/>
+  <text x="714" y="363" text-anchor="middle" fill="#555">🔍 EDA</text>
+  <text x="714" y="378" text-anchor="middle" fill="#555">🤖 ML-Modell</text>
+  <text x="714" y="393" text-anchor="middle" fill="#555">📊 Dashboard</text>
+
+  <!-- ══ GEO (side note) ══ -->
+  <rect x="15" y="355" width="118" height="40" rx="6" fill="#E8F5E9" stroke="#2E7D32" stroke-width="0.8"/>
+  <text x="74" y="371" text-anchor="middle" font-weight="500" fill="#1B5E20">Geo: Stadtkreise</text>
+  <text x="74" y="386" text-anchor="middle" fill="#2E7D32">GeoJSON · CC0</text>
+
+  <rect x="160" y="355" width="142" height="40" rx="6" fill="#E8F5E9" stroke="#2E7D32" stroke-width="0.8"/>
+  <text x="231" y="371" text-anchor="middle" font-weight="500" fill="#1B5E20">Spatial Join</text>
+  <text x="231" y="386" text-anchor="middle" fill="#2E7D32">Stadtkreis-Zuordnung (EDA)</text>
+
+  <!-- ══ LEGEND ══ -->
+  <rect x="15" y="428" width="480" height="72" rx="6" fill="#fafafa" stroke="#eee" stroke-width="0.8"/>
+  <text x="255" y="447" text-anchor="middle" font-weight="500" fill="#444">Legende</text>
+
+  <rect x="28" y="455" width="12" height="12" rx="2" fill="#FFF8E1" stroke="#F9A825" stroke-width="0.8"/>
+  <text x="46" y="465">Rohdaten (nicht im Repo)</text>
+
+  <rect x="175" y="455" width="12" height="12" rx="2" fill="#f8f8f8" stroke="#ccc" stroke-width="0.8"/>
+  <text x="193" y="465">Verarbeitungsschritte</text>
+
+  <rect x="310" y="455" width="12" height="12" rx="2" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.8"/>
+  <text x="328" y="465">Interim (im Repo)</text>
+
+  <rect x="28" y="477" width="12" height="12" rx="2" fill="#F3F0FE" stroke="#534AB7" stroke-width="0.8"/>
+  <text x="46" y="487">Merge / Output</text>
+
+  <rect x="175" y="477" width="12" height="12" rx="2" fill="#E8F5E9" stroke="#2E7D32" stroke-width="0.8"/>
+  <text x="193" y="487">Geodaten (EDA-Phase)</text>
+
+</svg>

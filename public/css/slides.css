@@ -67,9 +67,13 @@
 .reveal { font-size: var(--font-base-size); font-family: var(--font-ui); }
 .reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
 /* kein h1 mehr im Generator — Title-Slide nutzt jetzt render_head() wie jede andere Slide */
-.reveal h2 { font-size: 1.85em; color: var(--navy); margin: 0 0 0.4em; text-align: left; line-height: 1.3; font-weight: 500; font-family: var(--font-ui); }
-.reveal .subline { font-size: 0.86em; color: var(--ink-body); font-weight: 400; letter-spacing: normal; margin-top: 0; margin-bottom: 0; max-width: 68ch; text-align: left; display: block; line-height: 1.5; }
-.slide-kicker { font-size: 0.68em; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6em; display: block; text-align: left; }
+/* Kay 2026-07-14: h2 ist der technische Slide-Titel (Reihenfolge/Wegweiser), nicht die
+   Kernbotschaft — deshalb klein. .lead/.statement tragen die eigentliche Botschaft und sind
+   bewusst grösser (siehe dort). .title-slide/.closing h2 sind eigene, spezifischere Regeln
+   weiter unten und bleiben von dieser Basisregel unberührt. */
+.reveal h2 { font-size: 1.5em; color: var(--navy); margin: 0 0 0.4em; text-align: left; line-height: 1.3; font-weight: 300; font-family: var(--font-ui); }
+.reveal .subline { font-size: 0.86em; color: var(--ink-body); font-weight: 200; letter-spacing: normal; margin-top: 0; margin-bottom: 0; max-width: 68ch; text-align: left; display: block; line-height: 1.5; }
+.slide-kicker { font-size: 0.68em; font-weight: 100; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6em; display: block; text-align: left; }
 .slide-subtitle { font-size: 0.84em; color: var(--ink-body); margin-top: -0.8em; margin-bottom: 1.4em; line-height: 1.5; }
 .reveal p, .reveal li { color: var(--ink-body); line-height: 1.5; text-align: left; }
 .reveal ul { margin: 0; padding-left: 1.1em; }
@@ -382,7 +386,7 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .cols { display: flex; gap: 26px; align-items: flex-start; }
 .cols > div { flex: 1; }
 .w60 { flex: 1.5 !important; } .w40 { flex: 0.67 !important; }
-.w55 { flex: 1.22 !important; } .w45 { flex: 0.82 !important; }
+.w55 { flex: 1.2 !important; } .w45 { flex: 0.9 !important; }
 .w50 { flex: 1 !important; }
 
 /* ── 12-Spalten-Grid (Styleguide v2 §2/§6) ──────
@@ -413,7 +417,7 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .metric.bad  .val { color: var(--negative); }
 
 /* ── Agenda / Inhalt slide — two columns (title left, chapters right) ── */
-.agenda-cols { display: flex; gap: 48px; align-items: flex-start; margin-top: 0.4em; }
+.agenda-cols { display: flex; gap: 100px; align-items: flex-start; margin-top: 0.4em; }
 .agenda-head { flex: 0 0 36%; }
 .agenda-head .subline { margin-bottom: 0; }
 .agenda-list { flex: 1; display: flex; flex-direction: column; }
@@ -440,6 +444,11 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .kv-fact.green .fv { color: var(--positive); }
 .kv-fact.amber .fv { color: var(--warning); }
 .kv-text { flex: 1; background: var(--bg-box-default); border-radius: var(--radius-card); padding: 10px 14px; font-size: 0.82em; color: var(--ink-body); line-height: 1.55; display: flex; align-items: center; }
+/* Title/Copy gestapelt (E-Szenarien) statt inline mit "—" — eigener Block, damit er nicht vom
+   äusseren .kv-text flex-row-Verhalten erfasst wird. */
+.kv-text-stack { display: block; }
+.kv-title { font-weight: 700; color: var(--ink); }
+.kv-copy { color: var(--ink-body); margin-top: 0.2em; }
 
 /* ── Myth-busting (contrasts) ─────────────────── */
 .myth-rows { display: flex; flex-direction: column; gap: 24px; margin-top: 0.6em; }
@@ -477,6 +486,10 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .tl-item p { font-size: 0.76em; color: var(--ink-body); margin: 0; line-height: 1.5; }
 .tl-item.climax .tl-num { background: var(--positive); border-color: var(--positive); color: #fff; }
 .tl-item.climax h4 { color: var(--positive); }
+.tl-item.negative .tl-num { background: var(--negative); border-color: var(--negative); color: #fff; }
+.tl-item.negative h4 { color: var(--negative); }
+.tl-item.warning .tl-num { background: var(--warning); border-color: var(--warning); color: #fff; }
+.tl-item.warning h4 { color: var(--warning); }
 
 /* ── E9 — Horizontale Timeline ─────────────────── */
 .h-timeline { display: flex; flex-direction: column; gap: 20px; }
@@ -487,7 +500,7 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .ht-labels { display: flex; }
 .ht-label { flex: 1; text-align: center; padding: 0 10px; }
 .ht-label h4 { font-size: 0.85em; font-weight: 700; margin: 0 0 0.35em; color: var(--ink); }
-.ht-label p { font-size: 0.72em; color: var(--ink-body); margin: 0; line-height: 1.5; }
+.ht-label p { font-size: 0.8em; color: var(--ink-body); margin: 0; line-height: 1.5; }
 
 /* ── Hero number ──────────────────────────────── */
 .hero { text-align: center; margin: 0.5em 0 0.6em; }
@@ -506,6 +519,10 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .pf-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin-top: 0.7em; }
 .pf-grid.top { align-items: flex-start; }
 .pf-card { background: var(--card); border-radius: var(--radius-card); padding: 22px 24px; }
+/* Optionales highlight: true (item-level, siehe "sections" in generate_html_from_json.py) —
+   sanfter blauer Ton statt des neutralen Grau, für eine einzelne hervorzuhebende Card. */
+.pf-card.highlight { background: rgba(26,58,92,0.07); border: 1px solid rgba(26,58,92,0.16); }
+.pf-card.highlight .pf-title { color: var(--navy); }
 .pf-card .pf-title { font-size: 0.68em; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-bottom: 1em; }
 .pf-card p { font-size: 0.82em; color: var(--ink-body); line-height: 1.5; margin: 0; }
 .pf-card ul { padding-left: 1em; margin: 0; }
@@ -563,20 +580,36 @@ body.nav-invert #progress-fill                    { background: #fff; }
 
 /* ── E15/E17 — Statement callout (emphatic sentence) ── */
 .reveal blockquote.statement {
-  font-size: 1.12em; line-height: 1.55; color: var(--navy);
+  font-size: 1.8em; line-height: 1.35; color: var(--navy);
   font-weight: 400; text-align: center; max-width: 860px;
   margin: 0.7em auto; padding: 0.4em 0.6em;
   background: none; box-shadow: none; border: none; font-style: normal;
 }
-/* Größerer Abstand NUR nach einem "schweren" Vorgänger-Element (KPI-Row,
-   Tabelle, Steps, Empfehlungen) — als eigene Regel auf margin-top, statt den
+/* Gewichts-Varianten (Kay, 2026-07-15): blockquote.statement komplett in bold/thin statt
+   normal — als Modifier-Klasse auf dem Element selbst (Spezifität > Basisregel oben, kein
+   !important nötig). ZUSÄTZLICH generische .sw-* Utility-Klassen für gemischte Gewichte
+   INNERHALB eines Statements/.statement-lead (als <span> im text-Feld, z.B. Einleitung
+   normal, Kernsatz fett, Schluss normal) — funktioniert überall, da span keine eigene
+   konkurrierende Regel hat und die explizite Gewichtsangabe immer gewinnt. */
+.reveal blockquote.statement.sw-bold { font-weight: 600; }
+.reveal blockquote.statement.sw-thin { font-weight: 100; }
+.sw-thin { font-weight: 100; }
+.sw-normal { font-weight: 400; }
+.sw-bold { font-weight: 600; }
+/* KONVENTION (Kay, 2026-07-14): Größerer Abstand NUR nach einem "schweren"
+   Vorgänger-Element (KPI-Row/.metric-row, Tabelle, Steps, Arrows, Karten-Reihe/
+   .pf-grid, Empfehlungen) vor dem nächsten Block (Statement, Card-Reihe,
+   Text-Spalten) ist IMMER 3em — als eigene Regel auf margin-top, statt den
    Basiswert selbst zu erhöhen. Grund: .content-zone ist ein Flex-Container,
    dort kollabieren Margins zwischen Geschwistern NICHT (anders als im
    normalen Blockfluss) — würde man stattdessen die Basis auf 3em setzen und
    bei gestapelten Callout-Statements (mehrere blockquote.statement
    hintereinander) nur den margin-top der zweiten Blockquote wieder senken,
    bliebe trotzdem margin-bottom:3em an der ersten stehen und die Lücke
-   summiert sich auf ~3.7em statt der gewünschten ~0.7em. */
+   summiert sich auf ~3.7em statt der gewünschten ~0.7em.
+   Neue Kombination "schweres Element + Folge-Block" gefunden, die noch nicht
+   in der Liste unten steht? → einfach als weiteren Selektor ergänzen, gleiche
+   Regel (margin-top: 3em), kein neues Konzept nötig. */
 /* .reveal-Präfix ist Pflicht, nicht Kosmetik: ".reveal blockquote.statement"
    hat 2 Klassen (0,2,1) — ohne den Präfix hätte z.B. "table + blockquote.statement"
    nur 1 Klasse (0,1,2) und würde TROTZ passendem Selektor gegen die Basisregel
@@ -586,7 +619,16 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .reveal .steps + blockquote.statement,
 .reveal .reco-grid + blockquote.statement,
 .reveal .arrows + blockquote.statement,
-.reveal .arrows + .pf-grid { margin-top: 3em; }
+.reveal .arrows + .pf-grid,
+.reveal .metric-row + .pf-grid,
+.reveal .pf-grid + .text-cols-head,
+.reveal table + .text-lead-copy,
+.reveal .metric-row + .text-lead-copy,
+.reveal .text-lead-copy + .sections-block { margin-top: 3em; }
+
+/* Optionale Gruppen-Überschrift über einer Sections-Reihe (nicht pro Karte) — siehe
+   item_type "sections", Feld `heading` in generate_html_from_json.py. */
+.content-heading { font-size: 1em; font-weight: 700; color: var(--ink); margin: 0 0 0.8em; }
 .reveal blockquote.statement::before,
 .reveal blockquote.statement::after { content: none; }
 /* In a two-column layout the statement reads as left-aligned body text */
@@ -597,8 +639,8 @@ body.nav-invert #progress-fill                    { background: #fff; }
    E15 (1 Aussage) → zentrierte Lead. E16 (Absätze) → untereinander.
    E14 (Copy 2-spaltig mit Headline je Spalte) → .text-cols-head.
    E17 (Statement + Copy gemischt) → .text-lead-copy. ── */
-.statement-lead { text-align: center; font-size: 1.7em; font-weight: 600; color: var(--ink);
-  max-width: 26ch; margin: 0.4em auto 0; line-height: 1.35; }
+.statement-lead { text-align: center; font-size: 1.8em; font-weight: 600; color: var(--ink);
+  max-width: 46ch; margin: 0.4em auto 0; line-height: 1.3; }
 .statement-cols { display: flex; align-items: flex-start; gap: 2.8em; margin-top: 0.2em; }
 .statement-col { flex: 1; margin: 0; font-weight: 400; font-size: 0.92em;
   line-height: 1.5; color: var(--ink-body); }
@@ -615,7 +657,8 @@ body.nav-invert #progress-fill                    { background: #fff; }
 
 /* E17 — große These oben, erklärender Absatz darunter, zentriert als ein Block */
 .text-lead-copy { text-align: center; max-width: 76ch; margin: 0 auto; }
-.text-lead-copy .lead { font-size: 1.45em; font-weight: 600; color: var(--ink); line-height: 1.35; margin: 0 0 0.7em; }
+.text-lead-copy-left { text-align: left; margin: 0; max-width: none; }
+.text-lead-copy .lead { font-size: 1.8em; font-weight: 600; color: var(--ink); line-height: 1.3; margin: 0 0 0.7em; }
 .text-lead-copy .copy { font-size: 0.88em; color: var(--ink-body); line-height: 1.5; margin: 0; }
 
 /* Zusatztext unter einem Element (E2–E13, 40px Abstand) */
@@ -625,18 +668,29 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .extra-text-2col { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
 .extra-text-2col p { font-size: 0.9em; color: var(--ink-body); line-height: 1.5; margin: 0; }
 
-/* ── Zweispaltiges Bild-Layout (vertikale Bilder): Text links, Bild rechts ── */
-/* L6-Layout (schmal+breit): Bild und Kopf stehen NEBENEINANDER, nicht übereinander —
-   folgt bewusst nicht dem Kopfzone/Content-Zone-Vertrag (170px starr), weil es
-   strukturell kein Stapel-Layout ist. .slide-head bekommt hier flex-basis:auto statt
-   170px, sonst würde die feste Höhe hier bedeutungslos ignoriert (kein column-flex-
-   Kontext) und nur verwirren. */
-.chart-cols { display: flex; align-items: center; gap: 2.5em; flex: 1; }
+/* ── Zweispaltiges Bild-Layout innerhalb der Content-Zone: Text + Bild nebeneinander ── */
+/* Kopfzone bleibt der normale fixe 170px-Vertrag (render_head steht davor, ausserhalb von
+   .chart-cols) — .chart-cols füllt nur die Content-Zone darunter, dort stehen Bild und
+   Beschreibung/Statement nebeneinander (Kay-Feedback 2026-07-14). */
+.chart-cols { display: flex; align-items: center; gap: 2.5em; flex: 1 1 auto; }
 .chart-cols-head { flex: 0 0 40%; }
-.chart-cols-head .slide-head { flex-basis: auto; }
 .chart-cols-caption { font-size: 0.82em; color: var(--ink-soft); line-height: 1.55; margin-top: 0.4em; }
+/* Statement/Copy-Blöcke NACH der Caption (image_right mit Extra-Content) lesen links wie
+   normaler Fließtext, nicht zentriert wie der Standard-Callout. */
+.chart-cols-head .reveal blockquote.statement,
+.chart-cols-head blockquote.statement { text-align: left; max-width: none; margin: 0.8em 0 0; font-size: 1.3em; }
 .chart-cols-img { flex: 1; display: flex; justify-content: center; }
 .chart-cols-img img { max-width: 100%; max-height: 62vh; }
+/* image_left (Kay 2026-07-14): Bild 2/3 links, Text 1/3 rechts — Bild so gross wie möglich.
+   align-items:stretch (statt center) gibt der Bild-Spalte die VOLLE Content-Zonen-Höhe zur
+   Verfügung, object-fit:contain nutzt sie maximal aus (Breite ODER Höhe limitiert, je nach
+   Bild-Seitenverhältnis) ohne Verzerrung — keine max-width/max-height-Deckelung wie bei
+   image_right (dort ist der Text die Priorität, hier explizit das Bild). */
+.chart-cols-reverse { align-items: stretch; }
+.chart-cols-reverse .chart-cols-head { flex: 1 1 0; display: flex; flex-direction: column; justify-content: center; }
+.chart-cols-img-large { flex: 2; justify-content: center; align-items: stretch; }
+.chart-cols-img-large a { display: flex; width: 100%; }
+.chart-cols-img-large img { width: 100%; height: 100%; object-fit: contain; margin: 0; max-width: none; max-height: none; display: block; }
 
 /* ── Chart: one full-size image per slide (no shadow) ── */
 .chart-single { text-align: center; margin: 0.3em 0; }
@@ -666,6 +720,24 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .closing-links a, .c-link { display: flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: var(--radius-card); text-decoration: none; color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.10); font-size: 0.95em; font-weight: 500; }
 .c-link::before { content: "→"; font-weight: 700; }
 .closing-links a:hover, .c-link:hover { background: rgba(255,255,255,0.18); }
+/* Zweispaltiges Closing-Layout (Kay-Feedback 2026-07-14, role:closing + layout:split):
+   Text + Primary-Link links (2/3 Breite), übrige Links gestapelt rechts (1/3) — Primary-Link
+   bleibt im normalen .c-link-Stil, nur die Platzierung macht ihn prominent, keine eigene
+   Akzent-Optik mehr (Kay: "so groß und im Style wie vorher"). */
+.closing-split { display: flex; gap: 3em; align-items: stretch; margin-top: 2.8em; text-align: left; }
+.closing-split-left { flex: 2; }
+.closing-split-left .text-lead-copy { text-align: left; margin: 0; max-width: none; }
+.closing-split-left .closing-links { justify-content: flex-start; margin-top: 1.6em; }
+/* Rechte Spalte (Kay-Feedback 2026-07-14): Buttons NICHT auf volle Spaltenbreite stretchen
+   (align-items:center statt stretch — Breite bleibt am eigenen Label-Inhalt orientiert), als
+   Block horizontal zentriert, die ganze Button-Reihe vertikal mittig zur linken Spalte (dank
+   .closing-split align-items:stretch bekommt diese Spalte dieselbe Höhe wie die linke). */
+.closing-split-right { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+/* align-items:stretch + width:fit-content: die Spalte schrumpft auf die Breite des breitesten
+   Buttons, ALLE Buttons stretchen dann auf genau diese Breite — echte Gleichbreite ohne auf die
+   volle rechte Spalte zu strecken (Kay-Feedback 2026-07-14: "minimal unterschiedlich breit"). */
+.closing-links-col { flex-direction: column; align-items: stretch; width: fit-content; margin: 0 auto; }
+.closing-links-col .c-link { justify-content: center; }
 .closing-divider { width: 60px; border-top: 1px solid rgba(255,255,255,0.2); margin: 0.8em auto; }
 
 /* ── Closing — gleiche Kopfzone/Content-Zone-Struktur wie jede andere Slide,
@@ -679,6 +751,15 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .closing h2 { font-size: 3.29em; font-weight: 100; color: #fff; letter-spacing: -0.01em; line-height: 1.2; }
 .closing .subline { font-size: 0.94em; color: rgba(255,255,255,0.78); }
 .closing blockquote.statement { color: rgba(255,255,255,0.92); max-width: 720px; font-weight: 300; margin: 0.5em auto 0; }
+/* process_arrows (Dashboard-Teaser-Zeile) auf dunklem Closing-Hintergrund — ohne Override erbt
+   .arrow-chip die hellen Standardfarben (var(--card)/var(--ink)) und ist auf #3E4A5C unlesbar. */
+.closing .arrows { margin-top: 1.6em; }
+.closing .arrow-chip { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.9); }
+/* E17 (.text-lead-copy) auf dunklem Closing-Hintergrund — ohne diese Overrides erbt .lead/.copy
+   die dunklen Standardfarben (var(--ink)/var(--ink-body)) und ist auf #3E4A5C fast unlesbar. */
+.closing .text-lead-copy .lead { color: #fff; }
+.closing .text-lead-copy .copy { color: rgba(255,255,255,0.78); }
+.closing .text-lead-copy .copy strong { color: #fff; }
 .closing .arrow-row { display: flex; gap: 18px; margin-top: 1.8em; justify-content: center; align-items: center; }
 /* KPI-Box wie E1 im Slide-System: Border-Left-Akzent statt Box-Pille */
 .closing .kpi-box { border-left: 3px solid rgba(255,255,255,0.25); padding-left: 14px; text-align: left; min-width: 0; }

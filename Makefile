@@ -49,8 +49,8 @@ map-meteo: ## Interaktive Wetter-Impact-Karte öffnen
 	open public/img/meteo-weather-impact-map.html
 
 # Generische Portfolio-Pipeline-Scripts leben im Skill (projektübergreifend wiederverwendbar,
-# siehe /Users/kaywiegand/Workspace/skills/project-case/PORTFOLIO_PIPELINE.md), nicht im Projekt.
-SKILL_SCRIPTS := /Users/kaywiegand/Workspace/skills/project-case/scripts
+# siehe /Users/kaywiegand/Workspace/wgnd-skills/project-case/build-pipeline.md), nicht im Projekt.
+SKILL_SCRIPTS := /Users/kaywiegand/Workspace/wgnd-skills/project-case/scripts
 
 portfolio: ## Portfolio-Artefakte sicher regenerieren (archiviert alten Stand → archive/vN, dann index + Views aus slides.yaml/portfolio.md)
 	uv run python $(SKILL_SCRIPTS)/archive_portfolio_artifacts.py
