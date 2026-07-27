@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 740" width="420" style="font-family: system-ui, -apple-system, sans-serif; background: #ffffff;">
+
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 2L8 5L2 8" fill="none" stroke="#aaa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <text x="210" y="26" text-anchor="middle" font-size="13" font-weight="600" fill="#1a1a1a">Data Preparation — Ablauf</text>
+
+  <!-- Step 1: IST laden -->
+  <rect x="60" y="42" width="300" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="1"/>
+  <text x="210" y="63" text-anchor="middle" font-size="12" font-weight="600" fill="#085041">IST-Daten laden</text>
+  <text x="210" y="80" text-anchor="middle" font-size="11" fill="#085041">92,9 Mio Zeilen aus 1.096 Parquet-Dateien</text>
+  <text x="210" y="94" text-anchor="middle" font-size="11" fill="#085041">Spalten umbenennen · Typen optimieren</text>
+
+  <line x1="210" y1="98" x2="210" y2="116" stroke="#aaa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 2: GTFS laden -->
+  <rect x="60" y="118" width="300" height="44" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="1"/>
+  <text x="210" y="137" text-anchor="middle" font-size="12" font-weight="600" fill="#0C447C">GTFS Haltestellen laden</text>
+  <text x="210" y="153" text-anchor="middle" font-size="11" fill="#0C447C">199 Haltestellen · Name &amp; Koordinaten</text>
+
+  <line x1="210" y1="162" x2="210" y2="180" stroke="#aaa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Join 1 -->
+  <rect x="100" y="182" width="220" height="34" rx="8" fill="#534AB7" stroke="none"/>
+  <text x="210" y="195" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">Join 1</text>
+  <text x="210" y="209" text-anchor="middle" font-size="11" fill="#ddd">Haltestellen-ID (bpuic)</text>
+
+  <line x1="210" y1="216" x2="210" y2="234" stroke="#aaa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 3: Meteo laden -->
+  <rect x="60" y="236" width="300" height="44" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="1"/>
+  <text x="210" y="255" text-anchor="middle" font-size="12" font-weight="600" fill="#0C447C">Wetterdaten laden</text>
+  <text x="210" y="271" text-anchor="middle" font-size="11" fill="#0C447C">Temperatur · Regen · Wind · Überschwemmungen</text>
+
+  <line x1="210" y1="280" x2="210" y2="298" stroke="#aaa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Join 2 -->
+  <rect x="100" y="300" width="220" height="34" rx="8" fill="#534AB7" stroke="none"/>
+  <text x="210" y="313" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">Join 2</text>
+  <text x="210" y="327" text-anchor="middle" font-size="11" fill="#ddd">Datum + Stunde (stündliche Auflösung)</text>
+
+  <line x1="210" y1="334" x2="210" y2="352" stroke="#aaa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 4: Events laden -->
+  <rect x="60" y="354" width="300" height="44" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="1"/>
+  <text x="210" y="373" text-anchor="middle" font-size="12" font-weight="600" fill="#0C447C">Event-Kalender laden</text>
+  <text x="210" y="389" text-anchor="middle" font-size="11" fill="#0C447C">Stadtfeste · Konzerte · Fussball · Feiertage</text>
+
+  <line x1="210" y1="398" x2="210" y2="416" stroke="#aaa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Join 3 -->
+  <rect x="100" y="418" width="220" height="34" rx="8" fill="#534AB7" stroke="none"/>
+  <text x="210" y="431" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">Join 3</text>
+  <text x="210" y="445" text-anchor="middle" font-size="11" fill="#ddd">Betriebstag (tagesgenau)</text>
+
+  <line x1="210" y1="452" x2="210" y2="470" stroke="#aaa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- QC -->
+  <rect x="100" y="472" width="220" height="34" rx="8" fill="#f5f5f5" stroke="#ccc" stroke-width="1"/>
+  <text x="210" y="488" text-anchor="middle" font-size="11" font-weight="600" fill="#444">Qualitätsprüfung</text>
+  <text x="210" y="502" text-anchor="middle" font-size="11" fill="#666">Vollständigkeit · Datentypen · Stichprobe</text>
+
+  <line x1="210" y1="506" x2="210" y2="524" stroke="#aaa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Output -->
+  <rect x="60" y="526" width="300" height="56" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="1.5"/>
+  <text x="210" y="549" text-anchor="middle" font-size="13" font-weight="700" fill="#3C3489">vbz_master.parquet</text>
+  <text x="210" y="566" text-anchor="middle" font-size="11" fill="#534AB7">94,4 Mio Zeilen · 26 Spalten</text>
+  <text x="210" y="580" text-anchor="middle" font-size="11" fill="#534AB7">IST · Haltestelle · Wetter · Events</text>
+
+  <!-- Note -->
+  <text x="210" y="620" text-anchor="middle" font-size="10" fill="#aaa">Alle Joins: left — keine Zeile geht verloren</text>
+  <text x="210" y="634" text-anchor="middle" font-size="10" fill="#aaa">fehlende Werte werden null, nicht gelöscht</text>
+
+</svg>

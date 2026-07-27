@@ -13,6 +13,7 @@ Prio: `1` = hoch · `2` = mittel · `3` = niedrig
 | # | Beschreibung | Prio |
 | :--- | :--- | :--- |
 | 93 | **Content-Typen ohne Renderer:** `findings`, `note` (aus der alten, kaputt-verschachtelten "Weitere Potenziale"-Slide) haben in `generate_html_from_json.py` keine Implementierung — würden als `Unknown content type` rendern. Aktuell nirgends mehr in `slides.yaml` verwendet (auf `sections`+`statement` umgestellt). Falls künftig wieder gebraucht: entweder Renderer ergänzen oder bei der Slide-Autorenarbeit auf implementierte Typen ausweichen (Liste in `slides.yaml`-Kopfkommentar). | 3 |
+| 96 | **`hero`-Feld im `figures`-Handler ignoriert:** `wgnd-skills/project-case/scripts/generate_html_from_json.py` (figures-Handler, ~Zeile 82–93) liest nur `item.get("items", [])`, das `hero`-Feld (value/label/sentiment) wird nicht gerendert. Betroffen: Slides `modell-mae-hero-overview` und `modell-mae-hero-storyview` (~Zeile 569–602 in `slides.yaml`) — beide haben einen `hero:`-Block, der aktuell einfach verschwindet, es rendert nur die flache `items`-Zeile. Passende CSS-Klassen `.hero`/`.hv`/`.hl` existieren bereits in `templates/slides.css`, werden aber von keinem Renderer-Pfad genutzt. Entscheidung offen: (a) Hero-Rendering im figures-Handler implementieren (große Zahl über der items-Zeile), oder (b) falls Feature nie fertig verdrahtet werden sollte: `hero:`-Blöcke aus `slides.yaml` und ungenutztes CSS entfernen. | 2 |
 
 ---
 

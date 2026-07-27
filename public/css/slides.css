@@ -65,7 +65,7 @@
    Browser rundet auf die nächste tatsächlich geladene Schriftschnittstärke.
    --font-ui (System-Font-Stack, wie index-template.html) hat echte Thin-Schnitte. */
 .reveal { font-size: var(--font-base-size); font-family: var(--font-ui); }
-.reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+.reveal h1, .reveal h2, .reveal h3, .reveal h4 { text-transform: none; }
 /* kein h1 mehr im Generator — Title-Slide nutzt jetzt render_head() wie jede andere Slide */
 /* Kay 2026-07-14: h2 ist der technische Slide-Titel (Reihenfolge/Wegweiser), nicht die
    Kernbotschaft — deshalb klein. .lead/.statement tragen die eigentliche Botschaft und sind
@@ -406,7 +406,7 @@ body.nav-invert #progress-fill                    { background: #fff; }
    linksbündig statt als zentrierte Gruppe (gleiches Muster wie .title-slide .kpi-row). */
 .metric-row { display: flex; justify-content: center; gap: 24px; }
 .metric { border-left: 3px solid var(--card-border); padding-left: 18px; text-align: left; display: flex; flex-direction: column; justify-content: center; }
-.metric .val { font-size: 2em; font-weight: 800; color: var(--ink); line-height: 1; }
+.metric .val { font-size: 2em; font-weight: 600; color: var(--ink); line-height: 1; }
 .metric .lbl { font-size: 0.62em; color: var(--ink-soft); margin-top: 8px; line-height: 1.4; }
 .metric.good .val { border-left-color: var(--positive); }
 .metric.good .val { color: var(--positive); }
@@ -416,11 +416,22 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .metric.bad  { border-left-color: var(--negative); }
 .metric.bad  .val { color: var(--negative); }
 
-/* ── Agenda / Inhalt slide — two columns (title left, chapters right) ── */
-.agenda-cols { display: flex; gap: 100px; align-items: flex-start; margin-top: 0.4em; }
-.agenda-head { flex: 0 0 36%; }
+/* ── Agenda / Inhalt slide — einfach L6 (4+8, Gap 24px) ──
+   Kay-Feedback 2026-07-22: "mach doch einfach L6 Schmal+Breit" statt eigener
+   36%/Gap-Tuning-Werte und Wrapper-Konstruktion — Titel-Block links (span 4,
+   linksbündig), Aufzählung rechts (span 8, linksbündig). Grid statt Flex, damit
+   Gap und Spans exakt wie beim generischen .g12-Grid rechnen (Flex-Basis in %
+   plus Gap hätte über 100% hinaus überlaufen). margin: auto 0 zentriert den
+   Block vertikal in der Section (kein .content-zone-Wrapper hier, siehe Generator). */
+.agenda-cols { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; align-items: center; margin: auto 0; }
+.agenda-head { grid-column: span 4; }
 .agenda-head .subline { margin-bottom: 0; }
-.agenda-list { flex: 1; display: flex; flex-direction: column; }
+/* justify-self: center statt einer eigenen Wrapper-Konstruktion (Kay-Feedback
+   2026-07-22, zweite Runde) — reines Grid-Item-Alignment, keine zusätzliche HTML-
+   Ebene. .agenda-list schrumpft dadurch auf Inhaltsbreite und zentriert sich als
+   EIN Block im 8-Spalten-Bereich; die Items selbst bleiben untereinander linksbündig
+   (align-items:stretch default auf dem intern flex-column .agenda-list). */
+.agenda-list { grid-column: span 8; justify-self: center; display: flex; flex-direction: column; }
 /* L1-Agenda-Variante: Liste horizontal zentrieren statt volle Breite zu füllen
    (vertikale Zentrierung kommt bereits von .content-zone). align-self statt
    margin:auto, weil .agenda-list in .content-zone (flex-column) sitzt. */
@@ -509,10 +520,14 @@ body.nav-invert #progress-fill                    { background: #fff; }
 
 /* ── Recommendation cards ─────────────────────── */
 .reco-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; margin-top: 10px; }
+/* Im 50/50-Cols-Layout (Reco-Card neben Hinweis-Box, Kay-Feedback 2026-07-21: "gleiche
+   Top haben") würde der Standard-margin-top die Reco-Card gegenüber der Box im Nachbar-
+   .w50 nach unten verschieben — hier auf 0, da .cols selbst schon die Abstände regelt. */
+.cols .reco-grid { margin-top: 0; }
 .reco { background: var(--card); border-radius: var(--radius-card); padding: 18px 22px; }
 .reco .rn { font-size: 0.68em; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-bottom: 1em; }
 .reco strong { display: block; font-size: 0.88em; color: var(--ink); margin-bottom: 7px; line-height: 1.35; }
-.reco ul { padding-left: 1em; margin: 0; }
+.reco ul { list-style: none; padding-left: 0; margin: 0; }
 .reco li { font-size: 0.82em; color: var(--ink-body); margin-bottom: 4px; }
 
 /* ── E2/E3 — Karten (sections, tools) ─────────── */
@@ -524,6 +539,9 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .pf-card.highlight { background: rgba(26,58,92,0.07); border: 1px solid rgba(26,58,92,0.16); }
 .pf-card.highlight .pf-title { color: var(--navy); }
 .pf-card .pf-title { font-size: 0.68em; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-bottom: 1em; }
+/* Optionale Zweitzeile unter dem Karten-Titel (Kay-Feedback 2026-07-21), z.B.
+   "Betrachtung Jahre, Quartale und Monate" unter "Langfristige Zeitebene". */
+.pf-card .pf-sub { font-size: 0.85em; font-weight: 600; color: var(--ink); margin: -0.6em 0 0.8em; }
 .pf-card p { font-size: 0.82em; color: var(--ink-body); line-height: 1.5; margin: 0; }
 .pf-card ul { padding-left: 1em; margin: 0; }
 .pf-card li { font-size: 0.81em; color: var(--ink-body); margin-bottom: 4px; line-height: 1.5; }
@@ -533,27 +551,44 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .sec-text { column-count: 2; column-gap: 2.4em; margin-top: 0.7em; }
 /* Nach einer Karten-Reihe (.pf-grid) braucht der Text mehr Abstand — gleiches
    Muster wie bei KPI-Row/Tabelle/Steps + folgendem Statement. */
-.reveal .pf-grid + .sec-text { margin-top: 3em; }
+.reveal .pf-grid + .sec-text { margin-top: 2em; }
 .sec-text-block { break-inside: avoid; margin-bottom: 0.9em; font-size: 0.85em; line-height: 1.5; color: var(--ink-body); }
 .sec-text-label { display: block; font-weight: 700; color: var(--accent); text-transform: uppercase; font-size: 0.82em; letter-spacing: 0.05em; margin-bottom: 2px; }
+
+/* Einzelne Box neben einem Ring (Kay-Feedback 2026-07-22) — die Box füllt sonst die
+   ganze .w50-Spalte, Textzeilen laufen zu lang. margin:0 5em zieht sie auf lesbare
+   Zeilenlänge zusammen, ohne die Spaltenbreite selbst (und damit die Ring-Zentrierung
+   daneben) anzufassen. */
+.box-narrow .box-grid { margin: 0 5em; }
 
 /* ── E4 — Rings (Donut-Ringe, nur echte Anteile) ── */
 .rings { display: grid; gap: 28px; justify-items: center; align-items: center; }
 .ring-wrap { text-align: center; }
 .ring { width: 132px; height: 132px; border-radius: 50%; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; }
 .ring-inner { width: 126px; height: 126px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: 100; font-size: 2em; color: var(--ink); }
-.ring-wrap .l { font-size: 0.72em; font-weight: 700; color: var(--ink); }
+/* Label global so klein/dezent wie .metric .lbl in der KPI-Reihe (Kay-Feedback 2026-07-23:
+   erst nur auf .combo gescoped, jetzt bewusst global — Ring-/Value-Peer-Beschriftung soll
+   überall einheitlich klein sein, nicht nur neben einer KPI-Reihe). */
+.ring-wrap .l { font-size: 0.62em; font-weight: 400; color: var(--ink-soft); margin-top: 8px; line-height: 1.4; }
 
 /* ── E5 — Ring + Value (gleichwertig nebeneinander) ── */
 .combo { display: grid; gap: 28px; justify-items: center; align-items: center; }
 .value-peer { text-align: center; }
-.value-peer .v { font-size: 2.4em; font-weight: 500; color: var(--ink); line-height: 1; }
-.value-peer .l { font-size: 0.72em; font-weight: 700; margin-top: 0.4em; color: var(--ink); }
+.value-peer .v { font-size: 2em; font-weight: 500; color: var(--ink); line-height: 1; }
+.value-peer .l { font-size: 0.62em; font-weight: 400; color: var(--ink-soft); margin-top: 8px; line-height: 1.4; }
 
 /* ── E6 — Box-Grid (3 neutral + 1 hervorgehoben) ── */
 .box-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
-.box-item { border: 1px solid var(--card-border); border-left: 3px solid var(--ink); border-radius: var(--radius-box); padding: 18px 22px; font-size: 0.85em; font-weight: 600; color: var(--ink); }
+.box-item { border: 1px solid var(--card-border); border-left: 3px solid var(--ink); border-radius: var(--radius-box); padding: 18px 22px; font-size: 0.85em; font-weight: 400; line-height: 1.5; color: var(--ink); }
+.box-item strong { font-weight: 700; }
 .box-item.highlight { border: 1.5px solid var(--accent); border-left: 1.5px solid var(--accent); }
+/* Echte Aufzählung innerhalb einer Box (Kay-Feedback 2026-07-21), z.B. Airline-Namen
+   statt Fließtext — Browser-Default-Margins zurückgesetzt, Marker bleiben sichtbar. */
+/* display:block nötig — Reveal.js' Basis-Theme setzt <ul> auf inline-block, was hier
+   (Liste folgt direkt auf Fließtext im selben .box-item) zu einer Nebeneinander- statt
+   Untereinander-Anordnung führte. */
+.box-item ul { display: block; margin: 0.5em 0 0; padding-left: 1.2em; }
+.box-item li { margin-bottom: 2px; }
 
 /* ── E10 — Funnel (echte Verengung/Filterung) ──── */
 .funnel { display: flex; flex-direction: column; gap: 3px; }
@@ -593,38 +628,71 @@ body.nav-invert #progress-fill                    { background: #fff; }
    konkurrierende Regel hat und die explizite Gewichtsangabe immer gewinnt. */
 .reveal blockquote.statement.sw-bold { font-weight: 600; }
 .reveal blockquote.statement.sw-thin { font-weight: 100; }
+/* layout: wide (Kay-Feedback 2026-07-17) — Statement neben anderem Content (z.B.
+   Metric-Row/Table/Contrasts) soll die volle Content-Zone-Breite nutzen statt der
+   860px-Kappung, bleibt aber zentriert gesetzt. */
+/* width:100% zusätzlich zu max-width:none nötig — margin:auto (Basisregel) verhindert
+   sonst das Flex-Stretch von .content-zone (auto-Margins gewinnen gegen align-items:stretch),
+   Element würde sich trotz aufgehobener Kappung weiter auf die Textbreite schrumpfen. */
+.reveal blockquote.statement.wide { max-width: none; width: 100%; margin-left: 0; margin-right: 0; }
 .sw-thin { font-weight: 100; }
 .sw-normal { font-weight: 400; }
 .sw-bold { font-weight: 600; }
-/* KONVENTION (Kay, 2026-07-14): Größerer Abstand NUR nach einem "schweren"
-   Vorgänger-Element (KPI-Row/.metric-row, Tabelle, Steps, Arrows, Karten-Reihe/
-   .pf-grid, Empfehlungen) vor dem nächsten Block (Statement, Card-Reihe,
-   Text-Spalten) ist IMMER 3em — als eigene Regel auf margin-top, statt den
+/* KONVENTION (Kay, 2026-07-14, Wert auf 2em reduziert 2026-07-17): Größerer Abstand
+   NUR nach einem "schweren" Vorgänger-Element (KPI-Row/.metric-row, Tabelle, Steps,
+   Arrows, Karten-Reihe/.pf-grid, Empfehlungen) vor dem nächsten Block (Statement,
+   Card-Reihe, Text-Spalten) ist IMMER 2em — als eigene Regel auf margin-top, statt den
    Basiswert selbst zu erhöhen. Grund: .content-zone ist ein Flex-Container,
    dort kollabieren Margins zwischen Geschwistern NICHT (anders als im
-   normalen Blockfluss) — würde man stattdessen die Basis auf 3em setzen und
+   normalen Blockfluss) — würde man stattdessen die Basis auf 2em setzen und
    bei gestapelten Callout-Statements (mehrere blockquote.statement
    hintereinander) nur den margin-top der zweiten Blockquote wieder senken,
-   bliebe trotzdem margin-bottom:3em an der ersten stehen und die Lücke
-   summiert sich auf ~3.7em statt der gewünschten ~0.7em.
+   bliebe trotzdem margin-bottom:2em an der ersten stehen und die Lücke
+   summiert sich auf ~2.7em statt der gewünschten ~0.7em.
    Neue Kombination "schweres Element + Folge-Block" gefunden, die noch nicht
    in der Liste unten steht? → einfach als weiteren Selektor ergänzen, gleiche
-   Regel (margin-top: 3em), kein neues Konzept nötig. */
+   Regel (margin-top: 2em), kein neues Konzept nötig. */
 /* .reveal-Präfix ist Pflicht, nicht Kosmetik: ".reveal blockquote.statement"
    hat 2 Klassen (0,2,1) — ohne den Präfix hätte z.B. "table + blockquote.statement"
    nur 1 Klasse (0,1,2) und würde TROTZ passendem Selektor gegen die Basisregel
    verlieren (Klassenzahl schlägt Elementzahl bei der CSS-Spezifität). */
 .reveal .metric-row + blockquote.statement,
 .reveal table + blockquote.statement,
+.reveal .myth-rows + blockquote.statement,
 .reveal .steps + blockquote.statement,
 .reveal .reco-grid + blockquote.statement,
 .reveal .arrows + blockquote.statement,
 .reveal .arrows + .pf-grid,
 .reveal .metric-row + .pf-grid,
+.reveal .metric-row + .metric-row,
+.reveal .metric-row + .rings,
 .reveal .pf-grid + .text-cols-head,
 .reveal table + .text-lead-copy,
 .reveal .metric-row + .text-lead-copy,
-.reveal .text-lead-copy + .sections-block { margin-top: 3em; }
+.reveal .box-grid + .box-grid,
+.reveal .sections-block + .box-grid,
+.reveal .pf-grid + .box-grid,
+.reveal .box-grid + .rings,
+.reveal .rings + .box-grid,
+.reveal .box-grid + .cols,
+.reveal .sections-block + .cols,
+.reveal .arrows + .text-cols-head,
+.reveal .h-timeline + .text-cols-head,
+.reveal .text-lead-copy + .sections-block { margin-top: 2em; }
+
+/* .metric-row direkt vor .combo (E5 Ring+Value) wirkt zu eng mit nur 2em, weil beide
+   Reihen optisch sehr unterschiedlich aussehen (Kay-Feedback 2026-07-23) — eigene
+   5em-Regel statt in der allgemeinen 2em-Liste oben. */
+.reveal .metric-row + .combo { margin-top: 5em; }
+/* .reco-grid direkt vor .box-grid: die Box-Reihe gehört inhaltlich zur Empfehlung darüber
+   (z. B. "→ Informationen teilen" als Fortsetzung der Reco-Karten), kein neuer Gedankenblock
+   wie sonst bei .box-grid-Folgen — daher nur 1em statt der allgemeinen 2em (Kay-Feedback 2026-07-23). */
+.reveal .reco-grid + .box-grid { margin-top: 1em; }
+/* Wenn eine .metric-row unmittelbar vor .combo steht, soll sie optisch wie dessen
+   Fortsetzung wirken statt zentriert mit fixem Gap zu schweben — also auf dieselbe
+   Spalten-Verteilung wechseln (Kay-Feedback 2026-07-23). Nur für dieses Sibling-Paar,
+   nicht global, weil .metric-row sonst überall zentriert-mit-Gap bleiben soll. */
+.metric-row:has(+ .combo) { display: grid; grid-template-columns: repeat(4, 1fr); justify-items: stretch; gap: 28px; }
 
 /* Optionale Gruppen-Überschrift über einer Sections-Reihe (nicht pro Karte) — siehe
    item_type "sections", Feld `heading` in generate_html_from_json.py. */
@@ -660,6 +728,9 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .text-lead-copy-left { text-align: left; margin: 0; max-width: none; }
 .text-lead-copy .lead { font-size: 1.8em; font-weight: 600; color: var(--ink); line-height: 1.3; margin: 0 0 0.7em; }
 .text-lead-copy .copy { font-size: 0.88em; color: var(--ink-body); line-height: 1.5; margin: 0; }
+/* Mehrere .copy-Absätze (Kay-Feedback 2026-07-21: "copy" als Liste, echter Absatzumbruch)
+   brauchen sichtbaren Abstand — sonst kollabieren sie zu einem einzigen Textblock. */
+.text-lead-copy .copy + .copy { margin-top: 0.9em; }
 
 /* Zusatztext unter einem Element (E2–E13, 40px Abstand) */
 .extra-text { margin-top: 40px; }
@@ -675,6 +746,17 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .chart-cols { display: flex; align-items: center; gap: 2.5em; flex: 1 1 auto; }
 .chart-cols-head { flex: 0 0 40%; }
 .chart-cols-caption { font-size: 0.82em; color: var(--ink-soft); line-height: 1.55; margin-top: 0.4em; }
+/* Bullets statt Fließtext neben Bild/Code (Kay-Feedback 2026-07-23) — bessere Lesbarkeit,
+   wenn mehrere kurze Einzelschritte aufgezählt werden. Gleiche Textgröße wie .chart-cols-caption. */
+.chart-cols-list { font-size: 0.82em; color: var(--ink-body); line-height: 1.6; margin: 0.6em 0 0; padding-left: 1.1em; }
+.chart-cols-list li { margin-bottom: 7px; }
+.chart-cols-caption + .chart-cols-list { margin-top: 0.9em; }
+/* Inline-Code in Bullets/Fließtext auf hellem Grund (z.B. fl_direction, ABS()) —
+   .code-block code (dunkler Codeblock) bleibt davon unberührt, eigene Regel. */
+.chart-cols-list code, .chart-cols-caption code, .reveal li code, .reveal p code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.92em;
+  background: var(--card); color: var(--ink); padding: 1px 5px; border-radius: 3px;
+}
 /* Statement/Copy-Blöcke NACH der Caption (image_right mit Extra-Content) lesen links wie
    normaler Fließtext, nicht zentriert wie der Standard-Callout. */
 .chart-cols-head .reveal blockquote.statement,
@@ -691,6 +773,28 @@ body.nav-invert #progress-fill                    { background: #fff; }
 .chart-cols-img-large { flex: 2; justify-content: center; align-items: stretch; }
 .chart-cols-img-large a { display: flex; width: 100%; }
 .chart-cols-img-large img { width: 100%; height: 100%; object-fit: contain; margin: 0; max-width: none; max-height: none; display: block; }
+
+/* ── Code + Copy (chart-cols mit Codeblock statt Bild, Kay 2026-07-21) ──
+   Gleiche .chart-cols/.chart-cols-reverse/.chart-cols-head-Struktur wie image_left/
+   image_right — nur .chart-cols-code statt .chart-cols-img, damit der Copy-Text auf
+   beiden Seiten (Code oder Bild) exakt gleich formatiert bleibt. */
+/* align-self: center überschreibt gezielt das align-items:stretch von .chart-cols-reverse
+   (das ist für .chart-cols-img-large gedacht, siehe oben) — sonst klebt der Code-Block
+   an der vollen Zeilenhöhe fest statt vertikal zu zentrieren (Kay-Feedback 2026-07-23). */
+.chart-cols-code { flex: 1.2; min-width: 0; align-self: center; }
+.code-block-label { font-size: 0.68em; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.9em; }
+/* font-size 0.6em statt 0.8em (Kay-Feedback 2026-07-23): 0.8em wirkte, nachdem der
+   Vererbungs-Bug behoben war, zu groß und ließ SQL/DAX-Zeilen in der Split-Spalte
+   umbrechen — das jagged Zeilenende sah aus wie ein Rahmen um den Codeblock. */
+.code-block { background: var(--navy); color: rgba(255,255,255,0.88); font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.6em; line-height: 1.5; padding: 20px 22px; border-radius: var(--radius-card); overflow: auto; max-height: 62vh; }
+/* width:100% explizit (Kay-Feedback 2026-07-23: der weiße Codetext soll die Box komplett
+   ausfüllen, nicht auf die längste Zeile schrumpfen) — pre ist zwar block-level und würde das
+   im Normalfall automatisch tun, aber explizit macht die Absicht klar und schließt jede
+   Schrumpf-Quelle (z.B. Scrollbar-Gutter von overflow:auto) sauber aus. */
+.code-block pre { margin: 0; width: 100%; box-sizing: border-box; white-space: pre-wrap; word-break: break-word; font-size: inherit; line-height: inherit; }
+/* font-size/line-height explizit auf inherit, sonst gewinnt reveal.css' eigene .reveal pre code-Regel
+   gegen unseren Container-Wert, weil sie font-size direkt auf <code> setzt (Kay-Feedback 2026-07-22). */
+.code-block code { font-family: inherit; color: inherit; background: none; padding: 0; border: none; font-size: inherit; line-height: inherit; }
 
 /* ── Chart: one full-size image per slide (no shadow) ── */
 .chart-single { text-align: center; margin: 0.3em 0; }
@@ -748,7 +852,8 @@ body.nav-invert #progress-fill                    { background: #fff; }
    Boxen verschieden weit links anfingen (Subline wirkte "mittig" statt mit
    dem Titel linksbündig). Jetzt wie .title-slide: volle Breite, Text darin
    linksbündig (per .reveal h2/.reveal .subline). */
-.closing h2 { font-size: 3.29em; font-weight: 100; color: #fff; letter-spacing: -0.01em; line-height: 1.2; }
+/* Kay-Feedback 2026-07-21: weight 100 auf großer weißer Fläche wirkte zu hart — 300 statt 100. */
+.closing h2 { font-size: 3.29em; font-weight: 300; color: #fff; letter-spacing: -0.01em; line-height: 1.2; }
 .closing .subline { font-size: 0.94em; color: rgba(255,255,255,0.78); }
 .closing blockquote.statement { color: rgba(255,255,255,0.92); max-width: 720px; font-weight: 300; margin: 0.5em auto 0; }
 /* process_arrows (Dashboard-Teaser-Zeile) auf dunklem Closing-Hintergrund — ohne Override erbt
