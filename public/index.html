@@ -47,7 +47,9 @@
 
     /* ─── Main rhythm ────────────────────────────
        First block ↔ header  ==  block ↔ block  ==  last block ↔ footer  ==  4rem */
-    main { max-width: 900px; margin: 0 auto; padding: 6rem 0 0; }
+    /* content-box: die Spalte bleibt 900px breit wie .header-inner,
+       die 2rem Seitenrand kommen aussen drauf statt sie abzuziehen */
+    main { max-width: 900px; margin: 0 auto; padding: 6rem 2rem 0; box-sizing: content-box; }
     section { margin-bottom: 6rem; }
 
     .section-label {
