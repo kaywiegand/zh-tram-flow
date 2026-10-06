@@ -21,6 +21,11 @@ data/processed/
 
 # ── Modelle & Artefakte ────────────────────────────────────────────────────
 models/
+# Ausnahme: v1-Modell wird vom Streamlit-Dashboard zur Laufzeit geladen
+!data/models/
+data/models/*
+!data/models/lgbm_v1.txt
+!data/models/lgbm_v1_meta.json
 *.pkl
 *.joblib
 *.pt
