@@ -227,7 +227,7 @@ def plot_line_map_with_geometry(line: str, route: pd.DataFrame, shape_geom: pd.D
 
     # Layer 1: Linienzug (GTFS Shape)
     if len(shapes) > 0:
-        fig.add_trace(go.Scattermapbox(
+        fig.add_trace(go.Scattermap(
             lat=shapes["lat"],
             lon=shapes["lon"],
             mode="lines",
@@ -238,7 +238,7 @@ def plot_line_map_with_geometry(line: str, route: pd.DataFrame, shape_geom: pd.D
 
     # Layer 2: Haltestellen-Blasen (gefiltert + power-scaled)
     if len(route_copy) > 0:
-        fig.add_trace(go.Scattermapbox(
+        fig.add_trace(go.Scattermap(
             lat=route_copy["lat"],
             lon=route_copy["lon"],
             mode="markers",
@@ -273,7 +273,7 @@ def plot_line_map_with_geometry(line: str, route: pd.DataFrame, shape_geom: pd.D
     )
 
     fig.update_layout(
-        mapbox=dict(
+        map=dict(
             style="carto-positron",
             center=dict(lat=center_lat, lon=center_lon),
             zoom=11.5,
